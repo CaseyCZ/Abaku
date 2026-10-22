@@ -49,8 +49,10 @@ test('scroll automatically advances with timers, never requires user confirmatio
   assert.match(js,/this\.counter\.textContent=String\(total\)/);
   assert.match(js,/steps\.length\*stepDuration\+completedDuration/);
   assert.match(js,/const next=this\.queue\[0\]\|\|null;/);
-  assert.match(js,/if\(next\)this\.play\(next\);/);
-  assert.match(js,/done\?\.\(\)/);
+  assert.match(js,/const next=this\.queue\[0\]\|\|null;/);
+  assert.match(js,/completion=done\?\.\(\)/);
+  assert.match(js,/Promise\.resolve\(completion\)\.then/);
+  assert.match(js,/if\(next\)\{/);
   assert.doesNotMatch(js,/confirm\(|addEventListener\('click'|<button/i);
 });
 
@@ -82,5 +84,16 @@ test('a second scoring event queues rather than cutting short the current exampl
   const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
   assert.match(js,/if\(this\.active\)\{\s*this\.queue\.push\(\{player,breakdown,equations,total,onDone\}\);\s*return;/);
   assert.match(js,/const next=this\.queue\[0\]\|\|null/);
-  assert.match(js,/if\(next\)this\.play\(next\)/);
+  assert.match(js,/completion=done\?\.\(\)/);
+  assert.match(js,/if\(next\)\{/);
+});
+
+
+test('future recaps wait for optional asynchronous board-highlight completion',()=>{
+  const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
+  assert.match(js,/this\.root\.hidden=true;\s*\/\/ The onDone callback may wait/);
+  assert.match(js,/Promise\.resolve\(completion\)\.then\(\(\)=>\{/);
+  assert.match(js,/if\(this\.generation!==runId\)return/);
+  assert.match(js,/const remainder=this\.queue\.slice\(1\)/);
+  assert.match(js,/this\.queue\.push\(\.\.\.remainder\)/);
 });

@@ -5,12 +5,22 @@ import {describeMovePreview} from './preview.js';
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.6';
-const defaults = {mode:'bot', difficulty:'medium', time:90, sound:true};
+const VERSION = '0.1.7';
+const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
+// One-time migration from the old 90-second default for existing local games.
+// The user can still choose and keep 90 seconds after the migration.
+try {
+  const key='retro-abaku-default-60-migrated-v1';
+  if(localStorage.getItem(key)!=='yes'){
+    if(Number(settings.time)===90)settings.time=60;
+    localStorage.setItem(settingsKey,JSON.stringify(settings));
+    localStorage.setItem(key,'yes');
+  }
+} catch { /* Preferences can work without storage. */ }
 // Previously saved 180s/unlimited settings are no longer offered.
-if (![30, 60, 90].includes(Number(settings.time))) settings.time = 90;
+if (![30, 60, 90].includes(Number(settings.time))) settings.time = 60;
 let game = null;
 let selectedIndex = null;
 let pending = [];

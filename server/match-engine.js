@@ -208,6 +208,40 @@ export class MatchEngine {
     for(const p of match.players)this.sync(p.uid);
   }
   toAll(match,payload){for(const p of match.players)this.sendTo(p.uid,payload);}
+  // Leaving deliberately concedes the match immediately; a network interruption
+  // still has its 60-second recovery period.
+  resign(uid){
+    const match=this.matchOf(uid);
+    if(!match||match.finished)throw new Error('Není rozehraná partie.');
+    const opponent=match.players.find(player=>player.uid!==uid);
+    this.finish(match,'resigned',opponent.uid);
+  }
+  // A rematch can start only after both former players explicitly opt in.
+  rematch(uid,accept=true){
+    const match=this.matchOf(uid);
+    if(!match||!match.finished||match.reason==='abandoned')
+      throw new Error('Odveta už není dostupná.');
+    if(typeof accept!=='boolean')throw new Error('Neplatná volba odvety.');
+    match.rematchVotes ||= new Set();
+    if(!accept){
+      match.rematchVotes.clear();
+      this.toAll(match,{type:'rematch-status',status:'declined',by:match.players.findIndex(p=>p.uid===uid)});
+      return;
+    }
+    if(!this.connections.has(uid))throw new Error('Nejsi připojen.');
+    const other=match.players.find(player=>player.uid!==uid);
+    if(!this.connections.has(other.uid)){
+      throw new Error('Soupeř není připojen. Odvetu lze spustit, až se vrátí.');
+    }
+    match.rematchVotes.add(uid);
+    if(match.rematchVotes.size===2){
+      // Swap first-player order so the second match can begin with the other player.
+      const [first,second]=match.players;
+      this.createMatch(second.uid,first.uid,match.seconds);
+      return;
+    }
+    this.toAll(match,{type:'rematch-status',status:'requested',by:match.players.findIndex(p=>p.uid===uid)});
+  }
   finish(match,reason,winnerOverride=null) {
     if(match.finished)return;
     match.finished=true;

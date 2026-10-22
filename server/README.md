@@ -95,6 +95,16 @@ Supported messages: `matchmake`, `cancel-matchmake`, `invite`, `join-invite`, `m
 
 The websocket authorizes by Google UID and associates the socket with the corresponding user. Reconnect within 60 seconds; after the grace period the active opponent wins by forfeit. If both disconnect, the game is abandoned with no statistics.
 
+## Direct challenges between friends (online 0.2.8)
+
+- In **Moji přátelé** or **Hrát s přítelem**, click **⚔ Vyzvat** beside an accepted friend.
+- The inviter opens a WebSocket and creates a server-side invitation for that friend, without copying any code.
+- The invitee checks their own authenticated `GET /api/challenges` every ten seconds while the main lobby is visible. The server returns the sender's public nickname, duration, expiry, and a one-time challenge ID, **not the private code**.
+- The invitee presses **Přijmout a hrát** or **Odmítnout**. The authenticated `POST /api/challenges/respond` accepts `{"id":"...","accept":true|false}`; only acceptance returns a private game code and the client joins the existing WebSocket match immediately.
+- The server validates **accepted friendship** on send and accept; invitation codes, timers, and pending challenges remain only in RAM and expire after ten minutes. Repeated invites are rate limited.
+- Legacy **Vytvořit kód** and **Připojit se kódem** remain supported.
+- The recipient must have the lobby open and be signed into Google to see the challenge promptly; the challenge is not an email or phone push notification. An Oracle restart clears pending challenges.
+
 ## Known limits
 
 This is the foundation for a small number of concurrent matches; it has not been load-tested. Offline AI mode still requires no server. Online frontend controls and end-to-end Google login must be tested after the Google client ID and HTTPS endpoint are configured. Don't expose this unfinished API publicly before performing the deployment/security checks.

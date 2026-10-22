@@ -154,5 +154,5 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
   assert.match(onlineClient,/panel\.classList\.toggle\('mobile-expanded'\)/);
   assert.match(onlineClient,/formatEquations\(last\.equations,10\)/);
   assert.match(onlineClient,/s\.history/);
-  assert.match(onlineClient,/s\.deadline/);
+  assert.match(onlineClient,/gameState\.deadline/);
 });

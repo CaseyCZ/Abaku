@@ -64,7 +64,7 @@ export class FriendChallenges {
     if(typeof accept!=='boolean')throw new Error('Neplatná odpověď.');
     if(accept){
       // Recheck relationship and match availability at the moment of acceptance.
-      this.resolveFriend(item.sender,item.fromPublicId===undefined?'':this.getProfile(uid).id);
+      this.resolveFriend(item.sender,this.getProfile(uid).id);
       this.engine.assertFree(item.sender);
       // The target has not yet opened a WS, so a match must not be active already.
       if(this.engine.matchOf(uid)&&!this.engine.matchOf(uid).finished)

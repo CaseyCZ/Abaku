@@ -119,13 +119,24 @@
               </select>
             </label>
             <p class="online-time-help">Platí pro nové hledání soupeře nebo vytvořenou pozvánku. U připojení přes kód určuje čas zakladatel.</p>
+            <label class="online-time-setting" for="onlineRecapSeconds">
+              <span>Zobrazení příkladu</span>
+              <select id="onlineRecapSeconds" aria-label="Doba zobrazení každého příkladu">
+                <option value="2">2 sekundy</option>
+                <option value="3" selected>3 sekundy</option>
+                <option value="5">5 sekund</option>
+                <option value="8">8 sekund</option>
+                <option value="10">10 sekund</option>
+              </select>
+            </label>
+            <p class="online-time-help">Po každém vypočítaném příkladu se součet zobrazí po zvolenou dobu. Nastavení platí i proti počítači.</p>
             <div class="online-presence" aria-label="Aktuální aktivita hráčů">
               <div><strong id="onlineCount">—</strong><span>hráčů online</span></div>
               <div><strong id="waitingCount">—</strong><span>hledá soupeře</span></div>
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-            <span class="build-label">Abaku Online 0.2.16 · testovací provoz</span>
+            <span class="build-label">Abaku Online 0.2.17 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -311,6 +322,6 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.16"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.17"></script>
 </body>
 </html>

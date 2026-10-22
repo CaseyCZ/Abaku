@@ -260,7 +260,7 @@ test('online scoring is a hands-free animation of each server-verified equation 
   const recap=file('../src/score-recap.js');
   const styles=file('../score-recap.css');
   assert.match(landing,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.17'/);
+  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.18'/);
   assert.match(onlineClient,/new ScoreRecap\(\$\('onlineDialog'\)\)/);
   assert.match(onlineClient,/breakdown:move\.equationBreakdown,equations:move\.equations/);
   assert.match(onlineClient,/total:move\.points/);

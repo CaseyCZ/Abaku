@@ -63,7 +63,8 @@ byId('profileForm').addEventListener('submit',event=>{
 byId('nickname').addEventListener('input',()=>byId('nickname').setCustomValidity(''));
 const planned={
   playRandom:'Náhodného online soupeře zpřístupníme po nasazení Oracle serveru a ověření účtů.',
-  playFriends:'Pozvánky a přátele zpřístupníme po dokončení účtů, databáze a synchronizace zápasů.'
+  playFriends:'Pozvánky a přátele zpřístupníme po dokončení účtů, databáze a synchronizace zápasů.',
+  googleSignIn:'Přihlášení přes Google připravujeme přes Firebase Authentication. Nejdříve je potřeba vytvořit Firebase projekt, povolit Google poskytovatele a nakonfigurovat ověřování na Oracle serveru.'
 };
 for(const [id,description] of Object.entries(planned)){
   byId(id).addEventListener('click',()=>{

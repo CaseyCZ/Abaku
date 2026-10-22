@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.8/);
-  assert.match(html,/main\.js\?v=0\.1\.8/);
+  assert.match(html,/main\.js\?v=0\.1\.9/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -59,4 +59,17 @@ test('accepted offline move shows full equation and highlighted board tiles for 
   assert.match(js,/Nápověda:.*formatEquations\(move\.equations\)/);
   assert.match(css,/\.cell\.recent-tile\.occupied/);
   assert.match(css,/\.cell\.recent-equation\.occupied/);
+});
+
+
+test('offline accepted move starts an automatic one-equation-at-a-time score scroll',()=>{
+  const scoreStyle=file('../score-recap.css');
+  assert.match(html,/score-recap\.css\?v=0\.2\.15/);
+  assert.match(js,/import \{ScoreRecap\} from '.\/score-recap\.js\?v=0\.2\.15'/);
+  assert.match(js,/const scoreRecap = new ScoreRecap\(document\.body\)/);
+  assert.match(js,/scoreRecap\.play\(\{player:who,breakdown:checked\.equationBreakdown/);
+  assert.match(js,/equations:checked\.equations,total:checked\.points/);
+  assert.match(js,/scoreRecap\.cancel\(\)/);
+  assert.match(scoreStyle,/\.abaku-score-scroll/);
+  assert.match(scoreStyle,/\.abaku-score-counter/);
 });

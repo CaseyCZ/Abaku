@@ -192,7 +192,7 @@ test('online socket reconnects after 5 seconds and offers manual retry without d
   assert.match(onlineClient,/socketAuthenticated&&connection\?\.readyState===WebSocket\.OPEN/);
   assert.match(onlineClient,/socketMonitorTimer=setInterval/);
   assert.match(onlineClient,/send\('sync'\)/);
-  assert.match(onlineClient,/clearReconnect\(\);\s*if\(!gameState/);
+  assert.match(onlineClient,/function leaveOnlineGame\(\)\{\s*clearReconnect\(\);/);
 });
 test('Oracle health automatically retries after intermittent refresh failures',()=>{
   assert.match(onlineClient,/onlineInitStarted=true/);

@@ -1,4 +1,4 @@
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.4';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.5';
 import { describeMovePreview } from './preview.js';
 
 const $=id=>document.getElementById(id);
@@ -13,6 +13,21 @@ const apiBase=safeApiBase();
 const configured=Boolean(apiBase&&ONLINE_CONFIG.googleClientId);
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
 let onlineName='Hráč';
+const validTurnSeconds=[30,60,90];
+const timeStorageKey='abaku-online-turn-seconds';
+const selectedTurnSeconds=()=>validTurnSeconds.includes(Number($('onlineTurnSeconds').value))
+  ? Number($('onlineTurnSeconds').value) : 90;
+function initOnlineTimeSetting(){
+  const select=$('onlineTurnSeconds');
+  try{
+    const saved=Number(localStorage.getItem(timeStorageKey));
+    if(validTurnSeconds.includes(saved))select.value=String(saved);
+  }catch{ /* browser storage may be disabled */ }
+  select.addEventListener('change',()=>{
+    try{localStorage.setItem(timeStorageKey,String(selectedTurnSeconds()));}
+    catch{ /* selecting a time must always remain possible */ }
+  });
+}
 let presenceTimer=null;
 let lastPresence=null;
 async function heartbeat(){
@@ -175,14 +190,14 @@ function connectOnline(action){
     let msg;try{msg=JSON.parse(event.data)}catch{return;}
     if(msg.type==='error'){status(msg.message||'Chyba serveru.',true);return;}
     if(msg.type==='authenticated'){
-      if(action.type==='random')send('matchmake',{seconds:90});
-      else if(action.type==='invite')send('invite',{seconds:90});
+      if(action.type==='random')send('matchmake',{seconds:action.seconds});
+      else if(action.type==='invite')send('invite',{seconds:action.seconds});
       else if(action.type==='join')send('join-invite',{code:action.code});
       else send('sync');
       return;
     }
     if(msg.type==='queue'){
-      status(msg.waiting?'Hledám soupeře… druhý hráč musí také zvolit Náhodný soupeř.':'Hledání zrušeno.');
+      status(msg.waiting?'Hledám soupeře se stejným časem na tah ('+action.seconds+' s)…':'Hledání zrušeno.');
       refreshPresence();return;
     }
     if(msg.type==='invite'){
@@ -221,7 +236,7 @@ function renderOnline(){
   if(!gameState)return;
   const s=gameState;
   const info=$('onlineScore');
-  info.textContent='Hráč 1: '+s.players[0].score+' · Hráč 2: '+s.players[1].score+' · V sáčku: '+s.bagCount;
+  info.textContent='Hráč 1: '+s.players[0].score+' · Hráč 2: '+s.players[1].score+' · V sáčku: '+s.bagCount+' · Čas na tah: '+(s.seconds||90)+' s';
   $('onlineTurn').textContent=s.finished?'Partie skončila.':ownTurn()?'Jsi na tahu.':'Čekáš na soupeře.';
   const board=$('onlineBoard');
   board.replaceChildren();
@@ -272,14 +287,14 @@ function initializeActions(){
   $('playRandom').addEventListener('click',event=>{
     if(!configured||!credential)return;
     event.stopImmediatePropagation();
-    connectOnline({type:'random'});
+    connectOnline({type:'random',seconds:selectedTurnSeconds()});
   },true);
   $('playFriends').addEventListener('click',event=>{
     if(!configured||!credential)return;
     event.stopImmediatePropagation();
     const code=prompt('Zadej kód pozvánky. Pro vytvoření nové pozvánky nech pole prázdné:');
     if(code===null)return;
-    connectOnline(code.trim()?{type:'join',code:code.trim()}:{type:'invite'});
+    connectOnline(code.trim()?{type:'join',code:code.trim()}:{type:'invite',seconds:selectedTurnSeconds()});
   },true);
   $('onlineCancel').addEventListener('click',()=>{
     if(!gameState)send('cancel-matchmake');
@@ -375,6 +390,7 @@ async function refreshFriends(){
   }catch(error){$('friendMessage').textContent=error.message;}
 }
 export async function initOnline(){
+  initOnlineTimeSetting();
   initializeActions();
   if(!configured)return;
 

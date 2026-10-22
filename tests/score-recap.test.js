@@ -41,6 +41,7 @@ test('if older API omits details, do not invent per-example points',()=>{
 test('scroll automatically advances with timers, never requires user confirmation',()=>{
   const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
   assert.match(js,/const visibleSeconds=getRecapSeconds\(\);/);
+  assert.match(js,/if\(getRecapSeconds\(\)===0\)\{\s*onDone\?\.\(\);\s*return;/);
   assert.match(js,/const stepDuration=counterDuration\+visibleSeconds\*1000;/);
   assert.match(js,/const completedDuration=visibleSeconds\*1000;/);
   assert.match(js,/steps\.forEach\(\(item,index\)=>/);
@@ -65,14 +66,17 @@ test('each example duration is configurable and stored for offline and online',(
     setItem:(key,value)=>data.set(key,String(value))
   };
   try{
-    assert.deepEqual(RECAP_SECONDS_OPTIONS,[2,3,5,8,10]);
+    assert.deepEqual(RECAP_SECONDS_OPTIONS,[0,2,3,5,8,10]);
     assert.equal(getRecapSeconds(),3);
     for(const seconds of RECAP_SECONDS_OPTIONS){
       assert.equal(setRecapSeconds(seconds),true);
       assert.equal(getRecapSeconds(),seconds);
     }
-    assert.equal(setRecapSeconds(0),false);
-    assert.equal(getRecapSeconds(),10);
+    assert.equal(setRecapSeconds(0),true);
+    assert.equal(getRecapSeconds(),0);
+    assert.equal(setRecapSeconds(11),false);
+    assert.equal(getRecapSeconds(),0);
+    assert.equal(setRecapSeconds(10),true);
     assert.equal(data.get('abaku-score-recap-seconds-v1'),'10');
   }finally{
     if(oldStorage===undefined)delete globalThis.localStorage;
@@ -96,4 +100,13 @@ test('future recaps wait for optional asynchronous board-highlight completion',(
   assert.match(js,/if\(this\.generation!==runId\)return/);
   assert.match(js,/const remainder=this\.queue\.slice\(1\)/);
   assert.match(js,/this\.queue\.push\(\.\.\.remainder\)/);
+});
+
+
+test('Vypnuto skips the recap but still executes the completed-move highlight callback',()=>{
+  const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
+  const at=js.indexOf('if(getRecapSeconds()===0){');
+  const scoring=js.indexOf('const steps=scoringSteps(',at);
+  assert.ok(at>=0&&scoring>at);
+  assert.match(js.slice(at,scoring),/onDone\?\.\(\);\s*return;/);
 });

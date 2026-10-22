@@ -274,14 +274,14 @@ byId('rack').addEventListener('click',event=>{
   sound();renderRack();byId('exchangeButton').textContent=exchangeMode?`Potvrdit výměnu (${exchangeIndices.size})`:'Vyměnit';
 });
 
-function advanceTurn(pass=false) {
+function advanceTurn(pass=false,waitForRecap=false) {
   if(pass)game.passStreak++;else game.passStreak=0;
   game.turns++;
   if(game.passStreak>=6 || (game.bag.length===0 && game.players.some(p=>p.rack.length===0))) {
     finish();return;
   }
   game.turn=1-game.turn;clearPending();resetDeadline();save();render();
-  if(isBotTurn())runBot();
+  if(isBotTurn()&&!waitForRecap)runBot();
 }
 function finish() {
   game.finished=true;clearPending();save();render();
@@ -302,9 +302,17 @@ function commitMove(placements, fromBot=false) {
   const who=fromBot?'Počítač':playerLabel(game.turn);
   notify(`${who}: +${checked.points} bodů · ${formatEquations(checked.equations)}${checked.equations.length>3?'…':''}`,'success');
   showRecentMove(checked,placements,who);
+  const nextTurn=1-game.turn;
   scoreRecap.play({player:who,breakdown:checked.equationBreakdown,
-    equations:checked.equations,total:checked.points});
-  sound('success');advanceTurn();return true;
+    equations:checked.equations,total:checked.points,
+    onDone:()=>{
+      if(!game?.finished&&game.turn===nextTurn){
+        resetDeadline();render();
+        if(isBotTurn()&&!botBusy)runBot();
+      }
+    }
+  });
+  sound('success');advanceTurn(false,true);return true;
 }
 byId('confirmButton').addEventListener('click',()=>{if(pending.length)commitMove(pending);});
 byId('undoButton').addEventListener('click',()=>{clearPending();render();notify('Rozložené kameny vráceny do zásobníku.');});
@@ -362,6 +370,8 @@ function runBot() {
 
 function tick(){
   if(!game||game.finished)return;
+  // The offline countdown pauses while players watch the score animation.
+  if(scoreRecap.playing())return;
   const display=byId('timer');
   if(deadline===null){display.textContent='∞';byId('timer').parentElement.classList.remove('warning');return;}
   const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));

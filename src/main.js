@@ -1,12 +1,12 @@
 import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.9';
 import {chooseMove} from './ai.js?v=0.2.9';
 import {describeMovePreview} from './preview.js?v=0.2.9';
-import {ScoreRecap} from './score-recap.js?v=0.2.16';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.17';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.10';
+const VERSION = '0.1.11';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -393,6 +393,7 @@ byId('closeRules').addEventListener('click',()=>byId('rulesDialog').close());
 byId('settingsButton').addEventListener('click',()=>{
   byId('modeSetting').value=settings.mode;byId('difficultySetting').value=settings.difficulty;
   byId('timeSetting').value=String(settings.time);byId('soundSetting').checked=settings.sound;
+  byId('scoreRecapSecondsSetting').value=String(getRecapSeconds());
   byId('settingsDialog').showModal();
 });
 byId('settingsForm').addEventListener('submit',event=>{
@@ -401,6 +402,7 @@ byId('settingsForm').addEventListener('submit',event=>{
   const modeChanged=mode!==settings.mode;
   if (modeChanged && !confirm('Změna herního režimu zahájí novou partii a nahradí současnou hru. Pokračovat?')) { event.preventDefault(); return; }
   settings={mode,difficulty:byId('difficultySetting').value,time:Number(byId('timeSetting').value),sound:byId('soundSetting').checked};
+  setRecapSeconds(byId('scoreRecapSecondsSetting').value);
   try{localStorage.setItem(settingsKey,JSON.stringify(settings));}catch{}
   if(modeChanged)newGame();else{resetDeadline();render();}
 });

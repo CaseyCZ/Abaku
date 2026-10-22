@@ -218,3 +218,68 @@ test('active match resume summary is private and disappears after game finishes'
   assert.equal(game.activeMatchSummary('a'),null);
   assert.equal(game.activeMatchSummary('b'),null);
 });
+
+
+test('resigning an active game immediately awards the win and notifies both players',()=>{
+  const {game,out,results}=rig();
+  game.connect('a');game.connect('b');
+  const match=game.createMatch('a','b',60);
+  match.players[0].score=75;match.players[1].score=14;
+  game.resign('a');
+  assert.equal(match.finished,true);
+  assert.equal(match.reason,'resigned');
+  assert.equal(match.winner,'b');
+  assert.equal(results.length,1);
+  assert.equal(results[0].winner,'b');
+  assert.deepEqual(out.filter(e=>e.type==='match-end').map(e=>e.uid).sort(),['a','b']);
+  assert.deepEqual(out.filter(e=>e.type==='match-state'&&e.finished).map(e=>e.uid).sort(),['a','b']);
+  assert.throws(()=>game.resign('a'),/rozehraná/);
+});
+
+test('rematch requires acceptance from both players, preserves time and resets score',()=>{
+  const {game,out}=rig();
+  game.connect('a');game.connect('b');
+  const old=game.createMatch('a','b',30);
+  game.finish(old,'completed');
+  assert.equal(game.rematch('a',true),undefined);
+  assert.equal(game.matchOf('a'),old);
+  assert.equal(old.rematchVotes.size,1);
+  const notices=out.filter(e=>e.type==='rematch-status'&&e.status==='requested');
+  assert.deepEqual(notices.map(e=>e.uid).sort(),['a','b']);
+  game.rematch('b',true);
+  const next=game.matchOf('a');
+  assert.notEqual(next,old);
+  assert.equal(next,game.matchOf('b'));
+  assert.equal(next.seconds,30);
+  assert.equal(next.players[0].uid,'b');
+  assert.deepEqual(next.players.map(p=>p.score),[0,0]);
+  assert.equal(next.finished,false);
+  assert.throws(()=>game.rematch('a',true),/dostupná/);
+});
+
+test('decline and disconnect revoke pending rematch without creating a game',()=>{
+  const {game,out}=rig();
+  game.connect('a');game.connect('b');
+  const old=game.createMatch('a','b');
+  game.finish(old,'completed');
+  game.rematch('a',true);
+  game.rematch('b',false);
+  assert.equal(old.rematchVotes.size,0);
+  assert.ok(out.some(e=>e.type==='rematch-status'&&e.status==='declined'&&e.uid==='a'));
+  game.rematch('a',true);
+  game.disconnect('a');
+  assert.equal(old.rematchVotes.size,0);
+  assert.equal(game.matchOf('b'),old);
+  assert.throws(()=>game.rematch('b',true),/připojen/);
+});
+
+test('abandoned games cannot create a new match by rematch',()=>{
+  const {game,setTime}=rig();
+  game.connect('a');game.connect('b');
+  game.createMatch('a','b');
+  game.disconnect('a');game.disconnect('b');
+  setTime(161_000);game.tick();
+  assert.equal(game.matchOf('a').reason,'abandoned');
+  game.connect('a');game.connect('b');
+  assert.throws(()=>game.rematch('a',true),/dostupná/);
+});

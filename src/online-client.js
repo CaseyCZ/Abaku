@@ -298,28 +298,65 @@ function showOnlineReview(state){
     if(gameState)renderOnline();
   },3000);
 }
-function connectOnline(action){
+function connectOnline(action,{reconnecting=false}={}){
   if(!credential){status('Nejdříve se přihlas přes Google.',true);return;}
-  if(connection){connection.close();connection=null;}
-  pending=[];selected=null;gameState=null;
-  clearOnlineReview();
-  $('onlineDialog').showModal();
-  $('onlineBoardWrapper').hidden=true;
-  $('onlineWaiting').hidden=false;
-  $('onlineCode').textContent='';
-  $('onlineChat').replaceChildren();
+  clearReconnect();
+  if(connection){
+    const old=connection;
+    connection=null;
+    old.close();
+  }
+  socketAuthenticated=false;
+  reconnectAction=action;
+  if(!reconnecting){
+    pending=[];selected=null;gameState=null;exchanging=false;selectedExchange.clear();
+    clearOnlineReview();
+    if(!$('onlineDialog').open)$('onlineDialog').showModal();
+    $('onlineBoardWrapper').hidden=true;
+    $('onlineWaiting').hidden=false;
+    $('onlineCode').textContent='';
+    $('onlineChat').replaceChildren();
+  }else if(gameState){
+    pending=[];selected=null;exchanging=false;selectedExchange.clear();
+    renderOnline();
+  }
+  $('onlineResumeCard').hidden=true;
   refreshPresence();
-  status('Připojuji se k Oracle serveru…');
+  status(reconnecting?'Znovu se připojuji k Oracle serveru…':'Připojuji se k Oracle serveru…');
   const wsUrl=apiBase.replace(/^http/,'ws')+'/ws';
-  const socket=new WebSocket(wsUrl);
+  let socket;
+  try{socket=new WebSocket(wsUrl);}
+  catch{
+    scheduleReconnect('Nepodařilo se otevřít spojení se serverem.');
+    return;
+  }
   connection=socket;
+  lastSocketMessageAt=Date.now();
   socket.addEventListener('open',()=>send('auth',{idToken:credential}));
   socket.addEventListener('message',event=>{
     if(connection!==socket)return;
     let msg;try{msg=JSON.parse(event.data)}catch{return;}
-    if(msg.type==='error'){status(msg.message||'Chyba serveru.',true);return;}
+    lastSocketMessageAt=Date.now();
+    if(msg.type==='error'){
+      if(!socketAuthenticated&&/přihlášení|token|jwt|expired/i.test(msg.message||'')){
+        status('Přihlášení vypršelo. Obnov stránku a přihlas se znovu.',true);
+        clearSavedCredential();
+        credential=null;
+        clearReconnect();
+        socket.close();
+        return;
+      }
+      status(msg.message||'Chyba serveru.',true);
+      return;
+    }
     if(msg.type==='authenticated'){
-      if(action.type==='random')send('matchmake',{seconds:action.seconds});
+      socketAuthenticated=true;
+      reconnects=0;
+      clearReconnect();
+      if(reconnecting)status('Spojení obnoveno. Načítám aktuální partii…');
+      if(action.type==='resume')send('sync');
+      else 
+if(action.type==='random')send('matchmake',{seconds:action.seconds});
       else if(action.type==='invite')send('invite',{seconds:action.seconds});
       else if(action.type==='friend')send('challenge-friend',{targetId:action.targetId,seconds:action.seconds});
       else if(action.type==='join')send('join-invite',{code:action.code});
@@ -353,11 +390,23 @@ function connectOnline(action){
     if(msg.type==='match-state'){
       const previous=gameState?.turn;
       gameState=msg;
+      if(reconnecting)status(msg.finished?'Partie již skončila.':'Spojení obnoveno, pokračujeme v partii.');
       showOnlineReview(msg);
       if(previous!==msg.turn||msg.finished){pending=[];selected=null;exchanging=false;selectedExchange.clear();}
       $('onlineWaiting').hidden=true;
       $('onlineBoardWrapper').hidden=false;
       renderOnline();
+      return;
+    }
+    if(msg.type==='lobby'){
+      if(gameState&&!gameState.finished){
+        gameState=null;pending=[];selected=null;
+        $('onlineBoardWrapper').hidden=true;
+        $('onlineWaiting').hidden=false;
+        $('onlineWaiting').querySelector('p').textContent='Partie již na serveru není aktivní. Vrať se do nabídky a začni novou.';
+        status('Rozehranou partii už nelze obnovit.',true);
+        refreshResumeCard();
+      }
       return;
     }
     if(msg.type==='move-accepted'){pending=[];selected=null;status('Platný tah: '+formatEquations(msg.equations)+' · +'+msg.points+' bodů.');return;}
@@ -366,10 +415,26 @@ function connectOnline(action){
     if(msg.type==='match-end'){status(msg.winner===null?'Remíza.':(msg.winner===gameState?.mySide?'Vyhrál jsi!':'Soupeř vyhrál.'));return;}
     if(msg.type==='chat')addChat(msg.from,msg.text);
   });
-  socket.addEventListener('close',()=>{if(connection===socket)status('Spojení skončilo.');});
-  socket.addEventListener('error',()=>status('Nelze se spojit s Oracle API. Zkontroluj jeho HTTPS adresu.',true));
+  socket.addEventListener('close',event=>{
+    if(connection!==socket)return;
+    connection=null;
+    socketAuthenticated=false;
+    if(gameState)renderOnline();
+    if(event.code===1000&&event.reason==='Nové připojení'){
+      status('Partie byla otevřena v jiné kartě nebo zařízení.',true);
+      return;
+    }
+    if(gameState?.finished)return;
+    scheduleReconnect('Spojení přerušeno.');
+  });
+  socket.addEventListener('error',()=>{
+    if(connection!==socket)return;
+    status('Spojení se serverem se přerušilo.',true);
+    // Browsers deliver the close event next; that is where retry is scheduled.
+  });
 }
-function ownTurn(){return gameState&&!gameState.finished&&gameState.mySide===gameState.turn;}
+function ownTurn(){return gameState&&!gameState.finished&&gameState.mySide===gameState.turn&&
+  socketAuthenticated&&connection?.readyState===WebSocket.OPEN;}
 function addChat(uid,text){
   const line=document.createElement('div');
   line.className='online-chat-line';

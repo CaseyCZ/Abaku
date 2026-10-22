@@ -21,7 +21,7 @@ test('score preview matches the actual committed score with board bonuses', () =
   const commit=validateMove(board,placements);
   assert.equal(preview.state,'valid');
   assert.equal(preview.points,commit.points);
-  assert.equal(preview.detail,'279');
+  assert.equal(preview.detail,'2 + 7 = 9');
   assert.equal(board[7][7],null,'preview must not change the board');
 });
 
@@ -36,4 +36,11 @@ test('live score changes and clears as tiles are placed and returned', () => {
   const next=describeMovePreview(committed.board,extension);
   assert.equal(next.state,'valid');
   assert.equal(next.points,validateMove(committed.board,extension).points);
+});
+
+test('tentative equations show readable operation, not concatenated digits',()=>{
+  const board=emptyBoard();
+  assert.equal(describeMovePreview(board,move('268')).detail,'2 + 6 = 8');
+  assert.equal(describeMovePreview(board,move('236')).detail,'2 × 3 = 6');
+  assert.equal(describeMovePreview(board,move('1243',7,5)).detail,'12 ÷ 4 = 3');
 });

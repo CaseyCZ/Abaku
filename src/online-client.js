@@ -1,5 +1,6 @@
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
-import { describeMovePreview } from './preview.js';
+import { describeMovePreview } from './preview.js?v=0.2.9';
+import { formatEquations } from './rules.js?v=0.2.9';
 
 const $=id=>document.getElementById(id);
 const safeApiBase=()=>{
@@ -13,6 +14,9 @@ const apiBase=safeApiBase();
 const configured=Boolean(apiBase&&ONLINE_CONFIG.googleClientId);
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
 let onlineName='Hráč';
+let recentOnlineMove=null;
+let recentOnlineMoveId=null;
+let recentOnlineMoveTimer=null;
 let currentFriendChallenge=null;
 let friendChallengeTimer=null;
 const validTurnSeconds=[30,60,90];
@@ -182,10 +186,34 @@ function send(type,fields={}){
   if(!connection||connection.readyState!==WebSocket.OPEN){status('Spojení se serverem není aktivní.',true);return;}
   connection.send(JSON.stringify({type,...fields}));
 }
+// Keep the previous turn visible for three seconds for BOTH online players.
+function clearOnlineReview(){
+  if(recentOnlineMoveTimer!==null)clearTimeout(recentOnlineMoveTimer);
+  recentOnlineMoveTimer=null;recentOnlineMove=null;recentOnlineMoveId=null;
+}
+function showOnlineReview(state){
+  const move=state.lastMove;
+  if(!move||!Array.isArray(move.placed)||!Array.isArray(move.cells))return;
+  const key=state.matchId+':'+state.turns;
+  if(key===recentOnlineMoveId)return;
+  clearOnlineReview();
+  recentOnlineMoveId=key;
+  recentOnlineMove={
+    placed:new Set(move.placed.map(p=>p.row+':'+p.col)),
+    cells:new Set(move.cells.map(p=>p.row+':'+p.col)),
+    text:'Hráč '+(move.player+1)+': '+formatEquations(move.equations)+' · +'+move.points+' bodů',
+    until:Date.now()+3000
+  };
+  recentOnlineMoveTimer=setTimeout(()=>{
+    recentOnlineMove=null;recentOnlineMoveTimer=null;
+    if(gameState)renderOnline();
+  },3000);
+}
 function connectOnline(action){
   if(!credential){status('Nejdříve se přihlas přes Google.',true);return;}
   if(connection){connection.close();connection=null;}
   pending=[];selected=null;gameState=null;
+  clearOnlineReview();
   $('onlineDialog').showModal();
   $('onlineBoardWrapper').hidden=true;
   $('onlineWaiting').hidden=false;
@@ -236,13 +264,14 @@ function connectOnline(action){
     if(msg.type==='match-state'){
       const previous=gameState?.turn;
       gameState=msg;
+      showOnlineReview(msg);
       if(previous!==msg.turn||msg.finished){pending=[];selected=null;exchanging=false;selectedExchange.clear();}
       $('onlineWaiting').hidden=true;
       $('onlineBoardWrapper').hidden=false;
       renderOnline();
       return;
     }
-    if(msg.type==='move-accepted'){pending=[];selected=null;status('Platný tah: +'+msg.points+' bodů.');return;}
+    if(msg.type==='move-accepted'){pending=[];selected=null;status('Platný tah: '+formatEquations(msg.equations)+' · +'+msg.points+' bodů.');return;}
     if(msg.type==='turn-passed'){status('Tah vynechán ('+msg.reason+').');return;}
     if(msg.type==='opponent'){status(msg.status==='disconnected'?'Soupeř se odpojil, má 60 sekund na návrat.':'Soupeř se znovu připojil.');return;}
     if(msg.type==='match-end'){status(msg.winner===null?'Remíza.':(msg.winner===gameState?.mySide?'Vyhrál jsi!':'Soupeř vyhrál.'));return;}
@@ -276,6 +305,11 @@ function renderOnline(){
     const cell=document.createElement('button');
     cell.type='button';
     cell.className='online-cell'+(p?' staged':digit!==null?' fixed':'');
+    const key=row+':'+col;
+    if(recentOnlineMove&&Date.now()<recentOnlineMove.until){
+      if(recentOnlineMove.cells.has(key))cell.classList.add('recent-equation');
+      if(recentOnlineMove.placed.has(key))cell.classList.add('recent-tile');
+    }
     cell.textContent=digit===null?'':String(digit);
     cell.disabled=!canPlay||(!p&&digit!==null);
     cell.setAttribute('aria-label','Řádek '+(row+1)+', sloupec '+(col+1));
@@ -289,6 +323,9 @@ function renderOnline(){
     fragment.append(cell);
   }
   board.append(fragment);
+  const review=$('onlineLastMoveReview');
+  review.hidden=!recentOnlineMove||Date.now()>=recentOnlineMove.until;
+  if(!review.hidden)review.textContent=recentOnlineMove.text;
   const rack=$('onlineRack');rack.replaceChildren();
   for(let i=0;i<s.rack.length;i++){
     const tile=document.createElement('button');
@@ -324,6 +361,7 @@ function initializeActions(){
   $('onlineCancel').addEventListener('click',()=>{
     if(!gameState)send('cancel-matchmake');
     connection?.close();connection=null;
+    clearOnlineReview();
     $('onlineDialog').close();
   });
   $('onlineConfirm').addEventListener('click',()=>{

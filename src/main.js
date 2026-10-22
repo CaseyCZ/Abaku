@@ -1,10 +1,11 @@
 import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove} from './rules.js?v=0.1.2';
 import {chooseMove} from './ai.js';
+import {describeMovePreview} from './preview.js';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.3';
+const VERSION = '0.1.4';
 const defaults = {mode:'bot', difficulty:'medium', time:90, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -44,7 +45,7 @@ function freshGame() {
   const players = [{rack:[],score:0},{rack:[],score:0}];
   players[0].rack = drawTiles(bag, []);
   players[1].rack = drawTiles(bag, []);
-  return {board:emptyBoard(),bag,players,turn:0,turns:0,passStreak:0,finished:false,history:[],chat:[{kind:'system',text:'Nová partie zahájena.',at:Date.now()}]};
+  return {board:emptyBoard(),bag,players,turn:0,turns:0,passStreak:0,finished:false,history:[],chat:[]};
 }
 function clearPending() { pending = []; selectedIndex = null; exchangeMode = false; exchangeIndices.clear(); }
 function newGame() {
@@ -57,7 +58,10 @@ function restore() {
   if (saved && Array.isArray(saved.board) && saved.board.length === SIZE && saved.players?.length === 2 && Array.isArray(saved.bag)) {
     game = saved;
     if (!Array.isArray(game.history)) game.history = [];
-    if (!Array.isArray(game.chat)) game.chat = [{kind:'system',text:'Pokračuje uložená partie.',at:Date.now()}];
+    // Older versions recorded automatic game events in chat: keep player messages only.
+    const oldChat = Array.isArray(game.chat) ? game.chat : [];
+    game.chat = oldChat.filter(m => m?.kind === 'player' && typeof m.text === 'string');
+    const chatMigrated = game.chat.length !== oldChat.length || !Array.isArray(saved.chat);
     // Earlier versions lost replenished tiles. Repair saved games without resetting scores.
     if (!game.finished) {
       let repaired = false;
@@ -66,8 +70,8 @@ function restore() {
         replenishPlayerRack(game.bag, player);
         if (player.rack.length !== before) repaired = true;
       }
-      if (repaired) save();
-    }
+      if (repaired || chatMigrated) save();
+    } else if (chatMigrated) save();
   } else game = freshGame();
   resetDeadline();render();
   notify(game.finished ? 'Partie skončila.' : game.turns ? 'Vítej zpět! Partie byla automaticky obnovena.' : 'První tah: sestav příklad přes prostřední pole.');
@@ -133,25 +137,33 @@ function renderSidebar() {
     history.append(li);
   }
 }
+function renderMovePreview() {
+  const preview = describeMovePreview(game.board, pending, game.finished);
+  const box = byId('movePreview');
+  box.dataset.state = preview.state;
+  const points = byId('previewPoints');
+  points.textContent = preview.state === 'valid' ? '+' + preview.points : '—';
+  const details = byId('previewDetails');
+  details.textContent = preview.detail;
+  details.title = preview.detail;
+}
 function renderChat() {
   const container = byId('chatMessages');
   const wasNearBottom = container.scrollHeight - container.clientHeight - container.scrollTop < 44;
   container.replaceChildren();
-  const messages = Array.isArray(game.chat) ? game.chat.slice(-80) : [];
+  const messages = Array.isArray(game.chat) ? game.chat.filter(m => m?.kind === 'player').slice(-80) : [];
   if (!messages.length) {
     const note = document.createElement('div');
     note.className = 'chat-message system';
-    note.textContent = 'Zde se zobrazí události partie.';
+    note.textContent = 'Zatím žádné zprávy.';
     container.append(note);
   }
   for (const m of messages) {
     const box = document.createElement('div');
-    box.className = 'chat-message ' + (m.kind === 'player' ? 'player' : 'system');
-    if (m.kind === 'player') {
-      const who = document.createElement('strong');
-      who.textContent = Number.isInteger(m.player) ? playerLabel(m.player) : 'Hráč';
-      box.append(who);
-    }
+    box.className = 'chat-message player';
+    const who = document.createElement('strong');
+    who.textContent = Number.isInteger(m.player) ? playerLabel(m.player) : 'Hráč';
+    box.append(who);
     const body = document.createElement('span');
     body.textContent = String(m.text || '');
     box.append(body);
@@ -163,11 +175,6 @@ function renderChat() {
   byId('chatSendButton').disabled = !enabled;
   byId('chatInput').placeholder = enabled ? 'Napiš zprávu…' : 'Chat pouze pro dva hráče';
 }
-function logEvent(text) {
-  if (!Array.isArray(game.chat)) game.chat = [];
-  game.chat.push({kind:'system',text,at:Date.now()});
-  if (game.chat.length > 80) game.chat.splice(0,game.chat.length - 80);
-}
 function render() {
   renderBoard();renderRack();renderProgress();
   byId('player0Name').textContent=playerLabel(0);byId('player1Name').textContent=playerLabel(1);
@@ -176,7 +183,7 @@ function render() {
     byId(`player${i}Card`).classList.toggle('active',game.turn===i && !game.finished);
     byId(`player${i}Status`).textContent=game.finished ? 'Konec' : game.turn===i ? 'Na tahu' : 'Čeká';
   }
-  renderSidebar();renderChat();
+  renderSidebar();renderChat();renderMovePreview();
   byId('hintButton').hidden = settings.mode !== 'bot';
   byId('bagCount').textContent=game.bag.length;
   byId('modeLabel').textContent=settings.mode==='bot' ? `Počítač: ${ {easy:'začátečník',medium:'pokročilý',hard:'expert'}[settings.difficulty] }`:'Dva hráči';
@@ -232,13 +239,12 @@ function commitMove(placements, fromBot=false) {
   player.score+=checked.points;
   game.history.push({player:game.turn,points:checked.points,examples:checked.equations,tiles:placements.length});
   const who=fromBot?'Počítač':playerLabel(game.turn);
-  logEvent(`${who} získal ${checked.points} bodů (${checked.equations.slice(0,3).join(', ')}).`);
   notify(`${who}: +${checked.points} bodů · ${checked.equations.slice(0,3).join(', ')}${checked.equations.length>3?'…':''}`,'success');
   sound('success');advanceTurn();return true;
 }
 byId('confirmButton').addEventListener('click',()=>{if(pending.length)commitMove(pending);});
 byId('undoButton').addEventListener('click',()=>{clearPending();render();notify('Rozložené kameny vráceny do zásobníku.');});
-byId('passButton').addEventListener('click',()=>{const who=playerLabel(game.turn);logEvent(`${who} vynechal tah.`);notify(`${who} vynechal tah.`);advanceTurn(true);});
+byId('passButton').addEventListener('click',()=>{const who=playerLabel(game.turn);notify(`${who} vynechal tah.`);advanceTurn(true);});
 byId('exchangeButton').addEventListener('click',()=>{
   if(pending.length){notify('Před výměnou vrať položené kameny.','error');return;}
   if(game.bag.length===0){notify('V sáčku už nejsou kameny.','error');return;}
@@ -249,7 +255,7 @@ byId('exchangeButton').addEventListener('click',()=>{
   const removed=indexes.map(index=>player.rack.splice(index,1)[0]);
   replenishPlayerRack(game.bag,player);
   game.bag.unshift(...removed);
-  clearPending();sound();logEvent(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);notify(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);advanceTurn(true);
+  clearPending();sound();notify(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);advanceTurn(true);
 });
 byId('hintButton').addEventListener('click',()=>{
   if(settings.mode !== 'bot' || game.finished || isBotTurn()) return;
@@ -277,9 +283,8 @@ function runBot() {
     if(!move){
       if(game.bag.length){
         const bot=currentPlayer();game.bag.unshift(...bot.rack.splice(0,bot.rack.length));replenishPlayerRack(game.bag,bot);
-        logEvent('Počítač vyměnil kameny.');
         notify('Počítač vyměnil kameny.');
-      } else {logEvent('Počítač vynechal tah.');notify('Počítač vynechal tah.');}
+      } else {notify('Počítač vynechal tah.');}
       advanceTurn(true);return;
     }
     const available=currentPlayer().rack.map((digit,index)=>({digit,index}));
@@ -298,7 +303,7 @@ function tick(){
   const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
   display.textContent=`${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
   display.parentElement.classList.toggle('warning',remaining<=15);
-  if(remaining===0&&!botBusy) {const name=playerLabel(game.turn);clearPending();logEvent(`${name}: vypršel časový limit.`);notify(`${name}: vypršel časový limit.`,'error');advanceTurn(true);}
+  if(remaining===0&&!botBusy) {const name=playerLabel(game.turn);clearPending();notify(`${name}: vypršel časový limit.`,'error');advanceTurn(true);}
 }
 setInterval(tick,250);
 

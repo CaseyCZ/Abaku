@@ -6,6 +6,8 @@ const file = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 const landing=file('../index.html');
 const game=file('../game.html');
 const lobby=file('../src/lobby.js');
+const onlineClient=file('../src/online-client.js');
+const onlineConfig=file('../src/online-config.js');
 
 test('0.2.0 starts from the lobby and keeps the 0.1.4 game available separately',()=>{
   assert.match(landing,/id="playAi"/);
@@ -27,4 +29,11 @@ test('Google and online modes clearly require future server setup',()=>{
   assert.match(landing,/Online režimy připravujeme/);
   assert.match(lobby,/googleSignIn:'Google přihlášení/);
   assert.match(lobby,/playRandom:'Náhodného/);
+});
+
+test('Google OAuth client is configured and only exposed after Oracle API health confirms readiness',()=>{
+ assert.match(onlineConfig,/130\.61\.49\.108\/abaku-api/);
+ assert.match(onlineConfig,/googleClientId:\s*'[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com'/);
+ assert.match(onlineClient,/fetch\(apiBase\+'\/health'/);
+ assert.match(onlineClient,/data\?\.status!==['"]ok['"]/);
 });

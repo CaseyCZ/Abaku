@@ -1,6 +1,6 @@
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
 import { describeMovePreview } from './preview.js?v=0.2.9';
-import { formatEquations } from './rules.js?v=0.2.9';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.9';
 
 const $=id=>document.getElementById(id);
 const safeApiBase=()=>{
@@ -35,6 +35,7 @@ let onlineName='Hráč';
 let recentOnlineMove=null;
 let recentOnlineMoveId=null;
 let recentOnlineMoveTimer=null;
+let onlineTimerTicker=null;
 let currentFriendChallenge=null;
 let friendChallengeTimer=null;
 const validTurnSeconds=[30,60,90];
@@ -311,11 +312,66 @@ function addChat(uid,text){
   line.textContent=(own?'Já: ':'Soupeř: ')+String(text||'');
   const chat=$('onlineChat');chat.append(line);chat.scrollTop=chat.scrollHeight;
 }
+// Use the same status, progress and turn clock found in the offline game.
+function onlinePlayerName(side){
+  const fromServer=gameState?.players?.[side]?.nickname;
+  if(typeof fromServer==='string'&&fromServer.trim())return fromServer.trim();
+  return side===gameState?.mySide ? onlineName : 'Hráč '+(side+1);
+}
+function updateOnlineTimer(){
+  if(!gameState||$('onlineBoardWrapper').hidden)return;
+  const until=Number(gameState.deadline);
+  const remaining=gameState.finished ? 0
+    : Number.isFinite(until) ? Math.max(0,Math.ceil((until-Date.now())/1000))
+    : gameState.seconds||60;
+  $('onlineTimer').textContent=String(Math.floor(remaining/60)).padStart(2,'0')+':'+String(remaining%60).padStart(2,'0');
+  $('onlineTimer').parentElement.classList.toggle('warning',!gameState.finished&&remaining<=15);
+}
+function renderOnlineProgress(s){
+  const track=$('onlineProgress');
+  const used=Math.max(0,Math.min(20,Math.round((TOTAL_TILES-s.bagCount)/TOTAL_TILES*20)));
+  const fragment=document.createDocumentFragment();
+  for(let i=0;i<20;i++){
+    const bead=document.createElement('i');
+    if(i<used)bead.className=i>15?'late':'used';
+    fragment.append(bead);
+  }
+  track.replaceChildren(fragment);
+}
+function renderOnlineStatus(s){
+  const label=side=>onlinePlayerName(side);
+  $('onlineTurnName').textContent=s.finished?'Partie skončila':label(s.turn);
+  for(let side=0;side<2;side++){
+    $('onlinePlayer'+side+'Name').textContent=label(side);
+    $('onlinePlayer'+side+'Score').textContent=s.players[side].score;
+    $('onlinePlayer'+side+'Status').textContent=s.finished?'Konec':s.turn===side?'Na tahu':'Čeká';
+    $('onlinePlayer'+side+'Card').classList.toggle('active',!s.finished&&s.turn===side);
+  }
+  $('onlineBagCount').textContent=String(s.bagCount);
+  const last=s.lastMove;
+  $('onlineLastPlayer').textContent=last?label(last.player):'—';
+  $('onlineLastEquation').textContent=last?.equations?.length?formatEquations(last.equations,10):'—';
+  $('onlineLastPoints').textContent=last?'+'+last.points:'—';
+  const history=$('onlineMoveHistory');
+  history.replaceChildren();
+  const moves=(Array.isArray(s.history)&&s.history.length?s.history:last?[last]:[]).slice(-6).reverse();
+  for(const entry of moves){
+    const item=document.createElement('li');
+    const points=document.createElement('strong');
+    points.textContent='+'+entry.points;
+    item.append(document.createTextNode(label(entry.player)+' · '),points,
+      document.createTextNode(' · '+formatEquations(entry.equations,2)));
+    history.append(item);
+  }
+}
 function renderOnline(){
   if(!gameState)return;
   const s=gameState;
   const info=$('onlineScore');
   info.textContent='Hráč 1: '+s.players[0].score+' · Hráč 2: '+s.players[1].score+' · V sáčku: '+s.bagCount+' · Čas na tah: '+(s.seconds||60)+' s';
+  renderOnlineProgress(s);
+  renderOnlineStatus(s);
+  updateOnlineTimer();
   $('onlineTurn').textContent=s.finished?'Partie skončila.':ownTurn()?'Jsi na tahu.':'Čekáš na soupeře.';
   const board=$('onlineBoard');
   board.replaceChildren();
@@ -327,7 +383,7 @@ function renderOnline(){
     const digit=p?.digit??s.board[row][col];
     const cell=document.createElement('button');
     cell.type='button';
-    cell.className='online-cell'+(p?' staged':digit!==null?' fixed':'');
+    cell.className='online-cell '+bonusAt(row,col)+(p?' staged':digit!==null?' fixed':'');
     const key=row+':'+col;
     if(recentOnlineMove&&Date.now()<recentOnlineMove.until){
       if(recentOnlineMove.cells.has(key))cell.classList.add('recent-equation');
@@ -356,6 +412,7 @@ function renderOnline(){
     tile.className='online-tile'+(selected===i?' chosen':'')+(selectedExchange.has(i)?' chosen':'');
     tile.textContent=String(s.rack[i]);
     tile.disabled=!canPlay||pending.some(p=>p.rackIndex===i);
+    tile.setAttribute('aria-label','Kámen '+s.rack[i]);
     tile.addEventListener('click',()=>{
       if(exchanging){selectedExchange.has(i)?selectedExchange.delete(i):selectedExchange.add(i);}
       else selected=selected===i?null:i;
@@ -366,11 +423,23 @@ function renderOnline(){
   const preview=describeMovePreview(s.board,pending,s.finished);
   $('onlinePreview').textContent=preview.state==='valid'?('+'+preview.points+' bodů · '+preview.detail):preview.detail;
   $('onlineConfirm').disabled=!canPlay||preview.state!=='valid';
+  $('onlineUndo').disabled=!canPlay||!pending.length;
   $('onlinePass').disabled=!canPlay;
   $('onlineExchange').disabled=!canPlay;
   $('onlineExchange').textContent=exchanging?'Potvrdit výměnu ('+selectedExchange.size+')':'Vyměnit';
 }
 function initializeActions(){
+  // Mobile only: match the collapsible Progress / Chat panels in the offline UI.
+  for(const panel of document.querySelectorAll('#onlineDialog .online-panel')){
+    const toggle=panel.querySelector('.online-panel-toggle');
+    if(!toggle)continue;
+    toggle.addEventListener('click',()=>{
+      const expanded=panel.classList.toggle('mobile-expanded');
+      toggle.setAttribute('aria-expanded',String(expanded));
+      toggle.textContent=(expanded?'▾ ':'▸ ')+(panel.classList.contains('online-status-panel')?'Průběh partie':'Chat');
+    });
+  }
+  if(!onlineTimerTicker)onlineTimerTicker=setInterval(updateOnlineTimer,250);
   $('playRandom').addEventListener('click',event=>{
     if(!configured||!credential)return;
     event.stopImmediatePropagation();

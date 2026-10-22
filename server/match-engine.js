@@ -45,7 +45,7 @@ export class MatchEngine {
   }
   waitingCount() {
     // Only players who are still connected and eligible for random matchmaking.
-    return this.queue.filter(item => this.connections.has(item.uid) && !this.matchOf(item.uid)).length;
+    return this.queue.filter(item => this.connections.has(item.uid) && (!this.matchOf(item.uid) || this.matchOf(item.uid).finished)).length;
   }
   assertFree(uid) {
     const match = this.matchOf(uid);
@@ -68,7 +68,7 @@ export class MatchEngine {
   joinRandom(uid, seconds=90) {
     this.assertFree(uid);
     if (this.queue.some(q=>q.uid===uid)) return this.sendTo(uid,{type:'queue',waiting:true});
-    const found = this.queue.findIndex(q=>q.uid!==uid && this.connections.has(q.uid) && !this.matchOf(q.uid));
+    const found = this.queue.findIndex(q=>q.uid!==uid && this.connections.has(q.uid) && (!this.matchOf(q.uid) || this.matchOf(q.uid).finished));
     if (found >= 0) {
       const opponent=this.queue.splice(found,1)[0];
       this.createMatch(opponent.uid,uid,opponent.seconds);

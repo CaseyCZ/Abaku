@@ -588,3 +588,12 @@
     width:100%;min-width:0;min-height:40px;padding:7px 3px;font-size:11px;
   }
 }
+
+/* Override the former full-width Menu layout when Settings is alongside it. */
+@media(max-width:950px) and (orientation:portrait),(max-width:700px){
+  #onlineDialog .online-header-actions #onlineCancel{
+    grid-column:auto;
+    grid-row:auto;
+    justify-self:stretch;
+  }
+}

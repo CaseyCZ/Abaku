@@ -6,7 +6,10 @@
   <meta name="theme-color" content="#4c0e13" />
   <meta name="description" content="Číselná desková hra inspirovaná klasickým Abaku – vlastní retro rekonstrukce pro PC." />
   <title>Číselná aréna – retro Abaku</title>
+  <meta name="analytics-page-title" content="Abaku — Herní deska" />
   <link rel="stylesheet" href="./style.css?v=0.1.8" />
+  <link rel="stylesheet" href="./analytics.css?v=1" />
+  <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body>
   <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -129,7 +132,11 @@
       </div>
       <div class="game-mode" id="modeLabel">Proti počítači</div>
     </footer>
-    <div class="fine-print">Neoficiální fanouškovská rekonstrukce. Původní Abaku a jeho grafické prvky patří příslušným autorům.</div>
+    <div class="fine-print">
+      Neoficiální fanouškovská rekonstrukce. Původní Abaku a jeho grafické prvky patří příslušným autorům.
+      <a href="./privacy.html" class="abaku-privacy-link">Soukromí a cookies</a>
+      <button type="button" class="abaku-cookie-settings" data-cookie-settings>Nastavení cookies</button>
+    </div>
   </div>
 
   <dialog id="newGameDialog" aria-labelledby="newGameTitle">

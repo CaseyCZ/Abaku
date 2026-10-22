@@ -5,7 +5,7 @@ import {describeMovePreview} from './preview.js';
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.4';
+const VERSION = '0.1.5';
 const defaults = {mode:'bot', difficulty:'medium', time:90, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -38,7 +38,17 @@ function sound(kind = 'tap') {
 function currentPlayer() { return game.players[game.turn]; }
 function playerLabel(index) { return index === 0 ? 'Hráč 1' : settings.mode === 'bot' ? 'Počítač' : 'Hráč 2'; }
 function isBotTurn() { return settings.mode === 'bot' && game.turn === 1; }
-function notify(message, type = '') { byId('gameMessage').textContent = message; messageType = type; byId('gameMessage').className = `game-message ${messageType}`; }
+function notify(message, type = '') {
+  messageType = type;
+  byId('gameMessage').textContent = message;
+  byId('gameMessage').className = `game-message ${messageType}`;
+  // On phones the sidebar is collapsible, so always show hint/errors beneath the rack.
+  const mobileMessage = byId('mobileGameMessage');
+  if (mobileMessage) {
+    mobileMessage.textContent = message;
+    mobileMessage.className = `mobile-game-message ${messageType}`;
+  }
+}
 function save() { try { localStorage.setItem(saveKey, JSON.stringify(game)); } catch {} }
 function freshGame() {
   const bag = makeBag();
@@ -349,6 +359,19 @@ window.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&pending.length){clearPending();render();}
   if(event.key==='Enter'&&pending.length)commitMove(pending);
 });
+
+
+// Show status and chat only when requested on small screens.
+// Keeping these in the DOM preserves all desktop game logic and history.
+for (const panel of document.querySelectorAll('.side-panel')) {
+  const toggle=panel.querySelector('.mobile-panel-toggle');
+  if (!toggle) continue;
+  toggle.addEventListener('click',()=>{
+    const expanded=panel.classList.toggle('mobile-expanded');
+    toggle.setAttribute('aria-expanded',String(expanded));
+    toggle.textContent=(expanded?'▾ ':'▸ ')+(panel.classList.contains('chat-panel')?'Chat':'Průběh partie');
+  });
+}
 
 // The lobby may request a new local match; otherwise restore the existing session.
 const startRequest = new URLSearchParams(window.location.search);

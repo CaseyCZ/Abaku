@@ -1,0 +1,85 @@
+/* Sequential animated equation tally, inspired by the classic Abaku scroll.
+   Informational only: it auto-plays and closes without user interaction. */
+.abaku-score-recap{
+  position:fixed;z-index:110;inset:0;
+  display:grid;place-items:center;
+  pointer-events:none;
+  padding:14px;box-sizing:border-box;
+}
+.abaku-score-recap[hidden]{display:none!important}
+.abaku-score-scroll{
+  width:min(480px,94vw);min-height:270px;
+  display:grid;grid-template-columns:21px minmax(0,1fr) 21px;
+  border-radius:14px;
+  filter:drop-shadow(0 9px 17px #120206b3);
+  font-family:Georgia,serif;
+}
+.abaku-score-cap{
+  border-radius:13px;
+  background:linear-gradient(90deg,#aa5f12,#ffdd68 31%,#fff6bd 50%,#dfa52d 72%,#90500c);
+  border:2px solid #bb6f19;
+  box-shadow:inset 0 0 5px #fff4ad;
+  position:relative;z-index:2
+}
+.abaku-score-cap::after{
+  content:'';
+  position:absolute;top:50%;left:50%;
+  width:13px;height:13px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;border:2px solid #50210b;
+  background:radial-gradient(circle at 35% 25%,#ffc268,#8d1318 75%);
+}
+.abaku-score-face{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:0;padding:13px 14px 18px;
+  color:#6a321e;
+  background:linear-gradient(115deg,#fff1c3 0%,#fff6d4 45%,#efdcaa 100%);
+  border-top:3px solid #c5904c;border-bottom:3px solid #b57c35;
+  text-align:center;
+}
+.abaku-score-player{
+  display:block;width:100%;margin:-13px 0 12px;
+  padding:4px 7px;box-sizing:border-box;
+  background:#665f5e;color:#fff;
+  font:16px/1.25 Verdana,sans-serif;
+  text-overflow:ellipsis;white-space:nowrap;overflow:hidden
+}
+.abaku-score-equation{
+  font:bold clamp(25px,6vw,41px)/1.15 Georgia,serif;
+  color:#603122;overflow-wrap:anywhere;min-height:47px;
+}
+.abaku-score-addition{margin:9px auto 1px;color:#7e4a2a;font:bold 20px Georgia,serif}
+.abaku-score-bonus{min-height:20px;color:#9f6533;font:12px/1.5 Verdana,sans-serif}
+.abaku-score-separator{
+  width:96%;height:2px;margin:12px 0 8px;
+  background:linear-gradient(90deg,transparent,#b88d54,transparent)
+}
+.abaku-score-total-label{color:#745031;font:12px Verdana,sans-serif;margin:0 0 7px}
+.abaku-score-counter{
+  width:89px;height:89px;display:grid;place-items:center;
+  color:#fff4e0;font:bold 37px Georgia,serif;
+  background:radial-gradient(circle at 35% 20%,#626363,#16151a 70%);
+  border:8px ridge #eabb40;border-radius:50%;
+  box-shadow:0 3px 0 #7c4b1d,inset 0 3px 11px #020204
+}
+.abaku-score-progress{
+  margin-top:12px;color:#9b6439;font:11px Verdana,sans-serif
+}
+@keyframes abaku-recap-in{
+  from{opacity:.68;transform:scale(.97) translateY(8px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+@media(prefers-reduced-motion:no-preference){
+  .abaku-score-recap.abaku-score-change .abaku-score-face{
+    animation:abaku-recap-in .3s ease both
+  }
+}
+@media(max-width:600px){
+  .abaku-score-scroll{width:min(95vw,440px);min-height:240px;grid-template-columns:17px minmax(0,1fr) 17px}
+  .abaku-score-face{padding:11px 9px 12px}
+  .abaku-score-player{margin-top:-11px;font-size:12px}
+  .abaku-score-equation{font-size:clamp(23px,7vw,34px)}
+  .abaku-score-counter{width:74px;height:74px;font-size:31px;border-width:6px}
+  .abaku-score-addition{font-size:18px}
+  .abaku-score-bonus{font-size:11px}
+}

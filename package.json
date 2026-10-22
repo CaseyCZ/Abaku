@@ -1,6 +1,6 @@
 {
   "name": "retro-abaku-arena",
-  "version": "0.1.4",
+  "version": "0.2.0-dev",
   "private": true,
   "type": "module",
   "description": "Neoficiální retro rekonstrukce matematické deskové hry pro PC",

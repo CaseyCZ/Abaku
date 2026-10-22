@@ -167,3 +167,29 @@ test('accepted online move syncs complete previous equation squares to both play
   assert.ok(latest.every(x=>x.lastMove.points>0));
   assert.ok(latest.every(x=>!('rack' in x.lastMove)));
 });
+
+test('online scorecards receive safe nicknames and recent move history after reconnect',()=>{
+  const events=[];
+  const game=new MatchEngine({send:(uid,msg)=>events.push({uid,...msg}),
+    rng:()=>.3,clock:()=>100_000,getName:uid=>uid==='alice'?'Alice':'Bob'});
+  game.connect('alice');game.connect('bob');
+  const match=game.createMatch('alice','bob',60);
+  match.players[0].rack=[2,6,8,1,4];
+  game.place('alice',[
+    {row:7,col:6,rackIndex:0},{row:7,col:7,rackIndex:1},
+    {row:7,col:8,rackIndex:2}
+  ]);
+  const states=events.filter(event=>event.type==='match-state'&&event.turns===1);
+  assert.equal(states.length,2);
+  for(const state of states){
+    assert.deepEqual(state.players.map(player=>player.nickname),['Alice','Bob']);
+    assert.equal(state.history.length,1);
+    assert.deepEqual(state.history[0].equations,['268']);
+    assert.ok(!state.players.some(player=>'uid' in player||'rack' in player));
+    assert.equal(state.deadline,160_000);
+  }
+  events.length=0;
+  game.sync('alice');
+  assert.equal(events[0].history.length,1);
+  assert.deepEqual(events[0].lastMove.equations,['268']);
+});

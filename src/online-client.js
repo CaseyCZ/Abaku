@@ -13,6 +13,8 @@ const apiBase=safeApiBase();
 const configured=Boolean(apiBase&&ONLINE_CONFIG.googleClientId);
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
 let onlineName='Hráč';
+let currentFriendChallenge=null;
+let friendChallengeTimer=null;
 const validTurnSeconds=[30,60,90];
 const timeStorageKey='abaku-online-turn-seconds';
 const selectedTurnSeconds=()=>validTurnSeconds.includes(Number($('onlineTurnSeconds').value))
@@ -129,10 +131,10 @@ function showProfile(profile){
   $('profileDescription').textContent='Tento profil a statistiky jsou uložené na Oracle. Úpravy přezdívky se synchronizují mezi zařízeními.';
   $('editProfile').textContent='Upravit online profil';
   $('manageFriends').hidden=false;
-  $('onlineInfoText').textContent='Oracle je připojený. Můžeš hledat náhodného soupeře nebo vytvořit pozvánku pomocí kódu.';
+  $('onlineInfoText').textContent='Oracle je připojený. Můžeš vyzvat přítele přímo ze seznamu nebo najít náhodného soupeře.';
   const onlineModes=[
     ['playRandom','HLEDAT SOUPEŘE'],
-    ['playFriends','VYTVOŘIT / ZADAT KÓD']
+    ['playFriends','VYBRAT PŘÍTELE']
   ];
   for(const [id,action] of onlineModes){
     const card=$(id);
@@ -151,6 +153,7 @@ async function googleCredential(value){
     await heartbeat().catch(()=>{});
     await refreshPresence();
     await showLeaderboard();
+    startFriendChallengeUpdates();
   }catch(error){
     credential=null;
     status(error.message,true);
@@ -201,6 +204,7 @@ function connectOnline(action){
     if(msg.type==='authenticated'){
       if(action.type==='random')send('matchmake',{seconds:action.seconds});
       else if(action.type==='invite')send('invite',{seconds:action.seconds});
+      else if(action.type==='friend')send('challenge-friend',{targetId:action.targetId,seconds:action.seconds});
       else if(action.type==='join')send('join-invite',{code:action.code});
       else send('sync');
       return;
@@ -211,7 +215,21 @@ function connectOnline(action){
     }
     if(msg.type==='invite'){
       $('onlineCode').textContent=msg.code;
-      status('Pozvi přítele tímto kódem. Platí deset minut.');
+      status(action.type==='friend'?'Výzvu posílám hráči '+action.friendName+'…':'Pozvi přítele tímto kódem. Platí deset minut.');
+      return;
+    }
+    if(msg.type==='friend-challenge-sent'){
+      status('Výzva pro '+msg.to+' byla odeslána. Čekám na přijetí (max. 10 minut).');
+      return;
+    }
+    if(msg.type==='friend-challenge-response'){
+      status(msg.accepted
+        ? msg.from+' přijal výzvu. Čekám na připojení…'
+        : msg.from+' odmítl výzvu.');
+      return;
+    }
+    if(msg.type==='friend-challenge-available'){
+      refreshFriendChallenges();
       return;
     }
     if(msg.type==='match-start'){status('Soupeř připojen, partie začíná!');refreshPresence();return;}
@@ -301,9 +319,7 @@ function initializeActions(){
   $('playFriends').addEventListener('click',event=>{
     if(!configured||!credential)return;
     event.stopImmediatePropagation();
-    const code=prompt('Zadej kód pozvánky. Pro vytvoření nové pozvánky nech pole prázdné:');
-    if(code===null)return;
-    connectOnline(code.trim()?{type:'join',code:code.trim()}:{type:'invite',seconds:selectedTurnSeconds()});
+    $('manageFriends').click();
   },true);
   $('onlineCancel').addEventListener('click',()=>{
     if(!gameState)send('cancel-matchmake');
@@ -334,7 +350,25 @@ function initializeActions(){
     $('friendMessage').textContent='';
     await refreshFriends();
   });
-  $('friendsClose').addEventListener('click',()=>$('friendsDialog').close());
+  $('friendsClose').addEventListener('click',()=>{
+    $('friendsDialog').close();
+    refreshFriendChallenges();
+  });
+  $('friendCreateCode').addEventListener('click',()=>{
+    $('friendsDialog').close();
+    connectOnline({type:'invite',seconds:selectedTurnSeconds()});
+  });
+  $('friendJoinCode').addEventListener('click',()=>{
+    const code=prompt('Zadej kód pozvánky od přítele:');
+    if(!code?.trim())return;
+    $('friendsDialog').close();
+    connectOnline({type:'join',code:code.trim()});
+  });
+  $('friendChallengeAccept').addEventListener('click',()=>respondToFriendChallenge(true));
+  $('friendChallengeDecline').addEventListener('click',()=>respondToFriendChallenge(false));
+  $('friendChallengeDialog').addEventListener('close',()=>{
+    currentFriendChallenge=null;
+  });
   $('friendSearchForm').addEventListener('submit',async event=>{
     event.preventDefault();
     const query=$('friendSearchInput').value.trim();
@@ -393,10 +427,55 @@ async function refreshFriends(){
         $('friendMessage').textContent='Přátelství potvrzeno.';
       });
     }
-    for(const player of data.friends||[])appendFriend(friends,player,null,null);
+    for(const player of data.friends||[]){
+      appendFriend(friends,player,'⚔ Vyzvat',async()=>{
+        $('friendsDialog').close();
+        connectOnline({type:'friend',targetId:player.id,friendName:player.nickname,seconds:selectedTurnSeconds()});
+      });
+    }
     if(!data.requests?.length)incoming.textContent='Žádné nové žádosti.';
     if(!data.friends?.length)friends.textContent='Zatím nemáš přidané přátele.';
   }catch(error){$('friendMessage').textContent=error.message;}
+}
+// Invitations are delivered even if the invited friend's lobby has no open
+// WebSocket: authenticated clients poll their own pending invitation only.
+async function refreshFriendChallenges(){
+  if(!credential||document.visibilityState==='hidden')return;
+  if(document.querySelector('dialog[open]'))return;
+  try{
+    const {challenge}=await api('/api/challenges');
+    if(!challenge||!credential||document.querySelector('dialog[open]'))return;
+    currentFriendChallenge=challenge;
+    $('friendChallengeFrom').textContent=(challenge.from.avatar||'✦')+' '+challenge.from.nickname;
+    $('friendChallengeTime').textContent='Čas na tah: '+challenge.seconds+' sekund · pozvánka vyprší za '+Math.ceil(challenge.expiresInSeconds/60)+' min.';
+    $('friendChallengeStatus').textContent='';
+    $('friendChallengeDialog').showModal();
+  }catch{ /* The lobby stays playable even if invitation polling is unavailable. */ }
+}
+function startFriendChallengeUpdates(){
+  if(friendChallengeTimer)return;
+  refreshFriendChallenges();
+  friendChallengeTimer=setInterval(refreshFriendChallenges,10_000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')refreshFriendChallenges();
+  });
+}
+async function respondToFriendChallenge(accept){
+  if(!currentFriendChallenge)return;
+  const {id}=currentFriendChallenge;
+  $('friendChallengeAccept').disabled=true;
+  $('friendChallengeDecline').disabled=true;
+  try{
+    const data=await api('/api/challenges/respond','POST',{id,accept});
+    $('friendChallengeDialog').close();
+    currentFriendChallenge=null;
+    if(accept&&data.code)connectOnline({type:'join',code:data.code});
+  }catch(error){
+    $('friendChallengeStatus').textContent=error.message;
+  }finally{
+    $('friendChallengeAccept').disabled=false;
+    $('friendChallengeDecline').disabled=false;
+  }
 }
 // Google Identity embeds a fixed-width iframe. Fit it to the live profile card,
 // including Safari's narrower grid/sidebar layouts.

@@ -6,7 +6,7 @@ const MAX_CHAT = 160;
 const INVITE_TTL = 10 * 60_000;
 const RECONNECT_GRACE = 60_000;
 const INVITE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const legalTime = value => [30, 60, 90].includes(Number(value)) ? Number(value) : 90;
+const legalTime = value => [30, 60, 90].includes(Number(value)) ? Number(value) : 60;
 
 export class MatchEngine {
   constructor({send = () => {}, onResult = () => {}, clock = () => Date.now(), rng = Math.random} = {}) {
@@ -65,7 +65,7 @@ export class MatchEngine {
         winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason:match.reason});
     } else this.sendTo(uid,{type:'lobby',queued:this.queue.some(q=>q.uid===uid)});
   }
-  joinRandom(uid, seconds=90) {
+  joinRandom(uid, seconds=60) {
     this.assertFree(uid);
     const selectedSeconds=legalTime(seconds);
     if (this.queue.some(q=>q.uid===uid)) return this.sendTo(uid,{type:'queue',waiting:true});
@@ -82,7 +82,7 @@ export class MatchEngine {
     this.queue=this.queue.filter(item=>item.uid!==uid);
     this.sendTo(uid,{type:'queue',waiting:false});
   }
-  makeInvite(uid,seconds=90) {
+  makeInvite(uid,seconds=60) {
     this.assertFree(uid);
     for (const [code,value] of this.invites) if (value.owner===uid) this.invites.delete(code);
     let code;
@@ -103,7 +103,7 @@ export class MatchEngine {
     this.invites.delete(key);
     this.createMatch(invite.owner,uid,invite.seconds);
   }
-  createMatch(uidA,uidB,seconds=90) {
+  createMatch(uidA,uidB,seconds=60) {
     if(uidA===uidB)throw new Error('Nelze hrát sám se sebou.');
     for(const uid of [uidA,uidB]) {
       const prior=this.matchOf(uid);

@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.8/);
-  assert.match(html,/main\.js\?v=0\.1\.10/);
+  assert.match(html,/main\.js\?v=0\.1\.11/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -65,11 +65,23 @@ test('accepted offline move shows full equation and highlighted board tiles for 
 test('offline accepted move starts an automatic one-equation-at-a-time score scroll',()=>{
   const scoreStyle=file('../score-recap.css');
   assert.match(html,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(js,/import \{ScoreRecap\} from '.\/score-recap\.js\?v=0\.2\.16'/);
+  assert.match(js,/import \{ScoreRecap\} from '.\/score-recap\.js\?v=0\.2\.17'/);
   assert.match(js,/const scoreRecap = new ScoreRecap\(document\.body\)/);
   assert.match(js,/scoreRecap\.play\(\{player:who,breakdown:checked\.equationBreakdown/);
   assert.match(js,/equations:checked\.equations,total:checked\.points/);
   assert.match(js,/scoreRecap\.cancel\(\)/);
   assert.match(scoreStyle,/\.abaku-score-scroll/);
   assert.match(scoreStyle,/\.abaku-score-counter/);
+});
+
+
+test('offline settings allow choosing the same saved score-tally duration as online',()=>{
+  assert.match(html,/id="scoreRecapSecondsSetting"/);
+  for(const seconds of [2,3,5,8,10])
+    assert.match(html,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
+  assert.match(js,/byId\('scoreRecapSecondsSetting'\)\.value=String\(getRecapSeconds\(\)\)/);
+  assert.match(js,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
+  assert.match(js,/onDone:\(\)=>\{/);
+  assert.match(js,/if\(isBotTurn\(\)&&!botBusy\)runBot\(\)/);
+  assert.match(js,/if\(scoreRecap\.playing\(\)\)return;/);
 });

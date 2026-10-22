@@ -7,8 +7,8 @@
   <meta name="description" content="Abaku – číselná retro hra. Zahraj si proti počítači, místně ve dvou nebo online s přáteli.">
   <title>ABAKU | Hlavní nabídka</title>
   <meta name="analytics-page-title" content="Abaku — Hlavní nabídka">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.11">
-  <link rel="stylesheet" href="./online-game.css?v=0.2.12">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.13">
+  <link rel="stylesheet" href="./online-game.css?v=0.2.13">
   <link rel="stylesheet" href="./analytics.css?v=1">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
@@ -101,6 +101,12 @@
             <p id="savedDescription">Máš uloženou partii.</p>
             <a class="gold-button wide link-button" href="./game.html">Pokračovat ve hře</a>
           </div>
+          <div class="side-card online-resume-card" id="onlineResumeCard" hidden>
+            <h2>✦ Rozehraná online partie</h2>
+            <p id="onlineResumeDescription">Na serveru máš rozehranou partii.</p>
+            <button type="button" id="onlineResumeButton" class="gold-button wide">Pokračovat v online partii</button>
+            <p class="online-resume-note">Obnovení funguje, dokud je partie stále aktivní na serveru.</p>
+          </div>
           <div class="side-card" id="onlineInfo">
             <h2>✦ Abaku Online</h2>
             <label class="online-time-setting" for="onlineTurnSeconds">
@@ -118,7 +124,7 @@
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-            <span class="build-label">Abaku Online 0.2.12 · testovací provoz</span>
+            <span class="build-label">Abaku Online 0.2.13 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -194,6 +200,10 @@
         <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka</button>
       </header>
       <p id="onlineStatus" role="status" aria-live="polite">Připojuji se k serveru…</p>
+      <div id="onlineReconnectNotice" class="online-reconnect-notice" role="status" aria-live="polite" hidden>
+        <span id="onlineReconnectText">Spojení přerušeno. Zkouším znovu za 5 sekund…</span>
+        <button id="onlineRetryNow" type="button" class="gold-button">Zkusit nyní</button>
+      </div>
       <div id="onlineWaiting" class="online-waiting">
         <p>Hledání hráče nebo čekání na připojení přítele…</p>
         <p>Kód pozvánky: <strong id="onlineCode">—</strong></p>
@@ -276,6 +286,6 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.11"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.13"></script>
 </body>
 </html>

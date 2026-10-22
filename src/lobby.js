@@ -79,8 +79,8 @@ byId('profileForm').addEventListener('submit',async event=>{
 });
 byId('nickname').addEventListener('input',()=>byId('nickname').setCustomValidity(''));
 const planned={
-  playRandom:'Náhodného online soupeře zpřístupníme po nasazení Oracle serveru a ověření účtů.',
-  playFriends:'Pozvánky a přátele zpřístupníme po dokončení účtů, databáze a synchronizace zápasů.',
+  playRandom:'Pro náhodný online zápas se nejdříve přihlas přes Google v panelu Můj profil. Pokud přihlášení nevidíš, Oracle API nemusí být dostupné.',
+  playFriends:'Pro pozvánku do soukromé online partie se nejdříve přihlas přes Google. Potom můžeš vytvořit nebo zadat kód pozvánky.',
   googleSignIn:'Google přihlášení se aktivuje po nastavení Google OAuth Web Client ID a HTTPS API na Oracle serveru.'
 };
 for(const [id,description] of Object.entries(planned)){

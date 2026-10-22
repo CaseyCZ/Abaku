@@ -1,4 +1,4 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.10';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.11';
 const PROFILE_KEY = 'abaku-local-profile-v1';
 const GAME_KEY = 'retro-abaku-game-v1';
 const byId = id => document.getElementById(id);

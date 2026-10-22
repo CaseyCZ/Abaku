@@ -25,6 +25,6 @@ test('game mode selection preserves access to local and AI play',()=>{
 test('Google and online modes clearly require future server setup',()=>{
   assert.match(landing,/id="googleSignIn"/);
   assert.match(landing,/Online režimy připravujeme/);
-  assert.match(lobby,/googleSignIn:'Přihlášení/);
+  assert.match(lobby,/googleSignIn:'Google přihlášení/);
   assert.match(lobby,/playRandom:'Náhodného/);
 });

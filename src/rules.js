@@ -156,6 +156,7 @@ export function validateMove(board, placements) {
     }
   }
   let points = 0;
+  const equationBreakdown = [];
   for (const eq of equations) {
     let wordMultiplier = 1, sum = 0;
     for (const cell of eq.cells) {
@@ -165,9 +166,15 @@ export function validateMove(board, placements) {
       if (bonus === 'de') wordMultiplier *= 2;
       if (bonus === 'te') wordMultiplier *= 3;
     }
-    points += sum * wordMultiplier;
+    const equationPoints = sum * wordMultiplier;
+    points += equationPoints;
+    equationBreakdown.push({
+      sequence: eq.text, equation: formatEquation(eq.text),
+      base: sum, multiplier: wordMultiplier, points: equationPoints
+    });
   }
   return {valid: true, points, board: next, equations: equations.map(e => e.text),
+    equationBreakdown,
     equationCells: [...new Map(equations.flatMap(eq => eq.cells)
       .map(cell => [id(cell.row,cell.col),{row:cell.row,col:cell.col}])).values()]};
 }

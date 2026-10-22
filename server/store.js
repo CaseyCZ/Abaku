@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS friend_requests (
   };
   const request=(sender,recipientId)=>{
     const recipient=statements.lookupId.get(recipientId)?.uid;
+    if(!recipient)throw new Error('Hráč neexistuje.');
     if(sender===recipient)throw new Error('Nemůžeš přidat sám sebe.');
     if(!statements.lookup.get(recipient))throw new Error('Hráč neexistuje.');
     const outgoing=statements.exists.get(sender,recipient);
@@ -79,6 +80,7 @@ CREATE TABLE IF NOT EXISTS friend_requests (
   };
   const respond=(recipient,senderId,accept)=>{
     const sender=statements.lookupId.get(senderId)?.uid;
+    if(!sender)throw new Error('Žádost nebyla nalezena.');
     const result=statements.reply.run(accept?'accepted':'declined',sender,recipient);
     if(result.changes===0)throw new Error('Žádost nebyla nalezena.');
   };

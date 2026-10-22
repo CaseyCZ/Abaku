@@ -1,0 +1,416 @@
+/* Online game presentation – visually follows the offline Abaku board.
+   Scoped to #onlineDialog so the lobby, cookies and offline game are unaffected. */
+.online-mascot-defs{position:absolute;width:0;height:0;overflow:hidden}
+#onlineDialog.online-dialog{
+  width:min(1430px,calc(100vw - 18px));
+  max-width:calc(100vw - 18px);
+  max-height:calc(100dvh - 18px);
+  padding:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  background:radial-gradient(ellipse at 50% 0%,#852626 0%,#4b1118 58%,#21070b 100%);
+  color:#fff0c9;
+  border:4px ridge #e3b85a;
+  border-radius:10px;
+}
+#onlineDialog .online-dialog-inner{padding:0}
+#onlineDialog .online-dialog-header{
+  position:relative;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:10px;
+  margin:0;padding:13px 17px 10px;
+  border-bottom:5px ridge #bc772c;
+  background:linear-gradient(100deg,#330d16,#53171e,#26080f);
+}
+#onlineDialog .online-game-brand{
+  display:flex;align-items:center;gap:9px;
+  font:12px/1.05 Georgia,serif;letter-spacing:1px;
+  color:#ffe3a3;
+}
+#onlineDialog .online-brand-mark{
+  display:grid;place-items:center;flex:none;
+  width:48px;height:48px;
+  background:linear-gradient(130deg,#f8e7aa,#b87a28);
+  border:3px ridge #f8d37a;
+  border-radius:12px;box-shadow:0 0 0 2px #853c1b;
+  color:#5a2119;font:bold 33px Georgia,serif;
+  text-shadow:1px 1px #fff7ce;
+}
+#onlineDialog .online-game-title{
+  display:flex;flex-direction:column;align-items:center;
+  white-space:nowrap;text-align:center;letter-spacing:3px;
+  color:#ffdd8d;text-shadow:0 2px #43110f,0 0 12px #d7963c;
+  font:bold clamp(19px,3vw,35px) Georgia,serif;
+}
+#onlineDialog .online-game-title small{
+  margin-top:4px;font:11px Verdana,sans-serif;
+  letter-spacing:2px;color:#dfbd90;text-shadow:none;
+}
+#onlineDialog #onlineCancel{justify-self:end;white-space:nowrap;min-height:43px}
+#onlineDialog #onlineStatus{
+  min-height:25px;margin:0;padding:9px 14px 4px;
+  font:12px/1.45 Verdana,sans-serif;text-align:center;color:#f2d1a1;
+}
+#onlineDialog #onlineStatus[data-error="true"]{color:#ffab9a}
+#onlineDialog .online-waiting{padding:30px 12px 50px}
+#onlineDialog .online-match{min-width:0}
+#onlineDialog .online-progress{
+  display:flex;align-items:center;justify-content:center;gap:3px;
+  width:min(65%,800px);height:31px;margin:4px auto 8px;
+  padding:3px 12px;background:#3e1019;
+  border:4px ridge #c58a38;border-radius:14px;
+  box-shadow:inset 0 0 0 2px #fff1ad,0 3px 8px #210309;
+}
+#onlineDialog .online-progress i{
+  display:block;flex:1;max-width:23px;aspect-ratio:1;border-radius:50%;
+  background:linear-gradient(120deg,#fff,#d6d9e1);
+  box-shadow:0 0 2px #171515;
+}
+#onlineDialog .online-progress i.used{background:linear-gradient(110deg,#6ded54,#078b2b)}
+#onlineDialog .online-progress i.late{background:linear-gradient(110deg,#ffe05a,#b67c12)}
+#onlineDialog .online-match-info{
+  width:min(calc(100% - 28px),920px);min-height:0;
+  display:flex;justify-content:space-between;gap:10px;
+  margin:0 auto 7px;padding:5px 9px;border:1px solid #9c6131;
+  border-radius:6px;background:#2609138c;color:#efcf9f;
+  font:11px/1.4 Verdana,sans-serif;
+}
+#onlineDialog .online-match-info strong{color:#b7e9fb}
+#onlineDialog .online-match-layout{
+  display:grid;grid-template-columns:minmax(145px,1fr) minmax(350px,660px) minmax(145px,1fr);
+  align-items:stretch;gap:9px;padding:2px 18px 0;margin:0 auto;
+  max-width:1410px;
+}
+#onlineDialog .online-player-side{
+  display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
+  min-width:0;position:relative;gap:0;
+}
+#onlineDialog .online-panel{
+  width:100%;display:flex;flex-direction:column;gap:9px;
+  min-width:0;min-height:135px;max-height:380px;overflow:hidden;
+  padding:10px;border:3px ridge #d3a450;border-radius:10px;
+  background:linear-gradient(145deg,#44151d,#260a12);
+  box-shadow:0 5px 13px #1a050b;
+}
+#onlineDialog .online-panel-content{
+  display:flex;flex-direction:column;gap:9px;min-height:0;min-width:0;
+}
+#onlineDialog .online-panel h2{
+  text-align:center;margin:0 0 5px;padding-bottom:8px;
+  font:bold 20px Georgia,serif;color:#f9d88e;border-bottom:1px solid #bd914a;
+}
+#onlineDialog .online-panel h3{
+  margin:5px 0 0;font:bold 13px Georgia,serif;color:#f5d289;
+}
+#onlineDialog .online-panel-toggle{display:none}
+#onlineDialog .online-status-turn{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  border:1px solid #966336;background:#301019;border-radius:5px;
+  padding:8px;color:#eccb99;font:11px Verdana,sans-serif;
+}
+#onlineDialog .online-status-turn strong{color:#a8dfff;text-align:right}
+#onlineDialog .online-status-details{display:grid;gap:5px}
+#onlineDialog .online-status-details>div{
+  display:flex;justify-content:space-between;gap:9px;
+  padding:5px 0;border-bottom:1px solid #76472c;
+  font:11px/1.4 Verdana,sans-serif;
+}
+#onlineDialog .online-status-details>div span{color:#d9ad79;flex:none}
+#onlineDialog .online-status-details>div strong{text-align:right;overflow-wrap:anywhere;min-width:0}
+#onlineDialog .online-move-history{
+  margin:2px 0 0;padding-left:20px;overflow:auto;min-height:0;
+  font:11px/1.5 Verdana,sans-serif;color:#f5dab1;
+}
+#onlineDialog .online-move-history li{overflow-wrap:anywhere;margin-bottom:5px}
+#onlineDialog .online-move-history strong{color:#aef9b2}
+#onlineDialog .online-mascot{
+  width:min(100%,175px);height:145px;margin:auto 0 -13px;
+  filter:drop-shadow(0 4px 5px #20080b);
+}
+#onlineDialog .online-right .online-mascot{transform:scaleX(-1)}
+#onlineDialog .online-player-card{
+  width:100%;max-width:240px;min-width:0;
+  background:linear-gradient(#22151b,#37151d);
+  border:4px ridge #efb953;border-radius:5px;
+  box-shadow:inset 0 1px #fff1ba,0 3px 11px #22040a;
+  position:relative;z-index:1;
+}
+#onlineDialog .online-player-card.active{border-color:#fbd469;box-shadow:0 0 12px #edb65980}
+#onlineDialog .online-player-name{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  padding:9px 7px;background:#121017;
+  color:#f6d5a3;text-align:center;
+  font:13px Verdana,sans-serif;
+}
+#onlineDialog #onlinePlayer0Card .online-player-name{
+  background:linear-gradient(#8bd0f6,#3d7fbd);color:#113354;
+}
+#onlineDialog .online-player-score{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:5px;border-top:3px solid #d5a03e;
+  padding:8px 10px;
+}
+#onlineDialog .online-player-score strong{font:bold 27px Georgia,serif}
+#onlineDialog .online-player-score small{font:11px Verdana,sans-serif;color:#e8ca9d;text-align:right}
+#onlineDialog .online-game-board{
+  display:flex;flex-direction:column;align-items:center;min-width:0;gap:0;
+}
+#onlineDialog .online-board-crest{
+  color:#f4c474;text-align:center;
+  font:bold 12px/1.5 Georgia,serif;letter-spacing:3px;
+  text-shadow:0 2px #260608;
+}
+#onlineDialog .online-board-rim{
+  width:100%;min-width:0;padding:7px;border:4px ridge #eec668;
+  background:linear-gradient(130deg,#ffe8a0,#b25918 18%,#e6aa3a 60%,#8e400d);
+  box-shadow:0 5px 16px #210407,inset 0 0 0 2px #85400f;
+}
+#onlineDialog .online-board{
+  display:grid;grid-template-columns:repeat(15,minmax(0,1fr));
+  grid-template-rows:repeat(15,minmax(0,1fr));
+  width:100%;height:auto;aspect-ratio:1;border:3px solid #531918;
+  background:#fbf9ed;overflow:hidden;user-select:none;touch-action:manipulation;
+}
+#onlineDialog .online-cell{
+  width:100%;height:100%;min-width:0;min-height:0;
+  padding:0;margin:0;border:0;border-right:1px solid #934945;border-bottom:1px solid #934945;
+  display:grid;place-items:center;
+  font:bold clamp(10px,1.5vw,23px) Georgia,serif;
+  color:#582b22;background:#fffefa;outline:none;
+}
+#onlineDialog .online-cell:nth-child(15n){border-right:0}
+#onlineDialog .online-cell:nth-last-child(-n+15){border-bottom:0}
+#onlineDialog .online-cell.dd{background:#d2eab5}
+#onlineDialog .online-cell.td{background:#43a839}
+#onlineDialog .online-cell.de{background:#caf1f9}
+#onlineDialog .online-cell.te{background:#57b1e3}
+#onlineDialog .online-cell.fixed{background:#ecd1aa;text-shadow:1px 1px #fff9dd}
+#onlineDialog .online-cell.staged{
+  background:#ffc56c;color:#612508;
+  box-shadow:inset 0 0 0 2px #eb8616
+}
+#onlineDialog .online-cell.recent-equation.fixed{
+  background:#c9f2da;color:#164b2d;
+  box-shadow:inset 0 0 0 2px #2aaf77;position:relative;z-index:1
+}
+#onlineDialog .online-cell.recent-tile.fixed{
+  background:#ffdb68;color:#5b2709;
+  box-shadow:inset 0 0 0 2px #e88710,0 0 7px #ffe58e;position:relative;z-index:2
+}
+#onlineDialog .online-cell:disabled{opacity:1;cursor:default}
+#onlineDialog .online-cell:focus-visible{outline:3px solid #df641c;z-index:3}
+#onlineDialog .online-under-board{
+  width:100%;min-height:54px;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:4px 1px;
+}
+#onlineDialog .online-preview{
+  flex:1;min-width:0;text-align:left;margin:0;
+  font:12px/1.4 Verdana,sans-serif;color:#e8cd9b;
+  overflow-wrap:anywhere;
+}
+#onlineDialog .online-timer-wrap{
+  flex:none;min-width:77px;display:flex;flex-direction:column;align-items:center;
+  border:2px solid #b78237;border-radius:5px;background:#280b13;
+  padding:4px 7px;
+}
+#onlineDialog .online-timer-wrap span{color:#eabd76;font:10px Verdana,sans-serif;letter-spacing:2px}
+#onlineDialog .online-timer-wrap strong{color:#f7dca0;font:bold 20px Georgia,serif}
+#onlineDialog .online-timer-wrap.warning strong{color:#ff896a}
+#onlineDialog .online-last-move-review{width:100%;margin:3px 0 5px}
+#onlineDialog .online-rack-frame{
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;width:100%;padding:5px 0 10px;
+}
+#onlineDialog .online-rack{
+  flex:1 1 auto;min-width:0;max-width:350px;height:74px;
+  display:flex;align-items:center;justify-content:center;
+  gap:5px;flex-wrap:nowrap;padding:6px 8px;
+  background:linear-gradient(#ffedae,#b67e3e);
+  border:3px ridge #ffe18a;border-radius:5px;
+  box-shadow:0 4px 7px #220507;
+}
+#onlineDialog .online-tile{
+  flex:1 1 0;min-width:0;max-width:54px;
+  width:0;height:53px;padding:0;
+  border:2px solid #c48a57;border-radius:2px;
+  background:linear-gradient(#fff4d7,#e6bd8e);
+  color:#642b17;font:bold 30px Georgia,serif;
+  text-shadow:1px 1px #fff6d7;
+}
+#onlineDialog .online-tile.chosen{
+  background:linear-gradient(#fff9bd,#ffcd56);
+  box-shadow:0 0 0 2px #fff1b2,0 4px 7px #391708;
+  transform:translateY(-5px)
+}
+#onlineDialog .online-tile:disabled{opacity:.4}
+#onlineDialog .online-round-button{
+  display:grid;place-items:center;flex:none;
+  width:51px;height:51px;padding:0;
+  border:5px ridge #edc45f;border-radius:50%;
+  background:linear-gradient(140deg,#fff2ae,#89909c,#5b5e69);
+  color:#fff1c4;font:bold 34px Georgia,serif;
+  text-shadow:1px 1px #452314;box-shadow:0 4px 8px #220507;
+}
+#onlineDialog .online-round-button.online-confirm{
+  background:linear-gradient(140deg,#fff6ab,#efbd43,#b47710);
+  color:#54340c;
+}
+#onlineDialog .online-round-button:disabled{opacity:.4}
+#onlineDialog .online-match-chat{max-height:380px}
+#onlineDialog .online-chat-scroll{
+  flex:1;min-height:65px;max-height:185px;overflow-y:auto;
+  border:1px solid #673b32;border-radius:4px;
+  background:#260a12;color:#f5dcb3;padding:7px;
+  font:11px/1.55 Verdana,sans-serif;
+}
+#onlineDialog #onlineChatForm{display:flex;gap:5px;flex-wrap:wrap}
+#onlineDialog #onlineChatInput{
+  min-width:0;flex:1 1 100px;
+  padding:7px;border:1px solid #9a653c;border-radius:5px;
+  background:#fff4d9;color:#421f13;font:12px Verdana,sans-serif;
+}
+#onlineDialog #onlineChatForm .gold-button{flex:none;min-height:37px;padding:6px 10px;font-size:11px}
+#onlineDialog .online-control-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  width:100%;min-height:68px;margin-top:8px;
+  padding:10px 17px;border-top:5px ridge #ba752b;
+  background:linear-gradient(#44151c,#21070e);
+}
+#onlineDialog .online-bag-count,.online-dialog .online-game-mode{
+  min-width:125px;color:#ead2a3;font:12px Verdana,sans-serif
+}
+#onlineDialog .online-bag-count strong{font:bold 19px Georgia,serif;color:#fff4c6}
+#onlineDialog .online-game-mode{text-align:right}
+#onlineDialog .online-match-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#onlineDialog .online-match-actions .gold-button{font-size:13px;min-height:45px;padding:8px 18px}
+@media(max-width:1100px){
+  #onlineDialog .online-match-layout{
+    grid-template-columns:minmax(125px,1fr) minmax(340px,590px) minmax(125px,1fr);
+    padding:2px 10px 0;gap:7px
+  }
+  #onlineDialog .online-panel h2{font-size:16px}
+  #onlineDialog .online-panel{padding:8px}
+  #onlineDialog .online-mascot{height:120px}
+}
+/* Match the offline portrait sequence: progress, two score cards,
+   coloured board, rack/confirm, sticky actions, collapsible sidebar panels. */
+@media(max-width:950px) and (orientation:portrait),(max-width:700px){
+  #onlineDialog.online-dialog{
+    width:calc(100vw - 8px);max-width:calc(100vw - 8px);
+    max-height:calc(100dvh - 12px);border-width:3px;border-radius:8px
+  }
+  #onlineDialog .online-dialog-header{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:7px;padding:10px 10px 8px
+  }
+  #onlineDialog .online-game-brand{font-size:10px;gap:6px}
+  #onlineDialog .online-brand-mark{width:37px;height:37px;font-size:26px;border-radius:8px}
+  #onlineDialog .online-game-title{
+    grid-column:2;grid-row:1;
+    font-size:clamp(18px,4.8vw,26px);letter-spacing:1px
+  }
+  #onlineDialog .online-game-title small{font-size:9px;letter-spacing:.5px}
+  #onlineDialog #onlineCancel{
+    grid-column:1/-1;grid-row:2;justify-self:stretch;
+    min-height:39px;font-size:12px
+  }
+  #onlineDialog #onlineStatus{font-size:11px;min-height:0;padding:6px 10px 2px}
+  #onlineDialog .online-progress{
+    width:calc(100% - 26px);height:25px;padding:2px 8px;
+    margin:6px auto 8px;gap:2px
+  }
+  #onlineDialog .online-progress i{max-width:19px}
+  #onlineDialog .online-match-info{display:none}
+  #onlineDialog .online-match-layout{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:0;align-content:start;width:100%;padding:0 6px
+  }
+  #onlineDialog .online-player-side{display:contents}
+  #onlineDialog .online-mascot{display:none}
+  #onlineDialog .online-player-card{
+    grid-row:1;align-self:stretch;justify-self:stretch;
+    width:auto;max-width:none;margin:0 4px 9px;
+    border-width:3px
+  }
+  #onlineDialog #onlinePlayer0Card{grid-column:1}
+  #onlineDialog #onlinePlayer1Card{grid-column:2}
+  #onlineDialog .online-player-name{padding:7px 3px;font-size:12px}
+  #onlineDialog .online-player-score{padding:5px 7px;gap:4px}
+  #onlineDialog .online-player-score strong{font-size:24px}
+  #onlineDialog .online-player-score small{font-size:10px}
+  #onlineDialog .online-game-board{
+    grid-column:1/-1;grid-row:2;min-width:0;width:100%;
+    padding:0 2px;align-self:start
+  }
+  #onlineDialog .online-board-crest{font-size:11px;letter-spacing:2px;margin-bottom:2px}
+  #onlineDialog .online-board-rim{width:100%;border-width:3px;padding:5px}
+  #onlineDialog .online-board{border-width:2px}
+  #onlineDialog .online-cell{font:bold clamp(10px,3.3vw,20px) Georgia,serif}
+  #onlineDialog .online-cell.staged{box-shadow:inset 0 0 0 1.5px #eb8616}
+  #onlineDialog .online-under-board{min-height:44px;gap:5px;padding:5px 0}
+  #onlineDialog .online-preview{font-size:11px;line-height:1.35}
+  #onlineDialog .online-timer-wrap{min-width:69px;padding:2px 5px}
+  #onlineDialog .online-timer-wrap strong{font-size:18px}
+  #onlineDialog .online-rack-frame{gap:5px;padding:5px 0 6px}
+  #onlineDialog .online-rack{
+    height:clamp(47px,13vw,61px);padding:3px 4px;
+    gap:3px;max-width:none
+  }
+  #onlineDialog .online-tile{
+    max-width:52px;height:clamp(38px,11vw,53px);
+    font-size:clamp(20px,7vw,30px)
+  }
+  #onlineDialog .online-round-button{
+    width:42px;height:42px;border-width:4px;font-size:27px
+  }
+  #onlineDialog .online-last-move-review{font-size:11px;padding:7px 5px}
+  #onlineDialog .online-control-bar{
+    display:flex;flex-direction:column;gap:5px;
+    position:sticky;bottom:0;z-index:15;
+    margin:0;padding:7px 8px calc(8px + env(safe-area-inset-bottom));
+    border-top:3px ridge #c58b39;
+    background:linear-gradient(#49141df5,#21070efa)
+  }
+  #onlineDialog .online-bag-count{order:-1;text-align:center;font-size:11px}
+  #onlineDialog .online-bag-count strong{font-size:14px}
+  #onlineDialog .online-match-actions{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;width:100%
+  }
+  #onlineDialog .online-match-actions .gold-button{
+    width:100%;min-width:0;min-height:45px;
+    font-size:12px;padding:7px 4px
+  }
+  #onlineDialog .online-game-mode{display:none}
+  #onlineDialog .online-panel{
+    grid-column:1/-1;align-self:start;
+    margin:10px 4px 0;padding:0;max-height:none;min-height:0;
+    border-width:2px;overflow:visible;gap:0
+  }
+  #onlineDialog .online-status-panel{grid-row:3}
+  #onlineDialog .online-match-chat{grid-row:4;max-height:none}
+  #onlineDialog .online-panel-toggle{
+    display:block;text-align:left;
+    width:100%;min-height:43px;padding:10px 12px;
+    border:0;background:transparent;color:#f8d693;
+    font:bold 15px Georgia,serif
+  }
+  #onlineDialog .online-panel-content{display:none}
+  #onlineDialog .online-panel.mobile-expanded .online-panel-content{
+    display:flex;flex-direction:column;gap:8px;padding:0 11px 12px
+  }
+  #onlineDialog .online-panel h2{display:none}
+  #onlineDialog .online-chat-scroll{max-height:150px;min-height:85px;flex:none}
+  #onlineDialog .online-move-history{max-height:145px}
+  #onlineDialog .online-panel h3{margin-top:4px}
+  #onlineDialog .online-status-details>div{font-size:11px}
+}
+@media(max-width:355px){
+  #onlineDialog .online-dialog-header{padding:7px}
+  #onlineDialog .online-game-title{font-size:18px}
+  #onlineDialog .online-player-score small{font-size:9px}
+  #onlineDialog .online-board-rim{padding:3px}
+  #onlineDialog .online-rack{gap:2px}
+  #onlineDialog .online-round-button{width:37px;height:37px;font-size:25px}
+}

@@ -45,16 +45,27 @@ function respond(response,status,body){
   response.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
   response.end(JSON.stringify(body));
 }
-async function verify(idToken){
-  if(typeof idToken!=='string'||idToken.length<100||idToken.length>5000)throw new Error('Přihlášení je neplatné.');
+async function verifyGoogle(idToken){
+  if(typeof idToken!=='string'||idToken.length<100||idToken.length>5000)
+    throw new Error('Přihlášení je neplatné.');
   const cached=tokenCache.get(idToken),now=Date.now();
   if(cached&&cached.until>now)return cached.uid;
-  const ticket=await authClient.verifyIdToken({idToken,audience:clientId});
+  let ticket;
+  try{ticket=await authClient.verifyIdToken({idToken,audience:clientId});}
+  catch{throw new Error('Přihlášení přes Google je neplatné nebo vypršelo.');}
   const payload=ticket.getPayload();
   if(!payload?.sub||!payload.exp||payload.exp*1000<=now)throw new Error('Přihlášení vypršelo.');
   if(tokenCache.size>400)tokenCache.clear();
   tokenCache.set(idToken,{uid:payload.sub,until:Math.min(payload.exp*1000,now+120_000)});
   return payload.sub;
+}
+async function verify(token){
+  if(typeof token==='string'&&token.startsWith('abaku_')){
+    const uid=store.sessionUid(token);
+    if(!uid)throw new Error('Přihlášení vypršelo nebo bylo odhlášeno.');
+    return uid;
+  }
+  return verifyGoogle(token);
 }
 async function identity(request){
   const header=request.headers.authorization||'';
@@ -105,8 +116,22 @@ const http=createServer(async(request,response)=>{
     if(request.method==='GET'&&pathname==='/api/presence')return respond(response,200,{
       online:presence.count(engine.connections),waiting:engine.waitingCount(),refreshSeconds:20
     });
+    // Exchange an already verified Google ID token for a revocable session.
+    // Google is required for initial sign-in, not for each later page load.
+    if(request.method==='POST'&&pathname==='/api/session'){
+      const bearer=request.headers.authorization||'';
+      if(!bearer.startsWith('Bearer '))throw new Error('Přihlášení je vyžadováno.');
+      const uid=await verifyGoogle(bearer.slice(7));
+      return respond(response,200,store.createSession(uid));
+    }
     const uid=await identity(request);
     store.ensure(uid);
+    if(request.method==='DELETE'&&pathname==='/api/session'){
+      const bearer=request.headers.authorization||'';
+      store.revokeSession(bearer.slice(7));
+      presence.remove(uid);
+      return respond(response,200,{ok:true});
+    }
     if(request.method==='POST'&&pathname==='/api/presence'){
       presence.touch(uid);
       return respond(response,200,{ok:true});

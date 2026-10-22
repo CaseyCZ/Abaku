@@ -7,7 +7,7 @@ const LEGACY_GOOGLE_KEY='abaku-online-google-session-v1';
 
 function validName(value){
   return typeof value==='string'&&value.trim().length>=2&&value.trim().length<=20
-    &&/^[\\p{L}\\p{N} ._\\-]+$/u.test(value.trim());
+    &&/^[\p{L}\p{N} ._-]+$/u.test(value.trim());
 }
 function readJson(key){
   try{return JSON.parse(localStorage.getItem(key)||'null');}

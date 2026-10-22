@@ -1,11 +1,11 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove} from './rules.js?v=0.1.2';
-import {chooseMove} from './ai.js';
-import {describeMovePreview} from './preview.js';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.9';
+import {chooseMove} from './ai.js?v=0.2.9';
+import {describeMovePreview} from './preview.js?v=0.2.9';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.7';
+const VERSION = '0.1.8';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -29,6 +29,8 @@ let exchangeIndices = new Set();
 let deadline = null;
 let botBusy = false;
 let messageType = '';
+let recentMove = null;
+let recentMoveTimer = null;
 let audioContext;
 
 function sound(kind = 'tap') {
@@ -59,6 +61,35 @@ function notify(message, type = '') {
     mobileMessage.className = `mobile-game-message ${messageType}`;
   }
 }
+// Keep the accepted example and highlighted tiles visible for three seconds,
+// even if the next player or AI is already taking their turn.
+function clearRecentMove(){
+  if(recentMoveTimer!==null)clearTimeout(recentMoveTimer);
+  recentMoveTimer=null;recentMove=null;
+  const banner=byId('lastMoveReview');
+  if(banner)banner.hidden=true;
+}
+function showRecentMove(checked,placements,who){
+  clearRecentMove();
+  recentMove={
+    placed:new Set(placements.map(p=>p.row+':'+p.col)),
+    cells:new Set((checked.equationCells||[]).map(p=>p.row+':'+p.col)),
+    label:who+': '+formatEquations(checked.equations)+' · +'+checked.points+' bodů',
+    until:Date.now()+3000
+  };
+  renderBoard();
+  renderRecentMove();
+  recentMoveTimer=setTimeout(()=>{
+    recentMove=null;recentMoveTimer=null;
+    renderBoard();renderRecentMove();
+  },3000);
+}
+function renderRecentMove(){
+  const banner=byId('lastMoveReview');
+  if(!banner)return;
+  banner.hidden=!recentMove||Date.now()>=recentMove.until;
+  if(!banner.hidden)banner.textContent=recentMove.label;
+}
 function save() { try { localStorage.setItem(saveKey, JSON.stringify(game)); } catch {} }
 function freshGame() {
   const bag = makeBag();
@@ -69,11 +100,13 @@ function freshGame() {
 }
 function clearPending() { pending = []; selectedIndex = null; exchangeMode = false; exchangeIndices.clear(); }
 function newGame() {
+  clearRecentMove();
   game = freshGame(); clearPending();botBusy = false;
   resetDeadline();save();render();notify('První tah: sestav příklad přes prostřední pole.');
 }
 function resetDeadline() {deadline = settings.time ? Date.now() + settings.time*1000 : null;}
 function restore() {
+  clearRecentMove();
   const saved = load(saveKey, null);
   if (saved && Array.isArray(saved.board) && saved.board.length === SIZE && saved.players?.length === 2 && Array.isArray(saved.bag)) {
     game = saved;
@@ -108,6 +141,10 @@ function renderBoard() {
     const digit = staged ? staged.digit : game.board[r][c];
     const cell = document.createElement('button');
     cell.type = 'button';cell.className = `cell ${bonusAt(r,c)} ${digit !== null ? 'occupied' : ''} ${staged ? 'pending' : digit !== null ? 'old' : ''}`;
+    if(recentMove&&Date.now()<recentMove.until){
+      if(recentMove.cells.has(key))cell.classList.add('recent-equation');
+      if(recentMove.placed.has(key))cell.classList.add('recent-tile');
+    }
     cell.dataset.row = r;cell.dataset.col = c;
     cell.textContent = digit === null ? '' : String(digit);
     cell.title = `${r+1}. řádek, ${c+1}. sloupec${digit === null ? '' : `, ${digit}`}`;
@@ -140,7 +177,7 @@ function renderSidebar() {
   byId('turnName').textContent = game.finished ? 'Partie skončila' : playerLabel(game.turn);
   const last = game.history?.length ? game.history[game.history.length - 1] : null;
   byId('lastMovePlayer').textContent = last ? playerLabel(last.player) : '—';
-  byId('lastExample').textContent = last?.examples?.length ? last.examples.join(', ') : '—';
+  byId('lastExample').textContent = last?.examples?.length ? formatEquations(last.examples,10) : '—';
   byId('lastPoints').textContent = last ? '+' + last.points : '—';
   const history = byId('moveHistory');
   history.replaceChildren();
@@ -152,7 +189,7 @@ function renderSidebar() {
     points.className = 'move-points';
     points.textContent = '+' + entry.points;
     const details = document.createElement('span');
-    details.textContent = ' · ' + (entry.examples?.slice(0,2).join(', ') || 'tah');
+    details.textContent = ' · ' + (formatEquations(entry.examples,2) || 'tah');
     li.append(who,points,details);
     history.append(li);
   }
@@ -203,7 +240,7 @@ function render() {
     byId(`player${i}Card`).classList.toggle('active',game.turn===i && !game.finished);
     byId(`player${i}Status`).textContent=game.finished ? 'Konec' : game.turn===i ? 'Na tahu' : 'Čeká';
   }
-  renderSidebar();renderChat();renderMovePreview();
+  renderSidebar();renderChat();renderMovePreview();renderRecentMove();
   byId('hintButton').hidden = settings.mode !== 'bot';
   byId('bagCount').textContent=game.bag.length;
   byId('modeLabel').textContent=settings.mode==='bot' ? `Počítač: ${ {easy:'začátečník',medium:'pokročilý',hard:'expert'}[settings.difficulty] }`:'Dva hráči';
@@ -259,7 +296,8 @@ function commitMove(placements, fromBot=false) {
   player.score+=checked.points;
   game.history.push({player:game.turn,points:checked.points,examples:checked.equations,tiles:placements.length});
   const who=fromBot?'Počítač':playerLabel(game.turn);
-  notify(`${who}: +${checked.points} bodů · ${checked.equations.slice(0,3).join(', ')}${checked.equations.length>3?'…':''}`,'success');
+  notify(`${who}: +${checked.points} bodů · ${formatEquations(checked.equations)}${checked.equations.length>3?'…':''}`,'success');
+  showRecentMove(checked,placements,who);
   sound('success');advanceTurn();return true;
 }
 byId('confirmButton').addEventListener('click',()=>{if(pending.length)commitMove(pending);});
@@ -290,7 +328,7 @@ byId('hintButton').addEventListener('click',()=>{
       const {index}=available.splice(i,1)[0];
       return {...p,rackIndex:index};
     });
-    sound();render();notify(`Návrh tahu za ${move.points} bodů. Můžeš ho upravit nebo potvrdit.`,'success');
+    sound();render();notify(`Nápověda: ${formatEquations(move.equations)} · +${move.points} bodů. Potvrď nebo uprav.`,'success');
   },30);
 });
 
@@ -313,7 +351,7 @@ function runBot() {
       const {index}=available.splice(found,1)[0];return {...p,rackIndex:index};
     });
     commitMove(placements,true);
-  },500);
+  },3000);
 }
 
 function tick(){

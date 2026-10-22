@@ -11,7 +11,7 @@ function rig(){
 test('matchmaking pairs two different players, sends only personal racks',()=>{
   const {game,out}=rig();
   game.connect('a');game.connect('b');
-  game.joinRandom('a',30); game.joinRandom('b',60);
+  game.joinRandom('a',30); game.joinRandom('b',30);
   const a=game.matchOf('a'),b=game.matchOf('b');
   assert.equal(a,b);
   assert.equal(a.seconds,30);
@@ -101,4 +101,31 @@ test('players may queue and be matched again after a completed game',()=>{
   game.finish(game.matchOf('a'),'completed');
   game.joinRandom('d');game.joinRandom('b');
   assert.equal(game.matchOf('b'),game.matchOf('d'));
+});
+
+test('random matchmaking keeps selected turn times compatible',()=>{
+  const {game,out}=rig();
+  game.connect('thirty');game.connect('sixty');game.connect('sixty2');game.connect('thirty2');
+  game.joinRandom('thirty',30);
+  game.joinRandom('sixty',60);
+  assert.equal(game.waitingCount(),2);
+  assert.equal(game.matchOf('thirty'),null);
+  game.joinRandom('sixty2',60);
+  assert.equal(game.matchOf('sixty').seconds,60);
+  assert.equal(game.matchOf('sixty'),game.matchOf('sixty2'));
+  assert.equal(game.waitingCount(),1);
+  game.joinRandom('thirty2',30);
+  assert.equal(game.matchOf('thirty').seconds,30);
+  assert.equal(game.matchOf('thirty'),game.matchOf('thirty2'));
+  assert.ok(out.some(x=>x.type==='match-state'&&x.uid==='sixty2'&&x.seconds===60));
+});
+
+test('private invite uses creator turn limit, and invalid time defaults to 90 sec',()=>{
+  const {game}=rig();
+  game.connect('a');game.connect('b');game.connect('c');
+  const code=game.makeInvite('a',30);
+  game.joinInvite('b',code);
+  assert.equal(game.matchOf('a').seconds,30);
+  game.joinRandom('c',500);
+  assert.equal(game.queue[0].seconds,90);
 });

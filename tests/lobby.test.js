@@ -114,20 +114,26 @@ test('online players see complete previous equation and its highlighted squares'
 });
 
 
-test('Google auth is restored silently from tab session after a normal reload',()=>{
-  // Saved credentials are limited to the current browser tab and are not
-  // treated as trusted until the backend confirms the Google token.
+test('Google auth is restored from Oracle device sessions across refresh and tabs',()=>{
+  // Google ID tokens are short lived and only used to create revocable Oracle
+  // sessions. A verified Oracle session lasts 30 days and is shared by tabs.
   assert.match(onlineClient,/const authSessionKey='abaku-online-google-session-v1'/);
-  assert.match(onlineClient,/sessionStorage\.setItem\(authSessionKey,token\)/);
-  assert.match(onlineClient,/sessionStorage\.getItem\(authSessionKey\)/);
+  assert.match(onlineClient,/const durableSessionKey='abaku-online-device-session-v1'/);
+  assert.match(onlineClient,/localStorage\.setItem\(durableSessionKey,token\)/);
+  assert.match(onlineClient,/localStorage\.getItem\(durableSessionKey\)/);
+  assert.match(onlineClient,/localStorage\.removeItem\(durableSessionKey\)/);
   assert.match(onlineClient,/sessionStorage\.removeItem\(authSessionKey\)/);
-  assert.match(onlineClient,/const \{profile\}=await api\('\/api\/me'\);\s*saveCredential\(value\);\s*showProfile\(profile\)/);
+  assert.match(onlineClient,/const \{sessionToken\}=await api\('\/api\/session','POST'\)/);
+  assert.match(onlineClient,/if\(!isAppSession\(sessionToken\)\)throw/);
+  assert.match(onlineClient,/credential=sessionToken;\s*saveCredential\(sessionToken\)/);
   assert.match(onlineClient,/const saved=readSavedCredential\(\);\s*if\(saved&&await googleCredential\(saved\)\)return;/);
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
-  assert.match(onlineClient,/const old=connection;connection=null;\s*old\?\.close\(\);\s*socketAuthenticated=false;\s*credential=null;gameState=null;currentProfile=null;[\s\S]*?clearSavedCredential\(\)/);
-  assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.19/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.19/);
+  assert.match(onlineClient,/const target=isAppSession\(credential\)\?'\/api\/session':'\/api\/presence'/);
+  assert.match(onlineClient,/clearSavedCredential\(\)/);
+  // Never persist the short-lived Google ID token to persistent storage.
+  assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
+  assert.match(landing,/Abaku Online 0\.2\.20/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.20/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -325,4 +331,20 @@ test('Vypnuto in-game preserves final board highlight without showing score scro
   const js=file('../src/score-recap.js');
   assert.match(js,/if\(getRecapSeconds\(\)===0\)\{\s*onDone\?\.\(\);\s*return;/);
   assert.match(onlineClient,/onDone:\(\)=>showOnlineHighlight\(move\)/);
+});
+
+
+test('server creates and verifies hashed revocable device sessions on REST and WebSocket',()=>{
+  const api=file('../server/index.js');
+  const store=file('../server/store.js');
+  assert.match(api,/pathname==='\/api\/session'/);
+  assert.match(api,/store\.createSession\(uid\)/);
+  assert.match(api,/store\.revokeSession\(bearer\.slice\(7\)\)/);
+  assert.match(api,/store\.sessionUid\(token\)/);
+  assert.match(api,/return verifyGoogle\(token\)/);
+  assert.match(api,/uid=await verify\(msg\.idToken\)/);
+  assert.match(store,/CREATE TABLE IF NOT EXISTS login_sessions/);
+  assert.match(store,/createHash\('sha256'\)/);
+  assert.match(store,/const SESSION_TTL=30\*24\*60\*60\*1000/);
+  assert.match(store,/const SESSION_RENEW_BELOW=20\*24\*60\*60\*1000/);
 });

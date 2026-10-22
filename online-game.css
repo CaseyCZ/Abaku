@@ -495,49 +495,6 @@
 }
 #onlineDialog .online-opponent-notice[hidden]{display:none!important}
 
-/* The result uses a separate native dialog above the online game so it
-   is visible regardless of how far down the 15x15 board has been scrolled. */
-#onlineResultDialog.online-result-dialog{
-  box-sizing:border-box;
-  width:min(92vw,490px);max-height:calc(100dvh - 24px);overflow-y:auto;
-  padding:5px;border:4px ridge #e5b75e;border-radius:16px;
-  color:#fceac5;background:linear-gradient(150deg,#6c2524,#380e18 68%,#1f0811);
-  box-shadow:0 9px 35px #15040be0;text-align:center
-}
-#onlineResultDialog::backdrop{background:rgba(15,4,9,.8);backdrop-filter:blur(3px)}
-#onlineResultDialog .online-result-inner{
-  padding:clamp(15px,4vw,26px);display:flex;flex-direction:column;align-items:center;gap:12px
-}
-#onlineResultDialog .online-result-emblem{
-  font:45px Georgia,serif;color:#f5ca6e;text-shadow:0 0 14px #f7cf6b
-}
-#onlineResultDialog h2{margin:0;color:#ffe09b;font:bold clamp(26px,6vw,35px) Georgia,serif}
-#onlineResultDialog p{margin:0;font:13px/1.6 Verdana,sans-serif}
-#onlineResultDialog .online-result-scores{
-  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-  gap:9px;align-items:center;width:100%;
-  border:2px solid #bc8745;border-radius:9px;
-  background:#210b12bd;padding:13px 8px
-}
-#onlineResultDialog .online-result-scores>div{display:flex;flex-direction:column;gap:7px;min-width:0}
-#onlineResultDialog .online-result-scores span{
-  color:#f5d39c;font:12px Verdana,sans-serif;overflow-wrap:anywhere
-}
-#onlineResultDialog .online-result-scores strong{
-  font:bold clamp(29px,9vw,43px) Georgia,serif;color:#ffe5ac
-}
-#onlineResultDialog .online-result-vs{font:28px Georgia,serif}
-#onlineResultDialog #onlineResultReason{color:#e8c6a0}
-#onlineResultDialog #onlineRematchStatus{color:#c0f1cb;min-height:18px;font-weight:700}
-#onlineResultDialog .online-result-actions{
-  width:100%;display:flex;flex-wrap:wrap;gap:9px
-}
-#onlineResultDialog .online-result-actions .gold-button{
-  flex:1 1 150px;min-height:46px;white-space:normal
-}
-#onlineResultDialog .online-result-actions .gold-button:disabled{
-  opacity:.55;cursor:wait
-}
 @media(max-width:700px){
   #onlineDialog .online-chat-toast{max-width:67vw;min-height:48px;padding:7px;gap:5px}
   #onlineDialog .online-chat-toast-copy strong{font-size:11px}

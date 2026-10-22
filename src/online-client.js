@@ -1,4 +1,4 @@
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.2';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.4';
 import { describeMovePreview } from './preview.js';
 
 const $=id=>document.getElementById(id);
@@ -13,6 +13,51 @@ const apiBase=safeApiBase();
 const configured=Boolean(apiBase&&ONLINE_CONFIG.googleClientId);
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
 let onlineName='Hráč';
+let presenceTimer=null;
+let lastPresence=null;
+async function heartbeat(){
+  if(credential)await api('/api/presence','POST');
+}
+function paintPresence(data){
+  lastPresence=data;
+  $('onlineCount').textContent=String(data.online);
+  $('waitingCount').textContent=String(data.waiting);
+  const msg=data.waiting===0
+    ? 'Nikdo právě nečeká. Můžeš zahájit hledání.'
+    : data.waiting===1 ? '1 hráč právě hledá soupeře.'
+    : data.waiting+' hráči právě hledají soupeře.';
+  $('queueActivity').textContent=msg;
+  $('onlineWaitingCount').textContent='Nyní čeká na náhodného soupeře: '+data.waiting+'.';
+}
+async function refreshPresence(){
+  if(!apiBase)return;
+  try{
+    const response=await fetch(apiBase+'/api/presence',{cache:'no-store'});
+    if(!response.ok)throw new Error('Nedostupné');
+    const data=await response.json();
+    if(!Number.isSafeInteger(data.online)||!Number.isSafeInteger(data.waiting)||
+       data.online<0||data.waiting<0||data.waiting>data.online)throw new Error('Neplatná data');
+    paintPresence(data);
+  }catch{
+    if(!lastPresence){
+      $('onlineCount').textContent='—';
+      $('waitingCount').textContent='—';
+      $('queueActivity').textContent='Počet čekajících zatím není dostupný.';
+      $('onlineWaitingCount').textContent='Počet čekajících zatím není dostupný.';
+    }
+  }
+}
+function startPresenceUpdates(){
+  if(presenceTimer)return;
+  const refresh=async()=>{
+    if(document.visibilityState==='hidden')return;
+    if(credential)await heartbeat().catch(()=>{});
+    await refreshPresence();
+  };
+  refresh();
+  presenceTimer=setInterval(refresh,20_000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh();});
+}
 let currentProfile=null;
 export function getOnlineProfile(){return currentProfile ? {...currentProfile} : null;}
 export async function updateOnlineProfile(nickname,avatar){
@@ -80,6 +125,8 @@ async function googleCredential(value){
   try{
     const {profile}=await api('/api/me');
     showProfile(profile);
+    await heartbeat().catch(()=>{});
+    await refreshPresence();
     await showLeaderboard();
   }catch(error){
     credential=null;
@@ -117,6 +164,7 @@ function connectOnline(action){
   $('onlineWaiting').hidden=false;
   $('onlineCode').textContent='';
   $('onlineChat').replaceChildren();
+  refreshPresence();
   status('Připojuji se k Oracle serveru…');
   const wsUrl=apiBase.replace(/^http/,'ws')+'/ws';
   const socket=new WebSocket(wsUrl);
@@ -133,13 +181,16 @@ function connectOnline(action){
       else send('sync');
       return;
     }
-    if(msg.type==='queue'){status(msg.waiting?'Hledám soupeře…':'Hledání zrušeno.');return;}
+    if(msg.type==='queue'){
+      status(msg.waiting?'Hledám soupeře… druhý hráč musí také zvolit Náhodný soupeř.':'Hledání zrušeno.');
+      refreshPresence();return;
+    }
     if(msg.type==='invite'){
       $('onlineCode').textContent=msg.code;
       status('Pozvi přítele tímto kódem. Platí deset minut.');
       return;
     }
-    if(msg.type==='match-start'){status('Soupeř připojen, partie začíná!');return;}
+    if(msg.type==='match-start'){status('Soupeř připojen, partie začíná!');refreshPresence();return;}
     if(msg.type==='match-state'){
       const previous=gameState?.turn;
       gameState=msg;
@@ -277,6 +328,11 @@ function initializeActions(){
     }catch(error){$('friendMessage').textContent=error.message;}
   });
   $('onlineLogout').addEventListener('click',()=>{
+    if(credential){
+      fetch(apiBase+'/api/presence',{
+        method:'DELETE',headers:{Authorization:'Bearer '+credential},keepalive:true
+      }).catch(()=>{});
+    }
     connection?.close();connection=null;credential=null;gameState=null;currentProfile=null;
     window.google?.accounts?.id?.disableAutoSelect?.();
     $('googleSignInWidget').hidden=false;
@@ -338,6 +394,7 @@ export async function initOnline(){
   }
 
   document.querySelector('.server-state').textContent='● Oracle Online připojeno';
+  startPresenceUpdates();
   $('googleSignIn').hidden=true;
   $('googleSignInWidget').hidden=false;
   $('onlineLoginNotice').textContent='Načítání přihlášení Google…';

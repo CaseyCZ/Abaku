@@ -122,6 +122,7 @@
             <label class="online-time-setting" for="onlineRecapSeconds">
               <span>Zobrazení příkladu</span>
               <select id="onlineRecapSeconds" aria-label="Doba zobrazení každého příkladu">
+                <option value="0">Vypnuto</option>
                 <option value="2">2 sekundy</option>
                 <option value="3" selected>3 sekundy</option>
                 <option value="5">5 sekund</option>
@@ -129,14 +130,14 @@
                 <option value="10">10 sekund</option>
               </select>
             </label>
-            <p class="online-time-help">Po každém vypočítaném příkladu se součet zobrazí po zvolenou dobu. Nastavení platí i proti počítači.</p>
+            <p class="online-time-help">Po každém příkladu se součet zobrazí po zvolenou dobu. Vypnuto přeskočí svitek, ale zachová zvýraznění tahu na desce. Platí i proti počítači.</p>
             <div class="online-presence" aria-label="Aktuální aktivita hráčů">
               <div><strong id="onlineCount">—</strong><span>hráčů online</span></div>
               <div><strong id="waitingCount">—</strong><span>hledá soupeře</span></div>
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-            <span class="build-label">Abaku Online 0.2.18 · testovací provoz</span>
+            <span class="build-label">Abaku Online 0.2.19 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -312,13 +313,14 @@
       <h2 id="onlineGameSettingsTitle">⚙ Nastavení online hry</h2>
       <label for="onlineGameRecapSeconds">Doba zobrazení příkladu</label>
       <select id="onlineGameRecapSeconds" aria-label="Doba zobrazení jednoho příkladu v online partii">
+        <option value="0">Vypnuto</option>
         <option value="2">2 sekundy</option>
         <option value="3" selected>3 sekundy</option>
         <option value="5">5 sekund</option>
         <option value="8">8 sekund</option>
         <option value="10">10 sekund</option>
       </select>
-      <p>Každý příklad se automaticky vyhodnotí. Volba platí i proti počítači a uloží se bez přerušení partie.</p>
+      <p>Vypnuto přeskočí svitek se sčítáním; položené kameny se stále na 3 sekundy zvýrazní. Změna platí i proti počítači.</p>
       <div class="online-game-settings-actions">
         <button type="button" id="onlineSettingsCancel" class="gold-button">Zrušit</button>
         <button type="button" id="onlineSettingsSave" class="gold-button primary">Uložit</button>
@@ -343,6 +345,6 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.18"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.19"></script>
 </body>
 </html>

@@ -39,12 +39,12 @@ async function refreshPresence(){
        data.online<0||data.waiting<0||data.waiting>data.online)throw new Error('Neplatná data');
     paintPresence(data);
   }catch{
-    if(!lastPresence){
-      $('onlineCount').textContent='—';
-      $('waitingCount').textContent='—';
-      $('queueActivity').textContent='Počet čekajících zatím není dostupný.';
-      $('onlineWaitingCount').textContent='Počet čekajících zatím není dostupný.';
-    }
+    // Never display an old cached count as if it were current.
+    lastPresence=null;
+    $('onlineCount').textContent='—';
+    $('waitingCount').textContent='—';
+    $('queueActivity').textContent='Aktuální počet čekajících není dostupný.';
+    $('onlineWaitingCount').textContent='Počet čekajících není dostupný.';
   }
 }
 function startPresenceUpdates(){

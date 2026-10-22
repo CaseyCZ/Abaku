@@ -2,7 +2,13 @@
 
 Neoficiální fanouškovská rekonstrukce klasické číselné hry inspirovaná původním Abaku z portálu Hry.cz / Seznam. Cílem je postupně dosáhnout věrného herního zážitku z původní PC hry a připravit základ pro budoucí iOS a Android verze.
 
-> **Stav:** první hratelná verze (0.1.0). Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
+> **Stav:** první hratelná verze (0.1.1). Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
+
+### Novinky 0.1.1
+
+- Celá PC hra včetně zásobníku a spodních tlačítek se přizpůsobuje výšce okna.
+- Hrací deska má pevně dané čtvercové rozměry a nemění výšku řádků při přidávání číslic.
+- Čas tahu lze zvolit 30, 60 nebo 90 sekund (staré uložené hodnoty se převedou na 90 sekund).
 
 ## Spuštění
 

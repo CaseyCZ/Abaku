@@ -305,15 +305,17 @@ function commitMove(placements, fromBot=false) {
   const nextTurn=1-game.turn;
   scoreRecap.play({player:who,breakdown:checked.equationBreakdown,
     equations:checked.equations,total:checked.points,
-    onDone:()=>{
-      // Show the board alone for three seconds AFTER the last calculation.
+    onDone:()=>new Promise(resolve=>{
+      // The scorer waits for 3 seconds of unobstructed board highlighting
+      // before displaying any queued future scoring animation.
       showRecentMove(checked,placements,who,()=>{
         if(!game?.finished&&game.turn===nextTurn){
           resetDeadline();render();
           if(isBotTurn()&&!botBusy)runBot();
         }
+        resolve();
       });
-    }
+    })
   });
   sound('success');advanceTurn(false,true);return true;
 }

@@ -1,4 +1,4 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.6';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.8';
 const PROFILE_KEY = 'abaku-local-profile-v1';
 const GAME_KEY = 'retro-abaku-game-v1';
 const byId = id => document.getElementById(id);
@@ -80,7 +80,7 @@ byId('profileForm').addEventListener('submit',async event=>{
 byId('nickname').addEventListener('input',()=>byId('nickname').setCustomValidity(''));
 const planned={
   playRandom:'Pro náhodný online zápas se nejdříve přihlas přes Google v panelu Můj profil. Pokud přihlášení nevidíš, Oracle API nemusí být dostupné.',
-  playFriends:'Pro pozvánku do soukromé online partie se nejdříve přihlas přes Google. Potom můžeš vytvořit nebo zadat kód pozvánky.',
+  playFriends:'Pro online partii se přihlas přes Google. Pak vyber přítele ze seznamu a vyzvi ho, případně se připoj pomocí kódu.',
   googleSignIn:'Google přihlášení se aktivuje po nastavení Google OAuth Web Client ID a HTTPS API na Oracle serveru.'
 };
 for(const [id,description] of Object.entries(planned)){

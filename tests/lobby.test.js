@@ -74,6 +74,7 @@ test('only online turn time is selectable; default is 60 seconds',()=>{
   assert.doesNotMatch(landing,/<option value="90" selected>/);
   assert.match(onlineClient,/Number\(\$\(\x27onlineTurnSeconds\x27\)\.value\) : 60/);
   assert.match(onlineClient,/selectedTurnSeconds/);
+  assert.match(onlineClient,/abaku-online-default-60-migrated-v1/);
   assert.match(onlineClient,/send\('matchmake',\{seconds:action\.seconds\}\)/);
   assert.match(onlineClient,/send\('invite',\{seconds:action\.seconds\}\)/);
   assert.match(onlineClient,/connectOnline\(\{type:'random',seconds:selectedTurnSeconds\(\)\}\)/);

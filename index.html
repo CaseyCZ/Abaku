@@ -7,8 +7,8 @@
   <meta name="description" content="Abaku – číselná retro hra. Zahraj si proti počítači, místně ve dvou nebo online s přáteli.">
   <title>ABAKU | Hlavní nabídka</title>
   <meta name="analytics-page-title" content="Abaku — Hlavní nabídka">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.13">
-  <link rel="stylesheet" href="./online-game.css?v=0.2.13">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.14">
+  <link rel="stylesheet" href="./online-game.css?v=0.2.14">
   <link rel="stylesheet" href="./analytics.css?v=1">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
@@ -124,7 +124,7 @@
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-            <span class="build-label">Abaku Online 0.2.13 · testovací provoz</span>
+            <span class="build-label">Abaku Online 0.2.14 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -258,7 +258,7 @@
 
           <aside class="online-player-side online-right">
             <section class="online-panel online-match-chat" aria-label="Chat online partie">
-              <button type="button" class="online-panel-toggle" aria-expanded="false" aria-controls="onlinePanelChat">▸ Chat</button>
+              <button type="button" class="online-panel-toggle" aria-expanded="false" aria-controls="onlinePanelChat">▸ Chat <span id="onlineUnreadBadge" class="online-unread-badge" hidden>0</span></button>
               <div id="onlinePanelChat" class="online-panel-content">
                 <h2>Chat</h2>
                 <div id="onlineChat" class="online-chat-scroll" role="log" aria-live="polite"></div>
@@ -285,7 +285,30 @@
         </div>
       </div>
     </div>
+    <button id="onlineChatToast" class="online-chat-toast" type="button" aria-label="Otevřít nové zprávy v chatu" hidden>
+      <span class="online-chat-toast-icon">💬</span>
+      <span class="online-chat-toast-copy"><strong id="onlineChatToastCount">Nová zpráva</strong><small id="onlineChatToastPreview">Soupeř napsal zprávu</small></span>
+      <span class="online-chat-toast-arrow">›</span>
+    </button>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.13"></script>
+  <dialog id="onlineResultDialog" class="online-result-dialog" aria-labelledby="onlineResultTitle">
+    <div class="online-result-inner">
+      <div class="online-result-emblem" aria-hidden="true">✦</div>
+      <h2 id="onlineResultTitle">Partie skončila</h2>
+      <p id="onlineResultDescription">Konečný výsledek</p>
+      <div class="online-result-scores">
+        <div><span id="onlineResultPlayer0">Hráč 1</span><strong id="onlineResultScore0">0</strong></div>
+        <span class="online-result-vs">:</span>
+        <div><span id="onlineResultPlayer1">Hráč 2</span><strong id="onlineResultScore1">0</strong></div>
+      </div>
+      <p id="onlineResultReason"></p>
+      <p id="onlineRematchStatus" role="status" aria-live="polite"></p>
+      <div class="online-result-actions">
+        <button type="button" id="onlineRematch" class="gold-button">⚔ Odveta</button>
+        <button type="button" id="onlineResultExit" class="gold-button">⌂ Ukončit</button>
+      </div>
+    </div>
+  </dialog>
+  <script type="module" src="./src/lobby.js?v=0.2.14"></script>
 </body>
 </html>

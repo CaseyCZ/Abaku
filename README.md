@@ -2,7 +2,7 @@
 
 Neoficiální fanouškovská rekonstrukce klasické číselné hry inspirovaná původním Abaku z portálu Hry.cz / Seznam. Cílem je postupně dosáhnout věrného herního zážitku z původní PC hry a připravit základ pro budoucí iOS a Android verze.
 
-> **Stav:** stabilní herní jádro 0.1.4, vývoj hlavní nabídky 0.2.0 ve větvi `feature/online-lobby-v0.2.0`. Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
+ > **Stav:** hlavní nabídka 0.2.0 je v `Master`; herní jádro 0.1.4 je zálohované ve větvi `backup/v0.1.4-stable-2026-10-22`. Online server je v repozitáři, ale ještě není nasazený na Oracle. Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
 
 ### Novinky 0.1.4
 - Nad stojánkem se okamžitě přepočítají potenciální body za dosud nepotvrzený tah, včetně bonusů; neplatné a neúplné příklady nemají připsané body.
@@ -29,15 +29,22 @@ Neoficiální fanouškovská rekonstrukce klasické číselné hry inspirovaná 
 - Vpravo místní chat mezi dvěma hráči na jednom PC (není online).
 - Zachováno doplňování pěti kamenů, uložené partie a nastavení 30/60/90 sekund.
 
-### Vývoj hlavní nabídky (0.2.0)
+### Hlavní nabídka a příprava online hraní (0.2.0)
 - Úvodní stránka `index.html` nabídne hru proti AI a místně na jednom PC.
 - Dosavadní herní rozhraní je beze změn zachované v `game.html`.
 - Uložené partie se zobrazují v nabídce a lze v nich pokračovat.
 - Místní přezdívku a avatar lze měnit bez přihlášení.
-- Online matchmaking, přátelé a Google přihlášení jsou v nabídce označené jako připravované. **Nejsou nasazené.**
-- Google přihlášení plánujeme přes Firebase Authentication. Oracle Node.js server ověří Firebase ID token pomocí Firebase Admin SDK.
+- Matchmaking, přátelé a Google přihlášení mají připravený kód. **Na Oracle zatím nejsou nasazené**, a proto jsou ve veřejné nabídce vypnuté.
+- Google přihlášení používá Google Identity Services (bez Firebase), token ověří Google Auth Library na Oracle Node.js serveru; aktivace vyžaduje Google Client ID a veřejné HTTPS API.
 - Nebudeme ukládat hesla ani OAuth tajné klíče do veřejného GitHub repozitáře.
-- Větev `Master` a záloha `backup/v0.1.4-stable-2026-10-22` zůstávají beze změny.
+- Funkční verze 0.1.4 zůstává beze změny v záložní větvi. Online část prozatím zůstává neaktivní, dokud nedoplníme konfiguraci.
+
+### Oracle Online API
+- Minimalistický Node.js server: `server/index.js`, Node.js 24.15+, WebSockety `ws`, Google tokeny `google-auth-library`.
+- SQLite uchovává pouze přezdívky, avatary, statistiky výher/proher/remíz a kontakty přátel.
+- Board, kameny, chat a pozvánky jsou v paměti procesu. Server hlídá platnost tahů i skóre.
+- Online frontend je připravený v `src/online-client.js`; aktivuje se veřejnou konfigurací `src/online-config.js` **až po bezpečném nasazení API**.
+- Detailní návod v [`server/README.md`](server/README.md).
 
 ## Spuštění
 
@@ -47,7 +54,7 @@ Hra běží jako statický web. Otevři `index.html` přes lokální HTTP server
 python3 -m http.server 8000
 ```
 
-Pak otevři `http://localhost:8000` v Chrome, Firefoxu nebo Edge. Alternativně lze nasadit na GitHub Pages; není třeba backend ani databáze.
+Pak otevři `http://localhost:8000` v Chrome, Firefoxu nebo Edge. Offline hra proti AI a na jednom PC nepotřebuje backend ani databázi. Pro online zápasy je potřeba samostatné Oracle API – viz `server/README.md`.
 
 ## Co funguje
 

@@ -171,6 +171,7 @@ export class MatchEngine {
     // Both players receive the same last accepted move and full equation cells.
     // Data contains only public board coordinates, never another player's rack.
     match.lastMove={player:match.turn,points:validated.points,equations:validated.equations,
+      equationBreakdown:validated.equationBreakdown,
       placed:safe.map(p=>({row:p.row,col:p.col})),cells:validated.equationCells,at:this.clock()};
     match.history ||= [];
     match.history.push({player:match.turn,points:validated.points,equations:validated.equations});

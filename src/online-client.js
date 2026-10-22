@@ -12,6 +12,24 @@ const safeApiBase=()=>{
 };
 const apiBase=safeApiBase();
 const configured=Boolean(apiBase&&ONLINE_CONFIG.googleClientId);
+
+// Keep a successful Google sign-in only for the current browser tab.
+// sessionStorage survives Safari refresh, but does not persist across new
+// tabs or long-term browser storage. Every reload still verifies the ID
+// token with our Oracle API before enabling any authenticated controls.
+const authSessionKey='abaku-online-google-session-v1';
+function readSavedCredential(){
+  try{
+    const token=sessionStorage.getItem(authSessionKey);
+    return typeof token==='string'&&token.length>=100&&token.length<=5000 ? token : null;
+  }catch{return null;}
+}
+function saveCredential(token){
+  try{sessionStorage.setItem(authSessionKey,token);}catch{}
+}
+function clearSavedCredential(){
+  try{sessionStorage.removeItem(authSessionKey);}catch{}
+}
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
 let onlineName='Hráč';
 let recentOnlineMove=null;
@@ -152,18 +170,23 @@ function showProfile(profile){
 async function googleCredential(value){
   credential=value;
   try{
+    // The server, not the browser, verifies Google's signed token and audience.
     const {profile}=await api('/api/me');
+    saveCredential(value);
     showProfile(profile);
     await heartbeat().catch(()=>{});
     await refreshPresence();
     await showLeaderboard();
     startFriendChallengeUpdates();
+    return true;
   }catch(error){
     credential=null;
+    clearSavedCredential();
     status(error.message,true);
     $('onlineLoginNotice').hidden=false;
-    $('onlineLoginNotice').textContent='Přihlášení se nepodařilo ověřit na Oracle serveru.';
+    $('onlineLoginNotice').textContent='Přihlášení je neplatné nebo vypršelo. Přihlas se přes Google.';
     $('googleSignInWidget').hidden=false;
+    return false;
   }
 }
 async function showLeaderboard(){
@@ -430,6 +453,7 @@ function initializeActions(){
       }).catch(()=>{});
     }
     connection?.close();connection=null;credential=null;gameState=null;currentProfile=null;
+    clearSavedCredential();
     window.google?.accounts?.id?.disableAutoSelect?.();
     $('googleSignInWidget').hidden=false;
     $('onlineLogout').hidden=true;
@@ -557,10 +581,19 @@ export async function initOnline(){
   document.querySelector('.server-state').textContent='● Oracle Online připojeno';
   startPresenceUpdates();
   $('googleSignIn').hidden=true;
+  $('onlineLoginNotice').hidden=false;
+  $('onlineLoginNotice').textContent='Obnovuji přihlášení…';
+  $('onlineInfoText').textContent='Oracle API běží. Hraj s náhodným soupeřem nebo pozvi přítele.';
+
+  // Do not show the Google account picker on every refresh. First try the
+  // session-scoped token and verify it again on Oracle. Expired/revoked
+  // tokens are discarded, after which the normal Google button appears.
+  const saved=readSavedCredential();
+  if(saved&&await googleCredential(saved))return;
+
   $('googleSignInWidget').hidden=false;
   $('onlineLoginNotice').hidden=false;
   $('onlineLoginNotice').textContent='Načítám Google přihlášení…';
-  $('onlineInfoText').textContent='Oracle API běží. Hraj s náhodným soupeřem nebo pozvi přítele.';
   try{
     const g=await googleSdk();
     g.initialize({client_id:ONLINE_CONFIG.googleClientId,callback:response=>googleCredential(response.credential),auto_select:false});

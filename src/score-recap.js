@@ -8,8 +8,10 @@ export const RECAP_SECONDS_OPTIONS=Object.freeze([0,2,3,5,8,10]);
 export const RECAP_STORAGE_KEY='abaku-score-recap-seconds-v1';
 export function getRecapSeconds(){
   try{
-    const value=Number(localStorage.getItem(RECAP_STORAGE_KEY));
-    if(RECAP_SECONDS_OPTIONS.includes(value))return value;
+    const stored=localStorage.getItem(RECAP_STORAGE_KEY);
+    // Number(null) is zero: missing preferences must remain 3 seconds.
+    if(stored!==null&&stored!==''&&RECAP_SECONDS_OPTIONS.includes(Number(stored)))
+      return Number(stored);
   }catch{ /* localStorage may be blocked */ }
   return 3;
 }

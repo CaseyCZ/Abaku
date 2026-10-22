@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.5/);
-  assert.match(html,/main\.js\?v=0\.1\.6/);
+  assert.match(html,/main\.js\?v=0\.1\.7/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -38,4 +38,12 @@ test('return to lobby requires confirmation and saves current game',()=>{
   assert.match(js,/lobbyButton'\)\.addEventListener\('click'/);
   assert.match(js,/window\.confirm\('Vrátit se do hlavní nabídky\?/);
   assert.match(js,/if \(!confirmed\) return;\s*save\(\);\s*window\.location\.assign\('\.\/index\.html'\)/);
+});
+
+test('local offline games default to 60 seconds, including old 90-second defaults',()=>{
+  assert.match(html,/id="timer">01:00/);
+  assert.match(html,/<option value="60" selected>60 sekund<\/option>/);
+  assert.match(js,/time:60, sound:true/);
+  assert.match(js,/retro-abaku-default-60-migrated-v1/);
+  assert.match(js,/Number\(settings\.time\)===90\)settings\.time=60/);
 });

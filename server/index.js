@@ -77,7 +77,8 @@ const push=(uid,event)=>{
 };
 const engine=new MatchEngine({
   send:push,
-  onResult:outcome=>store.record(outcome)
+  onResult:outcome=>store.record(outcome),
+  getName:uid=>store.get(uid)?.nickname||null
 });
 const friendChallenges=new FriendChallenges({
   engine,resolveFriend:(uid,id)=>store.resolveFriend(uid,id),

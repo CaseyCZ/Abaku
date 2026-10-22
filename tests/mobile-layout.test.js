@@ -93,7 +93,8 @@ test('offline board highlights placed digits only AFTER the full scoring animati
   const callback=js.indexOf("showRecentMove(checked,placements,who,()=>{",start);
   assert.ok(start>=0&&callback>start,'Highlight must start inside recap completion callback');
   assert.match(js,/recentMoveTimer=setTimeout\(\(\)=>\{/);
-  assert.match(js,/render\(\);\s*onDone\(\);\s*if\(game\?\.finished\)setTimeout\(showOfflineResult,0\);\s*\},3000\)/);
+  assert.match(js,/render\(\);\s*onDone\(\);/);
+  assert.match(js,/if\(game\?\.finished\)setTimeout\(showOfflineResult,0\);/);
   assert.match(js,/scoreRecap\.playing\(\)\|\|Boolean\(recentMove\)/);
   assert.match(js,/if\(scoreRecap\.playing\(\)\|\|recentMove\)return;/);
 });

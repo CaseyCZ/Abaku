@@ -63,6 +63,15 @@ location /abaku-api/ {
 
 For this example, REST `/abaku-api/api/me` is mapped to Node `/api/me`; WebSocket `/abaku-api/ws` maps to `/ws`. Set the frontend API base to your actual HTTPS host plus `/abaku-api`.
 
+## Online player presence (RAM only)
+
+- `GET /api/presence` – public counters `{online,waiting,refreshSeconds}`; no player details or Google IDs
+- `POST /api/presence` – requires valid Google ID token; refreshes the signed-in user's last active time
+- `DELETE /api/presence` – requires valid Google ID token; removes the signed-in user's heartbeat (logout)
+- Players are deduplicated by internal authenticated UID; absent browser heartbeats expire after 70 seconds. WebSocket-connected users are counted even if their browser timer pauses.
+- `waiting` counts only connected, unmatched users who explicitly selected random matchmaking, **not** all players online. Zero waiting does not mean a new opponent cannot join later.
+- The client polls every 20 seconds while the lobby is visible, and the presence table lives only in RAM.
+
 ## HTTP API
 
 - `GET /health` – lightweight readiness probe, no auth

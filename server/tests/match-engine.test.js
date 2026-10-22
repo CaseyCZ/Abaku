@@ -193,3 +193,28 @@ test('online scorecards receive safe nicknames and recent move history after rec
   assert.equal(events[0].history.length,1);
   assert.deepEqual(events[0].lastMove.equations,['268']);
 });
+
+
+test('active match resume summary is private and disappears after game finishes',()=>{
+  const {game,setTime}=rig();
+  game.connect('a');game.connect('b');game.connect('c');
+  const match=game.createMatch('a','b',60);
+  assert.equal(game.activeMatchSummary('c'),null);
+  const before=game.activeMatchSummary('a');
+  assert.equal(before.matchId,match.id);
+  assert.equal(before.mySide,0);
+  assert.equal(before.turn,0);
+  assert.equal(before.seconds,60);
+  assert.deepEqual(before.players.map(x=>x.score),[0,0]);
+  assert.ok(before.players.every(x=>!('uid' in x)&&!('rack' in x)));
+  game.disconnect('a');
+  assert.equal(game.activeMatchSummary('a').matchId,match.id,
+    'a dropped socket may still resume the game within the grace period');
+  setTime(130_000);
+  game.connect('a');
+  assert.equal(game.matchOf('a').finished,false);
+  assert.equal(game.activeMatchSummary('a').matchId,match.id);
+  game.finish(match,'completed');
+  assert.equal(game.activeMatchSummary('a'),null);
+  assert.equal(game.activeMatchSummary('b'),null);
+});

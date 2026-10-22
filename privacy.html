@@ -31,7 +31,7 @@
 
       <h2>Online profil a hry</h2>
       <p>Online režimy používají volitelné přihlášení přes Google. Server ověřuje přihlašovací token a uchovává přezdívku, symbol profilu, herní statistiky a schválená přátelství. Rozehrané online partie, pozvánky a chat probíhají v paměti herního serveru.</p>
-      <p>Přihlášení v aktuální kartě prohlížeče se může krátkodobě uchovávat v <code>sessionStorage</code>, aby stránka po obnovení nevyžadovala nové přihlášení. Při odhlášení se tato relace smaže.</p>
+      <p>Po přihlášení se může do místního úložiště prohlížeče (<code>localStorage</code>) uložit relace tohoto zařízení, aby přihlášení zůstalo zachované i po obnovení stránky nebo otevření další karty. Pokud server delší relaci zatím nepodporuje, může se přihlašovací údaj dočasně uchovávat jen v aktuální kartě (<code>sessionStorage</code>). Relace může vypršet nebo být zrušena na serveru. Při odhlášení se uložené přihlašovací údaje z prohlížeče odstraní.</p>
       <p>Offline rozehraná partie a nastavení hry se ukládají do místního úložiště prohlížeče. Analytics neodesílá obsah chatu, číselné kameny, přezdívku ani přihlašovací token jako vlastní události.</p>
     </main>
     <footer class="lobby-footer">

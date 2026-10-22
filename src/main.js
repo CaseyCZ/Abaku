@@ -1,4 +1,4 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove} from './rules.js';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove} from './rules.js?v=0.1.2';
 import {chooseMove} from './ai.js';
 
 const byId = id => document.getElementById(id);

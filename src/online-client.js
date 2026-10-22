@@ -404,7 +404,9 @@ function showOnlineReview(state){
   if(!move||!Array.isArray(move.placed)||!Array.isArray(move.cells))return;
   const key=state.matchId+':'+state.turns;
   if(key===recentOnlineMoveId)return;
-  clearOnlineReview();
+  // A previous move may still be showing its board highlight. Do not
+  // cancel that timer: the recap queue is waiting for it to resolve.
+  if(recentOnlineMoveTimer===null)clearOnlineReview();
   recentOnlineMoveId=key;
   // The actual score was already awarded by the server. The server clock
   // continues independently of these optional client-side animations.
@@ -517,6 +519,7 @@ function connectOnline(action,{reconnecting=false}={}){
     if(msg.type==='match-start'){
       if(gameState?.matchId!==msg.matchId){
         onlineScoreRecap.cancel();
+        clearOnlineReview();
         resetOnlineResult();
         resetOnlineChat();
         pending=[];selected=null;gameState=null;exchanging=false;selectedExchange.clear();
@@ -528,7 +531,7 @@ function connectOnline(action,{reconnecting=false}={}){
     if(msg.type==='match-state'){
       const previous=gameState?.turn;
       const changedMatch=gameState?.matchId&&gameState.matchId!==msg.matchId;
-      if(changedMatch){onlineScoreRecap.cancel();resetOnlineResult();resetOnlineChat();}
+      if(changedMatch){onlineScoreRecap.cancel();clearOnlineReview();resetOnlineResult();resetOnlineChat();}
       gameState=msg;
       if(!msg.finished) $('onlineOpponentNotice').hidden=!disconnectedOpponent;
       if(awaitingRecoveryState){

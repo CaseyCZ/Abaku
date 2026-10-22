@@ -40,6 +40,9 @@ let reconnectTimer=null, reconnectAction=null, socketAuthenticated=false;
 let reconnects=0, lastSocketMessageAt=0;
 let socketMonitorTimer=null, onlineInitRetryTimer=null;
 let onlineInitStarted=false, onlineServerReady=false;
+let unreadOnlineChat=0, latestUnreadChat='';
+let resultShownFor=null, rematchRequestedByMe=false, rematchOfferFromOpponent=false;
+let disconnectedOpponent=false;
 let currentFriendChallenge=null;
 let friendChallengeTimer=null;
 const validTurnSeconds=[30,60,90];
@@ -224,6 +227,86 @@ async function showLeaderboard(){
     }
     $('leaderboardPanel').hidden=!(data.players||[]).length;
   }catch{ /* leaderboard is optional */ }
+}
+// Chat can be collapsed or far below the visible game board on a phone.
+// Keep a compact, tappable notification at the viewport edge until read.
+function chatActuallyVisible(){
+  const panel=$('onlinePanelChat');
+  const chat=$('onlineChat');
+  if(!$('onlineDialog').open||!panel||!chat)return false;
+  if(getComputedStyle(panel).display==='none')return false;
+  const box=chat.getBoundingClientRect();
+  const dialog=$('onlineDialog').getBoundingClientRect();
+  const top=Math.max(0,dialog.top),bottom=Math.min(window.innerHeight,dialog.bottom);
+  return box.width>0&&box.height>0&&box.top<bottom-40&&box.bottom>top+40;
+}
+function refreshUnreadChat(){
+  const toast=$('onlineChatToast');
+  const badge=$('onlineUnreadBadge');
+  if(unreadOnlineChat>0&&chatActuallyVisible()){
+    unreadOnlineChat=0;
+    latestUnreadChat='';
+  }
+  const hasUnread=unreadOnlineChat>0;
+  toast.hidden=!hasUnread;
+  badge.hidden=!hasUnread;
+  if(hasUnread){
+    badge.textContent=unreadOnlineChat>99?'99+':String(unreadOnlineChat);
+    $('onlineChatToastCount').textContent=unreadOnlineChat===1?'Nová zpráva · Chat':'Nové zprávy ('+unreadOnlineChat+')';
+    $('onlineChatToastPreview').textContent=latestUnreadChat;
+    toast.setAttribute('aria-label','Otevřít chat: '+unreadOnlineChat+' nepřečtených zpráv');
+  }
+}
+function revealOnlineChat(){
+  const panel=$('onlinePanelChat').closest('.online-panel');
+  panel.classList.add('mobile-expanded');
+  const toggle=panel.querySelector('.online-panel-toggle');
+  toggle?.setAttribute('aria-expanded','true');
+  if(toggle?.firstChild)toggle.firstChild.textContent='▾ Chat ';
+  $('onlineChat').scrollIntoView({behavior:'smooth',block:'center'});
+  // Unread status clears once the chat really comes into view.
+  setTimeout(refreshUnreadChat,450);
+}
+function resetOnlineChat(){
+  unreadOnlineChat=0;latestUnreadChat='';
+  $('onlineChat').replaceChildren();
+  refreshUnreadChat();
+}
+function resetOnlineResult(){
+  if($('onlineResultDialog').open)$('onlineResultDialog').close();
+  resultShownFor=null;rematchRequestedByMe=false;rematchOfferFromOpponent=false;
+  $('onlineRematchStatus').textContent='';
+  $('onlineRematch').disabled=false;
+  $('onlineRematch').textContent='⚔ Odveta';
+  $('onlineOpponentNotice').hidden=true;
+  disconnectedOpponent=false;
+}
+function renderOnlineResult(state){
+  if(!state?.finished||resultShownFor===state.matchId)return;
+  resultShownFor=state.matchId;
+  const myName=onlinePlayerName(state.mySide);
+  const opponentName=onlinePlayerName(1-state.mySide);
+  const winner=state.winner;
+  const title=state.reason==='abandoned'?'Partie přerušena'
+    :winner===null?'Remíza':winner===state.mySide?'🏆 Vyhrál jsi!':'Soupeř vyhrál';
+  $('onlineResultTitle').textContent=title;
+  $('onlineResultDescription').textContent=winner===null
+    ?'Partie nemá vítěze.'
+    :'Vítěz: '+(winner===state.mySide?myName:opponentName);
+  for(let side=0;side<2;side++){
+    $('onlineResultPlayer'+side).textContent=onlinePlayerName(side);
+    $('onlineResultScore'+side).textContent=String(state.players[side].score);
+  }
+  const reason={
+    completed:'Hra skončila podle pravidel.',
+    forfeit:'Jeden z hráčů se nevrátil do 60 sekund. Partie skončila kontumačně.',
+    resigned:'Jeden z hráčů ukončil partii předčasně.',
+    abandoned:'Oba hráči se odpojili. Zápas byl ukončen bez výsledku.'
+  };
+  $('onlineResultReason').textContent=reason[state.reason]||'Partie skončila.';
+  $('onlineRematch').hidden=state.reason==='abandoned';
+  $('onlineRematchStatus').textContent='Můžete se domluvit na odvetě.';
+  if(!$('onlineResultDialog').open)$('onlineResultDialog').showModal();
 }
 // The server is authoritative: never infer a resumable match from localStorage.
 async function refreshResumeCard(){

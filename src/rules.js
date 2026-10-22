@@ -37,6 +37,12 @@ export function drawTiles(bag, rack, count = RACK_SIZE) {
   return next;
 }
 
+// Unlike drawTiles, this updates the player's rack in place at the game-state level.
+// Callers cannot accidentally discard the replacement tiles by ignoring a return value.
+export function replenishPlayerRack(bag, player) {
+  player.rack = drawTiles(bag, Array.isArray(player.rack) ? player.rack : []);
+}
+
 // Numbers are written without arithmetic signs: 279 = 2 + 7 = 9.
 // Subtraction, multiplication, division and integer powers are also recognised.
 export function readsAsEquation(sequence) {

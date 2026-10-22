@@ -1,4 +1,4 @@
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.5';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
 import { describeMovePreview } from './preview.js';
 
 const $=id=>document.getElementById(id);
@@ -124,7 +124,7 @@ function showProfile(profile){
   $('onlineStats').textContent='Zápasy: '+profile.played+' · Výhry: '+profile.wins+' · Úspěšnost: '+profile.winRate+' %';
   $('onlineLogout').hidden=false;
   $('googleSignInWidget').hidden=true;
-  $('onlineLoginNotice').textContent='Přihlášený online profil';
+  $('onlineLoginNotice').hidden=true;
   $('profileSubtitle').textContent='Google účet · online';
   $('profileDescription').textContent='Tento profil a statistiky jsou uložené na Oracle. Úpravy přezdívky se synchronizují mezi zařízeními.';
   $('editProfile').textContent='Upravit online profil';
@@ -154,6 +154,7 @@ async function googleCredential(value){
   }catch(error){
     credential=null;
     status(error.message,true);
+    $('onlineLoginNotice').hidden=false;
     $('onlineLoginNotice').textContent='Přihlášení se nepodařilo ověřit na Oracle serveru.';
     $('googleSignInWidget').hidden=false;
   }
@@ -397,6 +398,25 @@ async function refreshFriends(){
     if(!data.friends?.length)friends.textContent='Zatím nemáš přidané přátele.';
   }catch(error){$('friendMessage').textContent=error.message;}
 }
+// Google Identity embeds a fixed-width iframe. Fit it to the live profile card,
+// including Safari's narrower grid/sidebar layouts.
+function renderResponsiveGoogleButton(g){
+  const container=$('googleSignInWidget');
+  let lastWidth=0;
+  const render=()=>{
+    if(container.hidden)return;
+    const available=Math.floor(container.getBoundingClientRect().width)-2;
+    if(available<80)return;
+    const width=Math.min(400,available);
+    if(width===lastWidth)return;
+    lastWidth=width;
+    container.replaceChildren();
+    g.renderButton(container,{type:'standard',theme:'outline',size:'large',text:'signin_with',width,locale:'cs'});
+  };
+  render();
+  if(typeof ResizeObserver!=='undefined')new ResizeObserver(render).observe(container);
+  else window.addEventListener('resize',render,{passive:true});
+}
 export async function initOnline(){
   initOnlineTimeSetting();
   initializeActions();
@@ -421,12 +441,19 @@ export async function initOnline(){
   startPresenceUpdates();
   $('googleSignIn').hidden=true;
   $('googleSignInWidget').hidden=false;
-  $('onlineLoginNotice').textContent='Načítání přihlášení Google…';
-  $('onlineInfoText').textContent='Oracle API je připojené. Přihlas se přes Google a můžeš hledat soupeře.';
+  $('onlineLoginNotice').hidden=false;
+  $('onlineLoginNotice').textContent='Načítám Google přihlášení…';
+  $('onlineInfoText').textContent='Oracle API běží. Hraj s náhodným soupeřem nebo pozvi přítele.';
   try{
     const g=await googleSdk();
     g.initialize({client_id:ONLINE_CONFIG.googleClientId,callback:response=>googleCredential(response.credential),auto_select:false});
-    g.renderButton($('googleSignInWidget'),{type:'standard',theme:'outline',size:'large',text:'signin_with',width:230,locale:'cs'});
-    $('onlineLoginNotice').textContent='Přihlas se přes Google';
-  }catch(error){status(error.message,true);$('googleSignIn').hidden=false;$('googleSignInWidget').hidden=true;}
+    renderResponsiveGoogleButton(g);
+    $('onlineLoginNotice').hidden=true;
+  }catch(error){
+    status(error.message,true);
+    $('googleSignIn').hidden=false;
+    $('googleSignInWidget').hidden=true;
+    $('onlineLoginNotice').hidden=false;
+    $('onlineLoginNotice').textContent='Google přihlášení se nepodařilo načíst.';
+  }
 }

@@ -29,8 +29,8 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
   assert.match(js,/setAttribute\('aria-expanded',String\(expanded\)\)/);
 });
 test('mobile assets use cache-busted current version',()=>{
-  assert.match(html,/style\.css\?v=0\.1\.5/);
-  assert.match(html,/main\.js\?v=0\.1\.7/);
+  assert.match(html,/style\.css\?v=0\.1\.8/);
+  assert.match(html,/main\.js\?v=0\.1\.8/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -46,4 +46,17 @@ test('local offline games default to 60 seconds, including old 90-second default
   assert.match(js,/time:60, sound:true/);
   assert.match(js,/retro-abaku-default-60-migrated-v1/);
   assert.match(js,/Number\(settings\.time\)===90\)settings\.time=60/);
+});
+
+test('accepted offline move shows full equation and highlighted board tiles for three seconds',()=>{
+  assert.match(html,/id="lastMoveReview"/);
+  assert.match(js,/formatEquations\(last\.examples,10\)/);
+  assert.match(js,/formatEquations\(entry\.examples,2\)/);
+  assert.match(js,/showRecentMove\(checked,placements,who\)/);
+  assert.match(js,/until:Date\.now\(\)\+3000/);
+  assert.match(js,/cell\.classList\.add\('recent-equation'\)/);
+  assert.match(js,/cell\.classList\.add\('recent-tile'\)/);
+  assert.match(js,/Nápověda:.*formatEquations\(move\.equations\)/);
+  assert.match(css,/\.cell\.recent-tile\.occupied/);
+  assert.match(css,/\.cell\.recent-equation\.occupied/);
 });

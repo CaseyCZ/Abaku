@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#4c0e13" />
   <meta name="description" content="Číselná desková hra inspirovaná klasickým Abaku – vlastní retro rekonstrukce pro PC." />
   <title>Číselná aréna – retro Abaku</title>
-  <link rel="stylesheet" href="./style.css?v=0.1.5" />
+  <link rel="stylesheet" href="./style.css?v=0.1.8" />
 </head>
 <body>
   <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -88,6 +88,7 @@
           </div>
           <div class="timer-wrap"><span>ČAS</span><strong id="timer">01:00</strong></div>
         </div>
+        <div id="lastMoveReview" class="last-move-review" role="status" aria-live="polite" hidden></div>
         <div class="rack-frame">
           <button class="round-button" id="undoButton" title="Vrátit rozložené kameny" aria-label="Vrátit kameny">↶</button>
           <div class="rack" id="rack" aria-label="Tvoje kameny"></div>
@@ -172,6 +173,6 @@
     </div>
   </dialog>
 
-  <script type="module" src="./src/main.js?v=0.1.7"></script>
+  <script type="module" src="./src/main.js?v=0.1.8"></script>
 </body>
 </html>

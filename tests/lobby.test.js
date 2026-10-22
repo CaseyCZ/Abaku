@@ -28,7 +28,7 @@ test('Guest mode keeps online auth optional until the Oracle API becomes availab
   assert.match(landing,/id="googleSignIn"/);
   assert.match(landing,/Online režimy připravujeme/);
   assert.match(lobby,/googleSignIn:'Google přihlášení/);
-  assert.match(lobby,/playRandom:'Náhodného/);
+  assert.match(lobby,/playRandom:'Pro náhodný online zápas/);
 });
 
 test('Google OAuth client is configured and only exposed after Oracle API health confirms readiness',()=>{

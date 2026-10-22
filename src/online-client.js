@@ -403,11 +403,12 @@ function connectOnline(action,{reconnecting=false}={}){
   if(!reconnecting){
     pending=[];selected=null;gameState=null;exchanging=false;selectedExchange.clear();
     clearOnlineReview();
+    resetOnlineResult();
     if(!$('onlineDialog').open)$('onlineDialog').showModal();
     $('onlineBoardWrapper').hidden=true;
     $('onlineWaiting').hidden=false;
     $('onlineCode').textContent='';
-    $('onlineChat').replaceChildren();
+    resetOnlineChat();
   }else if(gameState){
     pending=[];selected=null;exchanging=false;selectedExchange.clear();
     renderOnline();
@@ -484,10 +485,22 @@ function connectOnline(action,{reconnecting=false}={}){
       refreshFriendChallenges();
       return;
     }
-    if(msg.type==='match-start'){status('Soupeř připojen, partie začíná!');refreshPresence();return;}
+    if(msg.type==='match-start'){
+      if(gameState?.matchId!==msg.matchId){
+        resetOnlineResult();
+        resetOnlineChat();
+        pending=[];selected=null;gameState=null;exchanging=false;selectedExchange.clear();
+      }
+      status('Soupeř připojen, partie začíná!');
+      refreshPresence();
+      return;
+    }
     if(msg.type==='match-state'){
       const previous=gameState?.turn;
+      const changedMatch=gameState?.matchId&&gameState.matchId!==msg.matchId;
+      if(changedMatch){resetOnlineResult();resetOnlineChat();}
       gameState=msg;
+      if(!msg.finished) $('onlineOpponentNotice').hidden=!disconnectedOpponent;
       if(awaitingRecoveryState){
         awaitingRecoveryState=false;
         status(msg.finished?'Partie již skončila.':'Spojení obnoveno, pokračujeme v partii.');
@@ -497,6 +510,8 @@ function connectOnline(action,{reconnecting=false}={}){
       $('onlineWaiting').hidden=true;
       $('onlineBoardWrapper').hidden=false;
       renderOnline();
+      renderOnlineResult(msg);
+      refreshUnreadChat();
       return;
     }
     if(msg.type==='lobby'){
@@ -512,8 +527,38 @@ function connectOnline(action,{reconnecting=false}={}){
     }
     if(msg.type==='move-accepted'){pending=[];selected=null;status('Platný tah: '+formatEquations(msg.equations)+' · +'+msg.points+' bodů.');return;}
     if(msg.type==='turn-passed'){status('Tah vynechán ('+msg.reason+').');return;}
-    if(msg.type==='opponent'){status(msg.status==='disconnected'?'Soupeř se odpojil, má 60 sekund na návrat.':'Soupeř se znovu připojil.');return;}
-    if(msg.type==='match-end'){status(msg.winner===null?'Remíza.':(msg.winner===gameState?.mySide?'Vyhrál jsi!':'Soupeř vyhrál.'));return;}
+    if(msg.type==='opponent'){
+      disconnectedOpponent=msg.status==='disconnected';
+      $('onlineOpponentNotice').hidden=!disconnectedOpponent;
+      if(disconnectedOpponent){
+        $('onlineOpponentNotice').textContent='⚠ Soupeř se odpojil. Má 60 sekund na návrat; pokud se nevrátí, partie skončí.';
+        status('Soupeř se odpojil, čeká se až 60 sekund na jeho návrat.',true);
+      }else status('Soupeř se znovu připojil. Partie pokračuje.');
+      return;
+    }
+    if(msg.type==='match-end'){
+      $('onlineOpponentNotice').hidden=true;
+      status(msg.winner===null?'Partie skončila remízou.':(msg.winner===gameState?.mySide?'Vyhrál jsi!':'Soupeř vyhrál.'));
+      // The subsequent match-state contains exact names/scores/reason for the result dialog.
+      return;
+    }
+    if(msg.type==='rematch-status'){
+      if(msg.status==='requested'){
+        if(msg.by===gameState?.mySide){
+          rematchRequestedByMe=true;
+          $('onlineRematch').disabled=true;
+          $('onlineRematchStatus').textContent='Odveta nabídnuta. Čekám, zda soupeř přijme…';
+        }else{
+          rematchOfferFromOpponent=true;
+          $('onlineRematchStatus').textContent='Soupeř žádá odvetu. Chceš hrát znovu?';
+        }
+      }else if(msg.status==='declined'){
+        rematchRequestedByMe=false;rematchOfferFromOpponent=false;
+        $('onlineRematch').disabled=false;
+        $('onlineRematchStatus').textContent='Odveta odmítnuta.';
+      }
+      return;
+    }
     if(msg.type==='chat')addChat(msg.from,msg.text);
   });
   socket.addEventListener('close',event=>{
@@ -543,6 +588,11 @@ function addChat(uid,text){
   const own=gameState?.mySide===uid;
   line.textContent=(own?'Já: ':'Soupeř: ')+String(text||'');
   const chat=$('onlineChat');chat.append(line);chat.scrollTop=chat.scrollHeight;
+  if(!own&&!chatActuallyVisible()){
+    unreadOnlineChat++;
+    latestUnreadChat=String(text||'').slice(0,80);
+  }
+  refreshUnreadChat();
 }
 // Use the same status, progress and turn clock found in the offline game.
 function onlinePlayerName(side){

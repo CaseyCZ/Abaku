@@ -127,3 +127,15 @@ html,body{height:100%;overflow-x:hidden}
   .progress-track{height:22px}
   .control-bar{min-height:50px}
 }
+
+/* v0.1.4: unobtrusive score forecast between board and rack. */
+.under-board{min-height:38px;gap:6px}
+.move-preview{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-align:left;font:12px Verdana,sans-serif;color:#f4d59d}
+.move-preview-label{flex:none;color:#f5d6a3}
+.move-preview strong{flex:none;font:700 19px Georgia,serif;color:#f9dfb0}
+.move-preview[data-state="valid"] strong{color:#91ff9b;text-shadow:0 0 5px #2b8f4a}
+.move-preview[data-state="invalid"] strong{color:#ffb395}
+.move-preview-details{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:#e5c5a1;font:11px Verdana,sans-serif}
+.move-preview[data-state="valid"] .move-preview-details{color:#b6f4b7}
+.move-preview[data-state="invalid"] .move-preview-details{color:#ffd2af}
+@media(max-width:950px){.move-preview{gap:4px;font-size:11px}.move-preview-details{font-size:10px}.move-preview strong{font-size:17px}}

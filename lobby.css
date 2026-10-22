@@ -64,3 +64,39 @@ dialog::backdrop{background:#17050bd6}
 
 /* Two profile actions must remain clearly separated. */
 .side-card > .gold-button + .gold-button{margin-top:10px}
+
+/* Online interface is inactive unless Oracle + Google config are available. */
+#googleSignInWidget{min-height:40px}
+.mode-connected{border-color:#e1ad62;background:linear-gradient(140deg,#6b1d27,#310e16)}
+#onlineStats{font-weight:700;color:#aef6c2}
+.leaderboard{margin:0;padding-left:21px;font:12px/1.9 Verdana,sans-serif}
+.online-dialog{width:min(1000px,97vw);max-width:97vw;max-height:95vh;padding:0;background:linear-gradient(150deg,#581b22,#27070d);color:#ffe5b4;border:4px ridge #cf9c4c}
+.online-dialog-inner{padding:15px}
+.online-dialog-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.online-dialog-header h2{margin:0;color:#fadd90;font-size:23px}
+#onlineStatus{min-height:22px;margin:4px 0 12px;color:#e5d2ae;font:13px Verdana,sans-serif}
+#onlineStatus[data-error=true]{color:#ffab97}
+.online-waiting{text-align:center;padding:32px 10px;font:14px/1.8 Verdana,sans-serif}
+#onlineCode{letter-spacing:3px;font-size:23px;color:#aaf3ff}
+.online-match-info{display:flex;justify-content:space-between;align-items:center;gap:12px;font:13px Verdana,sans-serif;padding:7px;margin-bottom:8px;border:1px solid #a06d35;border-radius:5px}
+.online-match-info strong{color:#b6f2ff}
+.online-match-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(185px,240px);gap:14px;min-height:0}
+.online-game-board{display:flex;flex-direction:column;align-items:center;min-width:0;gap:8px}
+.online-board{display:grid;width:min(100%,min(54vh,580px));aspect-ratio:1/1;grid-template-columns:repeat(15,minmax(0,1fr));grid-template-rows:repeat(15,minmax(0,1fr));border:5px ridge #f4c269;background:#fbf4e5;overflow:hidden}
+.online-cell{min-width:0;min-height:0;width:100%;height:100%;padding:0;background:#fff9ed;color:#572217;border:1px solid #974c45;font-weight:bold;font-size:clamp(9px,1.2vw,21px);display:grid;place-items:center}
+.online-cell.fixed{background:#eec897}
+.online-cell.staged{background:#ffbe66;box-shadow:inset 0 0 0 2px #db7e1a}
+.online-cell:disabled{opacity:1;cursor:default}
+.online-preview{min-height:16px;text-align:center;font:12px Verdana,sans-serif;color:#b9f0ad}
+.online-rack{display:flex;justify-content:center;gap:5px;flex-wrap:wrap}
+.online-tile{width:45px;height:48px;border:2px solid #b98549;background:linear-gradient(#fff6db,#e2b583);font-size:25px;font-weight:bold;color:#642b17;border-radius:4px}
+.online-tile.chosen{border-color:#5fc6fc;background:#ffe7a2}
+.online-match-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.online-match-actions .gold-button{padding:6px 10px;font-size:12px}
+.online-match-chat{min-height:0;display:flex;flex-direction:column;gap:9px;background:#230a0f;border:2px solid #bb8a45;border-radius:5px;padding:9px}
+.online-match-chat h3{margin:0;font-size:16px;color:#f6d386}
+.online-chat-scroll{min-height:110px;max-height:500px;flex:1;overflow:auto;border:1px solid #5b3225;border-radius:5px;padding:6px;font:12px/1.5 Verdana,sans-serif}
+.online-chat-line{padding:5px;border-bottom:1px solid #774d353f;overflow-wrap:anywhere}
+#onlineChatForm{display:flex;gap:5px;flex-wrap:wrap}
+#onlineChatInput{flex:1;min-width:105px;padding:8px;border-radius:4px;border:1px solid #b48249;background:#fff6df;color:#4f220e}
+@media(max-width:670px){.online-match-layout{grid-template-columns:1fr}.online-board{width:min(100%,65vh)}.online-chat-scroll{max-height:120px}.online-dialog-inner{padding:9px}}

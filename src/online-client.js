@@ -128,7 +128,7 @@ function connectOnline(action){
     if(msg.type==='move-accepted'){pending=[];selected=null;status('Platný tah: +'+msg.points+' bodů.');return;}
     if(msg.type==='turn-passed'){status('Tah vynechán ('+msg.reason+').');return;}
     if(msg.type==='opponent'){status(msg.status==='disconnected'?'Soupeř se odpojil, má 60 sekund na návrat.':'Soupeř se znovu připojil.');return;}
-    if(msg.type==='match-end'){status(msg.winner===null?'Remíza.':(msg.winner===gameState?.players[gameState?.mySide]?.uid?'Vyhrál jsi!':'Soupeř vyhrál.'));return;}
+    if(msg.type==='match-end'){status(msg.winner===null?'Remíza.':(msg.winner===gameState?.mySide?'Vyhrál jsi!':'Soupeř vyhrál.'));return;}
     if(msg.type==='chat')addChat(msg.from,msg.text);
   });
   socket.addEventListener('close',()=>{if(connection===socket)status('Spojení skončilo.');});
@@ -138,7 +138,7 @@ function ownTurn(){return gameState&&!gameState.finished&&gameState.mySide===gam
 function addChat(uid,text){
   const line=document.createElement('div');
   line.className='online-chat-line';
-  const own=gameState?.players?.[gameState.mySide]?.uid===uid;
+  const own=gameState?.mySide===uid;
   line.textContent=(own?'Já: ':'Soupeř: ')+String(text||'');
   const chat=$('onlineChat');chat.append(line);chat.scrollTop=chat.scrollHeight;
 }

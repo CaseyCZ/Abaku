@@ -6,7 +6,7 @@ import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.14';
+const VERSION = '0.1.15';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -85,6 +85,9 @@ function showRecentMove(checked,placements,who,onDone=()=>{}){
     recentMove=null;recentMoveTimer=null;
     render();
     onDone();
+    // Wait for the scorer's promise microtask to release the final animation
+    // before opening the modal above the board.
+    if(game?.finished)setTimeout(showOfflineResult,0);
   },3000);
 }
 function renderRecentMove(){
@@ -103,6 +106,8 @@ function freshGame() {
 }
 function clearPending() { pending = []; selectedIndex = null; exchangeMode = false; exchangeIndices.clear(); }
 function newGame() {
+  const resultDialog=byId('onlineResultDialog');
+  if(resultDialog.open)resultDialog.close();
   scoreRecap.cancel();
   clearRecentMove();
   game = freshGame(); clearPending();botBusy = false;
@@ -133,6 +138,7 @@ function restore() {
   } else game = freshGame();
   resetDeadline();render();
   notify(game.finished ? 'Partie skončila.' : game.turns ? 'Vítej zpět! Partie byla automaticky obnovena.' : 'První tah: sestav příklad přes prostřední pole.');
+  if(game.finished)showOfflineResult();
   if (isBotTurn() && !game.finished) runBot();
 }
 
@@ -279,16 +285,40 @@ function advanceTurn(pass=false,waitForRecap=false) {
   if(pass)game.passStreak++;else game.passStreak=0;
   game.turns++;
   if(game.passStreak>=6 || (game.bag.length===0 && game.players.some(p=>p.rack.length===0))) {
-    finish();return;
+    finish(game.passStreak>=6?'Šest tahů po sobě bylo vynecháno.':'Kameny byly rozebrány.');return;
   }
   game.turn=1-game.turn;clearPending();resetDeadline();save();render();
   if(isBotTurn()&&!waitForRecap)runBot();
 }
-function finish() {
-  game.finished=true;clearPending();save();render();
+function showOfflineResult(){
+  if(!game?.finished||scoreRecap.playing()||recentMove)return;
+  const dialog=byId('onlineResultDialog');
+  if(dialog.open)return;
+  const [first,second]=game.players.map(p=>Number(p.score)||0);
+  const winner=first===second?null:first>second?0:1;
+  const title=winner===null?'Remíza!':settings.mode==='bot'
+    ?winner===0?'🏆 Vyhrál jsi!':'Počítač vyhrál'
+    :'🏆 Vyhrál '+playerLabel(winner)+'!';
+  byId('onlineResultTitle').textContent=title;
+  byId('onlineResultDescription').textContent=winner===null?'Partie skončila nerozhodně.'
+    :'Vítěz: '+playerLabel(winner);
+  byId('onlineResultPlayer0').textContent=playerLabel(0);
+  byId('onlineResultPlayer1').textContent=playerLabel(1);
+  byId('onlineResultScore0').textContent=String(first);
+  byId('onlineResultScore1').textContent=String(second);
+  byId('onlineResultReason').textContent=game.finishReason||'Partie skončila podle pravidel.';
+  byId('onlineRematchStatus').textContent='Můžeš rovnou začít další partii.';
+  byId('onlineRematch').hidden=false;
+  byId('onlineRematch').disabled=false;
+  dialog.showModal();
+}
+function finish(reason='Partie skončila podle pravidel.') {
+  if(game.finished)return;
+  game.finished=true;game.finishReason=reason;clearPending();save();render();
   const [a,b]=game.players.map(p=>p.score);
   notify(a===b?'Remíza!':`Partie skončila. Vyhrává ${playerLabel(a>b?0:1)} (${Math.max(a,b)} bodů)!`,'success');
   sound('success');
+  showOfflineResult();
 }
 function commitMove(placements, fromBot=false) {
   const checked=validateMove(game.board,placements);
@@ -390,6 +420,13 @@ function tick(){
 }
 setInterval(tick,250);
 
+// Reuse exactly the online results modal and its existing two actions.
+byId('onlineRematch').addEventListener('click',()=>newGame());
+byId('onlineResultExit').addEventListener('click',()=>{
+  save();
+  window.location.assign('./index.html');
+});
+byId('onlineResultDialog').addEventListener('cancel',event=>event.preventDefault());
 byId('newButton').addEventListener('click',()=>byId('newGameDialog').showModal());
 byId('cancelNewGame').addEventListener('click',()=>byId('newGameDialog').close());
 byId('confirmNewGame').addEventListener('click',()=>{byId('newGameDialog').close();newGame();});

@@ -1,6 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { randomBytes } from 'node:crypto';
 
 export function openStore(filename = './data/abaku.sqlite') {
   if(filename !== ':memory:') mkdirSync(dirname(resolve(filename)),{recursive:true,mode:0o700});
@@ -9,6 +10,7 @@ export function openStore(filename = './data/abaku.sqlite') {
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS players (
   uid TEXT PRIMARY KEY,
+  public_id TEXT NOT NULL UNIQUE,
   nickname TEXT NOT NULL COLLATE NOCASE UNIQUE,
   avatar TEXT NOT NULL DEFAULT '✦',
   played INTEGER NOT NULL DEFAULT 0 CHECK(played >= 0),
@@ -25,19 +27,20 @@ CREATE TABLE IF NOT EXISTS friend_requests (
 );
 `);
   const statements={
-    lookup:db.prepare('SELECT uid,nickname,avatar,played,wins,losses,draws FROM players WHERE uid=?'),
-    insert:db.prepare('INSERT OR IGNORE INTO players(uid,nickname) VALUES(?,?)'),
+    lookup:db.prepare('SELECT public_id AS id,nickname,avatar,played,wins,losses,draws FROM players WHERE uid=?'),
+    lookupId:db.prepare('SELECT uid FROM players WHERE public_id=?'),
+    insert:db.prepare('INSERT OR IGNORE INTO players(uid,public_id,nickname) VALUES(?,?,?)'),
     rename:db.prepare('UPDATE players SET nickname=?,avatar=? WHERE uid=?'),
     leaderboard:db.prepare(`SELECT nickname,avatar,played,wins,losses,draws
       FROM players WHERE played>0 ORDER BY (wins*1.0/played) DESC, wins DESC, played DESC LIMIT ?`),
-    search:db.prepare("SELECT uid,nickname,avatar FROM players WHERE nickname LIKE ? LIMIT 15"),
-    friendList:db.prepare(`SELECT p.uid,p.nickname,p.avatar FROM players p
+    search:db.prepare("SELECT public_id AS id,nickname,avatar FROM players WHERE nickname LIKE ? LIMIT 15"),
+    friendList:db.prepare(`SELECT p.public_id AS id,p.nickname,p.avatar FROM players p
       WHERE p.uid IN (
         SELECT recipient FROM friend_requests WHERE sender=? AND status='accepted'
         UNION
         SELECT sender FROM friend_requests WHERE recipient=? AND status='accepted'
       ) ORDER BY p.nickname`),
-    pending:db.prepare(`SELECT p.uid,p.nickname,p.avatar FROM players p
+    pending:db.prepare(`SELECT p.public_id AS id,p.nickname,p.avatar FROM players p
       JOIN friend_requests f ON f.sender=p.uid WHERE f.recipient=? AND f.status='pending'`),
     exists:db.prepare('SELECT status FROM friend_requests WHERE sender=? AND recipient=?'),
     incoming:db.prepare('SELECT status FROM friend_requests WHERE sender=? AND recipient=?'),
@@ -50,7 +53,10 @@ CREATE TABLE IF NOT EXISTS friend_requests (
   const expose=p=>p && {...p,winRate:p.played ? Math.round(p.wins/p.played*10000)/100 : 0};
   const ensure=uid=>{
     if(typeof uid!=='string'||!uid||uid.length>150)throw new Error('Neplatný identifikátor.');
-    statements.insert.run(uid,'Hráč-'+uid.slice(-10));
+    if (!statements.lookup.get(uid)) {
+      const publicId=randomBytes(8).toString('hex');
+      statements.insert.run(uid,publicId,'Hráč-'+publicId.slice(0,6));
+    }
     return expose(statements.lookup.get(uid));
   };
   const rename=(uid,nickname,avatar='✦')=>{
@@ -61,7 +67,8 @@ CREATE TABLE IF NOT EXISTS friend_requests (
     catch(error){if(/UNIQUE constraint/i.test(error.message))throw new Error('Přezdívka už je obsazená.');throw error;}
     return expose(statements.lookup.get(uid));
   };
-  const request=(sender,recipient)=>{
+  const request=(sender,recipientId)=>{
+    const recipient=statements.lookupId.get(recipientId)?.uid;
     if(sender===recipient)throw new Error('Nemůžeš přidat sám sebe.');
     if(!statements.lookup.get(recipient))throw new Error('Hráč neexistuje.');
     const outgoing=statements.exists.get(sender,recipient);
@@ -70,7 +77,8 @@ CREATE TABLE IF NOT EXISTS friend_requests (
     if(incoming?.status==='pending')throw new Error('Tento hráč už tě požádal. Přijmi jeho žádost.');
     statements.insertRequest.run(sender,recipient);
   };
-  const respond=(recipient,sender,accept)=>{
+  const respond=(recipient,senderId,accept)=>{
+    const sender=statements.lookupId.get(senderId)?.uid;
     const result=statements.reply.run(accept?'accepted':'declined',sender,recipient);
     if(result.changes===0)throw new Error('Žádost nebyla nalezena.');
   };

@@ -86,7 +86,7 @@
             <strong id="previewPoints">—</strong>
             <span id="previewDetails" class="move-preview-details">Polož kameny na desku</span>
           </div>
-          <div class="timer-wrap"><span>ČAS</span><strong id="timer">01:30</strong></div>
+          <div class="timer-wrap"><span>ČAS</span><strong id="timer">01:00</strong></div>
         </div>
         <div class="rack-frame">
           <button class="round-button" id="undoButton" title="Vrátit rozložené kameny" aria-label="Vrátit kameny">↶</button>
@@ -147,7 +147,7 @@
       <h2>Nastavení partie</h2>
       <label>Herní režim <select id="modeSetting"><option value="bot">Hráč proti počítači</option><option value="local">Dva hráči na jednom PC</option></select></label>
       <label>Obtížnost počítače <select id="difficultySetting"><option value="easy">Začátečník</option><option value="medium">Pokročilý</option><option value="hard">Expert</option></select></label>
-      <label>Délka tahu <select id="timeSetting"><option value="30">30 sekund</option><option value="60">60 sekund</option><option value="90">90 sekund</option></select></label>
+      <label>Délka tahu <select id="timeSetting"><option value="30">30 sekund</option><option value="60" selected>60 sekund</option><option value="90">90 sekund</option></select></label>
       <label class="check-line"><input type="checkbox" id="soundSetting" checked /> Zvuky</label>
       <p class="dialog-note">Změna herního režimu začne novou partii. Ostatní nastavení se použije ihned.</p>
       <menu><button value="cancel" class="gold-button">Zrušit</button><button value="save" class="gold-button primary">Uložit</button></menu>
@@ -172,6 +172,6 @@
     </div>
   </dialog>
 
-  <script type="module" src="./src/main.js?v=0.1.6"></script>
+  <script type="module" src="./src/main.js?v=0.1.7"></script>
 </body>
 </html>

@@ -72,6 +72,39 @@ For this example, REST `/abaku-api/api/me` is mapped to Node `/api/me`; WebSocke
 - `waiting` counts only connected, unmatched users who explicitly selected random matchmaking, **not** all players online. Zero waiting does not mean a new opponent cannot join later.
 - The client polls every 20 seconds while the lobby is visible, and the presence table lives only in RAM.
 
+## Persistent Google sign-in (PC and iPhone)
+
+Google ID tokens themselves are short-lived (roughly an hour). After the first
+verified Google sign-in, `POST /api/session` (authenticated with a **Google ID
+token**, never another app session) exchanges it for a random
+`abaku_<43 base64url chars>` opaque bearer token. The browser stores only
+this device token in `localStorage`, so normal page reloads, closing the
+browser and opening a different tab no longer cause re-login. Other devices
+require their own initial Google sign-in.
+
+Oracle stores **SHA-256 token hashes only** in SQLite `login_sessions`,
+tied to private Google UID with a 30-day expiry. Sessions are extended for
+another 30 days on active use once fewer than 20 days remain; no more than
+10 sessions per account remain valid. Google ID tokens are verified with the
+official Google library at exchange; both REST `Authorization: Bearer`
+and initial WebSocket `auth.idToken` accept validated opaque sessions.
+`DELETE /api/session` revokes that browser's active device session and
+removes its presence. Login sessions survive API restarts because the
+SQLite database already persists player accounts.
+
+Do not log the bearer token, append it to URLs, share it, put it in public
+commits, or accept it from unapproved website origins. A copied live bearer
+token grants the corresponding player's game privileges, so XSS prevention,
+HTTPS and Oracle access controls remain important. Private/incognito mode,
+browser storage clearing, expired inactivity, explicit logout or a revoked
+session will still require a new Google login. Cross-device login sharing is
+not intended.
+
+**Deployment**: update the Oracle checkout, run `cd server && npm test`,
+then `pm2 restart abaku-api`. The schema is additive (`CREATE TABLE IF
+NOT EXISTS`), and no new environment variables are necessary. Restart
+only when matches are finished because active matches are held in RAM.
+
 ## Reconnecting an ongoing online game
 
 - `GET /api/match/current` (authenticated) returns `{match:null}` if this user has no unfinished online match, otherwise a private-to-the-user summary with public nicknames, current score, turn and server deadline. It does **not** expose Google IDs or opponents' rack.

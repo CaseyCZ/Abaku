@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS friend_requests (
       JOIN friend_requests f ON f.sender=p.uid WHERE f.recipient=? AND f.status='pending'`),
     exists:db.prepare('SELECT status FROM friend_requests WHERE sender=? AND recipient=?'),
     incoming:db.prepare('SELECT status FROM friend_requests WHERE sender=? AND recipient=?'),
+    acceptedFriend:db.prepare("SELECT 1 AS is_friend FROM friend_requests WHERE status='accepted' AND ((sender=? AND recipient=?) OR (sender=? AND recipient=?)) LIMIT 1"),
     insertRequest:db.prepare("INSERT INTO friend_requests(sender,recipient,status) VALUES(?,?,'pending') ON CONFLICT(sender,recipient) DO UPDATE SET status='pending'"),
     reply:db.prepare("UPDATE friend_requests SET status=? WHERE sender=? AND recipient=? AND status='pending'"),
     win:db.prepare('UPDATE players SET played=played+1,wins=wins+1 WHERE uid=?'),
@@ -105,6 +106,16 @@ CREATE TABLE IF NOT EXISTS friend_requests (
     findPlayers:query=>statements.search.all('%'+String(query||'').slice(0,20).replace(/[%_]/g,'')+'%'),
     friends:uid=>statements.friendList.all(uid,uid),
     incoming:uid=>statements.pending.all(uid),
+    // Resolve a public friend ID to a private Google UID only after server-side
+    // mutual relationship validation. Never send the UID to the browser.
+    resolveFriend:(uid,publicId)=>{
+      if(typeof publicId!=='string'||!/^[a-f0-9]{16}$/.test(publicId))
+        throw new Error('Neplatný hráč.');
+      const target=statements.lookupId.get(publicId)?.uid;
+      if(!target||uid===target||!statements.acceptedFriend.get(uid,target,target,uid))
+        throw new Error('Hráč není mezi tvými přáteli.');
+      return {uid:target,profile:expose(statements.lookup.get(target))};
+    },
     close:()=>db.close()
   };
 }

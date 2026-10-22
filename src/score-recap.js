@@ -81,8 +81,8 @@ export class ScoreRecap {
     this.root.hidden=false;
     this.player.textContent=String(player).slice(0,45);
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-    const stepDuration=reduced?750:1250;
-    const completedDuration=reduced?650:1050;
+    const stepDuration=3000;
+    const completedDuration=3000;
     const animateCount=(from,to)=>{
       if(this.counterInterval!==null)clearInterval(this.counterInterval);
       const started=Date.now();

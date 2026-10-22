@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.8/);
-  assert.match(html,/main\.js\?v=0\.1\.15/);
+  assert.match(html,/main\.js\?v=0\.1\.16/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -144,3 +144,17 @@ test('result window follows animations for last scoring move, but shows immediat
   assert.match(js,/if\(game\?\.finished\)setTimeout\(showOfflineResult,0\)/);
   assert.match(js,/if\(resultDialog\.open\)resultDialog\.close\(\)/);
 });
+
+
+test('offline games display the saved authenticated Google nickname as Player 1',()=>{
+  assert.match(js,/import \{offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile\}/);
+  assert.match(js,/function playerLabel\(index\) \{ return index === 0 \? offlinePlayerName\(\)/);
+  assert.match(js,/async function refreshLocalPlayerName\(\)/);
+  assert.match(js,/const \{profile\}=await response\.json\(\)/);
+  assert.match(js,/cacheVerifiedOnlineProfile\(profile\)/);
+  assert.match(js,/window\.addEventListener\('storage',event=>/);
+  assert.match(js,/window\.addEventListener\('pageshow'/);
+  assert.match(js,/refreshLocalPlayerName\(\);/);
+  assert.match(js,/ONLINE_CONFIG\.apiBase\+'\/api\/me'/);
+});
+ 

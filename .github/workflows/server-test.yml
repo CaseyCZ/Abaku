@@ -1,0 +1,24 @@
+name: Test Abaku Online server
+on:
+  push:
+    paths:
+      - 'server/**'
+      - '.github/workflows/server-test.yml'
+  pull_request:
+    paths:
+      - 'server/**'
+      - '.github/workflows/server-test.yml'
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Install API dependencies
+        run: npm install --prefix server --no-audit --no-fund
+      - name: Check server syntax
+        run: node --check server/index.js
+      - name: Run API and database tests
+        run: npm test --prefix server

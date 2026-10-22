@@ -120,12 +120,25 @@ test('random matchmaking keeps selected turn times compatible',()=>{
   assert.ok(out.some(x=>x.type==='match-state'&&x.uid==='sixty2'&&x.seconds===60));
 });
 
-test('private invite uses creator turn limit, and invalid time defaults to 90 sec',()=>{
+test('private invite uses creator turn limit, and invalid time defaults to 60 sec',()=>{
   const {game}=rig();
   game.connect('a');game.connect('b');game.connect('c');
   const code=game.makeInvite('a',30);
   game.joinInvite('b',code);
   assert.equal(game.matchOf('a').seconds,30);
   game.joinRandom('c',500);
-  assert.equal(game.queue[0].seconds,90);
+  assert.equal(game.queue[0].seconds,60);
+});
+
+test('all server online match variants default to 60 seconds',()=>{
+  const {game}=rig();
+  for(const uid of ['a','b','c','d','e'])game.connect(uid);
+  game.joinRandom('a');
+  assert.equal(game.queue[0].seconds,60);
+  game.joinRandom('b');
+  assert.equal(game.matchOf('a').seconds,60);
+  const code=game.makeInvite('c');
+  game.joinInvite('d',code);
+  assert.equal(game.matchOf('c').seconds,60);
+  assert.equal(game.createMatch('a','e').seconds,60);
 });

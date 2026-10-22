@@ -77,6 +77,7 @@ export class ScoreRecap {
     this.onDone=null;
     this.active=false;
     this.queue=[];
+    this.generation=0;
   }
   later(callback,ms){
     this.timeouts.push(setTimeout(callback,ms));
@@ -90,6 +91,7 @@ export class ScoreRecap {
     this.onDone=null;
     this.queue=[];
     this.root.hidden=true;
+    this.generation++;
   }
   playing(){return this.active;}
   play({player='Hráč',breakdown=[],equations=[],total=0,onDone=null}={}){
@@ -99,6 +101,7 @@ export class ScoreRecap {
       return;
     }
     this.cancel();
+    const runId=this.generation;
     const steps=scoringSteps(breakdown,total,equations);
     if(!steps.length){onDone?.();return;}
     this.active=true;
@@ -154,10 +157,22 @@ export class ScoreRecap {
     },steps.length*stepDuration);
     this.later(()=>{
       const done=this.onDone;
-      const next=this.queue[0]||null;
-      this.cancel();
-      if(next)this.play(next);
-      done?.();
+      this.root.hidden=true;
+      // The onDone callback may wait for a 3-second board highlight.
+      // Keep the scorer busy and queued moves waiting until it completes.
+      let completion;
+      try{completion=done?.();}
+      catch{completion=null;}
+      Promise.resolve(completion).then(()=>{
+        if(this.generation!==runId)return; // game reset or match changed
+        const next=this.queue[0]||null;
+        const remainder=this.queue.slice(1);
+        this.cancel();
+        if(next){
+          this.play(next);
+          this.queue.push(...remainder);
+        }
+      });
     },steps.length*stepDuration+completedDuration);
   }
 }

@@ -294,7 +294,7 @@ test('online scoring highlight starts after automatic calculations, not under pa
   assert.match(onlineClient,/showOnlineHighlight\(move\)\{/);
   assert.match(onlineClient,/recentOnlineMoveTimer=setTimeout\(\(\)=>\{/);
   assert.match(onlineClient,/until:Date\.now\(\)\+3000/);
-  assert.match(onlineClient,/if\(gameState\.finished\)renderOnlineResult\(gameState\)/);
+  assert.match(onlineClient,/if\(gameState\?\.finished\)setTimeout\(\(\)=>renderOnlineResult\(gameState\),0\)/);
   assert.match(onlineClient,/onlineScoreRecap\.playing\(\)\|\|recentOnlineMove\)return/);
 });
 

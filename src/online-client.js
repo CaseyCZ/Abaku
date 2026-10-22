@@ -1,4 +1,4 @@
-import { ONLINE_CONFIG } from './online-config.js';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.2';
 import { describeMovePreview } from './preview.js';
 
 const $=id=>document.getElementById(id);

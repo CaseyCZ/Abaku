@@ -1,7 +1,7 @@
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
 import { describeMovePreview } from './preview.js?v=0.2.9';
 import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.15';
-import {ScoreRecap} from './score-recap.js?v=0.2.15';
+import {ScoreRecap} from './score-recap.js?v=0.2.16';
 
 const $=id=>document.getElementById(id);
 const onlineScoreRecap=new ScoreRecap($('onlineDialog'));

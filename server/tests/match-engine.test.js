@@ -69,3 +69,20 @@ test('chat messages are transient and have a length and speed limit',()=>{
   assert.throws(()=>game.chat('a','x'.repeat(161)),/Neplatná/);
   assert.equal(game.matchOf('a').chat,undefined);
 });
+
+test('waiting count includes only connected unmatched players and decreases on cancellation',()=>{
+  const {game}=rig();
+  game.connect('a');game.connect('b');game.connect('c');
+  assert.equal(game.waitingCount(),0);
+  game.joinRandom('a',90);
+  assert.equal(game.waitingCount(),1);
+  game.joinRandom('b',90);
+  assert.equal(game.waitingCount(),0); // a and b matched, neither is waiting
+  game.joinRandom('c',90);
+  assert.equal(game.waitingCount(),1);
+  game.leaveQueue('c');
+  assert.equal(game.waitingCount(),0);
+  game.joinRandom('c',90);
+  game.disconnect('c');
+  assert.equal(game.waitingCount(),0);
+});

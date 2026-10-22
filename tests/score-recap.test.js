@@ -40,6 +40,8 @@ test('if older API omits details, do not invent per-example points',()=>{
 
 test('scroll automatically advances with timers, never requires user confirmation',()=>{
   const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
+  assert.match(js,/const stepDuration=3000;/);
+  assert.match(js,/const completedDuration=3000;/);
   assert.match(js,/steps\.forEach\(\(item,index\)=>/);
   assert.match(js,/index\*stepDuration/);
   assert.match(js,/animateCount\(before,cumulative\)/);

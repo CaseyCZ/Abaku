@@ -2,6 +2,7 @@ import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
 import { describeMovePreview } from './preview.js?v=0.2.9';
 import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.15';
 import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.19';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=1';
 
 const $=id=>document.getElementById(id);
 const onlineScoreRecap=new ScoreRecap($('onlineDialog'));
@@ -47,6 +48,7 @@ function saveCredential(token){
 function clearSavedCredential(){
   try{localStorage.removeItem(durableSessionKey);}catch{}
   try{sessionStorage.removeItem(authSessionKey);}catch{}
+  clearVerifiedOnlineProfile();
 }
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
 let onlineName='Hráč';
@@ -177,6 +179,8 @@ function googleSdk(){
 function showProfile(profile){
   currentProfile=profile;
   onlineName=profile.nickname;
+  // Also show this verified nickname as Player 1 in the local/AI game.
+  cacheVerifiedOnlineProfile(profile);
   $('welcomeName').textContent=profile.nickname;
   $('profileName').textContent=profile.nickname;
   $('profileAvatar').textContent=profile.avatar||'✦';

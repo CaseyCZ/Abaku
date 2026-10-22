@@ -330,3 +330,41 @@ html,body{height:100%;overflow-x:hidden}
   .rack{gap:2px}
   .game-controls .gold-button{font-size:11px;padding:6px 2px}
 }
+
+
+/* v0.1.8: accepted move review (new stones glow gold, full equations mint).
+   The highlight is cleared after 3 seconds; it never changes game rules. */
+.board .cell.recent-equation.occupied{
+  background:#cff7e1;color:#164b31;
+  box-shadow:inset 0 0 0 2px #34b478;
+  z-index:1
+}
+.board .cell.recent-tile.occupied{
+  background:#ffe07a;color:#672a0a;
+  box-shadow:inset 0 0 0 3px #e88b17,0 0 8px 3px #ffe36a;
+  z-index:2
+}
+.last-move-review{
+  width:100%;margin:3px auto 4px;
+  padding:7px 10px;text-align:center;
+  border:2px solid #efb646;border-radius:7px;
+  background:linear-gradient(100deg,#392513,#165344,#392513);
+  color:#fff4b1;font:700 13px/1.4 Verdana,sans-serif;
+  box-shadow:0 0 10px #d5b15b80;overflow-wrap:anywhere
+}
+.last-move-review[hidden]{display:none!important}
+@media(max-width:840px) and (orientation:portrait),(max-width:700px){
+  .board .cell.recent-equation.occupied{box-shadow:inset 0 0 0 2px #34b478}
+  .board .cell.recent-tile.occupied{
+    box-shadow:inset 0 0 0 2px #ea8110,0 0 5px 1px #ffe36a
+  }
+  .last-move-review{font-size:11px;padding:7px 6px;margin:5px auto}
+  #lastExample{overflow-wrap:anywhere;white-space:normal}
+}
+@media(prefers-reduced-motion:no-preference){
+  .board .cell.recent-tile.occupied{animation:abaku-accepted-pulse 1.2s ease-in-out infinite alternate}
+  @keyframes abaku-accepted-pulse{
+    from{filter:brightness(1)}
+    to{filter:brightness(1.15)}
+  }
+}

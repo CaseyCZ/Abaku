@@ -81,7 +81,7 @@ test('offline settings allow choosing the same saved score-tally duration as onl
     assert.match(html,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
   assert.match(js,/byId\('scoreRecapSecondsSetting'\)\.value=String\(getRecapSeconds\(\)\)/);
   assert.match(js,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
-  assert.match(js,/onDone:\(\)=>\{/);
+  assert.match(js,/onDone:\(\)=>new Promise\(resolve=>\{/);
   assert.match(js,/if\(isBotTurn\(\)&&!botBusy\)runBot\(\)/);
   assert.match(js,/if\(scoreRecap\.playing\(\)\|\|recentMove\)return;/);
 });

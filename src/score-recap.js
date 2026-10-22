@@ -4,7 +4,7 @@
 import {formatEquations} from './rules.js?v=0.2.15';
 
 // Shared between offline and online screens in the same browser.
-export const RECAP_SECONDS_OPTIONS=Object.freeze([2,3,5,8,10]);
+export const RECAP_SECONDS_OPTIONS=Object.freeze([0,2,3,5,8,10]);
 export const RECAP_STORAGE_KEY='abaku-score-recap-seconds-v1';
 export function getRecapSeconds(){
   try{
@@ -101,6 +101,12 @@ export class ScoreRecap {
       return;
     }
     this.cancel();
+    // Disabled: skip the parchment/point counter entirely. The same onDone
+    // callback still highlights newly played tiles for 3 seconds.
+    if(getRecapSeconds()===0){
+      onDone?.();
+      return;
+    }
     const runId=this.generation;
     const steps=scoringSteps(breakdown,total,equations);
     if(!steps.length){onDone?.();return;}

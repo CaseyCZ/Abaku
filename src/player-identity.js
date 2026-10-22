@@ -13,16 +13,21 @@ function readJson(key){
   try{return JSON.parse(localStorage.getItem(key)||'null');}
   catch{return null;}
 }
-export function hasSavedOnlineLogin(){
+export function savedOnlineToken(){
   try{
     const session=localStorage.getItem(DEVICE_SESSION_KEY);
     if(typeof session==='string'&&/^abaku_[A-Za-z0-9_-]{43}$/.test(session))
-      return true;
+      return session;
   }catch{}
   try{
     const legacy=sessionStorage.getItem(LEGACY_GOOGLE_KEY);
-    return typeof legacy==='string'&&legacy.length>=100&&legacy.length<=5000;
-  }catch{return false;}
+    if(typeof legacy==='string'&&legacy.length>=100&&legacy.length<=5000)
+      return legacy;
+  }catch{}
+  return null;
+}
+export function hasSavedOnlineLogin(){
+  return Boolean(savedOnlineToken());
 }
 export function offlinePlayerName(){
   if(hasSavedOnlineLogin()){

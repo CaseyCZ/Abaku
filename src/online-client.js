@@ -13,6 +13,13 @@ const apiBase=safeApiBase();
 const configured=Boolean(apiBase&&ONLINE_CONFIG.googleClientId);
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
 let onlineName='Hráč';
+let currentProfile=null;
+export function getOnlineProfile(){return currentProfile ? {...currentProfile} : null;}
+export async function updateOnlineProfile(nickname,avatar){
+  const response=await api('/api/me','POST',{nickname,avatar});
+  showProfile(response.profile);
+  return response.profile;
+}
 
 function status(text,error=false){
   const target=$('onlineStatus');
@@ -40,6 +47,7 @@ function googleSdk(){
   });
 }
 function showProfile(profile){
+  currentProfile=profile;
   onlineName=profile.nickname;
   $('welcomeName').textContent=profile.nickname;
   $('profileName').textContent=profile.nickname;
@@ -49,7 +57,23 @@ function showProfile(profile){
   $('onlineLogout').hidden=false;
   $('googleSignInWidget').hidden=true;
   $('onlineLoginNotice').textContent='Přihlášený online profil';
-  document.querySelectorAll('.mode-future').forEach(card=>card.classList.add('mode-connected'));
+  $('profileSubtitle').textContent='Google účet · online';
+  $('profileDescription').textContent='Tento profil a statistiky jsou uložené na Oracle. Úpravy přezdívky se synchronizují mezi zařízeními.';
+  $('editProfile').textContent='Upravit online profil';
+  $('manageFriends').hidden=false;
+  $('onlineInfoText').textContent='Oracle je připojený. Můžeš hledat náhodného soupeře nebo vytvořit pozvánku pomocí kódu.';
+  const onlineModes=[
+    ['playRandom','HLEDAT SOUPEŘE'],
+    ['playFriends','VYTVOŘIT / ZADAT KÓD']
+  ];
+  for(const [id,action] of onlineModes){
+    const card=$(id);
+    card.classList.add('mode-connected');
+    card.querySelector('.future-ribbon').textContent='ONLINE';
+    const label=card.querySelector('.mode-action');
+    label.textContent=action;
+    label.classList.remove('muted');
+  }
 }
 async function googleCredential(value){
   credential=value;
@@ -228,8 +252,32 @@ function initializeActions(){
     const input=$('onlineChatInput'),text=input.value.trim();
     if(text){send('chat',{text:text.slice(0,160)});input.value='';}
   });
+  $('manageFriends').addEventListener('click',async()=>{
+    if(!credential)return;
+    $('friendsDialog').showModal();
+    $('friendSearchResults').replaceChildren();
+    $('friendMessage').textContent='';
+    await refreshFriends();
+  });
+  $('friendsClose').addEventListener('click',()=>$('friendsDialog').close());
+  $('friendSearchForm').addEventListener('submit',async event=>{
+    event.preventDefault();
+    const query=$('friendSearchInput').value.trim();
+    if(query.length<2)return;
+    $('friendMessage').textContent='Vyhledávám hráče…';
+    try{
+      const data=await api('/api/players?name='+encodeURIComponent(query));
+      const list=$('friendSearchResults');list.replaceChildren();
+      for(const p of data.players||[])appendFriend(list,p,'Přidat přítele',async()=>{
+        await api('/api/friends/request','POST',{id:p.id});
+        $('friendMessage').textContent='Žádost o přátelství byla odeslána.';
+      });
+      if(!data.players?.length)$('friendMessage').textContent='Žádný odpovídající hráč.';
+      else $('friendMessage').textContent='Nalezení hráči:';
+    }catch(error){$('friendMessage').textContent=error.message;}
+  });
   $('onlineLogout').addEventListener('click',()=>{
-    connection?.close();connection=null;credential=null;gameState=null;
+    connection?.close();connection=null;credential=null;gameState=null;currentProfile=null;
     window.google?.accounts?.id?.disableAutoSelect?.();
     $('googleSignInWidget').hidden=false;
     $('onlineLogout').hidden=true;
@@ -237,6 +285,38 @@ function initializeActions(){
     $('onlineLoginNotice').textContent='Přihlas se přes Google';
     location.reload();
   });
+}
+function appendFriend(container,player,buttonText,handler){
+  const row=document.createElement('div');row.className='friend-entry';
+  const name=document.createElement('span');name.textContent=(player.avatar||'✦')+' '+player.nickname;
+  row.append(name);
+  if(handler){
+    const button=document.createElement('button');button.type='button';button.className='gold-button';button.textContent=buttonText;
+    button.addEventListener('click',async()=>{
+      button.disabled=true;
+      try{await handler();await refreshFriends();}
+      catch(error){$('friendMessage').textContent=error.message;}
+      finally{button.disabled=false;}
+    });
+    row.append(button);
+  }
+  container.append(row);
+}
+async function refreshFriends(){
+  try{
+    const data=await api('/api/friends');
+    const incoming=$('friendRequests'),friends=$('friendList');
+    incoming.replaceChildren();friends.replaceChildren();
+    for(const player of data.requests||[]){
+      appendFriend(incoming,player,'Přijmout',async()=>{
+        await api('/api/friends/respond','POST',{id:player.id,accept:true});
+        $('friendMessage').textContent='Přátelství potvrzeno.';
+      });
+    }
+    for(const player of data.friends||[])appendFriend(friends,player,null,null);
+    if(!data.requests?.length)incoming.textContent='Žádné nové žádosti.';
+    if(!data.friends?.length)friends.textContent='Zatím nemáš přidané přátele.';
+  }catch(error){$('friendMessage').textContent=error.message;}
 }
 export async function initOnline(){
   initializeActions();
@@ -261,6 +341,7 @@ export async function initOnline(){
   $('googleSignIn').hidden=true;
   $('googleSignInWidget').hidden=false;
   $('onlineLoginNotice').textContent='Načítání přihlášení Google…';
+  $('onlineInfoText').textContent='Oracle API je připojené. Přihlas se přes Google a můžeš hledat soupeře.';
   try{
     const g=await googleSdk();
     g.initialize({client_id:ONLINE_CONFIG.googleClientId,callback:response=>googleCredential(response.credential),auto_select:false});

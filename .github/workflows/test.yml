@@ -10,5 +10,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check optional online client syntax
+        run: node --check src/online-client.js && node --check src/lobby.js
       - name: Run unit tests
         run: npm test

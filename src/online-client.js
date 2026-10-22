@@ -718,7 +718,8 @@ function initializeActions(){
     toggle.addEventListener('click',()=>{
       const expanded=panel.classList.toggle('mobile-expanded');
       toggle.setAttribute('aria-expanded',String(expanded));
-      toggle.textContent=(expanded?'▾ ':'▸ ')+(panel.classList.contains('online-status-panel')?'Průběh partie':'Chat');
+      if(toggle.firstChild)toggle.firstChild.textContent=(expanded?'▾ ':'▸ ')+(panel.classList.contains('online-status-panel')?'Průběh partie':'Chat')+' ';
+      refreshUnreadChat();
     });
   }
   if(!onlineTimerTicker)onlineTimerTicker=setInterval(updateOnlineTimer,250);
@@ -752,18 +753,45 @@ function initializeActions(){
     event.stopImmediatePropagation();
     $('manageFriends').click();
   },true);
-  $('onlineCancel').addEventListener('click',()=>{
-    if(gameState&&!gameState.finished&&!window.confirm('Vrátit se do nabídky? Online partie se odpojí.'))return;
-    // Intentional leave must never start an automatic reconnect.
+  function leaveOnlineGame(){
     clearReconnect();
-    if(!gameState&&connection?.readyState===WebSocket.OPEN)send('cancel-matchmake');
-    const old=connection;connection=null;
-    socketAuthenticated=false;
+    const old=connection;connection=null;socketAuthenticated=false;reconnectAction=null;
     old?.close();
+    resetOnlineResult();
+    resetOnlineChat();
     clearOnlineReview();
-    $('onlineDialog').close();
+    if($('onlineDialog').open)$('onlineDialog').close();
+    gameState=null;
     refreshResumeCard();
+  }
+  $('onlineCancel').addEventListener('click',()=>{
+    if(gameState&&!gameState.finished){
+      if(!window.confirm('Opravdu vzdát online partii? Soupeři se ihned zobrazí výhra.'))return;
+      if(socketAuthenticated&&connection?.readyState===WebSocket.OPEN){
+        send('resign');
+        status('Vzdáváš partii. Odesílám výsledek oběma hráčům…');
+        return;
+      }
+      if(!window.confirm('Server teď neodpovídá. Soupeř se o odpojení dozví až po uplynutí lhůty. Odejít?'))return;
+    }else if(!gameState&&connection?.readyState===WebSocket.OPEN)send('cancel-matchmake');
+    leaveOnlineGame();
   });
+  $('onlineResultExit').addEventListener('click',()=>{
+    if(rematchRequestedByMe||rematchOfferFromOpponent){
+      if(socketAuthenticated)send('rematch',{accept:false});
+    }
+    leaveOnlineGame();
+  });
+  $('onlineRematch').addEventListener('click',()=>{
+    if(!gameState?.finished||!socketAuthenticated)return;
+    send('rematch',{accept:true});
+    $('onlineRematch').disabled=true;
+    $('onlineRematchStatus').textContent='Odesílám návrh odvety…';
+  });
+  $('onlineChatToast').addEventListener('click',revealOnlineChat);
+  $('onlineDialog').addEventListener('scroll',refreshUnreadChat,{passive:true});
+  window.addEventListener('resize',refreshUnreadChat,{passive:true});
+  $('onlineResultDialog').addEventListener('cancel',event=>event.preventDefault());
   $('onlineResumeButton').addEventListener('click',()=>{
     if(!credential)return;
     connectOnline({type:'resume'});

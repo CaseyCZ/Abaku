@@ -1,7 +1,12 @@
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, createHash } from 'node:crypto';
+
+const SESSION_TTL=30*24*60*60*1000;
+const SESSION_RENEW_BELOW=20*24*60*60*1000;
+const sessionDigest=token=>createHash('sha256').update(token).digest('hex');
+const validSessionToken=token=>typeof token==='string'&&/^abaku_[A-Za-z0-9_-]{43}$/.test(token);
 
 export function openStore(filename = './data/abaku.sqlite') {
   if(filename !== ':memory:') mkdirSync(dirname(resolve(filename)),{recursive:true,mode:0o700});
@@ -25,6 +30,13 @@ CREATE TABLE IF NOT EXISTS friend_requests (
   PRIMARY KEY(sender,recipient),
   CHECK(sender <> recipient)
 );
+CREATE TABLE IF NOT EXISTS login_sessions (
+  token_hash TEXT PRIMARY KEY,
+  uid TEXT NOT NULL REFERENCES players(uid) ON DELETE CASCADE,
+  expires_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_login_sessions_uid ON login_sessions(uid);
 `);
   const statements={
     lookup:db.prepare('SELECT public_id AS id,nickname,avatar,played,wins,losses,draws FROM players WHERE uid=?'),
@@ -49,7 +61,14 @@ CREATE TABLE IF NOT EXISTS friend_requests (
     reply:db.prepare("UPDATE friend_requests SET status=? WHERE sender=? AND recipient=? AND status='pending'"),
     win:db.prepare('UPDATE players SET played=played+1,wins=wins+1 WHERE uid=?'),
     lose:db.prepare('UPDATE players SET played=played+1,losses=losses+1 WHERE uid=?'),
-    draw:db.prepare('UPDATE players SET played=played+1,draws=draws+1 WHERE uid=?')
+    draw:db.prepare('UPDATE players SET played=played+1,draws=draws+1 WHERE uid=?'),
+    sessionInsert:db.prepare('INSERT INTO login_sessions(token_hash,uid,expires_at,created_at) VALUES(?,?,?,?)'),
+    sessionGet:db.prepare('SELECT uid,expires_at FROM login_sessions WHERE token_hash=? AND expires_at>?'),
+    sessionDelete:db.prepare('DELETE FROM login_sessions WHERE token_hash=?'),
+    sessionDeleteOld:db.prepare('DELETE FROM login_sessions WHERE expires_at<=?'),
+    sessionDeleteOverflow:db.prepare(`DELETE FROM login_sessions WHERE uid=? AND token_hash NOT IN (
+      SELECT token_hash FROM login_sessions WHERE uid=? ORDER BY created_at DESC LIMIT 10)`),
+    sessionExtend:db.prepare('UPDATE login_sessions SET expires_at=? WHERE token_hash=? AND expires_at>?')
   };
   const expose=p=>p && {...p,winRate:p.played ? Math.round(p.wins/p.played*10000)/100 : 0};
   const ensure=uid=>{
@@ -99,8 +118,31 @@ CREATE TABLE IF NOT EXISTS friend_requests (
       db.exec('COMMIT');
     } catch(error){db.exec('ROLLBACK');throw error;}
   };
+  const createSession=uid=>{
+    ensure(uid);
+    const now=Date.now(),expiresAt=now+SESSION_TTL;
+    statements.sessionDeleteOld.run(now);
+    // Only a SHA-256 hash is held on Oracle's disk.
+    const token='abaku_'+randomBytes(32).toString('base64url');
+    statements.sessionInsert.run(sessionDigest(token),uid,expiresAt,now);
+    statements.sessionDeleteOverflow.run(uid,uid);
+    return {sessionToken:token,expiresAt};
+  };
+  const sessionUid=token=>{
+    if(!validSessionToken(token))return null;
+    const now=Date.now(),hash=sessionDigest(token);
+    const row=statements.sessionGet.get(hash,now);
+    if(!row)return null;
+    // Sliding expiration: active PC/iPhone sessions remain valid.
+    if(row.expires_at-now<SESSION_RENEW_BELOW)statements.sessionExtend.run(now+SESSION_TTL,hash,now);
+    return row.uid;
+  };
+  const revokeSession=token=>{
+    if(!validSessionToken(token))return false;
+    return statements.sessionDelete.run(sessionDigest(token)).changes>0;
+  };
   return {
-    db,ensure,rename,request,respond,record,
+    db,ensure,rename,request,respond,record,createSession,sessionUid,revokeSession,
     get:uid=>expose(statements.lookup.get(uid)),
     leaderboard:(limit=30)=>statements.leaderboard.all(Math.min(50,Math.max(1,Number(limit)||30))).map(expose),
     findPlayers:query=>statements.search.all('%'+String(query||'').slice(0,20).replace(/[%_]/g,'')+'%'),

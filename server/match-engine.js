@@ -62,7 +62,7 @@ export class MatchEngine {
         players:match.players.map((p,i)=>({score:p.score,rackCount:p.rack.length,side:i})),
         mySide:me,rack:match.players[me].rack,turn:match.turn,turns:match.turns,
         bagCount:match.bag.length,seconds:match.seconds,deadline:match.deadline,
-        lastMove:match.lastMove||null,finished:match.finished,
+        lastMove:match.lastMove||null,history:(match.history||[]).slice(-6),finished:match.finished,
         winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason:match.reason});
     } else this.sendTo(uid,{type:'lobby',queued:this.queue.some(q=>q.uid===uid)});
   }
@@ -150,6 +150,9 @@ export class MatchEngine {
     // Data contains only public board coordinates, never another player's rack.
     match.lastMove={player:match.turn,points:validated.points,equations:validated.equations,
       placed:safe.map(p=>({row:p.row,col:p.col})),cells:validated.equationCells,at:this.clock()};
+    match.history ||= [];
+    match.history.push({player:match.turn,points:validated.points,equations:validated.equations});
+    if(match.history.length>30)match.history.shift();
     match.passStreak=0;
     this.sendTo(uid,{type:'move-accepted',points:validated.points,equations:validated.equations});
     this.nextTurn(match);

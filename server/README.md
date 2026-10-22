@@ -35,13 +35,13 @@ npm test
 To run on the Oracle host **after** you have configured HTTPS and the Google Web Client ID:
 
 ```sh
-cd /home/ubuntu/Abaku/server
+cd /home/ubuntu/abaku-online/server
 npm install --omit=dev --no-audit
 export GOOGLE_CLIENT_ID='ACTUAL-WEB-CLIENT-ID'
 export CORS_ORIGIN='https://caseycz.github.io'
 export DB_PATH='/home/ubuntu/abaku-data/abaku.sqlite'
 export HOST='127.0.0.1'
-export PORT='8787'
+export PORT='8790'
 node index.js
 ```
 
@@ -51,7 +51,7 @@ NGINX example, to be adapted to an existing HTTPS virtual host and tested before
 
 ```nginx
 location /abaku-api/ {
-    proxy_pass http://127.0.0.1:8787/;
+    proxy_pass http://127.0.0.1:8790/;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";

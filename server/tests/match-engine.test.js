@@ -140,5 +140,6 @@ test('all server online match variants default to 60 seconds',()=>{
   const code=game.makeInvite('c');
   game.joinInvite('d',code);
   assert.equal(game.matchOf('c').seconds,60);
-  assert.equal(game.createMatch('a','e').seconds,60);
+  game.connect('f');game.connect('g');
+  assert.equal(game.createMatch('f','g').seconds,60);
 });

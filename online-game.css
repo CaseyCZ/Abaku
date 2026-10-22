@@ -414,3 +414,26 @@
   #onlineDialog .online-rack{gap:2px}
   #onlineDialog .online-round-button{width:37px;height:37px;font-size:25px}
 }
+
+/* Place the mobile controls before the collapsible panels, just as in
+   offline game. Flatten markup into the outer grid without moving inputs. */
+@media(max-width:950px) and (orientation:portrait),(max-width:700px){
+  #onlineDialog .online-match{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-auto-rows:max-content;align-content:start
+  }
+  #onlineDialog .online-progress{
+    grid-column:1/-1;grid-row:1;
+  }
+  #onlineDialog .online-match-layout{
+    display:contents;
+  }
+  #onlineDialog .online-player-side{
+    display:contents;
+  }
+  #onlineDialog .online-player-card{grid-row:2}
+  #onlineDialog .online-game-board{grid-column:1/-1;grid-row:3}
+  #onlineDialog .online-control-bar{grid-column:1/-1;grid-row:4}
+  #onlineDialog .online-status-panel{grid-column:1/-1;grid-row:5}
+  #onlineDialog .online-match-chat{grid-column:1/-1;grid-row:6;margin-bottom:14px}
+}

@@ -20,6 +20,7 @@ test('matchmaking pairs two different players, sends only personal racks',()=>{
   assert.equal(personal.at(-2).rack.length,5);
   assert.equal(personal.at(-1).rack.length,5);
   assert.ok(!JSON.stringify(personal.at(-1)).includes('"bag":'));
+  assert.ok(!JSON.stringify(personal.at(-1)).includes('"uid":'), 'opponent Google ID must stay private');
 });
 test('invalid rack indices and turns are rejected server-side',()=>{
   const {game}=rig();

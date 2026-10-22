@@ -241,6 +241,23 @@ function initializeActions(){
 export async function initOnline(){
   initializeActions();
   if(!configured)return;
+
+  // Never expose an apparently ready sign-in flow before Oracle API is reachable.
+  // The offline AI and two-player modes remain fully available without a backend.
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),4500);
+  try{
+    const response=await fetch(apiBase+'/health',{cache:'no-store',signal:controller.signal});
+    if(!response.ok)return;
+    const data=await response.json();
+    if(data?.status!=='ok'||data?.service!=='abaku-api')return;
+  }catch{
+    return;
+  }finally{
+    clearTimeout(timeout);
+  }
+
+  document.querySelector('.server-state').textContent='● Oracle Online připojeno';
   $('googleSignIn').hidden=true;
   $('googleSignInWidget').hidden=false;
   $('onlineLoginNotice').textContent='Načítání přihlášení Google…';

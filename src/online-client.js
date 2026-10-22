@@ -191,6 +191,15 @@ async function googleCredential(value){
     startFriendChallengeUpdates();
     return true;
   }catch(error){
+    // Network outages and throttling do NOT invalidate a verified Google ID
+    // token. Try the same saved session again after five seconds.
+    if(error.httpStatus!==400&&error.httpStatus!==401){
+      status('Oracle dočasně neodpovídá. Obnovuji přihlášení za 5 sekund…',true);
+      $('onlineLoginNotice').hidden=false;
+      $('onlineLoginNotice').textContent='Spojení se serverem není dostupné. Zkusím znovu za 5 sekund.';
+      setTimeout(()=>{if(credential===value)googleCredential(value);},5000);
+      return true;
+    }
     credential=null;
     clearSavedCredential();
     status(error.message,true);
@@ -332,6 +341,12 @@ function connectOnline(action,{reconnecting=false}={}){
   }
   connection=socket;
   lastSocketMessageAt=Date.now();
+  let awaitingRecoveryState=reconnecting;
+  const authWatchdog=setTimeout(()=>{
+    if(connection!==socket||socketAuthenticated)return;
+    socket.close();
+    scheduleReconnect('Server neodpověděl na připojení.');
+  },10_000);
   socket.addEventListener('open',()=>send('auth',{idToken:credential}));
   socket.addEventListener('message',event=>{
     if(connection!==socket)return;
@@ -350,6 +365,7 @@ function connectOnline(action,{reconnecting=false}={}){
       return;
     }
     if(msg.type==='authenticated'){
+      clearTimeout(authWatchdog);
       socketAuthenticated=true;
       reconnects=0;
       clearReconnect();
@@ -389,7 +405,10 @@ function connectOnline(action,{reconnecting=false}={}){
     if(msg.type==='match-state'){
       const previous=gameState?.turn;
       gameState=msg;
-      if(reconnecting)status(msg.finished?'Partie již skončila.':'Spojení obnoveno, pokračujeme v partii.');
+      if(awaitingRecoveryState){
+        awaitingRecoveryState=false;
+        status(msg.finished?'Partie již skončila.':'Spojení obnoveno, pokračujeme v partii.');
+      }
       showOnlineReview(msg);
       if(previous!==msg.turn||msg.finished){pending=[];selected=null;exchanging=false;selectedExchange.clear();}
       $('onlineWaiting').hidden=true;
@@ -415,6 +434,7 @@ function connectOnline(action,{reconnecting=false}={}){
     if(msg.type==='chat')addChat(msg.from,msg.text);
   });
   socket.addEventListener('close',event=>{
+    clearTimeout(authWatchdog);
     if(connection!==socket)return;
     connection=null;
     socketAuthenticated=false;

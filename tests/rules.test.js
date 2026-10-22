@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SIZE, emptyBoard, makeBag, readsAsEquation, validateMove, bonusAt, replenishPlayerRack} from '../src/rules.js';
+import {SIZE, emptyBoard, makeBag, readsAsEquation, validateMove, bonusAt, replenishPlayerRack, formatEquation, formatEquations} from '../src/rules.js';
 import {findMoves, chooseMove} from '../src/ai.js';
 
 const tiles = (digits, row = 7, start = 6) => [...digits].map((digit, i) => ({row, col:start+i, digit:Number(digit)}));
@@ -91,4 +91,25 @@ test('bot finds legal opening and next turn',()=>{
   const opening=validateMove(board,tiles('279'));
   const next=findMoves(opening.board,[3,5,8,1,4]);
   assert.ok(next.every(move=>validateMove(opening.board,move.placements).valid));
+});
+
+test('recognized arithmetic examples are shown as readable complete equations',()=>{
+  assert.equal(formatEquation('268'),'2 + 6 = 8');
+  assert.equal(formatEquation('936'),'9 − 3 = 6');
+  assert.equal(formatEquation('236'),'2 × 3 = 6');
+  assert.equal(formatEquation('1243'),'12 ÷ 4 = 3');
+  assert.equal(formatEquation('238'),'2^3 = 8');
+  assert.equal(formatEquation('273'),null);
+  assert.equal(formatEquations(['268','936','1243']), '2 + 6 = 8 · 9 − 3 = 6 · 12 ÷ 4 = 3');
+});
+
+test('a valid move returns all accepted equation squares without changing score',()=>{
+  const board=emptyBoard();
+  const placed=tiles('268');
+  const result=validateMove(board,placed);
+  assert.equal(result.valid,true,result.reason);
+  assert.ok(result.equations.includes('268'));
+  assert.deepEqual(result.equationCells,[{row:7,col:6},{row:7,col:7},{row:7,col:8}]);
+  assert.ok(result.points>0);
+  assert.equal(board[7][7],null);
 });

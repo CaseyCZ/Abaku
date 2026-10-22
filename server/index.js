@@ -5,6 +5,7 @@ import { WebSocketServer } from 'ws';
 import { openStore } from './store.js';
 import { MatchEngine } from './match-engine.js';
 import { PresenceTracker } from './presence.js';
+import { FriendChallenges } from './friend-challenges.js';
 
 const clientId=process.env.GOOGLE_CLIENT_ID||'';
 const origins=(process.env.CORS_ORIGIN||'').split(',').map(x=>x.trim()).filter(Boolean);
@@ -78,9 +79,13 @@ const engine=new MatchEngine({
   send:push,
   onResult:outcome=>store.record(outcome)
 });
+const friendChallenges=new FriendChallenges({
+  engine,resolveFriend:(uid,id)=>store.resolveFriend(uid,id),
+  getProfile:uid=>store.get(uid),push
+});
 // A tiny RAM-only presence table: unique Google UID, last heartbeat timestamp.
 const presence=new PresenceTracker();
-const clock=setInterval(()=>{engine.tick();
+const clock=setInterval(()=>{engine.tick();friendChallenges.tick();
   const now=Date.now();
   for(const [key,item] of rate)if(now-item.start>120_000)rate.delete(key);
 },1000);
@@ -120,6 +125,13 @@ const http=createServer(async(request,response)=>{
       return respond(response,200,{players:store.findPlayers(search).filter(p=>p.id!==store.get(uid)?.id)});
     }
     if(request.method==='GET'&&pathname==='/api/friends')return respond(response,200,{friends:store.friends(uid),requests:store.incoming(uid)});
+    if(request.method==='GET'&&pathname==='/api/challenges')return respond(response,200,{challenge:friendChallenges.pending(uid)});
+    if(request.method==='POST'&&pathname==='/api/challenges/respond'){
+      const data=await body(request);
+      if(typeof data.id!=='string'||data.id.length>80||typeof data.accept!=='boolean')throw new Error('Neplatná odpověď na výzvu.');
+      const result=friendChallenges.respond(uid,data.id,data.accept);
+      return respond(response,200,{ok:true,...result});
+    }
     if(request.method==='POST'&&pathname==='/api/friends/request'){
       const data=await body(request);
       if(typeof data.id!=='string')throw new Error('Vyber hráče.');
@@ -172,6 +184,7 @@ wss.on('connection',(ws)=>{
         case 'matchmake':engine.joinRandom(uid,msg.seconds);break;
         case 'cancel-matchmake':engine.leaveQueue(uid);break;
         case 'invite':engine.makeInvite(uid,msg.seconds);break;
+        case 'challenge-friend':friendChallenges.issue(uid,msg.targetId,msg.seconds);break;
         case 'join-invite':engine.joinInvite(uid,msg.code);break;
         case 'move':engine.place(uid,msg.placements);break;
         case 'pass':engine.pass(uid);break;

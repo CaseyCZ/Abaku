@@ -423,7 +423,7 @@ function renderOnline(){
   const preview=describeMovePreview(s.board,pending,s.finished);
   $('onlinePreview').textContent=preview.state==='valid'?('+'+preview.points+' bodů · '+preview.detail):preview.detail;
   $('onlineConfirm').disabled=!canPlay||preview.state!=='valid';
-  $('onlineUndo').disabled=!canPlay||!pending.length;
+  $('onlineUndo').disabled=!canPlay||(!pending.length&&!exchanging);
   $('onlinePass').disabled=!canPlay;
   $('onlineExchange').disabled=!canPlay;
   $('onlineExchange').textContent=exchanging?'Potvrdit výměnu ('+selectedExchange.size+')':'Vyměnit';
@@ -451,6 +451,7 @@ function initializeActions(){
     $('manageFriends').click();
   },true);
   $('onlineCancel').addEventListener('click',()=>{
+    if(gameState&&!gameState.finished&&!window.confirm('Vrátit se do nabídky? Online partie se odpojí.'))return;
     if(!gameState)send('cancel-matchmake');
     connection?.close();connection=null;
     clearOnlineReview();

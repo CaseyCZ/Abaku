@@ -1,11 +1,12 @@
 import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.9';
 import {chooseMove} from './ai.js?v=0.2.9';
 import {describeMovePreview} from './preview.js?v=0.2.9';
+import {ScoreRecap} from './score-recap.js?v=0.2.15';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.8';
+const VERSION = '0.1.9';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -32,6 +33,7 @@ let messageType = '';
 let recentMove = null;
 let recentMoveTimer = null;
 let audioContext;
+const scoreRecap = new ScoreRecap(document.body);
 
 function sound(kind = 'tap') {
   if (!settings.sound) return;
@@ -100,12 +102,14 @@ function freshGame() {
 }
 function clearPending() { pending = []; selectedIndex = null; exchangeMode = false; exchangeIndices.clear(); }
 function newGame() {
+  scoreRecap.cancel();
   clearRecentMove();
   game = freshGame(); clearPending();botBusy = false;
   resetDeadline();save();render();notify('První tah: sestav příklad přes prostřední pole.');
 }
 function resetDeadline() {deadline = settings.time ? Date.now() + settings.time*1000 : null;}
 function restore() {
+  scoreRecap.cancel();
   clearRecentMove();
   const saved = load(saveKey, null);
   if (saved && Array.isArray(saved.board) && saved.board.length === SIZE && saved.players?.length === 2 && Array.isArray(saved.bag)) {
@@ -298,6 +302,8 @@ function commitMove(placements, fromBot=false) {
   const who=fromBot?'Počítač':playerLabel(game.turn);
   notify(`${who}: +${checked.points} bodů · ${formatEquations(checked.equations)}${checked.equations.length>3?'…':''}`,'success');
   showRecentMove(checked,placements,who);
+  scoreRecap.play({player:who,breakdown:checked.equationBreakdown,
+    equations:checked.equations,total:checked.points});
   sound('success');advanceTurn();return true;
 }
 byId('confirmButton').addEventListener('click',()=>{if(pending.length)commitMove(pending);});

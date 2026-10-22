@@ -43,6 +43,10 @@ export class MatchEngine {
   matchOf(uid) {
     return this.byPlayer.get(uid) || null;
   }
+  waitingCount() {
+    // Only players who are still connected and eligible for random matchmaking.
+    return this.queue.filter(item => this.connections.has(item.uid) && !this.matchOf(item.uid)).length;
+  }
   assertFree(uid) {
     const match = this.matchOf(uid);
     if (match && !match.finished) throw new Error('Už jsi v rozehrané partii.');

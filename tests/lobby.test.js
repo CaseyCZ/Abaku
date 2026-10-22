@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {Script} from 'node:vm';
 
 const file = path => readFileSync(new URL(path, import.meta.url), 'utf8');
 const landing=file('../index.html');
@@ -199,4 +200,10 @@ test('Oracle health automatically retries after intermittent refresh failures',(
   assert.match(onlineClient,/initOnline\(\);\s*\},5000\)/);
   assert.match(onlineClient,/Oracle dočasně neodpovídá/);
   assert.match(onlineClient,/if\(!configured\|\|onlineServerReady\)return;/);
+});
+
+
+test('online reconnection client remains parseable JavaScript after new state handlers',()=>{
+  const withoutImports=onlineClient.replace(/^import\s+.*?;\s*$/gm,'').replace(/\bexport\s+(?=(?:async\s+)?function|const|let|class)/g,'');
+  assert.doesNotThrow(()=>new Script(withoutImports,{filename:'online-client.js'}));
 });

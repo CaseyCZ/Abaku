@@ -359,3 +359,12 @@ test('every online match result uses the same shared dialog as the local and AI 
   assert.match(css,/\.abaku-result-dialog \.online-result-scores/);
   assert.match(onlineClient,/renderOnlineResult\(msg\)/);
 });
+
+
+test('PO PŘIHLÁŠENÍ diagonal labels remain fully inside narrow mode cards',()=>{
+  const styles=file('../lobby.css');
+  assert.equal((landing.match(/class="future-ribbon">PO PŘIHLÁŠENÍ<\/span>/g)||[]).length,2);
+  assert.match(landing,/lobby\.css\?v=0\.2\.22/);
+  assert.match(styles,/\.future-ribbon\{[\s\S]*?top:44px;[\s\S]*?right:4px;[\s\S]*?width:140px;[\s\S]*?white-space:nowrap;/);
+  assert.doesNotMatch(styles,/\.future-ribbon\{[^}]*right:-39px/);
+});

@@ -1,0 +1,91 @@
+# Abaku API – low-resource Oracle Free Tier
+
+Server side is **implemented but not yet deployed**. Web application on GitHub Pages may continue to run offline AI games without the API. This is an isolated process and does not modify any existing PM2 services or NGINX sites.
+
+## Requirements
+
+- Node.js 24.15+ on Oracle ARM (built-in SQLite)
+- NGINX with public HTTPS/WSS reverse proxy
+- One Google OAuth **Web application client ID** authorized for the website origin
+- Persistent private directory for SQLite (not inside the GitHub repository)
+- `npm install --omit=dev` in `server/`
+
+Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. Dependencies: `ws` and `google-auth-library`.
+
+## Security
+
+- The server refuses to start unless `GOOGLE_CLIENT_ID` and `CORS_ORIGIN` are set.
+- All online calls require a Google ID token verified by the official Google library; the server never trusts a submitted nickname/score.
+- Google credentials are NOT stored in SQLite. Only a Google `sub` UID is used as an identifier.
+- SQLite stores the nickname, avatar, four counters (games, wins, losses, draws), and accepted/pending friend relationships.
+- Online boards, private racks, opponent matching, invite codes and chat exist **in RAM only**.
+- Game server validates moves independently and determines scoring, countdown, winner and statistics.
+- Run it behind HTTPS/WSS with strict allowed origins and client request limits.
+- A server restart ends ongoing matches and clears matchmaking/chat; persisted profile statistics remain.
+- Changing to any public domain requires updating Google authorized JavaScript origins and `CORS_ORIGIN`.
+
+## Local smoke tests
+
+```sh
+cd server
+npm install
+npm test
+```
+
+To run on the Oracle host **after** you have configured HTTPS and the Google Web Client ID:
+
+```sh
+cd /home/ubuntu/Abaku/server
+npm install --omit=dev --no-audit
+export GOOGLE_CLIENT_ID='ACTUAL-WEB-CLIENT-ID'
+export CORS_ORIGIN='https://caseycz.github.io'
+export DB_PATH='/home/ubuntu/abaku-data/abaku.sqlite'
+export HOST='127.0.0.1'
+export PORT='8787'
+node index.js
+```
+
+Use a private PM2 ecosystem/environment file; do not store production secrets in the public GitHub repo. No Google **client secret** is required for verifying a Google ID token.
+
+NGINX example, to be adapted to an existing HTTPS virtual host and tested before activation:
+
+```nginx
+location /abaku-api/ {
+    proxy_pass http://127.0.0.1:8787/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_read_timeout 120s;
+    proxy_buffering off;
+}
+```
+
+For this example, REST `/abaku-api/api/me` is mapped to Node `/api/me`; WebSocket `/abaku-api/ws` maps to `/ws`. Set the frontend API base to your actual HTTPS host plus `/abaku-api`.
+
+## HTTP API
+
+- `GET /health` – lightweight readiness probe, no auth
+- `GET /api/leaderboard` – public nickname, avatar and total match statistics
+- `GET /api/me` – own authenticated profile
+- `POST /api/me` – nickname and avatar
+- `GET /api/players?name=<prefix>` – nickname search
+- `GET /api/friends` – friends and incoming requests
+- `POST /api/friends/request` – body `{"uid":"..."}`
+- `POST /api/friends/respond` – body `{"uid":"...","accept":true}`
+
+Use header `Authorization: Bearer <Google ID token>` on authenticated endpoints.
+
+## WebSocket protocol
+
+Open `wss://HOST/abaku-api/ws`, send `{"type":"auth","idToken":"<Google ID token>"}` as the **first** message; never put tokens into query strings/URLs. Server responds with `authenticated` and either `lobby` or `match-state`.
+
+Supported messages: `matchmake`, `cancel-matchmake`, `invite`, `join-invite`, `move` (placements with row, col and rackIndex; digit is derived by server), `pass`, `exchange`, `chat`, `sync`.
+
+`match-state` contains the board, current player, deadline, scores, bag count and **only your own rack**. Other player's rack is hidden.
+
+The websocket authorizes by Google UID and associates the socket with the corresponding user. Reconnect within 60 seconds; after the grace period the active opponent wins by forfeit. If both disconnect, the game is abandoned with no statistics.
+
+## Known limits
+
+This is the foundation for a small number of concurrent matches; it has not been load-tested. Offline AI mode still requires no server. Online frontend controls and end-to-end Google login must be tested after the Google client ID and HTTPS endpoint are configured. Don't expose this unfinished API publicly before performing the deployment/security checks.

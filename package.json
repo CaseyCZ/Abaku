@@ -1,0 +1,11 @@
+{
+  "name": "retro-abaku-arena",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Neoficiální retro rekonstrukce matematické deskové hry pro PC",
+  "scripts": {
+    "test": "node --test",
+    "dev": "npx --yes serve . -l 3000"
+  }
+}

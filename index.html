@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#4c0e13" />
   <meta name="description" content="Číselná desková hra inspirovaná klasickým Abaku – vlastní retro rekonstrukce pro PC." />
   <title>Číselná aréna – retro Abaku</title>
-  <link rel="stylesheet" href="./style.css?v=0.1.2" />
+  <link rel="stylesheet" href="./style.css?v=0.1.3" />
 </head>
 <body>
   <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -43,6 +43,7 @@
       <div class="header-actions">
         <button id="rulesButton" class="gold-button small">Pravidla</button>
         <button id="settingsButton" class="gold-button small">⚙ Nastavení</button>
+        <button id="newButton" class="gold-button primary small">Nová hra</button>
       </div>
     </header>
 
@@ -51,6 +52,18 @@
     <main class="main-stage">
       <aside class="player-side left-side">
         <div class="flourish" aria-hidden="true">❦</div>
+        <section class="side-panel status-panel" aria-label="Informace o partii">
+          <h2>Průběh partie</h2>
+          <div class="status-turn"><span>Na tahu</span><strong id="turnName">Hráč 1</strong></div>
+          <div class="status-details">
+            <div><span>Poslední tah</span><strong id="lastMovePlayer">—</strong></div>
+            <div><span>Příklad</span><strong id="lastExample">—</strong></div>
+            <div><span>Body za tah</span><strong id="lastPoints">—</strong></div>
+          </div>
+          <div class="game-message" id="gameMessage" role="status" aria-live="polite">Začni příkladem přes střed desky.</div>
+          <h3>Poslední tahy</h3>
+          <ol class="move-history" id="moveHistory" aria-label="Historie tahů"></ol>
+        </section>
         <svg class="mascot" viewBox="0 0 170 186" aria-hidden="true"><use href="#little-mascot"/></svg>
         <div class="player-card active" id="player0Card">
           <div class="player-name" id="player0Name">Hráč 1</div>
@@ -64,7 +77,6 @@
           <div class="board" id="board" role="grid" aria-label="Hrací deska 15 krát 15"></div>
         </div>
         <div class="under-board">
-          <div class="game-message" id="gameMessage" aria-live="polite">Polož kameny na desku a sestav příklad.</div>
           <div class="timer-wrap"><span>ČAS</span><strong id="timer">01:30</strong></div>
         </div>
         <div class="rack-frame">
@@ -76,6 +88,16 @@
 
       <aside class="player-side right-side">
         <div class="flourish mirrored" aria-hidden="true">❦</div>
+        <section class="side-panel chat-panel" aria-label="Chat a události partie">
+          <h2>Chat a události</h2>
+          <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Zprávy z partie"></div>
+          <form id="chatForm" class="chat-entry">
+            <label for="chatInput" class="sr-only">Text zprávy</label>
+            <input id="chatInput" maxlength="160" autocomplete="off" placeholder="Napiš zprávu…" />
+            <button id="chatSendButton" type="submit" class="gold-button small">Poslat</button>
+          </form>
+          <p class="chat-note">Chat funguje místně na tomto PC.</p>
+        </section>
         <svg class="mascot" viewBox="0 0 170 186" aria-hidden="true"><use href="#little-mascot"/></svg>
         <div class="player-card" id="player1Card">
           <div class="player-name" id="player1Name">Počítač</div>
@@ -90,12 +112,22 @@
         <button id="hintButton" class="gold-button">💡 Nápověda</button>
         <button id="exchangeButton" class="gold-button">Vyměnit</button>
         <button id="passButton" class="gold-button">Vynechat tah</button>
-        <button id="newButton" class="gold-button primary">Nová hra</button>
       </div>
       <div class="game-mode" id="modeLabel">Proti počítači</div>
     </footer>
     <div class="fine-print">Neoficiální fanouškovská rekonstrukce. Původní Abaku a jeho grafické prvky patří příslušným autorům.</div>
   </div>
+
+  <dialog id="newGameDialog" aria-labelledby="newGameTitle">
+    <div class="dialog-body confirmation-dialog">
+      <h2 id="newGameTitle">Nová hra</h2>
+      <p>Opravdu chceš začít novou partii? Současná rozehraná hra a její výsledky budou nahrazeny.</p>
+      <div class="confirm-actions">
+        <button type="button" class="gold-button" id="cancelNewGame">Zrušit</button>
+        <button type="button" class="gold-button primary" id="confirmNewGame">Ano, nová hra</button>
+      </div>
+    </div>
+  </dialog>
 
   <dialog id="settingsDialog">
     <form method="dialog" class="dialog-body" id="settingsForm">
@@ -127,6 +159,6 @@
     </div>
   </dialog>
 
-  <script type="module" src="./src/main.js?v=0.1.2-r2"></script>
+  <script type="module" src="./src/main.js?v=0.1.3"></script>
 </body>
 </html>

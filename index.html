@@ -7,8 +7,8 @@
   <meta name="description" content="Abaku – číselná retro hra. Zahraj si proti počítači, místně ve dvou nebo online s přáteli.">
   <title>ABAKU | Hlavní nabídka</title>
   <meta name="analytics-page-title" content="Abaku — Hlavní nabídka">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.14">
-  <link rel="stylesheet" href="./online-game.css?v=0.2.14">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.18">
+  <link rel="stylesheet" href="./online-game.css?v=0.2.18">
   <link rel="stylesheet" href="./score-recap.css?v=0.2.15">
   <link rel="stylesheet" href="./analytics.css?v=1">
   <script src="./src/analytics.js?v=1" defer></script>
@@ -136,7 +136,7 @@
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-            <span class="build-label">Abaku Online 0.2.17 · testovací provoz</span>
+            <span class="build-label">Abaku Online 0.2.18 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -209,7 +209,10 @@
       <header class="online-dialog-header">
         <div class="online-game-brand"><span class="online-brand-mark">A</span><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
         <div class="online-game-title" id="onlineDialogTitle"><span>✦ ABAKU ✦</span><small>Matematický souboj · ONLINE</small></div>
-        <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka</button>
+        <div class="online-header-actions">
+          <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">⚙ Nastavení</button>
+          <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka</button>
+        </div>
       </header>
       <p id="onlineStatus" role="status" aria-live="polite">Připojuji se k serveru…</p>
       <div id="onlineOpponentNotice" class="online-opponent-notice" role="status" aria-live="polite" hidden>Soupeř se odpojil. Čekáme na jeho návrat (max. 60 sekund).</div>
@@ -304,6 +307,24 @@
       <span class="online-chat-toast-arrow">›</span>
     </button>
   </dialog>
+  <dialog id="onlineGameSettingsDialog" class="online-game-settings-dialog" aria-labelledby="onlineGameSettingsTitle">
+    <div class="online-game-settings-body">
+      <h2 id="onlineGameSettingsTitle">⚙ Nastavení online hry</h2>
+      <label for="onlineGameRecapSeconds">Doba zobrazení příkladu</label>
+      <select id="onlineGameRecapSeconds" aria-label="Doba zobrazení jednoho příkladu v online partii">
+        <option value="2">2 sekundy</option>
+        <option value="3" selected>3 sekundy</option>
+        <option value="5">5 sekund</option>
+        <option value="8">8 sekund</option>
+        <option value="10">10 sekund</option>
+      </select>
+      <p>Každý příklad se automaticky vyhodnotí. Volba platí i proti počítači a uloží se bez přerušení partie.</p>
+      <div class="online-game-settings-actions">
+        <button type="button" id="onlineSettingsCancel" class="gold-button">Zrušit</button>
+        <button type="button" id="onlineSettingsSave" class="gold-button primary">Uložit</button>
+      </div>
+    </div>
+  </dialog>
   <dialog id="onlineResultDialog" class="online-result-dialog" aria-labelledby="onlineResultTitle">
     <div class="online-result-inner">
       <div class="online-result-emblem" aria-hidden="true">✦</div>
@@ -322,6 +343,6 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.17"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.18"></script>
 </body>
 </html>

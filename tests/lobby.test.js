@@ -111,3 +111,20 @@ test('online players see complete previous equation and its highlighted squares'
   assert.match(onlineClient,/until:Date\.now\(\)\+3000/);
   assert.match(onlineClient,/formatEquations\(msg\.equations\)/);
 });
+
+
+test('Google auth is restored silently from tab session after a normal reload',()=>{
+  // Saved credentials are limited to the current browser tab and are not
+  // treated as trusted until the backend confirms the Google token.
+  assert.match(onlineClient,/const authSessionKey='abaku-online-google-session-v1'/);
+  assert.match(onlineClient,/sessionStorage\.setItem\(authSessionKey,token\)/);
+  assert.match(onlineClient,/sessionStorage\.getItem\(authSessionKey\)/);
+  assert.match(onlineClient,/sessionStorage\.removeItem\(authSessionKey\)/);
+  assert.match(onlineClient,/const \{profile\}=await api\('\/api\/me'\);\s*saveCredential\(value\);\s*showProfile\(profile\)/);
+  assert.match(onlineClient,/const saved=readSavedCredential\(\);\s*if\(saved&&await googleCredential\(saved\)\)return;/);
+  assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
+  assert.match(onlineClient,/connection\?\.close\(\);connection=null;credential=null;gameState=null;currentProfile=null;\s*clearSavedCredential\(\)/);
+  assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
+  assert.match(landing,/Abaku Online 0\.2\.10/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.10/);
+});

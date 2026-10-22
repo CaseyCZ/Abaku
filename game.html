@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#4c0e13" />
+  <meta name="description" content="Číselná desková hra inspirovaná klasickým Abaku – vlastní retro rekonstrukce pro PC." />
+  <title>Číselná aréna – retro Abaku</title>
+  <link rel="stylesheet" href="./style.css?v=0.1.4" />
+</head>
+<body>
+  <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="fur"><stop stop-color="#fff"/><stop offset=".7" stop-color="#d0d3d9"/><stop offset="1" stop-color="#818995"/></radialGradient>
+      <linearGradient id="face" x2="1" y2="1"><stop stop-color="#ebf0f3"/><stop offset="1" stop-color="#657c91"/></linearGradient>
+      <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#fff8bb"/><stop offset=".35" stop-color="#fac857"/><stop offset=".7" stop-color="#b66a13"/><stop offset="1" stop-color="#ffde68"/></linearGradient>
+      <symbol id="little-mascot" viewBox="0 0 170 186">
+        <g stroke="#f9fbff" stroke-width="2" stroke-dasharray="2.7 2" fill="url(#fur)">
+          <ellipse cx="85" cy="70" rx="61" ry="54"/>
+          <ellipse cx="85" cy="17" rx="20" ry="16"/><ellipse cx="49" cy="28" rx="20" ry="16" transform="rotate(-28 49 28)"/>
+          <ellipse cx="120" cy="28" rx="20" ry="16" transform="rotate(28 120 28)"/>
+          <ellipse cx="24" cy="65" rx="19" ry="18"/><ellipse cx="146" cy="65" rx="19" ry="18"/>
+          <ellipse cx="34" cy="111" rx="18" ry="19"/><ellipse cx="136" cy="111" rx="18" ry="19"/>
+          <ellipse cx="84" cy="123" rx="38" ry="33"/>
+        </g>
+        <ellipse cx="85" cy="93" rx="48" ry="49" fill="url(#face)" stroke="#657386" stroke-width="3"/>
+        <ellipse cx="69" cy="81" rx="21" ry="26" fill="#eff9ff" stroke="#536376" stroke-width="2.5"/>
+        <ellipse cx="107" cy="81" rx="21" ry="26" fill="#ffca21" stroke="#536376" stroke-width="2.5"/>
+        <ellipse cx="74" cy="84" rx="9" ry="14" fill="#202532"/><ellipse cx="102" cy="84" rx="9" ry="14" fill="#202532"/>
+        <circle cx="78" cy="78" r="4.4" fill="#fff"/><circle cx="105" cy="78" r="4.4" fill="#fff"/>
+        <ellipse cx="89" cy="113" rx="19" ry="11" fill="#f08f9e" stroke="#9b5266" stroke-width="2"/>
+        <circle cx="89" cy="116" r="12" fill="#aaf0f9" stroke="#b5548e" stroke-width="4"/>
+        <circle cx="89" cy="116" r="5" fill="#f9e5aa"/>
+        <path d="M57 130q28 22 59 0l14 40H44z" fill="#78869c" stroke="#52677a" stroke-width="3"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="game-app">
+    <header class="top-bar">
+      <div class="brand"><span class="brand-mark">A</span><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span><small>RETRO EDITION</small></div>
+      <div class="headline"><span class="ornament">✦</span> ABAKU <span class="ornament">✦</span><small>Matematický souboj</small></div>
+      <div class="header-actions">
+        <button id="lobbyButton" class="gold-button small">⌂ Nabídka</button>
+        <button id="rulesButton" class="gold-button small">Pravidla</button>
+        <button id="settingsButton" class="gold-button small">⚙ Nastavení</button>
+        <button id="newButton" class="gold-button primary small">Nová hra</button>
+      </div>
+    </header>
+
+    <div class="progress-track" aria-label="Průběh partie" id="progressTrack"></div>
+
+    <main class="main-stage">
+      <aside class="player-side left-side">
+        <div class="flourish" aria-hidden="true">❦</div>
+        <section class="side-panel status-panel" aria-label="Informace o partii">
+          <h2>Průběh partie</h2>
+          <div class="status-turn"><span>Na tahu</span><strong id="turnName">Hráč 1</strong></div>
+          <div class="status-details">
+            <div><span>Poslední tah</span><strong id="lastMovePlayer">—</strong></div>
+            <div><span>Příklad</span><strong id="lastExample">—</strong></div>
+            <div><span>Body za tah</span><strong id="lastPoints">—</strong></div>
+          </div>
+          <div class="game-message" id="gameMessage" role="status" aria-live="polite">Začni příkladem přes střed desky.</div>
+          <h3>Poslední tahy</h3>
+          <ol class="move-history" id="moveHistory" aria-label="Historie tahů"></ol>
+        </section>
+        <svg class="mascot" viewBox="0 0 170 186" aria-hidden="true"><use href="#little-mascot"/></svg>
+        <div class="player-card active" id="player0Card">
+          <div class="player-name" id="player0Name">Hráč 1</div>
+          <div class="score"><strong id="player0Score">0</strong><small id="player0Status">Na tahu</small></div>
+        </div>
+      </aside>
+
+      <section class="center-area" aria-label="Herní plocha">
+        <div class="board-crest"><span>✦</span> ČÍSELNÁ BITVA <span>✦</span></div>
+        <div class="board-rim">
+          <div class="board" id="board" role="grid" aria-label="Hrací deska 15 krát 15"></div>
+        </div>
+        <div class="under-board">
+          <div id="movePreview" class="move-preview" data-state="empty" aria-live="polite" aria-atomic="true">
+            <span class="move-preview-label">Body za tah</span>
+            <strong id="previewPoints">—</strong>
+            <span id="previewDetails" class="move-preview-details">Polož kameny na desku</span>
+          </div>
+          <div class="timer-wrap"><span>ČAS</span><strong id="timer">01:30</strong></div>
+        </div>
+        <div class="rack-frame">
+          <button class="round-button" id="undoButton" title="Vrátit rozložené kameny" aria-label="Vrátit kameny">↶</button>
+          <div class="rack" id="rack" aria-label="Tvoje kameny"></div>
+          <button class="round-button play" id="confirmButton" title="Potvrdit tah" aria-label="Potvrdit tah">✓</button>
+        </div>
+      </section>
+
+      <aside class="player-side right-side">
+        <div class="flourish mirrored" aria-hidden="true">❦</div>
+        <section class="side-panel chat-panel" aria-label="Chat hráčů">
+          <h2>Chat</h2>
+          <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Zprávy z partie"></div>
+          <form id="chatForm" class="chat-entry">
+            <label for="chatInput" class="sr-only">Text zprávy</label>
+            <input id="chatInput" maxlength="160" autocomplete="off" placeholder="Napiš zprávu…" />
+            <button id="chatSendButton" type="submit" class="gold-button small">Poslat</button>
+          </form>
+          <p class="chat-note">Chat funguje místně na tomto PC.</p>
+        </section>
+        <svg class="mascot" viewBox="0 0 170 186" aria-hidden="true"><use href="#little-mascot"/></svg>
+        <div class="player-card" id="player1Card">
+          <div class="player-name" id="player1Name">Počítač</div>
+          <div class="score"><strong id="player1Score">0</strong><small id="player1Status">Čeká</small></div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="control-bar">
+      <div class="bag-count">V sáčku <strong id="bagCount">100</strong> kamenů</div>
+      <div class="game-controls">
+        <button id="hintButton" class="gold-button">💡 Nápověda</button>
+        <button id="exchangeButton" class="gold-button">Vyměnit</button>
+        <button id="passButton" class="gold-button">Vynechat tah</button>
+      </div>
+      <div class="game-mode" id="modeLabel">Proti počítači</div>
+    </footer>
+    <div class="fine-print">Neoficiální fanouškovská rekonstrukce. Původní Abaku a jeho grafické prvky patří příslušným autorům.</div>
+  </div>
+
+  <dialog id="newGameDialog" aria-labelledby="newGameTitle">
+    <div class="dialog-body confirmation-dialog">
+      <h2 id="newGameTitle">Nová hra</h2>
+      <p>Opravdu chceš začít novou partii? Současná rozehraná hra a její výsledky budou nahrazeny.</p>
+      <div class="confirm-actions">
+        <button type="button" class="gold-button" id="cancelNewGame">Zrušit</button>
+        <button type="button" class="gold-button primary" id="confirmNewGame">Ano, nová hra</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="settingsDialog">
+    <form method="dialog" class="dialog-body" id="settingsForm">
+      <h2>Nastavení partie</h2>
+      <label>Herní režim <select id="modeSetting"><option value="bot">Hráč proti počítači</option><option value="local">Dva hráči na jednom PC</option></select></label>
+      <label>Obtížnost počítače <select id="difficultySetting"><option value="easy">Začátečník</option><option value="medium">Pokročilý</option><option value="hard">Expert</option></select></label>
+      <label>Délka tahu <select id="timeSetting"><option value="30">30 sekund</option><option value="60">60 sekund</option><option value="90">90 sekund</option></select></label>
+      <label class="check-line"><input type="checkbox" id="soundSetting" checked /> Zvuky</label>
+      <p class="dialog-note">Změna herního režimu začne novou partii. Ostatní nastavení se použije ihned.</p>
+      <menu><button value="cancel" class="gold-button">Zrušit</button><button value="save" class="gold-button primary">Uložit</button></menu>
+    </form>
+  </dialog>
+
+  <dialog id="rulesDialog">
+    <div class="dialog-body rules-body">
+      <h2>Jak hrát Abaku</h2>
+      <p>Podobně jako ve Scrabblu pokládáš na desku kameny, ale místo slov vytváříš <strong>početní příklady bez znamének</strong>.</p>
+      <div class="example"><span>2</span><span>7</span><span>9</span><b>→</b> 2 + 7 = 9</div>
+      <div class="example"><span>1</span><span>2</span><span>4</span><span>3</span><b>→</b> 12 ÷ 4 = 3</div>
+      <ul>
+        <li>První tah musí procházet prostředním polem.</li>
+        <li>Každý další tah musí navázat na kameny, které už leží na desce.</li>
+        <li>Nové kameny polož do jednoho řádku nebo sloupce. Každý musí být součástí příkladu.</li>
+        <li>Bonusová políčka násobí hodnotu kamene nebo celého příkladu.</li>
+        <li>Vyhrává hráč s vyšším počtem bodů po skončení partie.</li>
+      </ul>
+      <p class="dialog-note">Jde o první hratelnou rekonstrukci; validátor a počítání složitějších souběžných příkladů budeme dále zpřesňovat podle originálu.</p>
+      <menu><button id="closeRules" class="gold-button primary">Rozumím</button></menu>
+    </div>
+  </dialog>
+
+  <script type="module" src="./src/main.js?v=0.1.4"></script>
+</body>
+</html>

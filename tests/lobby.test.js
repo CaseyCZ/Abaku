@@ -43,7 +43,7 @@ test('a signed-in Google profile switches local labels to online and unlocks mat
   assert.match(landing,/id="onlineInfoText"/);
   assert.match(onlineClient,/profileSubtitle'\)\.textContent='Google účet · online'/);
   assert.match(onlineClient,/HLEDAT SOUPEŘE/);
-  assert.match(onlineClient,/VYTVOŘIT \/ ZADAT KÓD/);
+  assert.match(onlineClient,/VYBRAT PŘÍTELE/);
 });
 
 test('online profile and friendship management are wired to authenticated Oracle routes',()=>{
@@ -78,4 +78,26 @@ test('only online turn time is selectable; default is 60 seconds',()=>{
   assert.match(onlineClient,/send\('matchmake',\{seconds:action\.seconds\}\)/);
   assert.match(onlineClient,/send\('invite',\{seconds:action\.seconds\}\)/);
   assert.match(onlineClient,/connectOnline\(\{type:'random',seconds:selectedTurnSeconds\(\)\}\)/);
+});
+
+
+test('signed-in player may challenge a selected friend directly from accepted friends',()=>{
+  assert.match(landing,/id="friendList"/);
+  assert.match(landing,/id="friendChallengeDialog"/);
+  assert.match(landing,/id="friendChallengeAccept"/);
+  assert.match(landing,/id="friendChallengeDecline"/);
+  assert.match(landing,/id="friendCreateCode"/);
+  assert.match(landing,/id="friendJoinCode"/);
+  assert.match(onlineClient,/appendFriend\(friends,player,'⚔ Vyzvat'/);
+  assert.match(onlineClient,/send\('challenge-friend',\{targetId:action\.targetId,seconds:action\.seconds\}\)/);
+  assert.match(onlineClient,/api\('\/api\/challenges'/);
+  assert.match(onlineClient,/api\('\/api\/challenges\/respond','POST'/);
+  assert.match(onlineClient,/connectOnline\(\{type:'join',code:data\.code\}\)/);
+});
+
+test('official Google button fits measured profile card width',()=>{
+  assert.match(onlineClient,/renderResponsiveGoogleButton\(g\)/);
+  assert.match(onlineClient,/container\.getBoundingClientRect\(\)\.width/);
+  assert.match(onlineClient,/ResizeObserver/);
+  assert.doesNotMatch(onlineClient,/width:230,locale:'cs'/);
 });

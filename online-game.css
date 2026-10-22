@@ -440,3 +440,20 @@
   #onlineDialog .online-status-panel{grid-column:1/-1;grid-row:5}
   #onlineDialog .online-match-chat{grid-column:1/-1;grid-row:6;margin-bottom:14px}
 }
+
+
+/* v0.2.13: interruption warning and manual connection retry. */
+#onlineDialog .online-reconnect-notice{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:9px;margin:3px 12px 11px;
+  padding:11px 13px;border:2px solid #ffbf5f;border-radius:7px;
+  background:#4c241a;color:#fff0cb;
+  font:12px/1.5 Verdana,sans-serif
+}
+#onlineDialog .online-reconnect-notice[hidden]{display:none!important}
+#onlineDialog #onlineReconnectText{min-width:0;flex:1 1 190px}
+#onlineDialog #onlineRetryNow{min-height:41px;font-size:12px}
+@media(max-width:700px){
+  #onlineDialog .online-reconnect-notice{margin:4px 8px 8px;padding:8px 9px;font-size:11px}
+  #onlineDialog #onlineRetryNow{flex:1 1 100px}
+}

@@ -156,3 +156,12 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
   assert.match(onlineClient,/s\.history/);
   assert.match(onlineClient,/gameState\.deadline/);
 });
+
+
+test('online blue scorecard header follows the actual active player, not always player one',()=>{
+  const css=file('../online-game.css');
+  assert.match(landing,/online-game\.css\?v=0\.2\.12/);
+  assert.match(css,/#onlineDialog \.online-player-card\.active \.online-player-name\{/);
+  assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.online-player-name\{/);
+  assert.match(onlineClient,/onlinePlayer'\+side\+'Card'\)\.classList\.toggle\('active',!s\.finished&&s\.turn===side\)/);
+});

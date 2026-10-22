@@ -6,7 +6,10 @@
   <meta name="theme-color" content="#4c0e13">
   <meta name="description" content="Abaku – číselná retro hra. Zahraj si proti počítači, místně ve dvou nebo online s přáteli.">
   <title>ABAKU | Hlavní nabídka</title>
+  <meta name="analytics-page-title" content="Abaku — Hlavní nabídka">
   <link rel="stylesheet" href="./lobby.css?v=0.2.10">
+  <link rel="stylesheet" href="./analytics.css?v=1">
+  <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body>
   <div class="lobby-shell">
@@ -100,7 +103,11 @@
         </aside>
       </section>
     </main>
-    <footer class="lobby-footer">Neoficiální fanouškovská rekonstrukce původní hry Abaku. Stabilní verze 0.1.4 je zazálohovaná.</footer>
+    <footer class="lobby-footer">
+      Neoficiální fanouškovská rekonstrukce původní hry Abaku. Stabilní verze 0.1.4 je zazálohovaná.
+      <a href="./privacy.html" class="abaku-privacy-link">Soukromí a cookies</a>
+      <button type="button" class="abaku-cookie-settings" data-cookie-settings>Nastavení cookies</button>
+    </footer>
   </div>
   <dialog id="profileDialog" aria-labelledby="profileTitle">
     <form id="profileForm" method="dialog" class="dialog-body">

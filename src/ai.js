@@ -1,4 +1,4 @@
-import {SIZE, validateMove} from './rules.js';
+import {SIZE, validateMove} from './rules.js?v=0.2.9';
 
 function shuffle(items) {
   const out = [...items];

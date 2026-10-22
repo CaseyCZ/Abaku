@@ -133,7 +133,7 @@ test('Google auth is restored silently from tab session after a normal reload',(
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
   const html=landing;
   const css=file('../online-game.css');
-  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.14"/);
+  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.18"/);
   for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
     'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
     'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',
@@ -161,7 +161,7 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
 
 test('online blue scorecard header follows the actual active player, not always player one',()=>{
   const css=file('../online-game.css');
-  assert.match(landing,/online-game\.css\?v=0\.2\.14/);
+  assert.match(landing,/online-game\.css\?v=0\.2\.18/);
   assert.match(css,/#onlineDialog \.online-player-card\.active \.online-player-name\{/);
   assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.online-player-name\{/);
   assert.match(onlineClient,/onlinePlayer'\+side\+'Card'\)\.classList\.toggle\('active',!s\.finished&&s\.turn===side\)/);
@@ -216,7 +216,7 @@ test('match end displays winner and scores in a dedicated result dialog on all d
     'onlineRematchStatus','onlineResultReason'])
     assert.match(landing,new RegExp('id="'+id+'"'));
   assert.match(onlineClient,/function renderOnlineResult\(state\)/);
-  assert.match(onlineClient,/if\(!state\?\.finished\|\|resultShownFor===state\.matchId\|\|onlineScoreRecap\.playing\(\)\)return/);
+  assert.match(onlineClient,/if\(!state\?\.finished\|\|resultShownFor===state\.matchId\|\|onlineScoreRecap\.playing\(\)\|\|recentOnlineMove\)return/);
   assert.match(onlineClient,/renderOnlineResult\(msg\)/);
   assert.match(onlineClient,/state\.reason==='abandoned'/);
   assert.match(onlineClient,/state\.reason/);

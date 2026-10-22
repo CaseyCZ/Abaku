@@ -543,3 +543,48 @@
   #onlineDialog .online-chat-toast-copy strong{font-size:11px}
   #onlineDialog .online-chat-toast-copy small{font-size:10px}
 }
+
+
+/* 0.2.18 — always-available online settings while a match is open. */
+#onlineDialog .online-header-actions{
+  display:flex;gap:8px;align-items:center;justify-self:end;flex-wrap:wrap;
+}
+#onlineDialog .online-header-actions .gold-button{
+  min-height:43px;white-space:nowrap;font-size:12px;padding:8px 13px;
+}
+#onlineGameSettingsDialog.online-game-settings-dialog{
+  box-sizing:border-box;width:min(calc(100vw - 24px),460px);max-height:calc(100dvh - 24px);
+  overflow-y:auto;padding:0;
+  background:linear-gradient(140deg,#fff4d5,#e4c18c);
+  border:4px ridge #e3b65a;border-radius:13px;
+  box-shadow:0 12px 45px #180509aa;color:#592c17;
+}
+#onlineGameSettingsDialog::backdrop{background:#16050bc4}
+#onlineGameSettingsDialog .online-game-settings-body{
+  display:flex;flex-direction:column;gap:13px;padding:20px;
+  font:13px/1.5 Verdana,sans-serif;
+}
+#onlineGameSettingsDialog h2{
+  font:bold 23px Georgia,serif;color:#6c2818;text-align:center;margin:0 0 4px;
+}
+#onlineGameSettingsDialog label{font-weight:bold}
+#onlineGameSettingsDialog select{
+  width:100%;min-height:45px;padding:9px;
+  border:2px solid #c18a37;border-radius:7px;
+  background:#fff9e9;color:#502515;font-size:15px;
+}
+#onlineGameSettingsDialog p{margin:0;color:#6a492b}
+#onlineGameSettingsDialog .online-game-settings-actions{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:5px;
+}
+#onlineGameSettingsDialog .online-game-settings-actions button{min-height:43px}
+@media(max-width:950px) and (orientation:portrait),(max-width:700px){
+  #onlineDialog .online-header-actions{
+    grid-column:1/-1;grid-row:2;
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    justify-self:stretch;width:100%;gap:6px;
+  }
+  #onlineDialog .online-header-actions .gold-button{
+    width:100%;min-width:0;min-height:40px;padding:7px 3px;font-size:11px;
+  }
+}

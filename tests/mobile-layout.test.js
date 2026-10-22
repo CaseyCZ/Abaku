@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.8/);
-  assert.match(html,/main\.js\?v=0\.1\.11/);
+  assert.match(html,/main\.js\?v=0\.1\.12/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -52,7 +52,7 @@ test('accepted offline move shows full equation and highlighted board tiles for 
   assert.match(html,/id="lastMoveReview"/);
   assert.match(js,/formatEquations\(last\.examples,10\)/);
   assert.match(js,/formatEquations\(entry\.examples,2\)/);
-  assert.match(js,/showRecentMove\(checked,placements,who\)/);
+  assert.match(js,/showRecentMove\(checked,placements,who,\(\)=>\{/);
   assert.match(js,/until:Date\.now\(\)\+3000/);
   assert.match(js,/cell\.classList\.add\('recent-equation'\)/);
   assert.match(js,/cell\.classList\.add\('recent-tile'\)/);
@@ -83,5 +83,16 @@ test('offline settings allow choosing the same saved score-tally duration as onl
   assert.match(js,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
   assert.match(js,/onDone:\(\)=>\{/);
   assert.match(js,/if\(isBotTurn\(\)&&!botBusy\)runBot\(\)/);
-  assert.match(js,/if\(scoreRecap\.playing\(\)\)return;/);
+  assert.match(js,/if\(scoreRecap\.playing\(\)\|\|recentMove\)return;/);
+});
+
+
+test('offline board highlights placed digits only AFTER the full scoring animation',()=>{
+  const start=js.indexOf("scoreRecap.play({player:who,breakdown:checked.equationBreakdown");
+  const callback=js.indexOf("showRecentMove(checked,placements,who,()=>{",start);
+  assert.ok(start>=0&&callback>start,'Highlight must start inside recap completion callback');
+  assert.match(js,/recentMoveTimer=setTimeout\(\(\)=>\{/);
+  assert.match(js,/render\(\);\s*onDone\(\);\s*\},3000\)/);
+  assert.match(js,/scoreRecap\.playing\(\)\|\|Boolean\(recentMove\)/);
+  assert.match(js,/if\(scoreRecap\.playing\(\)\|\|recentMove\)return;/);
 });

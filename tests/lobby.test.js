@@ -54,3 +54,14 @@ test('online profile and friendship management are wired to authenticated Oracle
   assert.match(onlineClient,/api\('\/api\/friends'/);
   assert.match(onlineClient,/api\('\/api\/friends\/request','POST'/);
 });
+
+test('lobby displays real online and random matchmaking queue counts without inventing availability',()=>{
+  assert.match(landing,/id="onlineCount"/);
+  assert.match(landing,/id="waitingCount"/);
+  assert.match(landing,/id="queueActivity"/);
+  assert.match(landing,/id="onlineWaitingCount"/);
+  assert.match(onlineClient,/fetch\(apiBase\+'\/api\/presence'/);
+  assert.match(onlineClient,/api\('\/api\/presence','POST'\)/);
+  assert.match(onlineClient,/setInterval\(refresh,20_000\)/);
+  assert.match(landing,/Hledání spojí dva hráče/);
+});

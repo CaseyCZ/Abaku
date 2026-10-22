@@ -101,3 +101,13 @@ test('official Google button fits measured profile card width',()=>{
   assert.match(onlineClient,/ResizeObserver/);
   assert.doesNotMatch(onlineClient,/width:230,locale:'cs'/);
 });
+
+test('online players see complete previous equation and its highlighted squares',()=>{
+  assert.match(landing,/id="onlineLastMoveReview"/);
+  assert.match(onlineClient,/import \{ formatEquations \} from/);
+  assert.match(onlineClient,/showOnlineReview\(msg\)/);
+  assert.match(onlineClient,/recentOnlineMove\.placed\.has\(key\)/);
+  assert.match(onlineClient,/recentOnlineMove\.cells\.has\(key\)/);
+  assert.match(onlineClient,/until:Date\.now\(\)\+3000/);
+  assert.match(onlineClient,/formatEquations\(msg\.equations\)/);
+});

@@ -2,9 +2,9 @@
 
 Neoficiální fanouškovská rekonstrukce klasické číselné hry inspirovaná původním Abaku z portálu Hry.cz / Seznam. Cílem je postupně dosáhnout věrného herního zážitku z původní PC hry a připravit základ pro budoucí iOS a Android verze.
 
-> **Stav:** první hratelná verze (0.1.2). Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
+> **Stav:** první hratelná verze (0.1.3). Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
 
-### Oprava 0.1.2
+### Oprava 0.1.3
 
 - Kameny se po platném tahu i výměně skutečně doplní na stojánek (dokud jsou v sáčku).
 - Již uložená rozehraná partie s prázdným stojánkem se při načtení automaticky opraví bez ztráty skóre.
@@ -15,6 +15,14 @@ Neoficiální fanouškovská rekonstrukce klasické číselné hry inspirovaná 
 - Celá PC hra včetně zásobníku a spodních tlačítek se přizpůsobuje výšce okna.
 - Hrací deska má pevně dané čtvercové rozměry a nemění výšku řádků při přidávání číslic.
 - Čas tahu lze zvolit 30, 60 nebo 90 sekund (staré uložené hodnoty se převedou na 90 sekund).
+
+### Novinky 0.1.3
+- Modré zvýraznění označuje právě aktivního hráče, včetně přepínání mezi oběma hráči.
+- Nová hra je nahoře a spouští se pouze po potvrzení.
+- Nápověda se nabízí pouze při hře proti počítači.
+- Vlevo stav partie, poslední příklad, body a posledních šest tahů.
+- Vpravo systémový log a místní chat mezi dvěma hráči na jednom PC (není online).
+- Zachováno doplňování pěti kamenů, uložené partie a nastavení 30/60/90 sekund.
 
 ## Spuštění
 

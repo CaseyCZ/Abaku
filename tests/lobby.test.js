@@ -125,14 +125,14 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/connection\?\.close\(\);connection=null;credential=null;gameState=null;currentProfile=null;\s*clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.12/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.11/);
+  assert.match(landing,/Abaku Online 0\.2\.13/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.13/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
   const html=landing;
   const css=file('../online-game.css');
-  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.12"/);
+  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.13"/);
   for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
     'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
     'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',
@@ -160,8 +160,43 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
 
 test('online blue scorecard header follows the actual active player, not always player one',()=>{
   const css=file('../online-game.css');
-  assert.match(landing,/online-game\.css\?v=0\.2\.12/);
+  assert.match(landing,/online-game\.css\?v=0\.2\.13/);
   assert.match(css,/#onlineDialog \.online-player-card\.active \.online-player-name\{/);
   assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.online-player-name\{/);
   assert.match(onlineClient,/onlinePlayer'\+side\+'Card'\)\.classList\.toggle\('active',!s\.finished&&s\.turn===side\)/);
+});
+
+
+test('continue online is shown only after the authenticated API confirms an active match',()=>{
+  assert.match(landing,/id="onlineResumeCard" hidden/);
+  assert.match(landing,/id="onlineResumeButton"/);
+  assert.match(landing,/id="onlineResumeDescription"/);
+  assert.match(onlineClient,/api\('\/api\/match\/current'\)/);
+  assert.match(onlineClient,/card\.hidden=true/);
+  assert.match(onlineClient,/card\.hidden=\$\('onlineDialog'\)\.open/);
+  assert.match(onlineClient,/await refreshResumeCard\(\)/);
+  assert.match(onlineClient,/connectOnline\(\{type:'resume'\}\)/);
+  assert.match(onlineClient,/if\(action\.type==='resume'\)send\('sync'\)/);
+});
+test('online socket reconnects after 5 seconds and offers manual retry without duplicate match',()=>{
+  assert.match(landing,/id="onlineReconnectNotice"/);
+  assert.match(landing,/id="onlineRetryNow"/);
+  assert.match(onlineClient,/reconnectTimer=setTimeout\(\(\)=>\{/);
+  assert.match(onlineClient,/retryOnlineConnection\(\);\s*\},5000\)/);
+  assert.match(onlineClient,/connectOnline\(next,\{reconnecting:true\}\)/);
+  assert.match(onlineClient,/gameState&&!gameState\.finished\?\{type:'resume'\}/);
+  assert.match(onlineClient,/socket\.addEventListener\('close',event=>\{/);
+  assert.match(onlineClient,/scheduleReconnect\('Spojení přerušeno\.'\)/);
+  assert.match(onlineClient,/onlineRetryNow'\)\.addEventListener\('click',retryOnlineConnection\)/);
+  assert.match(onlineClient,/socketAuthenticated&&connection\?\.readyState===WebSocket\.OPEN/);
+  assert.match(onlineClient,/socketMonitorTimer=setInterval/);
+  assert.match(onlineClient,/send\('sync'\)/);
+  assert.match(onlineClient,/clearReconnect\(\);\s*if\(!gameState/);
+});
+test('Oracle health automatically retries after intermittent refresh failures',()=>{
+  assert.match(onlineClient,/onlineInitStarted=true/);
+  assert.match(onlineClient,/onlineInitRetryTimer=setTimeout\(\(\)=>\{/);
+  assert.match(onlineClient,/initOnline\(\);\s*\},5000\)/);
+  assert.match(onlineClient,/Oracle dočasně neodpovídá/);
+  assert.match(onlineClient,/if\(!configured\|\|onlineServerReady\)return;/);
 });

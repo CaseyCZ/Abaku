@@ -126,8 +126,8 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/const old=connection;connection=null;\s*old\?\.close\(\);\s*socketAuthenticated=false;\s*credential=null;gameState=null;currentProfile=null;[\s\S]*?clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.17/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.17/);
+  assert.match(landing,/Abaku Online 0\.2\.18/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.18/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -264,7 +264,7 @@ test('online scoring is a hands-free animation of each server-verified equation 
   assert.match(onlineClient,/new ScoreRecap\(\$\('onlineDialog'\)\)/);
   assert.match(onlineClient,/breakdown:move\.equationBreakdown,equations:move\.equations/);
   assert.match(onlineClient,/total:move\.points/);
-  assert.match(onlineClient,/onDone:\(\)=>\{if\(gameState\?\.finished\)renderOnlineResult\(gameState\);\}/);
+  assert.match(onlineClient,/onDone:\(\)=>showOnlineHighlight\(move\)/);
   assert.match(onlineClient,/onlineScoreRecap\.playing\(\)/);
   assert.match(onlineClient,/onlineScoreRecap\.cancel\(\)/);
   assert.match(recap,/steps\.forEach\(\(item,index\)=>/);
@@ -283,4 +283,37 @@ test('online lobby offers saved per-equation animation seconds shared with offli
   assert.match(onlineClient,/recapSelect\.value=String\(getRecapSeconds\(\)\)/);
   assert.match(onlineClient,/setRecapSeconds\(recapSelect\.value\)/);
   assert.match(onlineClient,/onlineScoreRecap\.play\(\{/);
+});
+
+
+test('online scoring highlight starts after automatic calculations, not under parchment',()=>{
+  const reveal=onlineClient.indexOf('function showOnlineHighlight(move){');
+  const play=onlineClient.indexOf('onlineScoreRecap.play({');
+  const onDone=onlineClient.indexOf('onDone:()=>showOnlineHighlight(move)',play);
+  assert.ok(reveal>=0&&play>reveal&&onDone>play);
+  assert.match(onlineClient,/showOnlineHighlight\(move\)\{/);
+  assert.match(onlineClient,/recentOnlineMoveTimer=setTimeout\(\(\)=>\{/);
+  assert.match(onlineClient,/until:Date\.now\(\)\+3000/);
+  assert.match(onlineClient,/if\(gameState\.finished\)renderOnlineResult\(gameState\)/);
+  assert.match(onlineClient,/onlineScoreRecap\.playing\(\)\|\|recentOnlineMove\)return/);
+});
+
+test('in-match online settings are always accessible and persist for the next move',()=>{
+  const css=file('../online-game.css');
+  assert.match(landing,/id="onlineSettingsButton"/);
+  assert.match(landing,/id="onlineGameSettingsDialog"/);
+  assert.match(landing,/id="onlineGameRecapSeconds"/);
+  assert.match(landing,/id="onlineSettingsSave"/);
+  assert.match(landing,/id="onlineSettingsCancel"/);
+  assert.match(landing,/id="onlineCancel"/);
+  for(const seconds of [2,3,5,8,10])
+    assert.match(landing,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
+  assert.match(onlineClient,/onlineSettingsButton'\)\.addEventListener\('click'/);
+  assert.match(onlineClient,/onlineGameRecapSeconds'\)\.value=String\(getRecapSeconds\(\)\)/);
+  assert.match(onlineClient,/onlineSettingsSave'\)\.addEventListener\('click'/);
+  assert.match(onlineClient,/setRecapSeconds\(choice\)/);
+  assert.match(onlineClient,/onlineRecapSeconds'\)\.value=choice/);
+  assert.match(css,/#onlineDialog \.online-header-actions/);
+  assert.match(css,/#onlineDialog \.online-header-actions #onlineCancel/);
+  assert.match(css,/#onlineGameSettingsDialog\.online-game-settings-dialog/);
 });

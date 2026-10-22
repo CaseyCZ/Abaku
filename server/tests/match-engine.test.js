@@ -86,3 +86,19 @@ test('waiting count includes only connected unmatched players and decreases on c
   game.disconnect('c');
   assert.equal(game.waitingCount(),0);
 });
+
+test('players may queue and be matched again after a completed game',()=>{
+  const {game}=rig();
+  game.connect('a');game.connect('b');game.connect('c');game.connect('d');
+  game.joinRandom('a');game.joinRandom('b');
+  const match=game.matchOf('a');
+  game.finish(match,'completed');
+  game.joinRandom('a');
+  assert.equal(game.waitingCount(),1);
+  game.joinRandom('c');
+  assert.equal(game.waitingCount(),0);
+  assert.equal(game.matchOf('a'),game.matchOf('c'));
+  game.finish(game.matchOf('a'),'completed');
+  game.joinRandom('d');game.joinRandom('b');
+  assert.equal(game.matchOf('b'),game.matchOf('d'));
+});

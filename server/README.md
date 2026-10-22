@@ -16,7 +16,7 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 
 - The server refuses to start unless `GOOGLE_CLIENT_ID` and `CORS_ORIGIN` are set.
 - All online calls require a Google ID token verified by the official Google library; the server never trusts a submitted nickname/score.
-- Google credentials are NOT stored in SQLite. Only a Google `sub` UID is used as an identifier.
+- Google credentials are NOT stored in SQLite. Google `sub` is used only internally; other players receive random public profile IDs, never Google identifiers.
 - SQLite stores the nickname, avatar, four counters (games, wins, losses, draws), and accepted/pending friend relationships.
 - Online boards, private racks, opponent matching, invite codes and chat exist **in RAM only**.
 - Game server validates moves independently and determines scoring, countdown, winner and statistics.
@@ -71,8 +71,8 @@ For this example, REST `/abaku-api/api/me` is mapped to Node `/api/me`; WebSocke
 - `POST /api/me` – nickname and avatar
 - `GET /api/players?name=<prefix>` – nickname search
 - `GET /api/friends` – friends and incoming requests
-- `POST /api/friends/request` – body `{"uid":"..."}`
-- `POST /api/friends/respond` – body `{"uid":"...","accept":true}`
+- `POST /api/friends/request` – body `{"id":"public-player-id"}`
+- `POST /api/friends/respond` – body `{"id":"public-player-id","accept":true}`
 
 Use header `Authorization: Bearer <Google ID token>` on authenticated endpoints.
 

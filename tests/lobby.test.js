@@ -126,14 +126,14 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/const old=connection;connection=null;\s*old\?\.close\(\);\s*socketAuthenticated=false;\s*credential=null;gameState=null;currentProfile=null;[\s\S]*?clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.14/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.14/);
+  assert.match(landing,/Abaku Online 0\.2\.15/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.15/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
   const html=landing;
   const css=file('../online-game.css');
-  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.14"/);
+  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.15"/);
   for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
     'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
     'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',
@@ -161,7 +161,7 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
 
 test('online blue scorecard header follows the actual active player, not always player one',()=>{
   const css=file('../online-game.css');
-  assert.match(landing,/online-game\.css\?v=0\.2\.14/);
+  assert.match(landing,/online-game\.css\?v=0\.2\.15/);
   assert.match(css,/#onlineDialog \.online-player-card\.active \.online-player-name\{/);
   assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.online-player-name\{/);
   assert.match(onlineClient,/onlinePlayer'\+side\+'Card'\)\.classList\.toggle\('active',!s\.finished&&s\.turn===side\)/);
@@ -253,4 +253,23 @@ test('opponent disconnection shows a prominent message and leaving voluntarily c
   assert.match(onlineClient,/Soupeř se odpojil\. Má 60 sekund/);
   assert.match(onlineClient,/Opravdu vzdát online partii\?/);
   assert.match(onlineClient,/if\(socketAuthenticated&&connection\?\.readyState===WebSocket\.OPEN\)/);
+});
+
+
+test('online scoring is a hands-free animation of each server-verified equation before end dialog',()=>{
+  const recap=file('../src/score-recap.js');
+  const styles=file('../score-recap.css');
+  assert.match(landing,/score-recap\.css\?v=0\.2\.15/);
+  assert.match(onlineClient,/import \{ScoreRecap\} from '.\/score-recap\.js\?v=0\.2\.15'/);
+  assert.match(onlineClient,/new ScoreRecap\(\$\('onlineDialog'\)\)/);
+  assert.match(onlineClient,/breakdown:move\.equationBreakdown,equations:move\.equations/);
+  assert.match(onlineClient,/total:move\.points/);
+  assert.match(onlineClient,/onDone:\(\)=>\{if\(gameState\?\.finished\)renderOnlineResult\(gameState\);\}/);
+  assert.match(onlineClient,/onlineScoreRecap\.playing\(\)/);
+  assert.match(onlineClient,/onlineScoreRecap\.cancel\(\)/);
+  assert.match(recap,/steps\.forEach\(\(item,index\)=>/);
+  assert.match(recap,/animateCount\(before,cumulative\)/);
+  assert.match(recap,/steps\.length\*stepDuration\+completedDuration/);
+  assert.match(styles,/\.abaku-score-scroll/);
+  assert.doesNotMatch(recap,/<button|addEventListener\('click'/);
 });

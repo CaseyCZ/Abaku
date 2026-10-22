@@ -381,21 +381,23 @@ function clearOnlineReview(){
   recentOnlineMoveTimer=null;recentOnlineMove=null;recentOnlineMoveId=null;
 }
 function showOnlineHighlight(move){
-  if(recentOnlineMoveTimer!==null)clearTimeout(recentOnlineMoveTimer);
-  recentOnlineMove={
-    placed:new Set(move.placed.map(p=>p.row+':'+p.col)),
-    cells:new Set(move.cells.map(p=>p.row+':'+p.col)),
-    text:'Hráč '+(move.player+1)+': '+formatEquations(move.equations)+' · +'+move.points+' bodů',
-    until:Date.now()+3000
-  };
-  if(gameState)renderOnline();
-  recentOnlineMoveTimer=setTimeout(()=>{
-    recentOnlineMove=null;recentOnlineMoveTimer=null;
-    if(gameState){
-      renderOnline();
-      if(gameState.finished)renderOnlineResult(gameState);
-    }
-  },3000);
+  return new Promise(resolve=>{
+    if(recentOnlineMoveTimer!==null)clearTimeout(recentOnlineMoveTimer);
+    recentOnlineMove={
+      placed:new Set(move.placed.map(p=>p.row+':'+p.col)),
+      cells:new Set(move.cells.map(p=>p.row+':'+p.col)),
+      text:'Hráč '+(move.player+1)+': '+formatEquations(move.equations)+' · +'+move.points+' bodů',
+      until:Date.now()+3000
+    };
+    if(gameState)renderOnline();
+    recentOnlineMoveTimer=setTimeout(()=>{
+      recentOnlineMove=null;recentOnlineMoveTimer=null;
+      if(gameState)renderOnline();
+      resolve();
+      // Wait for the scoring queue to release before showing match results.
+      if(gameState?.finished)setTimeout(()=>renderOnlineResult(gameState),0);
+    },3000);
+  });
 }
 function showOnlineReview(state){
   const move=state.lastMove;

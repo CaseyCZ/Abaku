@@ -44,6 +44,22 @@ export class MatchEngine {
   matchOf(uid) {
     return this.byPlayer.get(uid) || null;
   }
+  // A safe resume summary for the signed-in player only. Matches live in RAM.
+  // This never exposes the other player's account ID or rack.
+  activeMatchSummary(uid) {
+    const match=this.matchOf(uid);
+    if(!match || match.finished)return null;
+    return {
+      matchId:match.id,
+      players:match.players.map((p,i)=>({
+        nickname:this.getName(p.uid)||'Hráč '+(i+1),
+        score:p.score,side:i
+      })),
+      mySide:match.players.findIndex(p=>p.uid===uid),
+      turn:match.turn,turns:match.turns,
+      deadline:match.deadline,seconds:match.seconds
+    };
+  }
   waitingCount() {
     // Only players who are still connected and eligible for random matchmaking.
     return this.queue.filter(item => this.connections.has(item.uid) && (!this.matchOf(item.uid) || this.matchOf(item.uid).finished)).length;

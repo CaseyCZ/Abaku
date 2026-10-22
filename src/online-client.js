@@ -1,8 +1,10 @@
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
 import { describeMovePreview } from './preview.js?v=0.2.9';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.9';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.15';
+import {ScoreRecap} from './score-recap.js?v=0.2.15';
 
 const $=id=>document.getElementById(id);
+const onlineScoreRecap=new ScoreRecap($('onlineDialog'));
 const safeApiBase=()=>{
   try{
     const url=new URL(ONLINE_CONFIG.apiBase);
@@ -282,7 +284,7 @@ function resetOnlineResult(){
   disconnectedOpponent=false;
 }
 function renderOnlineResult(state){
-  if(!state?.finished||resultShownFor===state.matchId)return;
+  if(!state?.finished||resultShownFor===state.matchId||onlineScoreRecap.playing())return;
   resultShownFor=state.matchId;
   const myName=onlinePlayerName(state.mySide);
   const opponentName=onlinePlayerName(1-state.mySide);
@@ -379,6 +381,17 @@ function showOnlineReview(state){
   if(key===recentOnlineMoveId)return;
   clearOnlineReview();
   recentOnlineMoveId=key;
+  // The actual score was already awarded by the server. Both players see
+  // the same automatic per-example recap, never a second point award.
+  if(Number.isFinite(move.at)&&Date.now()-move.at<12_000&&Date.now()-move.at>=-5_000&&
+     (!state.finished||state.reason==='completed')){
+    onlineScoreRecap.play({
+      player:state.players?.[move.player]?.nickname||'Hráč '+(move.player+1),
+      breakdown:move.equationBreakdown,equations:move.equations,
+      total:move.points,
+      onDone:()=>{if(gameState?.finished)renderOnlineResult(gameState);}
+    });
+  }
   recentOnlineMove={
     placed:new Set(move.placed.map(p=>p.row+':'+p.col)),
     cells:new Set(move.cells.map(p=>p.row+':'+p.col)),
@@ -403,6 +416,7 @@ function connectOnline(action,{reconnecting=false}={}){
   if(!reconnecting){
     pending=[];selected=null;gameState=null;exchanging=false;selectedExchange.clear();
     clearOnlineReview();
+    onlineScoreRecap.cancel();
     resetOnlineResult();
     if(!$('onlineDialog').open)$('onlineDialog').showModal();
     $('onlineBoardWrapper').hidden=true;
@@ -487,6 +501,7 @@ function connectOnline(action,{reconnecting=false}={}){
     }
     if(msg.type==='match-start'){
       if(gameState?.matchId!==msg.matchId){
+        onlineScoreRecap.cancel();
         resetOnlineResult();
         resetOnlineChat();
         pending=[];selected=null;gameState=null;exchanging=false;selectedExchange.clear();
@@ -498,7 +513,7 @@ function connectOnline(action,{reconnecting=false}={}){
     if(msg.type==='match-state'){
       const previous=gameState?.turn;
       const changedMatch=gameState?.matchId&&gameState.matchId!==msg.matchId;
-      if(changedMatch){resetOnlineResult();resetOnlineChat();}
+      if(changedMatch){onlineScoreRecap.cancel();resetOnlineResult();resetOnlineChat();}
       gameState=msg;
       if(!msg.finished) $('onlineOpponentNotice').hidden=!disconnectedOpponent;
       if(awaitingRecoveryState){
@@ -757,6 +772,7 @@ function initializeActions(){
     clearReconnect();
     const old=connection;connection=null;socketAuthenticated=false;reconnectAction=null;
     old?.close();
+    onlineScoreRecap.cancel();
     resetOnlineResult();
     resetOnlineChat();
     clearOnlineReview();

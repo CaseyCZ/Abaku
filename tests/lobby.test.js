@@ -126,8 +126,8 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/const old=connection;connection=null;\s*old\?\.close\(\);\s*socketAuthenticated=false;\s*credential=null;gameState=null;currentProfile=null;[\s\S]*?clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.18/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.18/);
+  assert.match(landing,/Abaku Online 0\.2\.19/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.19/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -260,7 +260,7 @@ test('online scoring is a hands-free animation of each server-verified equation 
   const recap=file('../src/score-recap.js');
   const styles=file('../score-recap.css');
   assert.match(landing,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.18'/);
+  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.19'/);
   assert.match(onlineClient,/new ScoreRecap\(\$\('onlineDialog'\)\)/);
   assert.match(onlineClient,/breakdown:move\.equationBreakdown,equations:move\.equations/);
   assert.match(onlineClient,/total:move\.points/);
@@ -277,6 +277,7 @@ test('online scoring is a hands-free animation of each server-verified equation 
 
 test('online lobby offers saved per-equation animation seconds shared with offline',()=>{
   assert.match(landing,/id="onlineRecapSeconds"/);
+  assert.match(landing,/id="onlineRecapSeconds"[\s\S]*?<option value="0">Vypnuto<\/option>/);
   for(const seconds of [2,3,5,8,10])
     assert.match(landing,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
   assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from/);
@@ -300,6 +301,7 @@ test('online scoring highlight starts after automatic calculations, not under pa
 
 test('in-match online settings are always accessible and persist for the next move',()=>{
   const css=file('../online-game.css');
+  assert.match(landing,/id="onlineGameRecapSeconds"[\s\S]*?<option value="0">Vypnuto<\/option>/);
   assert.match(landing,/id="onlineSettingsButton"/);
   assert.match(landing,/id="onlineGameSettingsDialog"/);
   assert.match(landing,/id="onlineGameRecapSeconds"/);
@@ -316,4 +318,11 @@ test('in-match online settings are always accessible and persist for the next mo
   assert.match(css,/#onlineDialog \.online-header-actions/);
   assert.match(css,/#onlineDialog \.online-header-actions #onlineCancel/);
   assert.match(css,/#onlineGameSettingsDialog\.online-game-settings-dialog/);
+});
+
+
+test('Vypnuto in-game preserves final board highlight without showing score scroll',()=>{
+  const js=file('../src/score-recap.js');
+  assert.match(js,/if\(getRecapSeconds\(\)===0\)\{\s*onDone\?\.\(\);\s*return;/);
+  assert.match(onlineClient,/onDone:\(\)=>showOnlineHighlight\(move\)/);
 });

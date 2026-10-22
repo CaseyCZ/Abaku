@@ -132,7 +132,7 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   assert.match(onlineClient,/clearSavedCredential\(\)/);
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
-  assert.match(landing,/Abaku Online 0\.2\.20/);
+  assert.match(landing,/Abaku Online 0\.2\.21/);
   assert.match(lobby,/online-client\.js\?v=0\.2\.20/);
 });
 
@@ -216,7 +216,8 @@ test('online reconnection client remains parseable JavaScript after new state ha
 
 
 test('match end displays winner and scores in a dedicated result dialog on all devices',()=>{
-  const css=file('../online-game.css');
+  const css=file('../result-dialog.css');
+  assert.match(landing,/href="\.\/result-dialog\.css\?v=1"/);
   for(const id of ['onlineResultDialog','onlineResultTitle','onlineResultDescription',
     'onlineResultScore0','onlineResultScore1','onlineRematch','onlineResultExit',
     'onlineRematchStatus','onlineResultReason'])
@@ -230,8 +231,8 @@ test('match end displays winner and scores in a dedicated result dialog on all d
   assert.match(onlineClient,/send\('rematch',\{accept:true\}\)/);
   assert.match(onlineClient,/send\('rematch',\{accept:false\}\)/);
   assert.match(onlineClient,/msg\.type==='rematch-status'/);
-  assert.match(css,/#onlineResultDialog\.online-result-dialog/);
-  assert.match(css,/#onlineResultDialog::backdrop/);
+  assert.match(css,/\.abaku-result-dialog\.online-result-dialog/);
+  assert.match(css,/\.abaku-result-dialog::backdrop/);
 });
 
 test('collapsed or out-of-view chat gets a persistent tappable unread notification',()=>{
@@ -347,4 +348,14 @@ test('server creates and verifies hashed revocable device sessions on REST and W
   assert.match(store,/createHash\('sha256'\)/);
   assert.match(store,/const SESSION_TTL=30\*24\*60\*60\*1000/);
   assert.match(store,/const SESSION_RENEW_BELOW=20\*24\*60\*60\*1000/);
+});
+
+
+test('every online match result uses the same shared dialog as the local and AI game',()=>{
+  const offline=file('../game.html');
+  const css=file('../result-dialog.css');
+  assert.match(landing,/id="onlineResultDialog" class="online-result-dialog abaku-result-dialog"/);
+  assert.match(offline,/id="onlineResultDialog" class="online-result-dialog abaku-result-dialog"/);
+  assert.match(css,/\.abaku-result-dialog \.online-result-scores/);
+  assert.match(onlineClient,/renderOnlineResult\(msg\)/);
 });

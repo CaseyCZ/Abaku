@@ -43,21 +43,31 @@ export function replenishPlayerRack(bag, player) {
   player.rack = drawTiles(bag, Array.isArray(player.rack) ? player.rack : []);
 }
 
-// Numbers are written without arithmetic signs: 279 = 2 + 7 = 9.
-// Subtraction, multiplication, division and integer powers are also recognised.
-export function readsAsEquation(sequence) {
-  if (!/^\d{3,9}$/.test(sequence)) return false;
+// Exactly the same accepted equations as before, now also exposing which
+// operation was recognised. Board tiles still contain only digits.
+export function formatEquation(sequence) {
+  if (!/^\d{3,9}$/.test(sequence)) return null;
   for (let aEnd = 1; aEnd <= Math.min(3, sequence.length - 2); aEnd++) {
     for (let bEnd = aEnd + 1; bEnd <= Math.min(aEnd + 3, sequence.length - 1); bEnd++) {
       const parts = [sequence.slice(0, aEnd), sequence.slice(aEnd, bEnd), sequence.slice(bEnd)];
       if (parts.some(s => s.length > 1 && s[0] === '0')) continue;
       const [a, b, c] = parts.map(Number);
       if (c === 0 || a === 0 || b === 0) continue;
-      if (a + b === c || a - b === c || a * b === c || (a / b === c && b !== 0)) return true;
-      if ((b === 2 || b === 3) && a ** b === c) return true;
+      if (a + b === c) return `${a} + ${b} = ${c}`;
+      if (a - b === c) return `${a} − ${b} = ${c}`;
+      if (a * b === c) return `${a} × ${b} = ${c}`;
+      if (a / b === c && b !== 0) return `${a} ÷ ${b} = ${c}`;
+      if ((b === 2 || b === 3) && a ** b === c) return `${a}^${b} = ${c}`;
     }
   }
-  return false;
+  return null;
+}
+export function readsAsEquation(sequence) {
+  return formatEquation(sequence) !== null;
+}
+export function formatEquations(sequences,limit=3){
+  return (Array.isArray(sequences)?sequences:[]).slice(0,limit)
+    .map(text=>formatEquation(text)||String(text)).join(' · ');
 }
 
 function id(row, col) { return `${row}:${col}`; }
@@ -157,5 +167,7 @@ export function validateMove(board, placements) {
     }
     points += sum * wordMultiplier;
   }
-  return {valid: true, points, board: next, equations: equations.map(e => e.text)};
+  return {valid: true, points, board: next, equations: equations.map(e => e.text),
+    equationCells: [...new Map(equations.flatMap(eq => eq.cells)
+      .map(cell => [id(cell.row,cell.col),{row:cell.row,col:cell.col}])).values()]};
 }

@@ -143,3 +143,27 @@ test('all server online match variants default to 60 seconds',()=>{
   game.connect('f');game.connect('g');
   assert.equal(game.createMatch('f','g').seconds,60);
 });
+
+test('accepted online move syncs complete previous equation squares to both players',()=>{
+  const {game,out}=rig();
+  game.connect('a');game.connect('b');
+  const match=game.createMatch('a','b',60);
+  match.players[0].rack=[2,6,8,1,4];
+  game.place('a',[
+    {row:7,col:6,rackIndex:0},
+    {row:7,col:7,rackIndex:1},
+    {row:7,col:8,rackIndex:2}
+  ]);
+  assert.deepEqual(match.lastMove.equations,['268']);
+  assert.deepEqual(match.lastMove.placed,[
+    {row:7,col:6},{row:7,col:7},{row:7,col:8}
+  ]);
+  assert.deepEqual(match.lastMove.cells,[
+    {row:7,col:6},{row:7,col:7},{row:7,col:8}
+  ]);
+  const latest=out.filter(x=>x.type==='match-state'&&x.lastMove);
+  assert.equal(latest.length,2);
+  assert.deepEqual(latest.map(x=>x.uid).sort(),['a','b']);
+  assert.ok(latest.every(x=>x.lastMove.points>0));
+  assert.ok(latest.every(x=>!('rack' in x.lastMove)));
+});

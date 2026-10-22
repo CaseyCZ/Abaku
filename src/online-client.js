@@ -16,7 +16,7 @@ let onlineName='Hráč';
 const validTurnSeconds=[30,60,90];
 const timeStorageKey='abaku-online-turn-seconds';
 const selectedTurnSeconds=()=>validTurnSeconds.includes(Number($('onlineTurnSeconds').value))
-  ? Number($('onlineTurnSeconds').value) : 90;
+  ? Number($('onlineTurnSeconds').value) : 60;
 function initOnlineTimeSetting(){
   const select=$('onlineTurnSeconds');
   try{
@@ -236,7 +236,7 @@ function renderOnline(){
   if(!gameState)return;
   const s=gameState;
   const info=$('onlineScore');
-  info.textContent='Hráč 1: '+s.players[0].score+' · Hráč 2: '+s.players[1].score+' · V sáčku: '+s.bagCount+' · Čas na tah: '+(s.seconds||90)+' s';
+  info.textContent='Hráč 1: '+s.players[0].score+' · Hráč 2: '+s.players[1].score+' · V sáčku: '+s.bagCount+' · Čas na tah: '+(s.seconds||60)+' s';
   $('onlineTurn').textContent=s.finished?'Partie skončila.':ownTurn()?'Jsi na tahu.':'Čekáš na soupeře.';
   const board=$('onlineBoard');
   board.replaceChildren();

@@ -1,7 +1,7 @@
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
 import { describeMovePreview } from './preview.js?v=0.2.9';
 import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.15';
-import {ScoreRecap} from './score-recap.js?v=0.2.16';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.17';
 
 const $=id=>document.getElementById(id);
 const onlineScoreRecap=new ScoreRecap($('onlineDialog'));
@@ -52,6 +52,11 @@ const timeStorageKey='abaku-online-turn-seconds';
 const selectedTurnSeconds=()=>validTurnSeconds.includes(Number($('onlineTurnSeconds').value))
   ? Number($('onlineTurnSeconds').value) : 60;
 function initOnlineTimeSetting(){
+  const recapSelect=$('onlineRecapSeconds');
+  recapSelect.value=String(getRecapSeconds());
+  recapSelect.addEventListener('change',()=>{
+    setRecapSeconds(recapSelect.value);
+  });
   const select=$('onlineTurnSeconds');
   try{
     const migrationKey='abaku-online-default-60-migrated-v1';

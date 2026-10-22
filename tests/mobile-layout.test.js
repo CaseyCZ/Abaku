@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.8/);
-  assert.match(html,/main\.js\?v=0\.1\.14/);
+  assert.match(html,/main\.js\?v=0\.1\.15/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -103,4 +103,43 @@ test('the board becomes interactive again after recap and three-second highlight
   assert.match(js,/requestAnimationFrame\(\(\)=>\{if\(game\)render\(\);\}\)/);
   assert.match(js,/scoreRecap\.playing\(\)\|\|Boolean\(recentMove\)/);
   assert.match(js,/showRecentMove\(checked,placements,who,\(\)=>\{/);
+});
+
+
+test('offline completed game reuses the existing online results dialog and styling',()=>{
+  const sharedCss=file('../result-dialog.css');
+  assert.match(html,/href="\.\/result-dialog\.css\?v=1"/);
+  for(const id of [
+    'onlineResultDialog','onlineResultTitle','onlineResultDescription',
+    'onlineResultPlayer0','onlineResultPlayer1','onlineResultScore0',
+    'onlineResultScore1','onlineResultReason','onlineRematchStatus',
+    'onlineRematch','onlineResultExit'
+  ])assert.match(html,new RegExp('id="'+id+'"'));
+  assert.match(html,/id="onlineResultDialog" class="online-result-dialog abaku-result-dialog"/);
+  assert.match(sharedCss,/\.abaku-result-dialog\.online-result-dialog/);
+  assert.match(sharedCss,/\.abaku-result-dialog::backdrop/);
+  assert.match(js,/function showOfflineResult\(\)/);
+  assert.match(js,/dialog\.showModal\(\)/);
+});
+
+test('offline result always shows winner, actual scores and a rematch or menu choice',()=>{
+  assert.match(js,/winner=first===second\?null:first>second\?0:1/);
+  assert.match(js,/winner===null\?'Remíza!'/);
+  assert.match(js,/winner===0\?'🏆 Vyhrál jsi!':'Počítač vyhrál'/);
+  assert.match(js,/'🏆 Vyhrál '\+playerLabel\(winner\)\+'!'/);
+  assert.match(js,/byId\('onlineResultScore0'\)\.textContent=String\(first\)/);
+  assert.match(js,/byId\('onlineResultScore1'\)\.textContent=String\(second\)/);
+  assert.match(js,/byId\('onlineRematch'\)\.addEventListener\('click',\(\)=>newGame\(\)\)/);
+  assert.match(js,/byId\('onlineResultExit'\)\.addEventListener\('click'/);
+  assert.match(js,/if\(game\.finished\)showOfflineResult\(\)/);
+});
+
+test('result window follows animations for last scoring move, but shows immediately after final pass',()=>{
+  assert.match(js,/function finish\(reason='Partie skončila podle pravidel\.'\)/);
+  assert.match(js,/if\(game\.finished\)return;\s*game\.finished=true;game\.finishReason=reason/);
+  assert.match(js,/finish\(game\.passStreak>=6\?/);
+  assert.match(js,/showOfflineResult\(\);\s*\}/);
+  assert.match(js,/if\(!game\?\.finished\|\|scoreRecap\.playing\(\)\|\|recentMove\)return;/);
+  assert.match(js,/if\(game\?\.finished\)setTimeout\(showOfflineResult,0\)/);
+  assert.match(js,/if\(resultDialog\.open\)resultDialog\.close\(\)/);
 });

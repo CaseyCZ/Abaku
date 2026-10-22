@@ -793,25 +793,36 @@ function renderResponsiveGoogleButton(g){
   else window.addEventListener('resize',render,{passive:true});
 }
 export async function initOnline(){
-  initOnlineTimeSetting();
-  initializeActions();
-  if(!configured)return;
+  if(!onlineInitStarted){
+    onlineInitStarted=true;
+    initOnlineTimeSetting();
+    initializeActions();
+  }
+  if(!configured||onlineServerReady)return;
 
-  // Never expose an apparently ready sign-in flow before Oracle API is reachable.
-  // The offline AI and two-player modes remain fully available without a backend.
+  // A temporary 404/502/connection timeout during Safari refresh should not
+  // permanently disable Google login or online resume for this page load.
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),4500);
   try{
     const response=await fetch(apiBase+'/health',{cache:'no-store',signal:controller.signal});
-    if(!response.ok)return;
+    if(!response.ok)throw new Error('Oracle dočasně neodpovídá.');
     const data=await response.json();
-    if(data?.status!=='ok'||data?.service!=='abaku-api')return;
+    if(data?.status!=='ok'||data?.service!=='abaku-api')
+      throw new Error('Oracle není připraven.');
   }catch{
+    document.querySelector('.server-state').textContent='● Oracle se znovu připojuje';
+    $('onlineInfoText').textContent='Server nyní neodpovídá. Znovu se připojím za 5 sekund.';
+    if(!onlineInitRetryTimer)onlineInitRetryTimer=setTimeout(()=>{
+      onlineInitRetryTimer=null;
+      initOnline();
+    },5000);
     return;
   }finally{
     clearTimeout(timeout);
   }
-
+  onlineServerReady=true;
+  if(onlineInitRetryTimer){clearTimeout(onlineInitRetryTimer);onlineInitRetryTimer=null;}
   document.querySelector('.server-state').textContent='● Oracle Online připojeno';
   startPresenceUpdates();
   $('googleSignIn').hidden=true;

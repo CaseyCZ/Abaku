@@ -23,7 +23,7 @@ test('friend requests require recipient approval',()=>{
   const s=openStore(':memory:');
   try {
     s.ensure('playerA');s.ensure('playerB');
-    assert.throws(()=>s.request('playerA','playerA'),/sám/);
+    assert.throws(()=>s.request('playerA',s.get('playerA').id),/sám/);
     s.request('playerA',s.get('playerB').id);
     assert.equal(s.incoming('playerB').length,1);
     assert.equal(s.friends('playerB').length,0);

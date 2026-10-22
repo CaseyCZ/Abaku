@@ -355,8 +355,7 @@ function connectOnline(action,{reconnecting=false}={}){
       clearReconnect();
       if(reconnecting)status('Spojení obnoveno. Načítám aktuální partii…');
       if(action.type==='resume')send('sync');
-      else 
-if(action.type==='random')send('matchmake',{seconds:action.seconds});
+      else if(action.type==='random')send('matchmake',{seconds:action.seconds});
       else if(action.type==='invite')send('invite',{seconds:action.seconds});
       else if(action.type==='friend')send('challenge-friend',{targetId:action.targetId,seconds:action.seconds});
       else if(action.type==='join')send('join-invite',{code:action.code});
@@ -399,7 +398,7 @@ if(action.type==='random')send('matchmake',{seconds:action.seconds});
       return;
     }
     if(msg.type==='lobby'){
-      if(gameState&&!gameState.finished){
+      if((gameState&&!gameState.finished)||action.type==='resume'){
         gameState=null;pending=[];selected=null;
         $('onlineBoardWrapper').hidden=true;
         $('onlineWaiting').hidden=false;
@@ -570,6 +569,26 @@ function initializeActions(){
     });
   }
   if(!onlineTimerTicker)onlineTimerTicker=setInterval(updateOnlineTimer,250);
+  // Keep NGINX/Safari from idling out the WebSocket silently, and detect
+  // dead connections if no state/sync reply has arrived for >75 seconds.
+  if(!socketMonitorTimer)socketMonitorTimer=setInterval(()=>{
+    if(!$('onlineDialog').open||!credential||!connection)return;
+    if(connection.readyState===WebSocket.OPEN&&socketAuthenticated){
+      if(Date.now()-lastSocketMessageAt>75_000){
+        const stuck=connection;connection=null;
+        socketAuthenticated=false;
+        stuck.close();
+        if(gameState)renderOnline();
+        scheduleReconnect('Spojení přestalo odpovídat.');
+      }else send('sync');
+    }
+  },25_000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState!=='visible'||!$('onlineDialog').open||!credential)return;
+    if(!connection||connection.readyState===WebSocket.CLOSED){
+      retryOnlineConnection();
+    }else if(connection.readyState===WebSocket.OPEN&&socketAuthenticated)send('sync');
+  });
   $('playRandom').addEventListener('click',event=>{
     if(!configured||!credential)return;
     event.stopImmediatePropagation();
@@ -582,11 +601,21 @@ function initializeActions(){
   },true);
   $('onlineCancel').addEventListener('click',()=>{
     if(gameState&&!gameState.finished&&!window.confirm('Vrátit se do nabídky? Online partie se odpojí.'))return;
-    if(!gameState)send('cancel-matchmake');
-    connection?.close();connection=null;
+    // Intentional leave must never start an automatic reconnect.
+    clearReconnect();
+    if(!gameState&&connection?.readyState===WebSocket.OPEN)send('cancel-matchmake');
+    const old=connection;connection=null;
+    socketAuthenticated=false;
+    old?.close();
     clearOnlineReview();
     $('onlineDialog').close();
+    refreshResumeCard();
   });
+  $('onlineResumeButton').addEventListener('click',()=>{
+    if(!credential)return;
+    connectOnline({type:'resume'});
+  });
+  $('onlineRetryNow').addEventListener('click',retryOnlineConnection);
   $('onlineConfirm').addEventListener('click',()=>{
     if(ownTurn()&&pending.length)send('move',{placements:pending.map(p=>({row:p.row,col:p.col,rackIndex:p.rackIndex}))});
   });
@@ -652,7 +681,12 @@ function initializeActions(){
         method:'DELETE',headers:{Authorization:'Bearer '+credential},keepalive:true
       }).catch(()=>{});
     }
-    connection?.close();connection=null;credential=null;gameState=null;currentProfile=null;
+    clearReconnect();
+    const old=connection;connection=null;
+    old?.close();
+    socketAuthenticated=false;
+    credential=null;gameState=null;currentProfile=null;
+    $('onlineResumeCard').hidden=true;
     clearSavedCredential();
     window.google?.accounts?.id?.disableAutoSelect?.();
     $('googleSignInWidget').hidden=false;

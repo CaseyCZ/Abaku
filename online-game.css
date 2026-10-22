@@ -143,8 +143,11 @@
   color:#f6d5a3;text-align:center;
   font:13px Verdana,sans-serif;
 }
-#onlineDialog #onlinePlayer0Card .online-player-name{
-  background:linear-gradient(#8bd0f6,#3d7fbd);color:#113354;
+/* Highlight the player whose turn it actually is, not permanently player 1. */
+#onlineDialog .online-player-card.active .online-player-name{
+  background:linear-gradient(#8bd0f6,#3d7fbd);
+  color:#113354;
+  text-shadow:0 1px #d4edfc;
 }
 #onlineDialog .online-player-score{
   display:flex;align-items:center;justify-content:space-between;

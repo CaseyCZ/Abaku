@@ -145,3 +145,25 @@ dialog::backdrop{background:#17050bd6}
 .side-card .online-time-help{
   font:10px/1.45 Verdana,sans-serif;color:#d9b88c;margin:4px 0 12px
 }
+
+
+/* v0.2.8: Google-auth iframe must never grow wider than profile card.
+   The JS also re-renders the official Google button at the measured width. */
+.lobby-sidebar,.side-card{min-width:0}
+#googleSignInWidget{
+  width:100%;max-width:100%;min-width:0;min-height:44px;
+  display:flex;justify-content:center;align-items:center;
+  overflow:hidden;margin:8px auto 11px
+}
+#googleSignInWidget>div,#googleSignInWidget iframe{max-width:100%}
+#googleSignInWidget[hidden]{display:none!important}
+.side-card #onlineLoginNotice[hidden]{display:none!important}
+.friend-invite-options{
+  display:flex;flex-wrap:wrap;gap:8px;margin:5px 0 13px
+}
+.friend-invite-options>.gold-button{flex:1 1 155px;white-space:normal;min-height:40px}
+.friend-entry .gold-button{min-height:39px;white-space:normal}
+#friendChallengeDialog .dialog-body{gap:12px}
+#friendChallengeDialog .dialog-actions{flex-wrap:wrap;justify-content:center}
+#friendChallengeDialog .dialog-actions>.gold-button{flex:1 1 150px;min-height:43px}
+#friendChallengeTime{margin-top:0}

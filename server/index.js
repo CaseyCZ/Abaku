@@ -4,6 +4,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { WebSocketServer } from 'ws';
 import { openStore } from './store.js';
 import { MatchEngine } from './match-engine.js';
+import { PresenceTracker } from './presence.js';
 
 const clientId=process.env.GOOGLE_CLIENT_ID||'';
 const origins=(process.env.CORS_ORIGIN||'').split(',').map(x=>x.trim()).filter(Boolean);
@@ -11,7 +12,7 @@ if(!clientId||!origins.length){
   console.error('Chybí GOOGLE_CLIENT_ID nebo CORS_ORIGIN. Server se z bezpečnostních důvodů nespustí.');
   process.exit(1);
 }
-const port=Number(process.env.PORT||8787);
+const port=Number(process.env.PORT||8790);
 const host=process.env.HOST||'127.0.0.1';
 const store=openStore(process.env.DB_PATH||'./data/abaku.sqlite');
 const authClient=new OAuth2Client(clientId);
@@ -35,7 +36,7 @@ function cors(request,response){
     response.setHeader('Access-Control-Allow-Origin',origin);
     response.setHeader('Vary','Origin');
     response.setHeader('Access-Control-Allow-Headers','Authorization, Content-Type');
-    response.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS');
+    response.setHeader('Access-Control-Allow-Methods','GET, POST, DELETE, OPTIONS');
   }
 }
 function respond(response,status,body){
@@ -77,6 +78,8 @@ const engine=new MatchEngine({
   send:push,
   onResult:outcome=>store.record(outcome)
 });
+// A tiny RAM-only presence table: unique Google UID, last heartbeat timestamp.
+const presence=new PresenceTracker();
 const clock=setInterval(()=>{engine.tick();
   const now=Date.now();
   for(const [key,item] of rate)if(now-item.start>120_000)rate.delete(key);
@@ -92,8 +95,20 @@ const http=createServer(async(request,response)=>{
   try {
     if(request.method==='GET'&&pathname==='/health')return respond(response,200,{status:'ok',service:'abaku-api'});
     if(request.method==='GET'&&pathname==='/api/leaderboard')return respond(response,200,{players:store.leaderboard()});
+    // Counts are public and contain no profile data; expired heartbeats are excluded.
+    if(request.method==='GET'&&pathname==='/api/presence')return respond(response,200,{
+      online:presence.count(engine.connections),waiting:engine.waitingCount(),refreshSeconds:20
+    });
     const uid=await identity(request);
     store.ensure(uid);
+    if(request.method==='POST'&&pathname==='/api/presence'){
+      presence.touch(uid);
+      return respond(response,200,{ok:true});
+    }
+    if(request.method==='DELETE'&&pathname==='/api/presence'){
+      presence.remove(uid);
+      return respond(response,200,{ok:true});
+    }
     if(request.method==='GET'&&pathname==='/api/me')return respond(response,200,{profile:store.get(uid)});
     if(request.method==='POST'&&pathname==='/api/me'){
       const {nickname,avatar}=await body(request);
@@ -147,6 +162,7 @@ wss.on('connection',(ws)=>{
         sockets.set(uid,ws);
         authed=true;clearTimeout(authTimeout);
         store.ensure(uid);
+        presence.touch(uid);
         push(uid,{type:'authenticated',profile:store.get(uid)});
         engine.connect(uid);
         return;

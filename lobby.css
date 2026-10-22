@@ -39,7 +39,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .mode-future{background:linear-gradient(140deg,#4a1d22,#2c1319);border-color:#91643d}
 .mode-future .mode-icon,.mode-future .mode-title{opacity:.82}
 .mode-action.muted{color:#d1b392}
-.future-ribbon{position:absolute;top:14px;right:-39px;transform:rotate(40deg);width:160px;padding:5px;background:#8e6237;color:#fff3d0;font:10px Verdana,sans-serif;letter-spacing:1px}
+/* The entire diagonal label must stay inside the clipped card, including
+   its first and last letters on narrow phones. */
+.future-ribbon{
+  position:absolute;
+  top:44px;
+  right:4px;
+  width:140px;
+  padding:6px 2px;
+  transform:rotate(40deg);
+  transform-origin:center;
+  background:#8e6237;
+  color:#fff3d0;
+  font:10px/1.2 Verdana,sans-serif;
+  letter-spacing:.35px;
+  text-align:center;
+  white-space:nowrap;
+  pointer-events:none;
+}
 .lobby-sidebar{display:flex;flex-direction:column;gap:14px}
 .side-card{padding:17px 18px;background:linear-gradient(145deg,#4a151c,#280912);border:3px ridge #b67b32;border-radius:9px;box-shadow:0 6px 13px #1703089a}
 .side-card h2{margin:0 0 14px;font-size:18px;color:#ffd38e;border-bottom:1px solid #b77432;padding-bottom:8px}

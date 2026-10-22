@@ -36,6 +36,10 @@ let recentOnlineMove=null;
 let recentOnlineMoveId=null;
 let recentOnlineMoveTimer=null;
 let onlineTimerTicker=null;
+let reconnectTimer=null, reconnectAction=null, socketAuthenticated=false;
+let reconnects=0, lastSocketMessageAt=0;
+let socketMonitorTimer=null, onlineInitRetryTimer=null;
+let onlineInitStarted=false, onlineServerReady=false;
 let currentFriendChallenge=null;
 let friendChallengeTimer=null;
 const validTurnSeconds=[30,60,90];
@@ -101,6 +105,7 @@ function startPresenceUpdates(){
     if(document.visibilityState==='hidden')return;
     if(credential)await heartbeat().catch(()=>{});
     await refreshPresence();
+    if(credential)await refreshResumeCard();
   };
   refresh();
   presenceTimer=setInterval(refresh,20_000);
@@ -125,7 +130,11 @@ async function api(path,method='GET',data){
     ...(data?{body:JSON.stringify(data)}:{})
   });
   const json=await response.json();
-  if(!response.ok)throw new Error(json.error||'Server neodpověděl.');
+  if(!response.ok){
+    const error=new Error(json.error||'Server neodpověděl.');
+    error.httpStatus=response.status;
+    throw error;
+  }
   return json;
 }
 function googleSdk(){
@@ -178,6 +187,7 @@ async function googleCredential(value){
     await heartbeat().catch(()=>{});
     await refreshPresence();
     await showLeaderboard();
+    await refreshResumeCard();
     startFriendChallengeUpdates();
     return true;
   }catch(error){
@@ -206,8 +216,63 @@ async function showLeaderboard(){
     $('leaderboardPanel').hidden=!(data.players||[]).length;
   }catch{ /* leaderboard is optional */ }
 }
+// The server is authoritative: never infer a resumable match from localStorage.
+async function refreshResumeCard(){
+  const card=$('onlineResumeCard');
+  if(!credential){card.hidden=true;return;}
+  try{
+    const data=await api('/api/match/current');
+    if(!credential||!data.match||data.match.finished){
+      card.hidden=true;
+      return;
+    }
+    const match=data.match;
+    const opponent=match.players?.[1-match.mySide]?.nickname||'soupeř';
+    const points=(match.players||[]).map(player=>Number(player.score)||0);
+    $('onlineResumeDescription').textContent='Soupeř: '+opponent+' · skóre '+points[0]+' : '+points[1]+
+      ' · tah '+(Number(match.turns)+1)+'.';
+    // Keep the button accessible when returning to the menu after a disconnect.
+    card.hidden=$('onlineDialog').open;
+  }catch{
+    // If Oracle is unavailable, don't promise that an old match still exists.
+    card.hidden=true;
+  }
+}
+function clearReconnect(){
+  if(reconnectTimer!==null)clearTimeout(reconnectTimer);
+  reconnectTimer=null;
+  $('onlineReconnectNotice').hidden=true;
+}
+function showReconnect(reason='Spojení se přerušilo.'){
+  if(!$('onlineDialog').open||!credential)return;
+  $('onlineReconnectNotice').hidden=false;
+  $('onlineReconnectText').textContent=reason+' Znovu zkusím za 5 sekund.';
+  status(reason+' Opakuji připojení za 5 sekund…',true);
+}
+function retryOnlineConnection(){
+  if(!$('onlineDialog').open||!credential)return;
+  clearReconnect();
+  const next=gameState&&!gameState.finished?{type:'resume'}:
+    (reconnectAction?.type==='random'?reconnectAction:{type:'resume'});
+  reconnects++;
+  $('onlineReconnectNotice').hidden=false;
+  $('onlineReconnectText').textContent='Připojuji se znovu… (pokus '+reconnects+').';
+  connectOnline(next,{reconnecting:true});
+}
+function scheduleReconnect(reason){
+  if(!$('onlineDialog').open||!credential)return;
+  if(reconnectTimer!==null)return;
+  showReconnect(reason);
+  reconnectTimer=setTimeout(()=>{
+    reconnectTimer=null;
+    retryOnlineConnection();
+  },5000);
+}
 function send(type,fields={}){
-  if(!connection||connection.readyState!==WebSocket.OPEN){status('Spojení se serverem není aktivní.',true);return;}
+  if(!connection||connection.readyState!==WebSocket.OPEN){
+    scheduleReconnect('Spojení se serverem není aktivní.');
+    return;
+  }
   connection.send(JSON.stringify({type,...fields}));
 }
 // Keep the previous turn visible for three seconds for BOTH online players.

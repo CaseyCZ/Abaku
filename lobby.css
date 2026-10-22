@@ -61,3 +61,6 @@ dialog::backdrop{background:#17050bd6}
 .dialog-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
 @media(max-width:1050px){.lobby-content{grid-template-columns:minmax(0,1fr)}.lobby-sidebar{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:start}.mode-card{min-height:170px}}
 @media(max-width:600px){.lobby-header{flex-wrap:wrap}.server-state{font-size:10px}.lobby-account{gap:12px;justify-content:space-between;flex:1}.lobby-main{padding:20px 14px}.lobby-intro{padding:5px 0 25px}.lobby-intro h1{letter-spacing:.07em}.eyebrow{letter-spacing:2px}.subtitle{font-size:13px;letter-spacing:2px}.game-options{grid-template-columns:1fr;gap:12px}.mode-card{min-height:153px}.mode-title{font-size:21px}.mode-icon{font-size:34px}.lobby-sidebar{grid-template-columns:1fr}}
+
+/* Two profile actions must remain clearly separated. */
+.side-card > .gold-button + .gold-button{margin-top:10px}

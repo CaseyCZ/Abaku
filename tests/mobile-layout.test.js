@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.8/);
-  assert.match(html,/main\.js\?v=0\.1\.12/);
+  assert.match(html,/main\.js\?v=0\.1\.13/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -95,4 +95,11 @@ test('offline board highlights placed digits only AFTER the full scoring animati
   assert.match(js,/render\(\);\s*onDone\(\);\s*\},3000\)/);
   assert.match(js,/scoreRecap\.playing\(\)\|\|Boolean\(recentMove\)/);
   assert.match(js,/if\(scoreRecap\.playing\(\)\|\|recentMove\)return;/);
+});
+
+
+test('the board becomes interactive again after recap and three-second highlight',()=>{
+  assert.match(js,/requestAnimationFrame\(\(\)=>\{if\(game\)render\(\);\}\)/);
+  assert.match(js,/scoreRecap\.playing\(\)\|\|Boolean\(recentMove\)/);
+  assert.match(js,/showRecentMove\(checked,placements,who,\(\)=>\{/);
 });

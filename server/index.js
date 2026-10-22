@@ -192,6 +192,8 @@ wss.on('connection',(ws)=>{
         case 'pass':engine.pass(uid);break;
         case 'exchange':engine.exchange(uid,msg.indices);break;
         case 'chat':engine.chat(uid,msg.text);break;
+        case 'resign':engine.resign(uid);break;
+        case 'rematch':engine.rematch(uid,msg.accept);break;
         case 'sync':engine.sync(uid);break;
         default:throw new Error('Neznámá zpráva.');
       }

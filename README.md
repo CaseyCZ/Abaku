@@ -2,7 +2,7 @@
 
 Neoficiální fanouškovská rekonstrukce klasické číselné hry inspirovaná původním Abaku z portálu Hry.cz / Seznam. Cílem je postupně dosáhnout věrného herního zážitku z původní PC hry a připravit základ pro budoucí iOS a Android verze.
 
-> **Stav:** první hratelná verze (0.1.4). Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
+> **Stav:** stabilní herní jádro 0.1.4, vývoj hlavní nabídky 0.2.0 ve větvi `feature/online-lobby-v0.2.0`. Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
 
 ### Novinky 0.1.4
 - Nad stojánkem se okamžitě přepočítají potenciální body za dosud nepotvrzený tah, včetně bonusů; neplatné a neúplné příklady nemají připsané body.
@@ -28,6 +28,16 @@ Neoficiální fanouškovská rekonstrukce klasické číselné hry inspirovaná 
 - Vlevo stav partie, poslední příklad, body a posledních šest tahů.
 - Vpravo místní chat mezi dvěma hráči na jednom PC (není online).
 - Zachováno doplňování pěti kamenů, uložené partie a nastavení 30/60/90 sekund.
+
+### Vývoj hlavní nabídky (0.2.0)
+- Úvodní stránka `index.html` nabídne hru proti AI a místně na jednom PC.
+- Dosavadní herní rozhraní je beze změn zachované v `game.html`.
+- Uložené partie se zobrazují v nabídce a lze v nich pokračovat.
+- Místní přezdívku a avatar lze měnit bez přihlášení.
+- Online matchmaking, přátelé a Google přihlášení jsou v nabídce označené jako připravované. **Nejsou nasazené.**
+- Google přihlášení plánujeme přes Firebase Authentication. Oracle Node.js server ověří Firebase ID token pomocí Firebase Admin SDK.
+- Nebudeme ukládat hesla ani OAuth tajné klíče do veřejného GitHub repozitáře.
+- Větev `Master` a záloha `backup/v0.1.4-stable-2026-10-22` zůstávají beze změny.
 
 ## Spuštění
 

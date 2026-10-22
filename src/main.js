@@ -1,7 +1,7 @@
 import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.9';
 import {chooseMove} from './ai.js?v=0.2.9';
 import {describeMovePreview} from './preview.js?v=0.2.9';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.17';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.18';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';

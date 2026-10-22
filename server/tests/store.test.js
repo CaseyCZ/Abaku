@@ -14,6 +14,7 @@ test('profiles and statistics remain minimal',()=>{
     assert.equal(profile.draws,1);
     assert.equal(profile.played,2);
     assert.equal(profile.winRate,50);
+    assert.equal('uid' in profile,false,'Google sub must never appear in public profile');
     assert.equal(store.get('12345678902').losses,1);
     assert.equal(store.leaderboard()[0].nickname,profile.nickname);
   }finally{store.close();}
@@ -23,10 +24,10 @@ test('friend requests require recipient approval',()=>{
   try {
     s.ensure('playerA');s.ensure('playerB');
     assert.throws(()=>s.request('playerA','playerA'),/sám/);
-    s.request('playerA','playerB');
+    s.request('playerA',s.get('playerB').id);
     assert.equal(s.incoming('playerB').length,1);
     assert.equal(s.friends('playerB').length,0);
-    s.respond('playerB','playerA',true);
+    s.respond('playerB',s.get('playerA').id,true);
     assert.equal(s.friends('playerB').length,1);
     assert.equal(s.friends('playerA').length,1);
   }finally{s.close();}

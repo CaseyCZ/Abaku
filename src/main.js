@@ -1,4 +1,4 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, validateMove} from './rules.js';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove} from './rules.js';
 import {chooseMove} from './ai.js';
 
 const byId = id => document.getElementById(id);
@@ -55,6 +55,16 @@ function restore() {
   const saved = load(saveKey, null);
   if (saved && Array.isArray(saved.board) && saved.board.length === SIZE && saved.players?.length === 2 && Array.isArray(saved.bag)) {
     game = saved;
+    // Earlier versions lost replenished tiles. Repair saved games without resetting scores.
+    if (!game.finished) {
+      let repaired = false;
+      for (const player of game.players) {
+        const before = Array.isArray(player.rack) ? player.rack.length : 0;
+        replenishPlayerRack(game.bag, player);
+        if (player.rack.length !== before) repaired = true;
+      }
+      if (repaired) save();
+    }
   } else game = freshGame();
   resetDeadline();render();
   notify(game.finished ? 'Partie skončila.' : game.turns ? 'Vítej zpět! Partie byla automaticky obnovena.' : 'První tah: sestav příklad přes prostřední pole.');
@@ -157,7 +167,7 @@ function commitMove(placements, fromBot=false) {
   const player=currentPlayer();
   const usedIndexes=placements.map(p=>p.rackIndex).sort((a,b)=>b-a);
   for(const index of usedIndexes)player.rack.splice(index,1);
-  drawTiles(game.bag,player.rack);
+  replenishPlayerRack(game.bag,player);
   player.score+=checked.points;
   game.history.push({player:game.turn,points:checked.points,examples:checked.equations,tiles:placements.length});
   const who=fromBot?'Počítač':playerLabel(game.turn);
@@ -175,7 +185,7 @@ byId('exchangeButton').addEventListener('click',()=>{
   const player=currentPlayer();
   const indexes=[...exchangeIndices].sort((a,b)=>b-a);
   const removed=indexes.map(index=>player.rack.splice(index,1)[0]);
-  drawTiles(game.bag,player.rack);
+  replenishPlayerRack(game.bag,player);
   game.bag.unshift(...removed);
   clearPending();sound();notify(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);advanceTurn(true);
 });
@@ -203,7 +213,7 @@ function runBot() {
     botBusy=false;
     if(!move){
       if(game.bag.length){
-        const bot=currentPlayer();game.bag.unshift(...bot.rack.splice(0,bot.rack.length));drawTiles(game.bag,bot.rack);
+        const bot=currentPlayer();game.bag.unshift(...bot.rack.splice(0,bot.rack.length));replenishPlayerRack(game.bag,bot);
         notify('Počítač vyměnil kameny.');
       } else notify('Počítač vynechal tah.');
       advanceTurn(true);return;

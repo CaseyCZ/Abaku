@@ -2,11 +2,14 @@ import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRac
 import {chooseMove} from './ai.js?v=0.2.9';
 import {describeMovePreview} from './preview.js?v=0.2.9';
 import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.19';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
+import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
+  from './player-identity.js?v=1';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.15';
+const VERSION = '0.1.16';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -50,7 +53,29 @@ function sound(kind = 'tap') {
 }
 
 function currentPlayer() { return game.players[game.turn]; }
-function playerLabel(index) { return index === 0 ? 'Hráč 1' : settings.mode === 'bot' ? 'Počítač' : 'Hráč 2'; }
+function playerLabel(index) { return index === 0 ? offlinePlayerName() : settings.mode === 'bot' ? 'Počítač' : 'Hráč 2'; }
+
+// The local game works even without Oracle, but refreshes the visible player
+// name from the server when an authenticated device session is available.
+// Neither token nor cached nickname is used to authorize game actions.
+async function refreshLocalPlayerName(){
+  const token=savedOnlineToken();
+  if(!token)return;
+  try{
+    const response=await fetch(ONLINE_CONFIG.apiBase+'/api/me',{
+      headers:{Authorization:'Bearer '+token},cache:'no-store'
+    });
+    if(token!==savedOnlineToken())return; // account was switched or signed out
+    if(response.ok){
+      const {profile}=await response.json();
+      if(cacheVerifiedOnlineProfile(profile)&&game)render();
+    }else if(response.status===401){
+      // Invalid or revoked credentials must not keep a stale online nickname.
+      clearVerifiedOnlineProfile();
+      if(game)render();
+    }
+  }catch{ /* Offline game never depends on network connectivity. */ }
+}
 function isBotTurn() { return settings.mode === 'bot' && game.turn === 1; }
 function notify(message, type = '') {
   messageType = type;
@@ -498,6 +523,16 @@ if (startRequest.get('start') === 'new' && (startMode === 'bot' || startMode ===
   restore();
   tick();
 }
+// A profile edit or logout in a different browser tab updates Player 1.
+window.addEventListener('storage',event=>{
+  if(['abaku-online-display-profile-v1','abaku-online-device-session-v1',
+    'abaku-local-profile-v1'].includes(event.key)&&game){
+    render();
+    if(event.key==='abaku-online-device-session-v1')refreshLocalPlayerName();
+  }
+});
+window.addEventListener('pageshow',()=>{if(game){render();refreshLocalPlayerName();}});
+refreshLocalPlayerName();
 byId('lobbyButton').addEventListener('click', () => {
   const confirmed = window.confirm('Vrátit se do hlavní nabídky? Rozehraná partie zůstane uložená.');
   if (!confirmed) return;

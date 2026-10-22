@@ -196,3 +196,16 @@ dialog::backdrop{background:#17050bd6}
   .online-cell.recent-tile.fixed{animation:abaku-online-accepted 1.2s ease-in-out infinite alternate}
   @keyframes abaku-online-accepted{from{filter:brightness(1)}to{filter:brightness(1.15)}}
 }
+
+
+/* v0.2.13: only show Resume online after Oracle confirms an active match. */
+.online-resume-card{
+  border-color:#dcb45d;
+  background:linear-gradient(145deg,#57211b,#2c0d13);
+}
+.online-resume-card h2{color:#ffe5a2}
+.online-resume-card .gold-button{width:100%;min-height:46px;white-space:normal}
+.online-resume-card .online-resume-note{
+  margin:9px 0 0;color:#edcfa0;font:10px/1.45 Verdana,sans-serif
+}
+.online-resume-card[hidden]{display:none!important}

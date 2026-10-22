@@ -289,7 +289,7 @@ function resetOnlineResult(){
   disconnectedOpponent=false;
 }
 function renderOnlineResult(state){
-  if(!state?.finished||resultShownFor===state.matchId||onlineScoreRecap.playing())return;
+  if(!state?.finished||resultShownFor===state.matchId||onlineScoreRecap.playing()||recentOnlineMove)return;
   resultShownFor=state.matchId;
   const myName=onlinePlayerName(state.mySide);
   const opponentName=onlinePlayerName(1-state.mySide);
@@ -374,10 +374,28 @@ function send(type,fields={}){
   }
   connection.send(JSON.stringify({type,...fields}));
 }
-// Keep the previous turn visible for three seconds for BOTH online players.
+// Three seconds of unobstructed board highlighting AFTER the scroll,
+// for both online players (never while the scroll covers the board).
 function clearOnlineReview(){
   if(recentOnlineMoveTimer!==null)clearTimeout(recentOnlineMoveTimer);
   recentOnlineMoveTimer=null;recentOnlineMove=null;recentOnlineMoveId=null;
+}
+function showOnlineHighlight(move){
+  if(recentOnlineMoveTimer!==null)clearTimeout(recentOnlineMoveTimer);
+  recentOnlineMove={
+    placed:new Set(move.placed.map(p=>p.row+':'+p.col)),
+    cells:new Set(move.cells.map(p=>p.row+':'+p.col)),
+    text:'Hráč '+(move.player+1)+': '+formatEquations(move.equations)+' · +'+move.points+' bodů',
+    until:Date.now()+3000
+  };
+  if(gameState)renderOnline();
+  recentOnlineMoveTimer=setTimeout(()=>{
+    recentOnlineMove=null;recentOnlineMoveTimer=null;
+    if(gameState){
+      renderOnline();
+      if(gameState.finished)renderOnlineResult(gameState);
+    }
+  },3000);
 }
 function showOnlineReview(state){
   const move=state.lastMove;
@@ -386,27 +404,17 @@ function showOnlineReview(state){
   if(key===recentOnlineMoveId)return;
   clearOnlineReview();
   recentOnlineMoveId=key;
-  // The actual score was already awarded by the server. Both players see
-  // the same automatic per-example recap, never a second point award.
+  // The actual score was already awarded by the server. The server clock
+  // continues independently of these optional client-side animations.
   if(Number.isFinite(move.at)&&Date.now()-move.at<12_000&&Date.now()-move.at>=-5_000&&
      (!state.finished||state.reason==='completed')){
     onlineScoreRecap.play({
       player:state.players?.[move.player]?.nickname||'Hráč '+(move.player+1),
       breakdown:move.equationBreakdown,equations:move.equations,
       total:move.points,
-      onDone:()=>{if(gameState?.finished)renderOnlineResult(gameState);}
+      onDone:()=>showOnlineHighlight(move)
     });
   }
-  recentOnlineMove={
-    placed:new Set(move.placed.map(p=>p.row+':'+p.col)),
-    cells:new Set(move.cells.map(p=>p.row+':'+p.col)),
-    text:'Hráč '+(move.player+1)+': '+formatEquations(move.equations)+' · +'+move.points+' bodů',
-    until:Date.now()+3000
-  };
-  recentOnlineMoveTimer=setTimeout(()=>{
-    recentOnlineMove=null;recentOnlineMoveTimer=null;
-    if(gameState)renderOnline();
-  },3000);
 }
 function connectOnline(action,{reconnecting=false}={}){
   if(!credential){status('Nejdříve se přihlas přes Google.',true);return;}

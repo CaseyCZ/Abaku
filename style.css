@@ -61,3 +61,69 @@ dialog{border:5px ridge #d99b37;border-radius:12px;background:linear-gradient(14
   .control-bar{min-height:55px;padding-top:4px;padding-bottom:4px}
   .fine-print{font-size:9px;padding:2px}
 }
+
+
+/* v0.1.3: balanced desktop side panels, active-player indication and stable no-scroll board. */
+:root{--board-side:clamp(280px,min(640px,calc(100dvh - 348px),calc(100vw - 475px)),640px)}
+html,body{height:100%;overflow-x:hidden}
+.game-app{height:100dvh;min-height:600px;overflow:hidden}
+.main-stage{flex:1 1 auto;min-height:0;grid-template-columns:minmax(170px,1fr) minmax(0,calc(var(--board-side) + 16px)) minmax(170px,1fr);align-items:stretch;padding:4px 12px 0}
+.center-area{align-self:center}
+.player-side{min-height:0;justify-content:flex-end;overflow:hidden}
+.board{width:100%;height:var(--board-side);grid-template-rows:repeat(15,minmax(0,1fr));grid-template-columns:repeat(15,minmax(0,1fr))}
+.board .cell{min-width:0;min-height:0}
+.under-board{justify-content:flex-end;min-height:32px}
+.player-card{flex-shrink:0}
+.player-card .player-name,.right-side .player-card .player-name{background:linear-gradient(#28151a,#10070c);color:#f9d99a;text-shadow:none}
+.player-card.active{border-color:#66c7ff;box-shadow:0 0 0 2px #317cc1,0 0 14px #66bfff75}
+.player-card.active .player-name,.right-side .player-card.active .player-name{background:linear-gradient(#a3e3ff,#4596de);color:#07264a;text-shadow:0 1px #e7f6ff}
+.player-card.active .score{background:#20477655}
+.side-panel{display:flex;flex-direction:column;gap:8px;width:min(100%,340px);height:clamp(135px,calc(var(--board-side) - 155px),440px);min-height:0;overflow:hidden;padding:11px 13px 10px;margin-bottom:8px;position:relative;z-index:1;border:3px ridge #e0a644;border-radius:8px;background:linear-gradient(160deg,#531e21f5,#240c12f5);box-shadow:inset 0 1px #fedf8a55,0 5px 18px #22060d8f}
+.side-panel h2{font:700 clamp(13px,1.15vw,17px) Georgia,serif;letter-spacing:.5px;margin:0;padding:0 0 8px;border-bottom:1px solid #d79f4c;color:#ffdb91;text-align:center}
+.side-panel h3{font:700 12px Georgia,serif;color:#f6ca79;letter-spacing:.5px;margin:1px 0 0}
+.status-turn{display:flex;gap:5px;flex-wrap:wrap;align-items:center;justify-content:space-between;padding:8px 9px;border:1px solid #a57034;background:#2b1822;border-radius:4px}
+.status-turn span{font:11px Verdana,sans-serif;color:#efd19b}
+.status-turn strong{color:#83d3ff;font:700 clamp(13px,1.2vw,17px) Georgia,serif}
+.status-details{display:grid;gap:6px}
+.status-details>div{display:flex;align-items:center;justify-content:space-between;gap:8px;font:11px Verdana,sans-serif;border-bottom:1px solid #cca26a30;padding-bottom:4px}
+.status-details span{color:#e0bb7c}
+.status-details strong{color:#fff0bf;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.status-panel .game-message{min-height:0;max-height:62px;overflow:auto;flex:none;text-align:left;border-radius:4px;background:#1c0b12aa;border-left:3px solid #c59e54;padding:6px 7px;font:11px/1.35 Verdana,sans-serif}
+.move-history{flex:1;overflow-y:auto;min-height:0;margin:0;padding-left:24px;font:11px/1.55 Verdana,sans-serif;color:#f6dfaf}
+.move-history li{margin:0 0 4px;overflow-wrap:anywhere}
+.move-history .move-points{color:#9efaac}
+.chat-panel{gap:7px}
+.chat-messages{flex:1;overflow:auto;min-height:0;display:flex;flex-direction:column;gap:7px;padding-right:4px;font:12px/1.4 Verdana,sans-serif;scrollbar-width:thin}
+.chat-message{padding:6px 8px;border-radius:6px;background:#2e1720;overflow-wrap:anywhere}
+.chat-message.system{border-left:2px solid #d4a84e;color:#f0d7a1}
+.chat-message.player{border-left:2px solid #53b5ed;color:#f9f1dc;background:#29314680}
+.chat-message strong{display:block;color:#91dbff;font-size:11px;margin-bottom:2px}
+.chat-entry{display:flex;gap:4px;align-items:stretch}
+.chat-entry input{min-width:0;flex:1;width:0;font:12px Verdana,sans-serif;border:1px solid #e3ae55;border-radius:5px;padding:6px 7px;background:#fff4d4;color:#442018}
+.chat-entry input:disabled{opacity:.6;cursor:not-allowed}
+.chat-entry .gold-button{font-size:11px;padding:6px}
+.chat-note{margin:0;font:10px Verdana,sans-serif;color:#d5b583}
+.confirm-actions{display:flex;gap:10px;justify-content:flex-end}
+.confirmation-dialog p{font:14px/1.6 Verdana,sans-serif}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+[hidden],#hintButton[hidden]{display:none!important}
+.control-bar{min-height:56px;padding:6px 18px}
+.game-app .mascot{width:min(100%,120px);margin-bottom:-12px}
+@media(max-width:1130px){
+  :root{--board-side:clamp(275px,min(580px,calc(100dvh - 335px),calc(100vw - 345px)),580px)}
+  .main-stage{grid-template-columns:minmax(110px,1fr) minmax(0,calc(var(--board-side) + 16px)) minmax(110px,1fr);gap:4px;padding:4px 6px 0}
+  .side-panel{padding:8px;height:clamp(128px,calc(var(--board-side) - 135px),360px);gap:5px}
+  .status-details>div{font-size:10px}
+  .chat-entry{flex-wrap:wrap}.chat-entry input{min-width:75px}
+}
+@media(max-height:740px){
+  :root{--board-side:clamp(260px,min(600px,calc(100dvh - 300px),calc(100vw - 450px)),600px)}
+  .game-app .mascot{width:min(100%,90px)}
+  .side-panel{height:clamp(128px,calc(var(--board-side) - 100px),320px)}
+  .side-panel h2{padding-bottom:4px}
+  .side-panel .status-details{gap:3px}
+  .side-panel .game-message{max-height:42px}
+  .top-bar{min-height:54px}
+  .progress-track{height:22px}
+  .control-bar{min-height:50px}
+}

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {scoringSteps} from '../src/score-recap.js';
+import {scoringSteps,getRecapSeconds,setRecapSeconds,RECAP_SECONDS_OPTIONS} from '../src/score-recap.js';
 import {emptyBoard,validateMove} from '../src/rules.js';
 
 test('accepted examples carry precise scores and bonus multipliers',()=>{
@@ -40,13 +40,47 @@ test('if older API omits details, do not invent per-example points',()=>{
 
 test('scroll automatically advances with timers, never requires user confirmation',()=>{
   const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
-  assert.match(js,/const stepDuration=3000;/);
-  assert.match(js,/const completedDuration=3000;/);
+  assert.match(js,/const visibleSeconds=getRecapSeconds\(\);/);
+  assert.match(js,/const stepDuration=counterDuration\+visibleSeconds\*1000;/);
+  assert.match(js,/const completedDuration=visibleSeconds\*1000;/);
   assert.match(js,/steps\.forEach\(\(item,index\)=>/);
   assert.match(js,/index\*stepDuration/);
   assert.match(js,/animateCount\(before,cumulative\)/);
   assert.match(js,/this\.counter\.textContent=String\(total\)/);
   assert.match(js,/steps\.length\*stepDuration\+completedDuration/);
-  assert.match(js,/this\.cancel\(\);\s*done\?\.\(\)/);
+  assert.match(js,/const next=this\.queue\[0\]\|\|null;/);
+  assert.match(js,/if\(next\)this\.play\(next\);/);
+  assert.match(js,/done\?\.\(\)/);
   assert.doesNotMatch(js,/confirm\(|addEventListener\('click'|<button/i);
+});
+
+
+test('each example duration is configurable and stored for offline and online',()=>{
+  const oldStorage=globalThis.localStorage;
+  const data=new Map();
+  globalThis.localStorage={
+    getItem:key=>data.has(key)?data.get(key):null,
+    setItem:(key,value)=>data.set(key,String(value))
+  };
+  try{
+    assert.deepEqual(RECAP_SECONDS_OPTIONS,[2,3,5,8,10]);
+    assert.equal(getRecapSeconds(),3);
+    for(const seconds of RECAP_SECONDS_OPTIONS){
+      assert.equal(setRecapSeconds(seconds),true);
+      assert.equal(getRecapSeconds(),seconds);
+    }
+    assert.equal(setRecapSeconds(0),false);
+    assert.equal(getRecapSeconds(),10);
+    assert.equal(data.get('abaku-score-recap-seconds-v1'),'10');
+  }finally{
+    if(oldStorage===undefined)delete globalThis.localStorage;
+    else globalThis.localStorage=oldStorage;
+  }
+});
+
+test('a second scoring event queues rather than cutting short the current example',()=>{
+  const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
+  assert.match(js,/if\(this\.active\)\{\s*this\.queue\.push\(\{player,breakdown,equations,total,onDone\}\);\s*return;/);
+  assert.match(js,/const next=this\.queue\[0\]\|\|null/);
+  assert.match(js,/if\(next\)this\.play\(next\)/);
 });

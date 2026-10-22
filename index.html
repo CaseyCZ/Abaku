@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#4c0e13">
   <meta name="description" content="Abaku – číselná retro hra. Hraj proti AI nebo na jednom počítači; online hraní připravujeme.">
   <title>ABAKU | Hlavní nabídka</title>
-  <link rel="stylesheet" href="./lobby.css?v=0.2.0">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.3">
 </head>
 <body>
   <div class="lobby-shell">
@@ -41,31 +41,32 @@
             <span class="mode-action">HRÁT <span aria-hidden="true">›</span></span>
           </button>
           <button type="button" id="playRandom" class="mode-card mode-future" aria-describedby="onlineInfo">
-            <span class="future-ribbon">PŘIPRAVUJEME</span>
+            <span class="future-ribbon">PO PŘIHLÁŠENÍ</span>
             <span class="mode-icon" aria-hidden="true">⚔</span>
             <span class="mode-title">Náhodný soupeř</span>
             <span class="mode-copy">Najdeme hráče online a spojíme vás do partie.</span>
-            <span class="mode-action muted">BRZY</span>
+            <span class="mode-action muted">PŘIHLÁSIT SE</span>
           </button>
           <button type="button" id="playFriends" class="mode-card mode-future">
-            <span class="future-ribbon">PŘIPRAVUJEME</span>
+            <span class="future-ribbon">PO PŘIHLÁŠENÍ</span>
             <span class="mode-icon" aria-hidden="true">✉</span>
             <span class="mode-title">Hrát s přítelem</span>
             <span class="mode-copy">Seznam přátel, výzvy a soukromé partie.</span>
-            <span class="mode-action muted">BRZY</span>
+            <span class="mode-action muted">PŘIHLÁSIT SE</span>
           </button>
         </div>
         <aside class="lobby-sidebar" aria-label="Profil a rozehraná hra">
           <div class="side-card">
             <h2>✦ Můj profil</h2>
-            <div class="profile-row"><div id="profileAvatar" class="avatar">✦</div><div><strong id="profileName">Host</strong><span class="subline">Místní profil · bez účtu</span></div></div>
-            <p>Proti AI můžeš hrát bez účtu. Online profil se přihlásí přes Google; bude aktivní po připojení Oracle API.</p>
+            <div class="profile-row"><div id="profileAvatar" class="avatar">✦</div><div><strong id="profileName">Host</strong><span class="subline" id="profileSubtitle">Místní profil · bez účtu</span></div></div>
+            <p id="profileDescription">Proti AI můžeš hrát bez účtu. Pro online režimy se přihlas přes Google.</p>
             <p id="onlineLoginNotice">Přihlášení přes Google připravujeme</p>
             <div id="googleSignInWidget" hidden></div>
             <p id="onlineStats" hidden></p>
             <button type="button" id="onlineLogout" class="gold-button wide" hidden>Odhlásit online účet</button>
             <button type="button" id="googleSignIn" class="gold-button wide">Přihlášení přes Google – připravujeme</button>
             <button type="button" id="editProfile" class="gold-button wide">Upravit místní profil</button>
+            <button type="button" id="manageFriends" class="gold-button wide" hidden>Moji přátelé a žádosti</button>
           </div>
           <div class="side-card saved-card" id="savedCard" hidden>
             <h2>✦ Rozehraná partie</h2>
@@ -74,8 +75,8 @@
           </div>
           <div class="side-card" id="onlineInfo">
             <h2>✦ Abaku Online</h2>
-            <p>Účty a online soupeři se zpřístupní až po nastavení Google OAuth a HTTPS spojení s Oracle serverem.</p>
-            <span class="build-label">Vývojová verze 0.2.0</span>
+            <p id="onlineInfoText">Online hra se zpřístupní po připojení a přihlášení přes Google.</p>
+            <span class="build-label">Abaku Online 0.2.3 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -89,7 +90,7 @@
   <dialog id="profileDialog" aria-labelledby="profileTitle">
     <form id="profileForm" method="dialog" class="dialog-body">
       <h2 id="profileTitle">Místní profil</h2>
-      <p>Přezdívka je uložená pouze v tomto zařízení. Nejde o online přihlášení.</p>
+      <p id="profileDialogDescription">Přezdívka je uložená pouze v tomto zařízení. Nejde o online přihlášení.</p>
       <label for="nickname">Přezdívka</label>
       <input id="nickname" required minlength="2" maxlength="20" autocomplete="nickname" placeholder="Např. Hráč123">
       <label for="avatarSelect">Symbol profilu</label>
@@ -110,6 +111,17 @@
       <h2 id="plannedTitle">Online režim připravujeme</h2>
       <p id="plannedText">Tato funkce bude přístupná po zprovoznění Oracle API.</p>
       <button type="button" class="gold-button primary" id="plannedClose">Rozumím</button>
+    </div>
+  </dialog>
+  <dialog id="friendsDialog" aria-labelledby="friendsTitle" class="friends-dialog">
+    <div class="dialog-body">
+      <div class="friends-heading"><h2 id="friendsTitle">Přátelé a žádosti</h2><button id="friendsClose" class="gold-button" type="button">Zavřít</button></div>
+      <p>Vyhledej hráče podle přezdívky. Pozvánku do partie pak můžete sdílet pomocí kódu.</p>
+      <form id="friendSearchForm" class="friend-search"><input id="friendSearchInput" aria-label="Hledat přezdívku" minlength="2" maxlength="20" placeholder="Přezdívka hráče" required><button type="submit" class="gold-button">Najít</button></form>
+      <p id="friendMessage" role="status" aria-live="polite"></p>
+      <div id="friendSearchResults" class="friend-items"></div>
+      <h3>Příchozí žádosti</h3><div id="friendRequests" class="friend-items"></div>
+      <h3>Moji přátelé</h3><div id="friendList" class="friend-items"></div>
     </div>
   </dialog>
   <dialog id="onlineDialog" aria-labelledby="onlineDialogTitle" class="online-dialog">
@@ -149,6 +161,6 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.2"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.3"></script>
 </body>
 </html>

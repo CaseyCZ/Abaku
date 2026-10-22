@@ -1,98 +1,115 @@
-# Číselná aréna — Abaku retro (PC)
+# ✦ ABAKU — Číselná aréna ✦
 
-Neoficiální fanouškovská rekonstrukce klasické číselné hry inspirovaná původním Abaku z portálu Hry.cz / Seznam. Cílem je postupně dosáhnout věrného herního zážitku z původní PC hry a připravit základ pro budoucí iOS a Android verze.
+**Čísla místo slov. Taktika místo náhody.**  
+Retro matematická desková hra pro počítač i mobil, ve které z číselných kamenů sestavuješ početní příklady, využíváš bonusová políčka a soupeříš o nejvyšší skóre.
 
- > **Stav:** hlavní nabídka 0.2.0 je v `Master`; herní jádro 0.1.4 je zálohované ve větvi `backup/v0.1.4-stable-2026-10-22`. Online server je v repozitáři, ale ještě není nasazený na Oracle. Nejde o původní hru Geewa/Seznam ani o oficiální aplikaci Abaku. Grafika je nově nakreslená. Název Abaku a původní grafické prvky patří jejich vlastníkům.
+### [▶ HRÁT ABAKU ONLINE](https://caseycz.github.io/Abaku/)
 
-### Novinky 0.1.4
-- Nad stojánkem se okamžitě přepočítají potenciální body za dosud nepotvrzený tah, včetně bonusů; neplatné a neúplné příklady nemají připsané body.
-- Pravý panel je pouze chat hráčů. Automatické události jsou mimo chat a staré systémové zprávy se skryjí; zprávy hráčů zůstanou zachované.
-- Chat stále funguje místně pro dva hráče na jednom PC, není to online chat.
+**Bez instalace · V prohlížeči · Proti počítači, ve dvou i přes internet**
 
-### Oprava 0.1.3
+> **Neoficiální fanouškovská rekonstrukce inspirovaná původní hrou Abaku.** Nejde o oficiální aplikaci původních autorů ani o původní hru ze Seznamu. Projekt má vlastní webové rozhraní a je průběžně vyvíjen.
 
-- Kameny se po platném tahu i výměně skutečně doplní na stojánek (dokud jsou v sáčku).
-- Již uložená rozehraná partie s prázdným stojánkem se při načtení automaticky opraví bez ztráty skóre.
-- CSS a herní skript mají verzovanou URL pro načtení aktuální verze bez staré cache prohlížeče.
+---
 
-### Novinky 0.1.1
+## 🎮 O hře
 
-- Celá PC hra včetně zásobníku a spodních tlačítek se přizpůsobuje výšce okna.
-- Hrací deska má pevně dané čtvercové rozměry a nemění výšku řádků při přidávání číslic.
-- Čas tahu lze zvolit 30, 60 nebo 90 sekund (staré uložené hodnoty se převedou na 90 sekund).
+Abaku je logická číselná hra na desce **15 × 15 polí**. Místo skládání slov pokládáš číselné kameny tak, aby vznikaly správné matematické příklady — a sbíráš za ně body.
 
-### Novinky 0.1.3
-- Modré zvýraznění označuje právě aktivního hráče, včetně přepínání mezi oběma hráči.
-- Nová hra je nahoře a spouští se pouze po potvrzení.
-- Nápověda se nabízí pouze při hře proti počítači.
-- Vlevo stav partie, poslední příklad, body a posledních šest tahů.
-- Vpravo místní chat mezi dvěma hráči na jednom PC (není online).
-- Zachováno doplňování pěti kamenů, uložené partie a nastavení 30/60/90 sekund.
+Například tři kameny **2 · 6 · 8** mohou vytvořit příklad **2 + 6 = 8**. Znaménka na desku nepokládáš: hra je rozpozná sama. Podporuje různé početní operace včetně sčítání, odčítání, násobení a dělení.
 
-### Hlavní nabídka a příprava online hraní (0.2.0)
-- Úvodní stránka `index.html` nabídne hru proti AI a místně na jednom PC.
-- Dosavadní herní rozhraní je beze změn zachované v `game.html`.
-- Uložené partie se zobrazují v nabídce a lze v nich pokračovat.
-- Místní přezdívku a avatar lze měnit bez přihlášení.
-- Matchmaking, přátelé a Google přihlášení mají připravený kód. **Na Oracle zatím nejsou nasazené**, a proto jsou ve veřejné nabídce vypnuté.
-- Google přihlášení používá Google Identity Services (bez Firebase), token ověří Google Auth Library na Oracle Node.js serveru; aktivace vyžaduje Google Client ID a veřejné HTTPS API.
-- Nebudeme ukládat hesla ani OAuth tajné klíče do veřejného GitHub repozitáře.
-- Funkční verze 0.1.4 zůstává beze změny v záložní větvi. Online část prozatím zůstává neaktivní, dokud nedoplníme konfiguraci.
+Čím chytřeji využiješ již položené kameny a bonusová políčka, tím víc bodů můžeš získat jedním tahem.
 
-### Oracle Online API
-- Minimalistický Node.js server: `server/index.js`, Node.js 24.15+, WebSockety `ws`, Google tokeny `google-auth-library`.
-- SQLite uchovává pouze přezdívky, avatary, statistiky výher/proher/remíz a kontakty přátel.
-- Board, kameny, chat a pozvánky jsou v paměti procesu. Server hlídá platnost tahů i skóre.
-- Online frontend je připravený v `src/online-client.js`; aktivuje se veřejnou konfigurací `src/online-config.js` **až po bezpečném nasazení API**.
-- Detailní návod v [`server/README.md`](server/README.md).
+## ⚔️ Vyber si způsob hraní
 
-## Spuštění
+| Režim | Jak funguje |
+| --- | --- |
+| **Proti počítači** | Hraj s AI ve třech obtížnostech: Začátečník, Pokročilý a Expert. |
+| **Dva hráči** | Střídejte se na jednom počítači, tabletu nebo telefonu. |
+| **Náhodný soupeř online** | Přihlas se přes Google a vyhledej dalšího hráče na internetu. |
+| **Online s přítelem** | Přidej si přátele, posílej výzvy a zahraj si soukromou partii. |
 
-Hra běží jako statický web. Otevři `index.html` přes lokální HTTP server, například:
+**Hra proti počítači a místní hra dvou hráčů fungují bez účtu.** Online multiplayer vyžaduje přihlášení přes Google a dostupný herní server; online režim je stále v **testovacím provozu**.
+
+## 🧩 Jak se hraje
+
+1. Vyber herní režim a začni novou partii.
+2. Ze stojánku vybírej číselné kameny a pokládej je na desku. První tah musí vést přes její střed.
+3. Slož platný početní příklad. Další tahy musí navazovat na kameny, které už na desce leží.
+4. Využívej bonusová pole, potvrď tah a získej body.
+5. Střídej se se soupeřem. Po skončení partie uvidíš výsledkové okno s vítězem, konečným skóre a možností odvety.
+
+**Za jeden tah lze položit až pět kamenů.** Hra kontroluje platnost příkladů a nabízí také výměnu kamenů nebo vynechání tahu.
+
+Podrobná pravidla si otevřeš přímo ve hře přes tlačítko **Pravidla**.
+
+## ✨ Co Číselná aréna nabízí
+
+- **Retro styl** — červeno-zlaté rozhraní inspirované klasickými deskovými hrami, přizpůsobené PC i mobilům.
+- **Matematické souboje** — různé aritmetické příklady, bonusy, násobiče a průběžné skóre.
+- **Animované vyhodnocení** — příklady se po tahu ukazují jeden po druhém a body se automaticky sčítají. Zobrazení lze vypnout nebo nastavit na **2, 3, 5, 8 či 10 sekund**; výchozí hodnota je **3 sekundy**.
+- **Zvýraznění posledního tahu** — po vyhodnocení se na desce ukážou právě položené kameny a vytvořené příklady.
+- **Vlastní tempo** — čas na tah **30, 60 nebo 90 sekund**, zvuky a další nastavení.
+- **Nápověda** — při hraní proti počítači můžeš požádat o návrh tahu.
+- **Pokračování v partii** — místní rozehraná hra se ukládá do prohlížeče; online zápas lze obnovit, pokud je stále aktivní na serveru.
+- **Výsledková obrazovka** — vítěz, remíza, skóre a možnost **Odveta / Ukončit**.
+- **Online komunita** — hráčský profil, statistiky, žebříček, seznam přátel, výzvy a chat.
+- **Oznámení ve hře** — upozornění na nové chatové zprávy, odpojení soupeře a pokusy o obnovení spojení.
+
+## 📱 Kde si zahrát
+
+**[caseycz.github.io/Abaku](https://caseycz.github.io/Abaku/)**
+
+Hra běží přímo v moderním webovém prohlížeči. Není potřeba nic instalovat. Místní režimy fungují bez serveru; pro online souboje je potřeba internet a běžící API.
+
+## 🛠️ Pro vývojáře
+
+Číselná aréna je webová aplikace postavená na **HTML, CSS a JavaScriptu bez frontendového frameworku**.
+
+| Součást | Technologie / umístění |
+| --- | --- |
+| Hlavní nabídka a online hra | `index.html`, `src/lobby.js`, `src/online-client.js` |
+| Hra proti počítači a místně ve dvou | `game.html`, `src/main.js` |
+| Herní pravidla a bodování | `src/rules.js` |
+| Počítačový soupeř | `src/ai.js` |
+| Animace bodů a výsledků | `src/score-recap.js`, `score-recap.css`, `result-dialog.css` |
+| Online server | `server/` — Node.js, WebSocket, SQLite, Google Identity Services |
+| Automatické testy | `tests/`, `server/tests/` |
+
+### Lokální spuštění
+
+Pro hraní bez online serveru stačí lokální HTTP server v kořeni repozitáře:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Pak otevři `http://localhost:8000` v Chrome, Firefoxu nebo Edge. Offline hra proti AI a na jednom PC nepotřebuje backend ani databázi. Pro online zápasy je potřeba samostatné Oracle API – viz `server/README.md`.
+Pak otevři **http://localhost:8000**.
 
-## Co funguje
-
-- retro desktopové rozvržení, červeno-zlatá grafika a číselná deska 15×15;
-- tahy až pěti kameny, ovládání kliknutím, vrácení rozložených kamenů;
-- rozpoznávání sčítání, odčítání, násobení, dělení a vybraných mocnin bez znamének;
-- násobiče na bonusových polích, skóre a automatické doplňování kamenů;
-- počítačový soupeř ve třech nastaveních hledání, lokální hra dvou hráčů;
-- výměna kamenů, vynechání tahu, časový limit a nápověda;
-- ukládání rozehrané partie i nastavení do prohlížeče;
-- základní zvuky a pravidla přímo v aplikaci.
-
-## Co je ještě potřeba dopracovat
-
-- přesně porovnat všechny druhy původních příkladů, skórování a výjimky proti pravidlům originálu;
-- dokončit AI tak, aby spolehlivě vyhledávala i náročné více-kamenné tahy a byla dobře vyvážená;
-- doplnit animace, původní rozložení dalšího menu a vypilovat ilustrace podle archivních snímků;
-- vytvořit online lobby, účty, serverovou kontrolu tahů a pozvánky pro multiplayer;
-- po stabilizaci webového jádra zpracovat mobilní ovládání, iOS a Android balíčky.
-
-## Struktura
-
-- `index.html`, `style.css` – PC rozhraní;
-- `src/rules.js` – nezávislá logika herního plánu, kontroly tahu a bodování;
-- `src/ai.js` – vyhledávání tahů robota a nápovědy;
-- `src/main.js` – ovládání, stav, ukládání a animace rozhraní;
-- `tests/` – kontrolní testy herních pravidel.
-
-## Testy
+Pro spuštění testů použij Node.js 24.15+:
 
 ```bash
 npm test
+cd server
+npm install
+npm test
 ```
 
-## Reference
+Online server má vlastní konfiguraci a nasazuje se samostatně. Podrobnosti jsou v **[server/README.md](server/README.md)**. Přístupové údaje a privátní konfigurace nepatří do veřejného repozitáře.
 
-- [Původní položka Abaku na Seznamu](https://hry.seznam.cz/hra/abaku)
-- [Oficiální pravidla Abaku](https://abaku.cz/metodika/deskova-hra)
-- [Současná oficiální hra](https://abakuplay.com/)
+## 🚧 Stav projektu
 
-Projekt je zatím experimentální a není určen k vydávání za oficiální Abaku.
+**Číselná aréna je hratelná a průběžně rozvíjená webová hra.** Místní režimy jsou dostupné bez přihlášení, online multiplayer je v testovacím provozu. Ladíme pravidla, chování AI, ovládání na mobilech i stabilitu spojení. Při restartu online serveru mohou rozehrané internetové zápasy skončit, protože stav hry je uložený v jeho paměti.
+
+Nápady, chyby a návrhy na vylepšení můžeš poslat přes **[GitHub Issues](https://github.com/CaseyCZ/Abaku/issues)**.
+
+## 📚 Inspirace a práva
+
+Projekt vznikl jako **neoficiální fanouškovská pocta původnímu Abaku**. Není spojený s autory ani provozovateli originální hry. Název *Abaku*, původní hra a případné původní grafické prvky patří jejich příslušným vlastníkům.
+
+- [Původní Abaku na Seznamu](https://hry.seznam.cz/hra/abaku)
+- [Metodika a pravidla Abaku](https://abaku.cz/metodika/deskova-hra)
+- [Abaku Play](https://abakuplay.com/)
+
+---
+
+**[▶ Spustit Číselnou arénu](https://caseycz.github.io/Abaku/)** · [Nahlásit chybu nebo navrhnout funkci](https://github.com/CaseyCZ/Abaku/issues)

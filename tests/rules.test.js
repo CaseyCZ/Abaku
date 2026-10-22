@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {SIZE, emptyBoard, makeBag, readsAsEquation, validateMove, bonusAt} from '../src/rules.js';
+import {SIZE, emptyBoard, makeBag, readsAsEquation, validateMove, bonusAt, replenishPlayerRack} from '../src/rules.js';
 import {findMoves, chooseMove} from '../src/ai.js';
 
 const tiles = (digits, row = 7, start = 6) => [...digits].map((digit, i) => ({row, col:start+i, digit:Number(digit)}));
@@ -12,6 +12,29 @@ test('new game has 15x15 board and 110 digits', () => {
   const bag=makeBag(()=>.45);
   assert.equal(bag.length,110);
   for(let digit=0;digit<10;digit++)assert.equal(bag.filter(x=>x===digit).length,11);
+});
+
+test('after a move or an exchange the player gets five tiles again', () => {
+  const bag=makeBag(()=>.45);
+  const player={rack:[2,7,9,4,1],score:63};
+  player.rack.splice(2,1);
+  replenishPlayerRack(bag,player);
+  assert.equal(player.rack.length,5);
+  assert.equal(player.score,63,'replenishment must preserve score');
+  assert.equal(bag.length,109);
+  player.rack.splice(0,3);
+  replenishPlayerRack(bag,player);
+  assert.equal(player.rack.length,5);
+  assert.equal(bag.length,106);
+});
+
+test('an existing empty rack is recovered without restarting the match', () => {
+  const bag=[1,3,7,9,2,6];
+  const player={rack:[],score:49};
+  replenishPlayerRack(bag,player);
+  assert.deepEqual(player.rack,[6,2,9,7,3]);
+  assert.deepEqual(bag,[1]);
+  assert.equal(player.score,49);
 });
 
 test('classic signless arithmetic examples are recognised', () => {

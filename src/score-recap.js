@@ -3,6 +3,24 @@
 // or the authoritative server. It never changes the saved/player score.
 import {formatEquations} from './rules.js?v=0.2.15';
 
+// Shared between offline and online screens in the same browser.
+export const RECAP_SECONDS_OPTIONS=Object.freeze([2,3,5,8,10]);
+export const RECAP_STORAGE_KEY='abaku-score-recap-seconds-v1';
+export function getRecapSeconds(){
+  try{
+    const value=Number(localStorage.getItem(RECAP_STORAGE_KEY));
+    if(RECAP_SECONDS_OPTIONS.includes(value))return value;
+  }catch{ /* localStorage may be blocked */ }
+  return 3;
+}
+export function setRecapSeconds(seconds){
+  const value=Number(seconds);
+  if(!RECAP_SECONDS_OPTIONS.includes(value))return false;
+  try{localStorage.setItem(RECAP_STORAGE_KEY,String(value));}
+  catch{ /* current page can still use the selection */ }
+  return true;
+}
+
 export function scoringSteps(breakdown,total,equations=[]){
   const target=Number(total);
   if(!Number.isSafeInteger(target)||target<0)return [];
@@ -58,6 +76,7 @@ export class ScoreRecap {
     this.counterInterval=null;
     this.onDone=null;
     this.active=false;
+    this.queue=[];
   }
   later(callback,ms){
     this.timeouts.push(setTimeout(callback,ms));
@@ -69,10 +88,16 @@ export class ScoreRecap {
     this.counterInterval=null;
     this.active=false;
     this.onDone=null;
+    this.queue=[];
     this.root.hidden=true;
   }
   playing(){return this.active;}
   play({player='Hráč',breakdown=[],equations=[],total=0,onDone=null}={}){
+    // A quick AI or online reply must not cut short the current recap.
+    if(this.active){
+      this.queue.push({player,breakdown,equations,total,onDone});
+      return;
+    }
     this.cancel();
     const steps=scoringSteps(breakdown,total,equations);
     if(!steps.length){onDone?.();return;}
@@ -81,12 +106,16 @@ export class ScoreRecap {
     this.root.hidden=false;
     this.player.textContent=String(player).slice(0,45);
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
-    const stepDuration=3000;
-    const completedDuration=3000;
+    const counterDuration=reduced?100:700;
+    // Hold each COMPLETE example on screen for the selected number
+    // of seconds AFTER the counter finishes animating.
+    const visibleSeconds=getRecapSeconds();
+    const stepDuration=counterDuration+visibleSeconds*1000;
+    const completedDuration=visibleSeconds*1000;
     const animateCount=(from,to)=>{
       if(this.counterInterval!==null)clearInterval(this.counterInterval);
       const started=Date.now();
-      const duration=reduced?100:660;
+      const duration=counterDuration;
       this.counter.textContent=String(from);
       this.counterInterval=setInterval(()=>{
         const fraction=Math.min(1,(Date.now()-started)/duration);
@@ -125,7 +154,9 @@ export class ScoreRecap {
     },steps.length*stepDuration);
     this.later(()=>{
       const done=this.onDone;
+      const next=this.queue[0]||null;
       this.cancel();
+      if(next)this.play(next);
       done?.();
     },steps.length*stepDuration+completedDuration);
   }

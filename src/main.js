@@ -5,7 +5,7 @@ import {describeMovePreview} from './preview.js';
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.5';
+const VERSION = '0.1.6';
 const defaults = {mode:'bot', difficulty:'medium', time:90, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -386,4 +386,9 @@ if (startRequest.get('start') === 'new' && (startMode === 'bot' || startMode ===
   restore();
   tick();
 }
-byId('lobbyButton').addEventListener('click', () => window.location.assign('./index.html'));
+byId('lobbyButton').addEventListener('click', () => {
+  const confirmed = window.confirm('Vrátit se do hlavní nabídky? Rozehraná partie zůstane uložená.');
+  if (!confirmed) return;
+  save();
+  window.location.assign('./index.html');
+});

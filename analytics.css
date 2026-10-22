@@ -1,0 +1,55 @@
+/* Consent UI shared by Abaku lobby, game and privacy page.
+   Analytics is never requested until visitors opt in. */
+.abaku-consent {
+  position:fixed;
+  z-index:9999;
+  bottom:max(12px,env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%);
+  width:min(92vw,880px);
+  box-sizing:border-box;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px 20px;
+  padding:16px 20px;
+  color:#fff0c6;
+  background:linear-gradient(140deg,#4b1019,#26070c);
+  border:2px solid #d8a34b;
+  border-radius:13px;
+  box-shadow:0 9px 30px #120207cb, inset 0 0 0 1px #f5ce6940;
+  font:13px/1.5 Verdana,sans-serif;
+}
+.abaku-consent-copy{display:flex;flex:1 1 260px;flex-direction:column;gap:5px;min-width:0}
+.abaku-consent-copy strong{font:700 20px Georgia,serif;color:#ffdc87}
+.abaku-consent-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.abaku-consent-actions button,.abaku-consent-actions a{
+  box-sizing:border-box;min-height:42px;display:inline-flex;
+  align-items:center;justify-content:center;
+  border:1px solid #dfad58;border-radius:8px;
+  padding:9px 13px;text-decoration:none;
+  font:700 12px Verdana,sans-serif;
+  cursor:pointer;
+}
+.abaku-consent-accept{background:linear-gradient(#ffe9ad,#daa650);color:#502310}
+.abaku-consent-reject{background:#31121b;color:#ffe0a3}
+.abaku-consent-actions a{background:transparent;color:#ffe2ac}
+.abaku-consent-actions button:focus-visible,.abaku-consent-actions a:focus-visible,
+.abaku-cookie-settings:focus-visible{
+  outline:3px solid #9fe9ff;outline-offset:2px
+}
+.abaku-cookie-settings,.abaku-privacy-link {
+  border:0;background:none;color:#efd19a;text-decoration:underline;
+  cursor:pointer;font:inherit;padding:2px 4px
+}
+.abaku-privacy-link:visited{color:#efd19a}
+.abaku-consent[hidden]{display:none!important}
+@media(max-width:600px){
+  .abaku-consent{width:calc(100vw - 18px);bottom:max(6px,env(safe-area-inset-bottom));padding:12px;gap:9px}
+  .abaku-consent-copy strong{font-size:17px}
+  .abaku-consent-copy{font-size:11px;flex-basis:100%}
+  .abaku-consent-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .abaku-consent-actions a{grid-column:1/-1;min-height:29px}
+  .abaku-consent-actions button{font-size:11px;padding:8px 4px;min-width:0}
+}

@@ -116,6 +116,7 @@ const http=createServer(async(request,response)=>{
       return respond(response,200,{ok:true});
     }
     if(request.method==='GET'&&pathname==='/api/me')return respond(response,200,{profile:store.get(uid)});
+    if(request.method==='GET'&&pathname==='/api/match/current')return respond(response,200,{match:engine.activeMatchSummary(uid)});
     if(request.method==='POST'&&pathname==='/api/me'){
       const {nickname,avatar}=await body(request);
       return respond(response,200,{profile:store.rename(uid,nickname,avatar)});

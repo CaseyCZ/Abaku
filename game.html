@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#4c0e13" />
   <meta name="description" content="Číselná desková hra inspirovaná klasickým Abaku – vlastní retro rekonstrukce pro PC." />
   <title>Číselná aréna – retro Abaku</title>
-  <link rel="stylesheet" href="./style.css?v=0.1.4" />
+  <link rel="stylesheet" href="./style.css?v=0.1.5" />
 </head>
 <body>
   <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -54,6 +54,8 @@
       <aside class="player-side left-side">
         <div class="flourish" aria-hidden="true">❦</div>
         <section class="side-panel status-panel" aria-label="Informace o partii">
+          <button type="button" class="mobile-panel-toggle" aria-expanded="false" aria-controls="statusPanelContent">▸ Průběh partie</button>
+          <div id="statusPanelContent" class="mobile-panel-content">
           <h2>Průběh partie</h2>
           <div class="status-turn"><span>Na tahu</span><strong id="turnName">Hráč 1</strong></div>
           <div class="status-details">
@@ -64,6 +66,7 @@
           <div class="game-message" id="gameMessage" role="status" aria-live="polite">Začni příkladem přes střed desky.</div>
           <h3>Poslední tahy</h3>
           <ol class="move-history" id="moveHistory" aria-label="Historie tahů"></ol>
+          </div>
         </section>
         <svg class="mascot" viewBox="0 0 170 186" aria-hidden="true"><use href="#little-mascot"/></svg>
         <div class="player-card active" id="player0Card">
@@ -90,11 +93,14 @@
           <div class="rack" id="rack" aria-label="Tvoje kameny"></div>
           <button class="round-button play" id="confirmButton" title="Potvrdit tah" aria-label="Potvrdit tah">✓</button>
         </div>
+        <div class="mobile-game-message" id="mobileGameMessage" role="status" aria-live="polite">Začni příkladem přes střed desky.</div>
       </section>
 
       <aside class="player-side right-side">
         <div class="flourish mirrored" aria-hidden="true">❦</div>
         <section class="side-panel chat-panel" aria-label="Chat hráčů">
+          <button type="button" class="mobile-panel-toggle" aria-expanded="false" aria-controls="chatPanelContent">▸ Chat</button>
+          <div id="chatPanelContent" class="mobile-panel-content">
           <h2>Chat</h2>
           <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Zprávy z partie"></div>
           <form id="chatForm" class="chat-entry">
@@ -102,7 +108,8 @@
             <input id="chatInput" maxlength="160" autocomplete="off" placeholder="Napiš zprávu…" />
             <button id="chatSendButton" type="submit" class="gold-button small">Poslat</button>
           </form>
-          <p class="chat-note">Chat funguje místně na tomto PC.</p>
+          <p class="chat-note">Chat funguje místně na tomto zařízení.</p>
+          </div>
         </section>
         <svg class="mascot" viewBox="0 0 170 186" aria-hidden="true"><use href="#little-mascot"/></svg>
         <div class="player-card" id="player1Card">
@@ -165,6 +172,6 @@
     </div>
   </dialog>
 
-  <script type="module" src="./src/main.js?v=0.1.4"></script>
+  <script type="module" src="./src/main.js?v=0.1.5"></script>
 </body>
 </html>

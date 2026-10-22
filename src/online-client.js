@@ -209,7 +209,8 @@ async function googleCredential(value){
     // Oracle verifies the signed Google ID token, or a saved app session,
     // before the browser displays the authenticated profile.
     const {profile}=await api('/api/me');
-    if(!isAppSession(value)){
+    let lastingSession=isAppSession(value);
+    if(!lastingSession){
       // Convert the short-lived Google ID token to a reusable, server-revocable
       // session. If Oracle is not upgraded yet, retain the old tab session
       // rather than logging the player out on an unrelated API error.
@@ -218,12 +219,15 @@ async function googleCredential(value){
         if(!isAppSession(sessionToken))throw new Error('Server nevrátil platnou relaci.');
         credential=sessionToken;
         saveCredential(sessionToken);
+        lastingSession=true;
       }catch{
         saveCredential(value);
-        $('onlineInfoText').textContent='Přihlášení funguje, ale trvalá relace vyžaduje aktualizaci Oracle API.';
       }
     }else saveCredential(value);
     showProfile(profile);
+    if(!lastingSession){
+      $('onlineInfoText').textContent='Google je přihlášený, ale delší relace zatím není dostupná. Aktualizuj Oracle API.';
+    }
     await heartbeat().catch(()=>{});
     await refreshPresence();
     await showLeaderboard();

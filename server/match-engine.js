@@ -55,10 +55,10 @@ export class MatchEngine {
     if (match) {
       const me = match.players.findIndex(p => p.uid === uid);
       this.sendTo(uid,{type:'match-state',matchId:match.id,board:match.board,
-        players:match.players.map((p,i)=>({uid:p.uid,score:p.score,rackCount:p.rack.length,side:i})),
+        players:match.players.map((p,i)=>({score:p.score,rackCount:p.rack.length,side:i})),
         mySide:me,rack:match.players[me].rack,turn:match.turn,turns:match.turns,
         bagCount:match.bag.length,deadline:match.deadline,finished:match.finished,
-        winner:match.winner,reason:match.reason});
+        winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason:match.reason});
     } else this.sendTo(uid,{type:'lobby',queued:this.queue.some(q=>q.uid===uid)});
   }
   joinRandom(uid, seconds=90) {
@@ -163,7 +163,7 @@ export class MatchEngine {
   }
   passTurn(match,reason) {
     match.passStreak++;
-    this.toAll(match,{type:'turn-passed',by:match.players[match.turn].uid,reason});
+    this.toAll(match,{type:'turn-passed',by:match.turn,reason});
     this.nextTurn(match);
   }
   nextTurn(match) {
@@ -185,7 +185,7 @@ export class MatchEngine {
     const [a,b]=match.players;
     match.winner=winnerOverride ?? (a.score===b.score ? null : (a.score>b.score?a.uid:b.uid));
     this.onResult({ids:[a.uid,b.uid],winner:match.winner,reason});
-    this.toAll(match,{type:'match-end',winner:match.winner,reason});
+    this.toAll(match,{type:'match-end',winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason});
     for(const p of match.players)this.sync(p.uid);
   }
   chat(uid,text) {
@@ -194,7 +194,7 @@ export class MatchEngine {
     if(typeof text!=='string'||!text.trim()||text.trim().length>MAX_CHAT)throw new Error('Neplatná zpráva.');
     if(this.clock()-(this.chatAt.get(uid)||0)<1000)throw new Error('Zprávy posíláš příliš rychle.');
     this.chatAt.set(uid,this.clock());
-    this.toAll(match,{type:'chat',from:uid,text:text.trim()});
+    this.toAll(match,{type:'chat',from:match.players.findIndex(p=>p.uid===uid),text:text.trim()});
   }
   tick() {
     const now=this.clock();

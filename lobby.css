@@ -100,3 +100,22 @@ dialog::backdrop{background:#17050bd6}
 #onlineChatForm{display:flex;gap:5px;flex-wrap:wrap}
 #onlineChatInput{flex:1;min-width:105px;padding:8px;border-radius:4px;border:1px solid #b48249;background:#fff6df;color:#4f220e}
 @media(max-width:670px){.online-match-layout{grid-template-columns:1fr}.online-board{width:min(100%,65vh)}.online-chat-scroll{max-height:120px}.online-dialog-inner{padding:9px}}
+
+/* v0.2.3: profile and friends panels for signed-in online players. */
+.mode-connected .future-ribbon{background:#27774d;color:#fff6d6}
+.mode-connected .mode-action{color:#aef4bd}
+#manageFriends{margin-top:10px}
+#onlineInfoText{min-height:40px}
+.friends-dialog{width:min(92vw,560px);max-height:85vh;overflow:auto}
+.friends-dialog .dialog-body{gap:12px}
+.friends-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.friends-heading h2{font-size:21px;text-align:left}
+.friends-dialog h3{margin:8px 0 0;color:#7b3418;font-size:17px}
+.friend-search{display:flex;gap:8px}
+.friend-search input{flex:1;min-width:0}
+.friend-items{display:flex;flex-direction:column;gap:7px;font:13px/1.4 Verdana,sans-serif;color:#682e17}
+.friend-entry{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px;border:1px solid #b47d3a;border-radius:5px;background:#f8e1b4}
+.friend-entry span{min-width:0;overflow-wrap:anywhere}
+.friend-entry .gold-button{flex:none;padding:5px 9px}
+#friendMessage{min-height:20px;margin:0}
+@media(max-width:450px){.friend-search{flex-wrap:wrap}.friend-search button{flex:1}.friend-entry{flex-wrap:wrap}}

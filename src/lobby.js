@@ -1,4 +1,4 @@
-import {initOnline} from './online-client.js?v=0.2.2';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.3';
 const PROFILE_KEY = 'abaku-local-profile-v1';
 const GAME_KEY = 'retro-abaku-game-v1';
 const byId = id => document.getElementById(id);
@@ -42,24 +42,40 @@ for(const button of document.querySelectorAll('[data-mode]')){
 }
 for(const id of ['profileOpen','editProfile']){
   byId(id).addEventListener('click',()=>{
-    const value=loadProfile();
+    const online=getOnlineProfile();
+    const value=online||loadProfile();
     byId('nickname').value=value.nickname;
     byId('avatarSelect').value=value.avatar;
+    byId('profileTitle').textContent=online?'Upravit online profil':'Místní profil';
+    byId('profileDialogDescription').textContent=online
+      ? 'Změna přezdívky a avataru se uloží na Oracle a zobrazí na dalších zařízeních.'
+      : 'Přezdívka je uložená pouze v tomto zařízení. Nejde o online přihlášení.';
     byId('profileDialog').showModal();
   });
 }
 byId('profileCancel').addEventListener('click',()=>byId('profileDialog').close());
-byId('profileForm').addEventListener('submit',event=>{
-  if (event.submitter?.value === 'cancel') return;
+byId('profileForm').addEventListener('submit',async event=>{
+  event.preventDefault();
   const nickname=byId('nickname').value.trim().replace(/\s+/g,' ');
+  const avatar=byId('avatarSelect').value;
   if(nickname.length<2 || nickname.length>20) {
-    event.preventDefault();byId('nickname').setCustomValidity('Přezdívka musí mít 2–20 znaků.');
+    byId('nickname').setCustomValidity('Přezdívka musí mít 2–20 znaků.');
     byId('nickname').reportValidity();return;
   }
   byId('nickname').setCustomValidity('');
-  try { localStorage.setItem(PROFILE_KEY, JSON.stringify({nickname,avatar:byId('avatarSelect').value})); }
-  catch { /* Storage can be disabled; keep the menu functional. */ }
-  paintProfile();
+  const online=getOnlineProfile();
+  if(online){
+    try{await updateOnlineProfile(nickname,avatar);}
+    catch(error){
+      byId('profileDialogDescription').textContent=error.message;
+      return;
+    }
+  }else{
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify({nickname,avatar})); }
+    catch { /* Storage can be disabled; keep the menu functional. */ }
+    paintProfile();
+  }
+  byId('profileDialog').close();
 });
 byId('nickname').addEventListener('input',()=>byId('nickname').setCustomValidity(''));
 const planned={

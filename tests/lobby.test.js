@@ -24,7 +24,7 @@ test('game mode selection preserves access to local and AI play',()=>{
   assert.match(file('../src/main.js'),/startRequest\.get\('start'\) === 'new'/);
   assert.match(file('../src/main.js'),/window\.history\.replaceState/);
 });
-test('Google and online modes clearly require future server setup',()=>{
+test('Guest mode keeps online auth optional until the Oracle API becomes available',()=>{
   assert.match(landing,/id="googleSignIn"/);
   assert.match(landing,/Online režimy připravujeme/);
   assert.match(lobby,/googleSignIn:'Google přihlášení/);
@@ -36,4 +36,21 @@ test('Google OAuth client is configured and only exposed after Oracle API health
  assert.match(onlineConfig,/googleClientId:\s*'[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com'/);
  assert.match(onlineClient,/fetch\(apiBase\+'\/health'/);
  assert.match(onlineClient,/data\?\.status!==['"]ok['"]/);
+});
+
+test('a signed-in Google profile switches local labels to online and unlocks match buttons',()=>{
+  assert.match(landing,/id="profileSubtitle"/);
+  assert.match(landing,/id="onlineInfoText"/);
+  assert.match(onlineClient,/profileSubtitle'\)\.textContent='Google účet · online'/);
+  assert.match(onlineClient,/HLEDAT SOUPEŘE/);
+  assert.match(onlineClient,/VYTVOŘIT \/ ZADAT KÓD/);
+});
+
+test('online profile and friendship management are wired to authenticated Oracle routes',()=>{
+  assert.match(landing,/id="manageFriends"/);
+  assert.match(landing,/id="friendsDialog"/);
+  assert.match(lobby,/updateOnlineProfile\(nickname,avatar\)/);
+  assert.match(onlineClient,/api\('\/api\/me','POST'/);
+  assert.match(onlineClient,/api\('\/api\/friends'/);
+  assert.match(onlineClient,/api\('\/api\/friends\/request','POST'/);
 });

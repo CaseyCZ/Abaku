@@ -30,5 +30,12 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.5/);
-  assert.match(html,/main\.js\?v=0\.1\.5/);
+  assert.match(html,/main\.js\?v=0\.1\.6/);
+});
+
+test('return to lobby requires confirmation and saves current game',()=>{
+  assert.match(html,/id="lobbyButton"/);
+  assert.match(js,/lobbyButton'\)\.addEventListener\('click'/);
+  assert.match(js,/window\.confirm\('Vrátit se do hlavní nabídky\?/);
+  assert.match(js,/if \(!confirmed\) return;\s*save\(\);\s*window\.location\.assign\('\.\/index\.html'\)/);
 });

@@ -7,6 +7,8 @@ const saveKey = 'retro-abaku-game-v1';
 const defaults = {mode:'bot', difficulty:'medium', time:90, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
+// Previously saved 180s/unlimited settings are no longer offered.
+if (![30, 60, 90].includes(Number(settings.time))) settings.time = 90;
 let game = null;
 let selectedIndex = null;
 let pending = [];

@@ -20,8 +20,16 @@ const selectedTurnSeconds=()=>validTurnSeconds.includes(Number($('onlineTurnSeco
 function initOnlineTimeSetting(){
   const select=$('onlineTurnSeconds');
   try{
+    const migrationKey='abaku-online-default-60-migrated-v1';
+    const alreadyMigrated=localStorage.getItem(migrationKey)==='yes';
     const saved=Number(localStorage.getItem(timeStorageKey));
-    if(validTurnSeconds.includes(saved))select.value=String(saved);
+    // Replace only the old 90-second default once. Later user-selected 90s remains saved.
+    const preferred=!alreadyMigrated&&saved===90 ? 60 : saved;
+    if(validTurnSeconds.includes(preferred))select.value=String(preferred);
+    if(!alreadyMigrated){
+      if(saved===90)localStorage.setItem(timeStorageKey,'60');
+      localStorage.setItem(migrationKey,'yes');
+    }
   }catch{ /* browser storage may be disabled */ }
   select.addEventListener('change',()=>{
     try{localStorage.setItem(timeStorageKey,String(selectedTurnSeconds()));}

@@ -132,8 +132,8 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   assert.match(onlineClient,/clearSavedCredential\(\)/);
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
-  assert.match(landing,/Abaku Online 0\.2\.21/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.20/);
+  assert.match(landing,/Abaku Online 0\.2\.22/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.22/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -368,3 +368,14 @@ test('PO PŘIHLÁŠENÍ diagonal labels remain fully inside narrow mode cards',(
   assert.match(styles,/\.future-ribbon\{[\s\S]*?top:44px;[\s\S]*?right:4px;[\s\S]*?width:140px;[\s\S]*?white-space:nowrap;/);
   assert.doesNotMatch(styles,/\.future-ribbon\{[^}]*right:-39px/);
 });
+
+
+test('online authenticated profile updates offline nickname cache and clears it on logout',()=>{
+  const identity=file('../src/player-identity.js');
+  assert.match(onlineClient,/cacheVerifiedOnlineProfile\(profile\)/);
+  assert.match(onlineClient,/clearVerifiedOnlineProfile\(\)/);
+  assert.match(onlineClient,/function clearSavedCredential\(\)/);
+  assert.match(identity,/const ONLINE_PROFILE_KEY='abaku-online-display-profile-v1'/);
+  assert.match(identity,/function validName\(value\)/);
+});
+ 

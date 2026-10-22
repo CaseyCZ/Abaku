@@ -781,6 +781,7 @@ function initializeActions(){
     resetOnlineResult();
     resetOnlineChat();
     clearOnlineReview();
+    if(inGameSettings.open)inGameSettings.close();
     if($('onlineDialog').open)$('onlineDialog').close();
     gameState=null;
     refreshResumeCard();
@@ -818,6 +819,23 @@ function initializeActions(){
     connectOnline({type:'resume'});
   });
   $('onlineRetryNow').addEventListener('click',retryOnlineConnection);
+  // Available throughout an online match, not just in the lobby.
+  const inGameSettings=$('onlineGameSettingsDialog');
+  $('onlineSettingsButton').addEventListener('click',()=>{
+    $('onlineGameRecapSeconds').value=String(getRecapSeconds());
+    if(!inGameSettings.open)inGameSettings.showModal();
+  });
+  $('onlineSettingsCancel').addEventListener('click',()=>{
+    inGameSettings.close();
+  });
+  $('onlineSettingsSave').addEventListener('click',()=>{
+    const choice=$('onlineGameRecapSeconds').value;
+    if(setRecapSeconds(choice)){
+      $('onlineRecapSeconds').value=choice;
+      inGameSettings.close();
+      status('Nastavení uloženo: každý příklad '+choice+' s (použije se při příštím tahu).');
+    }
+  });
   $('onlineConfirm').addEventListener('click',()=>{
     if(ownTurn()&&pending.length)send('move',{placements:pending.map(p=>({row:p.row,col:p.col,rackIndex:p.rackIndex}))});
   });

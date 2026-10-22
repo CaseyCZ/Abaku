@@ -104,7 +104,7 @@ test('official Google button fits measured profile card width',()=>{
 
 test('online players see complete previous equation and its highlighted squares',()=>{
   assert.match(landing,/id="onlineLastMoveReview"/);
-  assert.match(onlineClient,/import \{ formatEquations \} from/);
+  assert.match(onlineClient,/import \{ formatEquations, bonusAt, TOTAL_TILES \} from/);
   assert.match(onlineClient,/showOnlineReview\(msg\)/);
   assert.match(onlineClient,/recentOnlineMove\.placed\.has\(key\)/);
   assert.match(onlineClient,/recentOnlineMove\.cells\.has\(key\)/);
@@ -125,6 +125,34 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/connection\?\.close\(\);connection=null;credential=null;gameState=null;currentProfile=null;\s*clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.10/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.10/);
+  assert.match(landing,/Abaku Online 0\.2\.11/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.11/);
+});
+
+test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
+  const html=landing;
+  const css=file('../online-game.css');
+  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.11"/);
+  for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
+    'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
+    'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',
+    'onlineLastEquation','onlineLastPlayer','onlineLastPoints','onlineMoveHistory',
+    'onlineChat','onlineStatus','onlinePreview','onlineLastMoveReview'])
+    assert.match(html,new RegExp('id="'+id+'"'));
+  assert.match(css,/\.online-cell\.dd\{background:#d2eab5\}/);
+  assert.match(css,/\.online-cell\.td\{background:#43a839\}/);
+  assert.match(css,/\.online-cell\.de\{background:#caf1f9\}/);
+  assert.match(css,/\.online-cell\.te\{background:#57b1e3\}/);
+  assert.match(css,/\.online-control-bar\{grid-column:1\/-1;grid-row:4\}/);
+  assert.match(css,/\.online-match-layout\{\s*display:contents;/);
+  assert.match(css,/\.online-player-card\{grid-row:2\}/);
+  assert.match(css,/\.online-game-board\{grid-column:1\/-1;grid-row:3\}/);
+  assert.match(onlineClient,/bonusAt\(row,col\)/);
+  assert.match(onlineClient,/renderOnlineProgress\(s\)/);
+  assert.match(onlineClient,/renderOnlineStatus\(s\)/);
+  assert.match(onlineClient,/updateOnlineTimer\(\)/);
+  assert.match(onlineClient,/panel\.classList\.toggle\('mobile-expanded'\)/);
+  assert.match(onlineClient,/formatEquations\(last\.equations,10\)/);
+  assert.match(onlineClient,/s\.history/);
+  assert.match(onlineClient,/s\.deadline/);
 });

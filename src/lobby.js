@@ -1,3 +1,4 @@
+import {initOnline} from './online-client.js';
 const PROFILE_KEY = 'abaku-local-profile-v1';
 const GAME_KEY = 'retro-abaku-game-v1';
 const byId = id => document.getElementById(id);
@@ -64,7 +65,7 @@ byId('nickname').addEventListener('input',()=>byId('nickname').setCustomValidity
 const planned={
   playRandom:'Náhodného online soupeře zpřístupníme po nasazení Oracle serveru a ověření účtů.',
   playFriends:'Pozvánky a přátele zpřístupníme po dokončení účtů, databáze a synchronizace zápasů.',
-  googleSignIn:'Přihlášení přes Google připravujeme přes Firebase Authentication. Nejdříve je potřeba vytvořit Firebase projekt, povolit Google poskytovatele a nakonfigurovat ověřování na Oracle serveru.'
+  googleSignIn:'Google přihlášení se aktivuje po nastavení Google OAuth Web Client ID a HTTPS API na Oracle serveru.'
 };
 for(const [id,description] of Object.entries(planned)){
   byId(id).addEventListener('click',()=>{
@@ -75,3 +76,4 @@ for(const [id,description] of Object.entries(planned)){
 byId('plannedClose').addEventListener('click',()=>byId('plannedDialog').close());
 paintProfile();
 showSavedGame();
+initOnline();

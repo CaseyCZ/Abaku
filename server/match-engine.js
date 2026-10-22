@@ -39,6 +39,10 @@ export class MatchEngine {
     if (match && !match.finished) {
       this.disconnected.set(uid, this.clock());
       this.toOthers(match, uid, {type:'opponent',status:'disconnected',graceSeconds:60});
+    } else if(match?.finished && match.rematchVotes?.size){
+      // An absent player cannot silently remain opted into a new game.
+      match.rematchVotes.clear();
+      this.toAll(match,{type:'rematch-status',status:'declined',by:match.players.findIndex(p=>p.uid===uid)});
     }
   }
   matchOf(uid) {

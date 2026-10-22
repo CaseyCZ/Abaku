@@ -123,7 +123,7 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/const \{profile\}=await api\('\/api\/me'\);\s*saveCredential\(value\);\s*showProfile\(profile\)/);
   assert.match(onlineClient,/const saved=readSavedCredential\(\);\s*if\(saved&&await googleCredential\(saved\)\)return;/);
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
-  assert.match(onlineClient,/connection\?\.close\(\);connection=null;credential=null;gameState=null;currentProfile=null;\s*clearSavedCredential\(\)/);
+  assert.match(onlineClient,/const old=connection;connection=null;\s*old\?\.close\(\);\s*socketAuthenticated=false;\s*credential=null;gameState=null;currentProfile=null;[\s\S]*?clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
   assert.match(landing,/Abaku Online 0\.2\.13/);
   assert.match(lobby,/online-client\.js\?v=0\.2\.13/);

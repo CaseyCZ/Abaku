@@ -67,10 +67,12 @@ test('lobby displays real online and random matchmaking queue counts without inv
 });
 
 
-test('only online turn time is selectable; default stays 90 seconds',()=>{
+test('only online turn time is selectable; default is 60 seconds',()=>{
   assert.match(landing,/id="onlineTurnSeconds"/);
   for(const time of [30,60,90]) assert.match(landing,new RegExp('<option value="'+time+'"'));
-  assert.match(landing,/<option value="90" selected>/);
+  assert.match(landing,/<option value="60" selected>/);
+  assert.doesNotMatch(landing,/<option value="90" selected>/);
+  assert.match(onlineClient,/Number\(\$\(\x27onlineTurnSeconds\x27\)\.value\) : 60/);
   assert.match(onlineClient,/selectedTurnSeconds/);
   assert.match(onlineClient,/send\('matchmake',\{seconds:action\.seconds\}\)/);
   assert.match(onlineClient,/send\('invite',\{seconds:action\.seconds\}\)/);

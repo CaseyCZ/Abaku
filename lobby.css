@@ -119,3 +119,13 @@ dialog::backdrop{background:#17050bd6}
 .friend-entry .gold-button{flex:none;padding:5px 9px}
 #friendMessage{min-height:20px;margin:0}
 @media(max-width:450px){.friend-search{flex-wrap:wrap}.friend-search button{flex:1}.friend-entry{flex-wrap:wrap}}
+
+/* v0.2.4: lightweight real-time player counts, responsive on iPhone. */
+.online-presence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 6px}
+.online-presence>div{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;min-width:0;padding:12px 8px;background:linear-gradient(150deg,#682b29,#300d17);border:1px solid #b67b32;border-radius:8px;text-align:center}
+.online-presence strong{font:bold 29px/1.1 Verdana,sans-serif;color:#bcf2c1;font-variant-numeric:tabular-nums}
+.online-presence span{font:11px/1.4 Verdana,sans-serif;color:#f5d5a2}
+.side-card .presence-explain{font-size:10px;line-height:1.5;color:#ceb18b;margin:8px 0 12px}
+.mode-queue{display:block;min-height:15px;color:#e3c08d;font:11px/1.4 Verdana,sans-serif;letter-spacing:0}
+#onlineWaitingCount{font-size:12px;color:#c1f5c3}
+@media(max-width:380px){.online-presence{gap:6px}.online-presence strong{font-size:25px}.mode-queue{font-size:10px}}

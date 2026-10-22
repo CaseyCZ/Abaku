@@ -61,19 +61,20 @@ export class MatchEngine {
       this.sendTo(uid,{type:'match-state',matchId:match.id,board:match.board,
         players:match.players.map((p,i)=>({score:p.score,rackCount:p.rack.length,side:i})),
         mySide:me,rack:match.players[me].rack,turn:match.turn,turns:match.turns,
-        bagCount:match.bag.length,deadline:match.deadline,finished:match.finished,
+        bagCount:match.bag.length,seconds:match.seconds,deadline:match.deadline,finished:match.finished,
         winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason:match.reason});
     } else this.sendTo(uid,{type:'lobby',queued:this.queue.some(q=>q.uid===uid)});
   }
   joinRandom(uid, seconds=90) {
     this.assertFree(uid);
+    const selectedSeconds=legalTime(seconds);
     if (this.queue.some(q=>q.uid===uid)) return this.sendTo(uid,{type:'queue',waiting:true});
-    const found = this.queue.findIndex(q=>q.uid!==uid && this.connections.has(q.uid) && (!this.matchOf(q.uid) || this.matchOf(q.uid).finished));
+    const found = this.queue.findIndex(q=>q.uid!==uid && q.seconds===selectedSeconds && this.connections.has(q.uid) && (!this.matchOf(q.uid) || this.matchOf(q.uid).finished));
     if (found >= 0) {
       const opponent=this.queue.splice(found,1)[0];
       this.createMatch(opponent.uid,uid,opponent.seconds);
     } else {
-      this.queue.push({uid,seconds:legalTime(seconds)});
+      this.queue.push({uid,seconds:selectedSeconds});
       this.sendTo(uid,{type:'queue',waiting:true});
     }
   }

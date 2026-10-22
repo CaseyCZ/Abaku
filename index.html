@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#4c0e13">
-  <meta name="description" content="Abaku – číselná retro hra. Hraj proti AI nebo na jednom počítači; online hraní připravujeme.">
+  <meta name="description" content="Abaku – číselná retro hra. Zahraj si proti počítači, místně ve dvou nebo online s přáteli.">
   <title>ABAKU | Hlavní nabídka</title>
-  <link rel="stylesheet" href="./lobby.css?v=0.2.6">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.7">
 </head>
 <body>
   <div class="lobby-shell">
@@ -31,13 +31,13 @@
           <button type="button" id="playAi" data-mode="bot" class="mode-card mode-ready">
             <span class="mode-icon" aria-hidden="true">♟</span>
             <span class="mode-title">Proti počítači</span>
-            <span class="mode-copy">Tři obtížnosti. Hraj okamžitě bez přihlášení.</span>
+            <span class="mode-copy">Tři obtížnosti. Zahraj si proti počítači.</span>
             <span class="mode-action">HRÁT <span aria-hidden="true">›</span></span>
           </button>
           <button type="button" id="playLocal" data-mode="local" class="mode-card mode-ready">
             <span class="mode-icon" aria-hidden="true">♟♟</span>
             <span class="mode-title">Dva hráči</span>
-            <span class="mode-copy">Hrajte střídavě na jednom počítači.</span>
+            <span class="mode-copy">Hrajte střídavě na jednom zařízení.</span>
             <span class="mode-action">HRÁT <span aria-hidden="true">›</span></span>
           </button>
           <button type="button" id="playRandom" class="mode-card mode-future" aria-describedby="onlineInfo">
@@ -45,7 +45,7 @@
             <span class="mode-icon" aria-hidden="true">⚔</span>
             <span class="mode-title">Náhodný soupeř</span>
             <span class="mode-copy">Najdeme hráče online a spojíme vás do partie.</span>
-            <span class="mode-action muted">PŘIHLÁSIT SE</span>
+            <span class="mode-action muted">JAK ZAČÍT ›</span>
             <span id="queueActivity" class="mode-queue">Zjišťuji stav čekajících…</span>
           </button>
           <button type="button" id="playFriends" class="mode-card mode-future">
@@ -53,15 +53,15 @@
             <span class="mode-icon" aria-hidden="true">✉</span>
             <span class="mode-title">Hrát s přítelem</span>
             <span class="mode-copy">Seznam přátel, výzvy a soukromé partie.</span>
-            <span class="mode-action muted">PŘIHLÁSIT SE</span>
+            <span class="mode-action muted">JAK ZAČÍT ›</span>
           </button>
         </div>
         <aside class="lobby-sidebar" aria-label="Profil a rozehraná hra">
           <div class="side-card">
             <h2>✦ Můj profil</h2>
             <div class="profile-row"><div id="profileAvatar" class="avatar">✦</div><div><strong id="profileName">Host</strong><span class="subline" id="profileSubtitle">Místní profil · bez účtu</span></div></div>
-            <p id="profileDescription">Proti AI můžeš hrát bez účtu. Pro online režimy se přihlas přes Google.</p>
-            <p id="onlineLoginNotice">Přihlášení přes Google připravujeme</p>
+            <p id="profileDescription">Uprav si svůj profil. Výsledky online her se ukládají k tvému účtu.</p>
+            <p id="onlineLoginNotice" role="status">Pro online hraní je potřeba připojení k serveru.</p>
             <div id="googleSignInWidget" hidden></div>
             <p id="onlineStats" hidden></p>
             <button type="button" id="onlineLogout" class="gold-button wide" hidden>Odhlásit online účet</button>
@@ -90,8 +90,8 @@
               <div><strong id="waitingCount">—</strong><span>hledá soupeře</span></div>
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
-            <p id="onlineInfoText">Online hra se zpřístupní po připojení a přihlášení přes Google.</p>
-            <span class="build-label">Abaku Online 0.2.6 · testovací provoz</span>
+            <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
+            <span class="build-label">Abaku Online 0.2.7 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -177,6 +177,6 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.6"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.7"></script>
 </body>
 </html>

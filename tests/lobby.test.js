@@ -126,14 +126,14 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/const old=connection;connection=null;\s*old\?\.close\(\);\s*socketAuthenticated=false;\s*credential=null;gameState=null;currentProfile=null;[\s\S]*?clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.13/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.13/);
+  assert.match(landing,/Abaku Online 0\.2\.14/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.14/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
   const html=landing;
   const css=file('../online-game.css');
-  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.13"/);
+  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.14"/);
   for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
     'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
     'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',
@@ -161,7 +161,7 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
 
 test('online blue scorecard header follows the actual active player, not always player one',()=>{
   const css=file('../online-game.css');
-  assert.match(landing,/online-game\.css\?v=0\.2\.13/);
+  assert.match(landing,/online-game\.css\?v=0\.2\.14/);
   assert.match(css,/#onlineDialog \.online-player-card\.active \.online-player-name\{/);
   assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.online-player-name\{/);
   assert.match(onlineClient,/onlinePlayer'\+side\+'Card'\)\.classList\.toggle\('active',!s\.finished&&s\.turn===side\)/);
@@ -206,4 +206,51 @@ test('Oracle health automatically retries after intermittent refresh failures',(
 test('online reconnection client remains parseable JavaScript after new state handlers',()=>{
   const withoutImports=onlineClient.replace(/^import\s+.*?;\s*$/gm,'').replace(/\bexport\s+(?=(?:async\s+)?function|const|let|class)/g,'');
   assert.doesNotThrow(()=>new Script(withoutImports,{filename:'online-client.js'}));
+});
+
+
+test('match end displays winner and scores in a dedicated result dialog on all devices',()=>{
+  const css=file('../online-game.css');
+  for(const id of ['onlineResultDialog','onlineResultTitle','onlineResultDescription',
+    'onlineResultScore0','onlineResultScore1','onlineRematch','onlineResultExit',
+    'onlineRematchStatus','onlineResultReason'])
+    assert.match(landing,new RegExp('id="'+id+'"'));
+  assert.match(onlineClient,/function renderOnlineResult\(state\)/);
+  assert.match(onlineClient,/if\(!state\?\.finished\|\|resultShownFor===state\.matchId\)return/);
+  assert.match(onlineClient,/renderOnlineResult\(msg\)/);
+  assert.match(onlineClient,/state\.reason==='abandoned'/);
+  assert.match(onlineClient,/state\.reason/);
+  assert.match(onlineClient,/send\('resign'\)/);
+  assert.match(onlineClient,/send\('rematch',\{accept:true\}\)/);
+  assert.match(onlineClient,/send\('rematch',\{accept:false\}\)/);
+  assert.match(onlineClient,/msg\.type==='rematch-status'/);
+  assert.match(css,/#onlineResultDialog\.online-result-dialog/);
+  assert.match(css,/#onlineResultDialog::backdrop/);
+});
+
+test('collapsed or out-of-view chat gets a persistent tappable unread notification',()=>{
+  const css=file('../online-game.css');
+  assert.match(landing,/id="onlineChatToast"[^>]*hidden/);
+  assert.match(landing,/id="onlineChatToastPreview"/);
+  assert.match(landing,/id="onlineChatToastCount"/);
+  assert.match(landing,/id="onlineUnreadBadge"[^>]*hidden/);
+  assert.match(onlineClient,/function chatActuallyVisible\(\)/);
+  assert.match(onlineClient,/getComputedStyle\(panel\)\.display==='none'/);
+  assert.match(onlineClient,/if\(!own&&\!chatActuallyVisible\(\)\)/);
+  assert.match(onlineClient,/unreadOnlineChat\+\+/);
+  assert.match(onlineClient,/latestUnreadChat=String\(text\|\|''\)\.slice\(0,80\)/);
+  assert.match(onlineClient,/function revealOnlineChat\(\)/);
+  assert.match(onlineClient,/onlineChatToast'\)\.addEventListener\('click',revealOnlineChat\)/);
+  assert.match(onlineClient,/onlineDialog'\)\.addEventListener\('scroll',refreshUnreadChat/);
+  assert.match(css,/#onlineDialog \.online-chat-toast\{/);
+  assert.match(css,/#onlineDialog \.online-unread-badge\{/);
+  assert.match(css,/#onlineDialog \.online-chat-toast\[hidden\]\{display:none!important\}/);
+});
+
+test('opponent disconnection shows a prominent message and leaving voluntarily concedes',()=>{
+  assert.match(landing,/id="onlineOpponentNotice"/);
+  assert.match(onlineClient,/disconnectedOpponent=msg\.status==='disconnected'/);
+  assert.match(onlineClient,/Soupeř se odpojil\. Má 60 sekund/);
+  assert.match(onlineClient,/Opravdu vzdát online partii\?/);
+  assert.match(onlineClient,/if\(socketAuthenticated&&connection\?\.readyState===WebSocket\.OPEN\)/);
 });

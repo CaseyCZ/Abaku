@@ -59,7 +59,11 @@
           <div class="side-card">
             <h2>✦ Můj profil</h2>
             <div class="profile-row"><div id="profileAvatar" class="avatar">✦</div><div><strong id="profileName">Host</strong><span class="subline">Místní profil · bez účtu</span></div></div>
-            <p>Proti AI můžeš hrát bez účtu. Google přihlášení pro online profily připravujeme přes Firebase.</p>
+            <p>Proti AI můžeš hrát bez účtu. Online profil se přihlásí přes Google; bude aktivní po připojení Oracle API.</p>
+            <p id="onlineLoginNotice">Přihlášení přes Google připravujeme</p>
+            <div id="googleSignInWidget" hidden></div>
+            <p id="onlineStats" hidden></p>
+            <button type="button" id="onlineLogout" class="gold-button wide" hidden>Odhlásit online účet</button>
             <button type="button" id="googleSignIn" class="gold-button wide">Přihlášení přes Google – připravujeme</button>
             <button type="button" id="editProfile" class="gold-button wide">Upravit místní profil</button>
           </div>
@@ -70,8 +74,12 @@
           </div>
           <div class="side-card" id="onlineInfo">
             <h2>✦ Abaku Online</h2>
-            <p>Účty, přátelé a hledání soupeře budou fungovat přes bezpečné Oracle API. V této verzi ještě nejsou aktivní.</p>
+            <p>Účty a online soupeři se zpřístupní až po nastavení Google OAuth a HTTPS spojení s Oracle serverem.</p>
             <span class="build-label">Vývojová verze 0.2.0</span>
+          </div>
+          <div class="side-card" id="leaderboardPanel" hidden>
+            <h2>✦ Žebříček</h2>
+            <ol id="leaderboard" class="leaderboard"></ol>
           </div>
         </aside>
       </section>
@@ -104,6 +112,43 @@
       <button type="button" class="gold-button primary" id="plannedClose">Rozumím</button>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.0"></script>
+  <dialog id="onlineDialog" aria-labelledby="onlineDialogTitle" class="online-dialog">
+    <div class="online-dialog-inner">
+      <header class="online-dialog-header">
+        <h2 id="onlineDialogTitle">✦ Abaku Online ✦</h2>
+        <button type="button" id="onlineCancel" class="gold-button">Zavřít</button>
+      </header>
+      <p id="onlineStatus" role="status">Připojuji se k serveru…</p>
+      <div id="onlineWaiting" class="online-waiting">
+        <p>Hledání hráče nebo čekání na připojení přítele…</p>
+        <p>Kód pozvánky: <strong id="onlineCode">—</strong></p>
+      </div>
+      <div id="onlineBoardWrapper" hidden>
+        <div class="online-match-info"><span id="onlineScore"></span><strong id="onlineTurn"></strong></div>
+        <div class="online-match-layout">
+          <section class="online-game-board" aria-label="Online herní deska">
+            <div id="onlineBoard" class="online-board" role="grid" aria-label="Online deska 15 krát 15"></div>
+            <div class="online-preview" id="onlinePreview">Polož kameny na desku</div>
+            <div id="onlineRack" class="online-rack" aria-label="Tvoje kameny"></div>
+            <div class="online-match-actions">
+              <button type="button" class="gold-button" id="onlineUndo">Vrátit</button>
+              <button type="button" class="gold-button" id="onlineExchange">Vyměnit</button>
+              <button type="button" class="gold-button" id="onlinePass">Vynechat</button>
+              <button type="button" class="gold-button primary" id="onlineConfirm">Potvrdit tah</button>
+            </div>
+          </section>
+          <section class="online-match-chat" aria-label="Chat online partie">
+            <h3>Chat</h3>
+            <div id="onlineChat" class="online-chat-scroll" aria-live="polite"></div>
+            <form id="onlineChatForm">
+              <input id="onlineChatInput" maxlength="160" placeholder="Napsat zprávu…" aria-label="Chatová zpráva">
+              <button class="gold-button" type="submit">Poslat</button>
+            </form>
+          </section>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  <script type="module" src="./src/lobby.js?v=0.2.1"></script>
 </body>
 </html>

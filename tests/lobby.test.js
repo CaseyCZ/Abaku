@@ -125,14 +125,14 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/connection\?\.close\(\);connection=null;credential=null;gameState=null;currentProfile=null;\s*clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.11/);
+  assert.match(landing,/Abaku Online 0\.2\.12/);
   assert.match(lobby,/online-client\.js\?v=0\.2\.11/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
   const html=landing;
   const css=file('../online-game.css');
-  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.11"/);
+  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.12"/);
   for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
     'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
     'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',

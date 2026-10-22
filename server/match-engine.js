@@ -9,11 +9,12 @@ const INVITE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const legalTime = value => [30, 60, 90].includes(Number(value)) ? Number(value) : 60;
 
 export class MatchEngine {
-  constructor({send = () => {}, onResult = () => {}, clock = () => Date.now(), rng = Math.random} = {}) {
+  constructor({send = () => {}, onResult = () => {}, clock = () => Date.now(), rng = Math.random, getName = () => null} = {}) {
     this.send = send;
     this.onResult = onResult;
     this.clock = clock;
     this.rng = rng;
+    this.getName = getName;
     this.connections = new Set();
     this.queue = [];
     this.invites = new Map();
@@ -59,7 +60,8 @@ export class MatchEngine {
     if (match) {
       const me = match.players.findIndex(p => p.uid === uid);
       this.sendTo(uid,{type:'match-state',matchId:match.id,board:match.board,
-        players:match.players.map((p,i)=>({score:p.score,rackCount:p.rack.length,side:i})),
+        players:match.players.map((p,i)=>({score:p.score,rackCount:p.rack.length,side:i,
+          nickname:this.getName(p.uid)||'Hráč '+(i+1)})),
         mySide:me,rack:match.players[me].rack,turn:match.turn,turns:match.turns,
         bagCount:match.bag.length,seconds:match.seconds,deadline:match.deadline,
         lastMove:match.lastMove||null,history:(match.history||[]).slice(-6),finished:match.finished,

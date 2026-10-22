@@ -72,6 +72,15 @@ For this example, REST `/abaku-api/api/me` is mapped to Node `/api/me`; WebSocke
 - `waiting` counts only connected, unmatched users who explicitly selected random matchmaking, **not** all players online. Zero waiting does not mean a new opponent cannot join later.
 - The client polls every 20 seconds while the lobby is visible, and the presence table lives only in RAM.
 
+## Reconnecting an ongoing online game
+
+- `GET /api/match/current` (authenticated) returns `{match:null}` if this user has no unfinished online match, otherwise a private-to-the-user summary with public nicknames, current score, turn and server deadline. It does **not** expose Google IDs or opponents' rack.
+- After page refresh the lobby verifies Google login and checks this endpoint. **Pokračovat v online partii** appears only if the API confirms a still-active match.
+- The websocket `auth` action automatically sends `match-state` for an existing match. Resume only sends `sync`, never another `matchmake` or move.
+- While a match dialog is open, the client retries interrupted WebSocket connections after **5 seconds**, allows manual retry and uses regular `sync` requests to detect idle/broken connections. A temporary initial `/health` failure also retries after 5 seconds.
+- The existing **60-second disconnection grace** remains in force. If the opponent is still playing and the client cannot reconnect before this grace elapses, the server awards a forfeit. Restarting the API clears active games; those cannot be resumed.
+- These match-resume states live in server RAM, **not** in browser `localStorage`, so a refresh or tab recovery never fabricates an online match.
+
 ## HTTP API
 
 - `GET /health` – lightweight readiness probe, no auth

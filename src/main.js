@@ -314,6 +314,10 @@ function commitMove(placements, fromBot=false) {
           if(isBotTurn()&&!botBusy)runBot();
         }
         resolve();
+        // ScoreRecap releases its busy state in a microtask after resolve().
+        // Paint once more on the next frame so a human's rack and buttons
+        // become enabled even when there is no AI turn or other render.
+        requestAnimationFrame(()=>{if(game)render();});
       });
     })
   });

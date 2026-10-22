@@ -167,3 +167,32 @@ dialog::backdrop{background:#17050bd6}
 #friendChallengeDialog .dialog-actions{flex-wrap:wrap;justify-content:center}
 #friendChallengeDialog .dialog-actions>.gold-button{flex:1 1 150px;min-height:43px}
 #friendChallengeTime{margin-top:0}
+
+
+/* v0.2.9 accepted online move review. Keeps board fully interactive. */
+.online-cell.recent-equation.fixed{
+  background:#c9f2da;color:#164b2d;
+  box-shadow:inset 0 0 0 2px #2aaf77;
+  position:relative;z-index:1
+}
+.online-cell.recent-tile.fixed{
+  background:#ffdb68;color:#5b2709;
+  box-shadow:inset 0 0 0 2px #e88710,0 0 7px #ffe58e;
+  position:relative;z-index:2
+}
+.online-last-move-review{
+  width:100%;padding:9px 7px;margin:4px auto;
+  border:2px solid #e9b54b;border-radius:6px;
+  background:linear-gradient(110deg,#55300d,#15503d);
+  color:#fff4c0;font:700 12px/1.4 Verdana,sans-serif;
+  text-align:center;overflow-wrap:anywhere
+}
+.online-last-move-review[hidden]{display:none!important}
+@media(max-width:670px){
+  .online-cell.recent-equation.fixed{box-shadow:inset 0 0 0 1.5px #2aaf77}
+  .online-cell.recent-tile.fixed{box-shadow:inset 0 0 0 2px #e88710,0 0 5px #ffe58e}
+}
+@media(prefers-reduced-motion:no-preference){
+  .online-cell.recent-tile.fixed{animation:abaku-online-accepted 1.2s ease-in-out infinite alternate}
+  @keyframes abaku-online-accepted{from{filter:brightness(1)}to{filter:brightness(1.15)}}
+}

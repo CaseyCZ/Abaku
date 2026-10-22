@@ -63,15 +63,15 @@ function notify(message, type = '') {
     mobileMessage.className = `mobile-game-message ${messageType}`;
   }
 }
-// Keep the accepted example and highlighted tiles visible for three seconds,
-// even if the next player or AI is already taking their turn.
+// The completed turn is highlighted for three seconds AFTER the scoring
+// scroll closes. Never waste this visibility while the parchment is on top.
 function clearRecentMove(){
   if(recentMoveTimer!==null)clearTimeout(recentMoveTimer);
   recentMoveTimer=null;recentMove=null;
   const banner=byId('lastMoveReview');
   if(banner)banner.hidden=true;
 }
-function showRecentMove(checked,placements,who){
+function showRecentMove(checked,placements,who,onDone=()=>{}){
   clearRecentMove();
   recentMove={
     placed:new Set(placements.map(p=>p.row+':'+p.col)),
@@ -83,7 +83,8 @@ function showRecentMove(checked,placements,who){
   renderRecentMove();
   recentMoveTimer=setTimeout(()=>{
     recentMove=null;recentMoveTimer=null;
-    renderBoard();renderRecentMove();
+    render();
+    onDone();
   },3000);
 }
 function renderRecentMove(){
@@ -159,7 +160,7 @@ function renderBoard() {
 }
 function renderRack() {
   const rack = byId('rack');rack.replaceChildren();
-  const busy = isBotTurn() || game.finished || botBusy;
+  const busy = isBotTurn() || game.finished || botBusy || scoreRecap.playing() || Boolean(recentMove);
   const used = new Set(pending.map(p => p.rackIndex));
   const numbers = currentPlayer().rack;
   for (let index=0;index<5;index++) {
@@ -248,14 +249,14 @@ function render() {
   byId('hintButton').hidden = settings.mode !== 'bot';
   byId('bagCount').textContent=game.bag.length;
   byId('modeLabel').textContent=settings.mode==='bot' ? `Počítač: ${ {easy:'začátečník',medium:'pokročilý',hard:'expert'}[settings.difficulty] }`:'Dva hráči';
-  const busy=isBotTurn()||game.finished||botBusy;
+  const busy=isBotTurn()||game.finished||botBusy||scoreRecap.playing()||Boolean(recentMove);
   for(const id of ['hintButton','exchangeButton','passButton','confirmButton','undoButton']) byId(id).disabled=busy;
   byId('confirmButton').disabled=busy||!pending.length;
   byId('exchangeButton').textContent=exchangeMode ? `Potvrdit výměnu (${exchangeIndices.size})`:'Vyměnit';
 }
 
 boardElement.addEventListener('click',event=>{
-  const cell=event.target.closest('.cell');if(!cell||game.finished||isBotTurn()||botBusy||exchangeMode)return;
+  const cell=event.target.closest('.cell');if(!cell||game.finished||isBotTurn()||botBusy||scoreRecap.playing()||recentMove||exchangeMode)return;
   const row=Number(cell.dataset.row),col=Number(cell.dataset.col);
   const prior=pending.findIndex(p=>p.row===row&&p.col===col);
   if(prior!==-1) {selectedIndex=pending[prior].rackIndex;pending.splice(prior,1);render();return;}
@@ -301,15 +302,17 @@ function commitMove(placements, fromBot=false) {
   game.history.push({player:game.turn,points:checked.points,examples:checked.equations,tiles:placements.length});
   const who=fromBot?'Počítač':playerLabel(game.turn);
   notify(`${who}: +${checked.points} bodů · ${formatEquations(checked.equations)}${checked.equations.length>3?'…':''}`,'success');
-  showRecentMove(checked,placements,who);
   const nextTurn=1-game.turn;
   scoreRecap.play({player:who,breakdown:checked.equationBreakdown,
     equations:checked.equations,total:checked.points,
     onDone:()=>{
-      if(!game?.finished&&game.turn===nextTurn){
-        resetDeadline();render();
-        if(isBotTurn()&&!botBusy)runBot();
-      }
+      // Show the board alone for three seconds AFTER the last calculation.
+      showRecentMove(checked,placements,who,()=>{
+        if(!game?.finished&&game.turn===nextTurn){
+          resetDeadline();render();
+          if(isBotTurn()&&!botBusy)runBot();
+        }
+      });
     }
   });
   sound('success');advanceTurn(false,true);return true;
@@ -371,7 +374,7 @@ function runBot() {
 function tick(){
   if(!game||game.finished)return;
   // The offline countdown pauses while players watch the score animation.
-  if(scoreRecap.playing())return;
+  if(scoreRecap.playing()||recentMove)return;
   const display=byId('timer');
   if(deadline===null){display.textContent='∞';byId('timer').parentElement.classList.remove('warning');return;}
   const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));

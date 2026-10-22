@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#4c0e13">
   <meta name="description" content="Abaku – číselná retro hra. Hraj proti AI nebo na jednom počítači; online hraní připravujeme.">
   <title>ABAKU | Hlavní nabídka</title>
-  <link rel="stylesheet" href="./lobby.css?v=0.2.4">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.5">
 </head>
 <body>
   <div class="lobby-shell">
@@ -76,13 +76,22 @@
           </div>
           <div class="side-card" id="onlineInfo">
             <h2>✦ Abaku Online</h2>
+            <label class="online-time-setting" for="onlineTurnSeconds">
+              <span>Čas na tah</span>
+              <select id="onlineTurnSeconds" aria-label="Čas na tah online partie">
+                <option value="30">30 sekund</option>
+                <option value="60">60 sekund</option>
+                <option value="90" selected>90 sekund</option>
+              </select>
+            </label>
+            <p class="online-time-help">Platí pro nové hledání soupeře nebo vytvořenou pozvánku. U připojení přes kód určuje čas zakladatel.</p>
             <div class="online-presence" aria-label="Aktuální aktivita hráčů">
               <div><strong id="onlineCount">—</strong><span>hráčů online</span></div>
               <div><strong id="waitingCount">—</strong><span>hledá soupeře</span></div>
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Online hra se zpřístupní po připojení a přihlášení přes Google.</p>
-            <span class="build-label">Abaku Online 0.2.4 · testovací provoz</span>
+            <span class="build-label">Abaku Online 0.2.5 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -168,6 +177,6 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.4"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.5"></script>
 </body>
 </html>

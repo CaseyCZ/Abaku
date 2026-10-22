@@ -53,3 +53,42 @@
   .abaku-consent-actions a{grid-column:1/-1;min-height:29px}
   .abaku-consent-actions button{font-size:11px;padding:8px 4px;min-width:0}
 }
+
+
+/* Privacy page uses the same restrained retro visual language as the lobby. */
+.abaku-privacy-page {
+  width:min(100% - 32px,860px);
+  flex:1;
+  margin:28px auto 40px;
+  padding:clamp(18px,4vw,38px);
+  border:2px solid #d9a64d;
+  border-radius:14px;
+  color:#f8deb0;
+  background:linear-gradient(140deg,#3d0f18,#26070de8);
+  box-shadow:0 5px 16px #16030877;
+  font:15px/1.7 Verdana,sans-serif;
+}
+.abaku-privacy-page h1,
+.abaku-privacy-page h2 {
+  color:#f5c76f;
+  font-family:Georgia,serif;
+  line-height:1.3;
+}
+.abaku-privacy-page h1{font-size:clamp(23px,5vw,36px)}
+.abaku-privacy-page h2{margin-top:28px;font-size:23px}
+.abaku-privacy-page code{overflow-wrap:anywhere;color:#fff4c6}
+.abaku-privacy-page .gold-button {
+  display:inline-flex;
+  justify-content:center;
+  min-height:44px;
+  align-items:center;
+  padding:9px 16px;
+  border-radius:7px;
+  border:1px solid #ad772d;
+  color:#4e210e;
+  background:linear-gradient(#ffe5a2,#dba654);
+}
+@media(max-width:600px){
+  .abaku-privacy-page{width:calc(100% - 18px);margin:12px auto 28px;padding:17px;font-size:13px}
+  .abaku-privacy-page h2{font-size:19px}
+}

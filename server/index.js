@@ -102,18 +102,18 @@ const http=createServer(async(request,response)=>{
     if(request.method==='GET'&&pathname==='/api/players'){
       const search=searchParams.get('name')||'';
       if(search.length<2)return respond(response,200,{players:[]});
-      return respond(response,200,{players:store.findPlayers(search).filter(p=>p.uid!==uid)});
+      return respond(response,200,{players:store.findPlayers(search).filter(p=>p.id!==store.get(uid)?.id)});
     }
     if(request.method==='GET'&&pathname==='/api/friends')return respond(response,200,{friends:store.friends(uid),requests:store.incoming(uid)});
     if(request.method==='POST'&&pathname==='/api/friends/request'){
       const data=await body(request);
-      if(typeof data.uid!=='string')throw new Error('Vyber hráče.');
-      store.request(uid,data.uid);return respond(response,200,{ok:true});
+      if(typeof data.id!=='string')throw new Error('Vyber hráče.');
+      store.request(uid,data.id);return respond(response,200,{ok:true});
     }
     if(request.method==='POST'&&pathname==='/api/friends/respond'){
       const data=await body(request);
-      if(typeof data.uid!=='string'||typeof data.accept!=='boolean')throw new Error('Neplatná odpověď.');
-      store.respond(uid,data.uid,data.accept);return respond(response,200,{ok:true});
+      if(typeof data.id!=='string'||typeof data.accept!=='boolean')throw new Error('Neplatná odpověď.');
+      store.respond(uid,data.id,data.accept);return respond(response,200,{ok:true});
     }
     respond(response,404,{error:'Neznámá cesta.'});
   }catch(error){

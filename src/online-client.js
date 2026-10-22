@@ -15,21 +15,37 @@ const safeApiBase=()=>{
 const apiBase=safeApiBase();
 const configured=Boolean(apiBase&&ONLINE_CONFIG.googleClientId);
 
-// Keep a successful Google sign-in only for the current browser tab.
-// sessionStorage survives Safari refresh, but does not persist across new
-// tabs or long-term browser storage. Every reload still verifies the ID
-// token with our Oracle API before enabling any authenticated controls.
+// A Google ID token lives about one hour. Use it only once to obtain a
+// server-issued, revocable 30-day session, shared across this browser's tabs.
+// Keep the old tab-scoped Google ID token ONLY for backwards-compatible
+// migration if Oracle has not yet been upgraded. Never save Google IDs locally.
 const authSessionKey='abaku-online-google-session-v1';
+const durableSessionKey='abaku-online-device-session-v1';
+const isAppSession=token=>typeof token==='string'&&/^abaku_[A-Za-z0-9_-]{43}$/.test(token);
 function readSavedCredential(){
   try{
-    const token=sessionStorage.getItem(authSessionKey);
-    return typeof token==='string'&&token.length>=100&&token.length<=5000 ? token : null;
-  }catch{return null;}
+    const session=localStorage.getItem(durableSessionKey);
+    if(isAppSession(session))return session;
+  }catch{}
+  try{
+    const legacy=sessionStorage.getItem(authSessionKey);
+    if(typeof legacy==='string'&&legacy.length>=100&&legacy.length<=5000)return legacy;
+  }catch{}
+  return null;
 }
 function saveCredential(token){
-  try{sessionStorage.setItem(authSessionKey,token);}catch{}
+  try{
+    if(isAppSession(token)){
+      localStorage.setItem(durableSessionKey,token);
+      sessionStorage.removeItem(authSessionKey);
+    }else{
+      // Legacy fallback when the online API is still awaiting deployment.
+      sessionStorage.setItem(authSessionKey,token);
+    }
+  }catch{}
 }
 function clearSavedCredential(){
+  try{localStorage.removeItem(durableSessionKey);}catch{}
   try{sessionStorage.removeItem(authSessionKey);}catch{}
 }
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
@@ -190,9 +206,23 @@ function showProfile(profile){
 async function googleCredential(value){
   credential=value;
   try{
-    // The server, not the browser, verifies Google's signed token and audience.
+    // Oracle verifies the signed Google ID token, or a saved app session,
+    // before the browser displays the authenticated profile.
     const {profile}=await api('/api/me');
-    saveCredential(value);
+    if(!isAppSession(value)){
+      // Convert the short-lived Google ID token to a reusable, server-revocable
+      // session. If Oracle is not upgraded yet, retain the old tab session
+      // rather than logging the player out on an unrelated API error.
+      try{
+        const {sessionToken}=await api('/api/session','POST');
+        if(!isAppSession(sessionToken))throw new Error('Server nevrátil platnou relaci.');
+        credential=sessionToken;
+        saveCredential(sessionToken);
+      }catch{
+        saveCredential(value);
+        $('onlineInfoText').textContent='Přihlášení funguje, ale trvalá relace vyžaduje aktualizaci Oracle API.';
+      }
+    }else saveCredential(value);
     showProfile(profile);
     await heartbeat().catch(()=>{});
     await refreshPresence();
@@ -910,7 +940,9 @@ function initializeActions(){
   });
   $('onlineLogout').addEventListener('click',()=>{
     if(credential){
-      fetch(apiBase+'/api/presence',{
+      // Revoke this particular device session on Oracle, not just locally.
+      const target=isAppSession(credential)?'/api/session':'/api/presence';
+      fetch(apiBase+target,{
         method:'DELETE',headers:{Authorization:'Bearer '+credential},keepalive:true
       }).catch(()=>{});
     }
@@ -1063,9 +1095,9 @@ export async function initOnline(){
   $('onlineLoginNotice').textContent='Obnovuji přihlášení…';
   $('onlineInfoText').textContent='Oracle API běží. Hraj s náhodným soupeřem nebo pozvi přítele.';
 
-  // Do not show the Google account picker on every refresh. First try the
-  // session-scoped token and verify it again on Oracle. Expired/revoked
-  // tokens are discarded, after which the normal Google button appears.
+  // Restore a server-verified device session from any browser tab; fallback to
+  // the old single-tab Google ID token during the server upgrade. A session
+  // expired or explicitly revoked on Oracle cannot restore login.
   const saved=readSavedCredential();
   if(saved&&await googleCredential(saved))return;
 

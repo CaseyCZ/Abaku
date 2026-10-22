@@ -283,3 +283,26 @@ test('abandoned games cannot create a new match by rematch',()=>{
   game.connect('a');game.connect('b');
   assert.throws(()=>game.rematch('a',true),/dostupná/);
 });
+
+
+test('per-example point breakdown is delivered unchanged to both online players',()=>{
+  const {game,out}=rig();
+  game.connect('a');game.connect('b');
+  const match=game.createMatch('a','b',60);
+  match.players[0].rack=[2,6,8,1,4];
+  game.place('a',[
+    {row:7,col:6,rackIndex:0},
+    {row:7,col:7,rackIndex:1},
+    {row:7,col:8,rackIndex:2}
+  ]);
+  const reports=out.filter(msg=>msg.type==='match-state'&&msg.turns===1);
+  assert.equal(reports.length,2);
+  const details=match.lastMove.equationBreakdown;
+  assert.equal(details.length,1);
+  assert.equal(details[0].equation,'2 + 6 = 8');
+  assert.equal(details.reduce((sum,d)=>sum+d.points,0),match.lastMove.points);
+  assert.ok(details.every(x=>x.base*x.multiplier===x.points));
+  assert.deepEqual(reports[0].lastMove.equationBreakdown,details);
+  assert.deepEqual(reports[1].lastMove.equationBreakdown,details);
+  assert.equal(match.players[0].score,details[0].points);
+});

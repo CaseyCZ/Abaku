@@ -4,6 +4,7 @@ import {chooseMove} from './ai.js';
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
+const VERSION = '0.1.3';
 const defaults = {mode:'bot', difficulty:'medium', time:90, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -43,7 +44,7 @@ function freshGame() {
   const players = [{rack:[],score:0},{rack:[],score:0}];
   players[0].rack = drawTiles(bag, []);
   players[1].rack = drawTiles(bag, []);
-  return {board:emptyBoard(),bag,players,turn:0,turns:0,passStreak:0,finished:false,history:[]};
+  return {board:emptyBoard(),bag,players,turn:0,turns:0,passStreak:0,finished:false,history:[],chat:[{kind:'system',text:'Nová partie zahájena.',at:Date.now()}]};
 }
 function clearPending() { pending = []; selectedIndex = null; exchangeMode = false; exchangeIndices.clear(); }
 function newGame() {
@@ -55,6 +56,8 @@ function restore() {
   const saved = load(saveKey, null);
   if (saved && Array.isArray(saved.board) && saved.board.length === SIZE && saved.players?.length === 2 && Array.isArray(saved.bag)) {
     game = saved;
+    if (!Array.isArray(game.history)) game.history = [];
+    if (!Array.isArray(game.chat)) game.chat = [{kind:'system',text:'Pokračuje uložená partie.',at:Date.now()}];
     // Earlier versions lost replenished tiles. Repair saved games without resetting scores.
     if (!game.finished) {
       let repaired = false;
@@ -109,6 +112,62 @@ function renderProgress() {
   const completed = Math.round((110-game.bag.length)/110*20);
   for(let i=0;i<20;i++) {const bead=document.createElement('i'); if(i<completed) bead.className=i>15?'late':'used';track.append(bead);}
 }
+function renderSidebar() {
+  byId('turnName').textContent = game.finished ? 'Partie skončila' : playerLabel(game.turn);
+  const last = game.history?.length ? game.history[game.history.length - 1] : null;
+  byId('lastMovePlayer').textContent = last ? playerLabel(last.player) : '—';
+  byId('lastExample').textContent = last?.examples?.length ? last.examples.join(', ') : '—';
+  byId('lastPoints').textContent = last ? '+' + last.points : '—';
+  const history = byId('moveHistory');
+  history.replaceChildren();
+  for (const entry of (game.history || []).slice(-6).reverse()) {
+    const li = document.createElement('li');
+    const who = document.createElement('span');
+    who.textContent = playerLabel(entry.player) + ' · ';
+    const points = document.createElement('strong');
+    points.className = 'move-points';
+    points.textContent = '+' + entry.points;
+    const details = document.createElement('span');
+    details.textContent = ' · ' + (entry.examples?.slice(0,2).join(', ') || 'tah');
+    li.append(who,points,details);
+    history.append(li);
+  }
+}
+function renderChat() {
+  const container = byId('chatMessages');
+  const wasNearBottom = container.scrollHeight - container.clientHeight - container.scrollTop < 44;
+  container.replaceChildren();
+  const messages = Array.isArray(game.chat) ? game.chat.slice(-80) : [];
+  if (!messages.length) {
+    const note = document.createElement('div');
+    note.className = 'chat-message system';
+    note.textContent = 'Zde se zobrazí události partie.';
+    container.append(note);
+  }
+  for (const m of messages) {
+    const box = document.createElement('div');
+    box.className = 'chat-message ' + (m.kind === 'player' ? 'player' : 'system');
+    if (m.kind === 'player') {
+      const who = document.createElement('strong');
+      who.textContent = Number.isInteger(m.player) ? playerLabel(m.player) : 'Hráč';
+      box.append(who);
+    }
+    const body = document.createElement('span');
+    body.textContent = String(m.text || '');
+    box.append(body);
+    container.append(box);
+  }
+  if (wasNearBottom) container.scrollTop = container.scrollHeight;
+  const enabled = settings.mode === 'local' && !game.finished;
+  byId('chatInput').disabled = !enabled;
+  byId('chatSendButton').disabled = !enabled;
+  byId('chatInput').placeholder = enabled ? 'Napiš zprávu…' : 'Chat pouze pro dva hráče';
+}
+function logEvent(text) {
+  if (!Array.isArray(game.chat)) game.chat = [];
+  game.chat.push({kind:'system',text,at:Date.now()});
+  if (game.chat.length > 80) game.chat.splice(0,game.chat.length - 80);
+}
 function render() {
   renderBoard();renderRack();renderProgress();
   byId('player0Name').textContent=playerLabel(0);byId('player1Name').textContent=playerLabel(1);
@@ -117,6 +176,8 @@ function render() {
     byId(`player${i}Card`).classList.toggle('active',game.turn===i && !game.finished);
     byId(`player${i}Status`).textContent=game.finished ? 'Konec' : game.turn===i ? 'Na tahu' : 'Čeká';
   }
+  renderSidebar();renderChat();
+  byId('hintButton').hidden = settings.mode !== 'bot';
   byId('bagCount').textContent=game.bag.length;
   byId('modeLabel').textContent=settings.mode==='bot' ? `Počítač: ${ {easy:'začátečník',medium:'pokročilý',hard:'expert'}[settings.difficulty] }`:'Dva hráči';
   const busy=isBotTurn()||game.finished||botBusy;
@@ -171,12 +232,13 @@ function commitMove(placements, fromBot=false) {
   player.score+=checked.points;
   game.history.push({player:game.turn,points:checked.points,examples:checked.equations,tiles:placements.length});
   const who=fromBot?'Počítač':playerLabel(game.turn);
+  logEvent(`${who} získal ${checked.points} bodů (${checked.equations.slice(0,3).join(', ')}).`);
   notify(`${who}: +${checked.points} bodů · ${checked.equations.slice(0,3).join(', ')}${checked.equations.length>3?'…':''}`,'success');
   sound('success');advanceTurn();return true;
 }
 byId('confirmButton').addEventListener('click',()=>{if(pending.length)commitMove(pending);});
 byId('undoButton').addEventListener('click',()=>{clearPending();render();notify('Rozložené kameny vráceny do zásobníku.');});
-byId('passButton').addEventListener('click',()=>{const who=playerLabel(game.turn);notify(`${who} vynechal tah.`);advanceTurn(true);});
+byId('passButton').addEventListener('click',()=>{const who=playerLabel(game.turn);logEvent(`${who} vynechal tah.`);notify(`${who} vynechal tah.`);advanceTurn(true);});
 byId('exchangeButton').addEventListener('click',()=>{
   if(pending.length){notify('Před výměnou vrať položené kameny.','error');return;}
   if(game.bag.length===0){notify('V sáčku už nejsou kameny.','error');return;}
@@ -187,9 +249,10 @@ byId('exchangeButton').addEventListener('click',()=>{
   const removed=indexes.map(index=>player.rack.splice(index,1)[0]);
   replenishPlayerRack(game.bag,player);
   game.bag.unshift(...removed);
-  clearPending();sound();notify(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);advanceTurn(true);
+  clearPending();sound();logEvent(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);notify(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);advanceTurn(true);
 });
 byId('hintButton').addEventListener('click',()=>{
+  if(settings.mode !== 'bot' || game.finished || isBotTurn()) return;
   if(pending.length){notify('Pro nápovědu nejprve vrať rozložené kameny.','error');return;}
   notify('Hledám vhodný příklad…');
   setTimeout(()=>{
@@ -214,8 +277,9 @@ function runBot() {
     if(!move){
       if(game.bag.length){
         const bot=currentPlayer();game.bag.unshift(...bot.rack.splice(0,bot.rack.length));replenishPlayerRack(game.bag,bot);
+        logEvent('Počítač vyměnil kameny.');
         notify('Počítač vyměnil kameny.');
-      } else notify('Počítač vynechal tah.');
+      } else {logEvent('Počítač vynechal tah.');notify('Počítač vynechal tah.');}
       advanceTurn(true);return;
     }
     const available=currentPlayer().rack.map((digit,index)=>({digit,index}));
@@ -234,11 +298,27 @@ function tick(){
   const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
   display.textContent=`${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
   display.parentElement.classList.toggle('warning',remaining<=15);
-  if(remaining===0&&!botBusy) {const name=playerLabel(game.turn);clearPending();notify(`${name}: vypršel časový limit.`,'error');advanceTurn(true);}
+  if(remaining===0&&!botBusy) {const name=playerLabel(game.turn);clearPending();logEvent(`${name}: vypršel časový limit.`);notify(`${name}: vypršel časový limit.`,'error');advanceTurn(true);}
 }
 setInterval(tick,250);
 
-byId('newButton').addEventListener('click',()=>{if(game.turns||pending.length){if(!confirm('Opravdu začít novou partii? Dosavadní výsledek se nahradí.'))return;}newGame();});
+byId('newButton').addEventListener('click',()=>byId('newGameDialog').showModal());
+byId('cancelNewGame').addEventListener('click',()=>byId('newGameDialog').close());
+byId('confirmNewGame').addEventListener('click',()=>{byId('newGameDialog').close();newGame();});
+byId('chatForm').addEventListener('submit',event=>{
+  event.preventDefault();
+  if(settings.mode !== 'local' || game.finished) return;
+  const input=byId('chatInput');
+  const content=input.value.trim().slice(0,160);
+  if(!content) return;
+  if(!Array.isArray(game.chat)) game.chat = [];
+  game.chat.push({kind:'player',player:game.turn,text:content,at:Date.now()});
+  if(game.chat.length > 80) game.chat.splice(0,game.chat.length - 80);
+  input.value='';
+  save();
+  renderChat();
+  sound();
+});
 byId('rulesButton').addEventListener('click',()=>byId('rulesDialog').showModal());
 byId('closeRules').addEventListener('click',()=>byId('rulesDialog').close());
 byId('settingsButton').addEventListener('click',()=>{
@@ -250,6 +330,7 @@ byId('settingsForm').addEventListener('submit',event=>{
   if(event.submitter?.value!=='save')return;
   const mode=byId('modeSetting').value;
   const modeChanged=mode!==settings.mode;
+  if (modeChanged && !confirm('Změna herního režimu zahájí novou partii a nahradí současnou hru. Pokračovat?')) { event.preventDefault(); return; }
   settings={mode,difficulty:byId('difficultySetting').value,time:Number(byId('timeSetting').value),sound:byId('soundSetting').checked};
   try{localStorage.setItem(settingsKey,JSON.stringify(settings));}catch{}
   if(modeChanged)newGame();else{resetDeadline();render();}

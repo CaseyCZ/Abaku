@@ -126,8 +126,8 @@ test('Google auth is restored silently from tab session after a normal reload',(
   assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/const old=connection;connection=null;\s*old\?\.close\(\);\s*socketAuthenticated=false;\s*credential=null;gameState=null;currentProfile=null;[\s\S]*?clearSavedCredential\(\)/);
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(authSessionKey/);
-  assert.match(landing,/Abaku Online 0\.2\.16/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.16/);
+  assert.match(landing,/Abaku Online 0\.2\.17/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.17/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -260,7 +260,7 @@ test('online scoring is a hands-free animation of each server-verified equation 
   const recap=file('../src/score-recap.js');
   const styles=file('../score-recap.css');
   assert.match(landing,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(onlineClient,/import \{ScoreRecap\} from '.\/score-recap\.js\?v=0\.2\.16'/);
+  assert.match(onlineClient,/import \{ScoreRecap\} from '.\/score-recap\.js\?v=0\.2\.17'/);
   assert.match(onlineClient,/new ScoreRecap\(\$\('onlineDialog'\)\)/);
   assert.match(onlineClient,/breakdown:move\.equationBreakdown,equations:move\.equations/);
   assert.match(onlineClient,/total:move\.points/);
@@ -272,4 +272,15 @@ test('online scoring is a hands-free animation of each server-verified equation 
   assert.match(recap,/steps\.length\*stepDuration\+completedDuration/);
   assert.match(styles,/\.abaku-score-scroll/);
   assert.doesNotMatch(recap,/<button|addEventListener\('click'/);
+});
+
+
+test('online lobby offers saved per-equation animation seconds shared with offline',()=>{
+  assert.match(landing,/id="onlineRecapSeconds"/);
+  for(const seconds of [2,3,5,8,10])
+    assert.match(landing,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
+  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from/);
+  assert.match(onlineClient,/recapSelect\.value=String\(getRecapSeconds\(\)\)/);
+  assert.match(onlineClient,/setRecapSeconds\(recapSelect\.value\)/);
+  assert.match(onlineClient,/onlineScoreRecap\.play\(\{/);
 });

@@ -350,4 +350,17 @@ window.addEventListener('keydown',event=>{
   if(event.key==='Enter'&&pending.length)commitMove(pending);
 });
 
-restore();tick();
+// The lobby may request a new local match; otherwise restore the existing session.
+const startRequest = new URLSearchParams(window.location.search);
+const startMode = startRequest.get('mode');
+if (startRequest.get('start') === 'new' && (startMode === 'bot' || startMode === 'local')) {
+  settings.mode = startMode;
+  try { localStorage.setItem(settingsKey, JSON.stringify(settings)); } catch {}
+  window.history.replaceState(null, '', window.location.pathname);
+  newGame();
+  tick();
+} else {
+  restore();
+  tick();
+}
+byId('lobbyButton').addEventListener('click', () => window.location.assign('./index.html'));

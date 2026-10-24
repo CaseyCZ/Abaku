@@ -26,7 +26,8 @@ export function findMoves(board, rack, limit = 300) {
   if (!existing.length) {
     const unique = [...new Set(rack)];
     const build = (digits, remaining) => {
-      if (digits.length >= 3) {
+      // Short power/root examples (24 = 2² = 4, 42 = √4 = 2) are legal openings.
+      if (digits.length >= 2) {
         for (const vertical of [false, true]) {
           for (let offset = 0; offset < digits.length; offset++) {
             evaluate(digits.map((digit,i) => ({row: vertical ? 7 - offset + i : 7, col: vertical ? 7 : 7 - offset + i, digit})));

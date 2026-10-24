@@ -38,11 +38,10 @@ test('an existing empty rack is recovered without restarting the match', () => {
 });
 
 test('classic signless arithmetic examples are recognised', () => {
-  for(const sequence of ['279','927','236','1243','2793','224','248','633','1234']) {
-    if(sequence==='1234')continue;
+  for(const sequence of ['279','927','236','1243','2793','224','248','633','24','42','273','749','8512','1255']) {
     assert.equal(readsAsEquation(sequence),true,sequence);
   }
-  for(const sequence of ['','1','12','999','001','273','999999999','240']) assert.equal(readsAsEquation(sequence),false,sequence);
+  for(const sequence of ['','1','12','999','001','238','999999999','240']) assert.equal(readsAsEquation(sequence),false,sequence);
 });
 
 test('first move needs center and a valid arithmetic relation', () => {
@@ -53,7 +52,28 @@ test('first move needs center and a valid arithmetic relation', () => {
   assert.equal(valid.board[7][7],7);
   assert.equal(board[7][7],null,'validation cannot mutate input');
   assert.equal(validateMove(board,tiles('279',2,2)).valid,false);
-  assert.equal(validateMove(board,tiles('273')).valid,false);
+  assert.equal(validateMove(board,tiles('238')).valid,false);
+});
+
+test('two-tile powers and roots can start a match and produce highlighted cells',()=>{
+  for(const sequence of ['24','42']) {
+    const placement=tiles(sequence,7,7);
+    const result=validateMove(emptyBoard(),placement);
+    assert.equal(result.valid,true,`${sequence}: ${result.reason}`);
+    assert.deepEqual(result.equations,[sequence]);
+    assert.deepEqual(result.equationCells,[{row:7,col:7},{row:7,col:8}]);
+    assert.equal(result.equationBreakdown[0].equation,formatEquation(sequence));
+    assert.ok(result.points>0);
+  }
+});
+
+test('one placement can yield overlapping power, multiplication, and subtraction',()=>{
+  const result=validateMove(emptyBoard(),tiles('1248',7,6));
+  assert.equal(result.valid,true,result.reason);
+  assert.ok(result.equations.includes('1248'),'12 − 4 = 8');
+  assert.ok(result.equations.includes('248'),'2 × 4 = 8');
+  assert.ok(result.equations.includes('24'),'2² = 4');
+  assert.equal(result.equationBreakdown.reduce((sum,x)=>sum+x.points,0),result.points);
 });
 
 test('extending a board can yield new examples',()=>{
@@ -93,13 +113,27 @@ test('bot finds legal opening and next turn',()=>{
   assert.ok(next.every(move=>validateMove(opening.board,move.placements).valid));
 });
 
+test('bot can find a valid two-tile power opening',()=>{
+  const board=emptyBoard();
+  const moves=findMoves(board,[2,4]);
+  assert.ok(moves.length>0);
+  assert.ok(moves.some(move=>move.placements.length===2 && move.equations.includes('24')));
+  assert.ok(moves.every(move=>validateMove(board,move.placements).valid));
+});
+
 test('recognized arithmetic examples are shown as readable complete equations',()=>{
   assert.equal(formatEquation('268'),'2 + 6 = 8');
   assert.equal(formatEquation('936'),'9 − 3 = 6');
   assert.equal(formatEquation('236'),'2 × 3 = 6');
   assert.equal(formatEquation('1243'),'12 ÷ 4 = 3');
-  assert.equal(formatEquation('238'),'2^3 = 8');
-  assert.equal(formatEquation('273'),null);
+  assert.equal(formatEquation('24'),'2² = 4');
+  assert.equal(formatEquation('42'),'√4 = 2');
+  assert.equal(formatEquation('749'),'7² = 49');
+  assert.equal(formatEquation('8512'),'8³ = 512');
+  assert.equal(formatEquation('273'),'∛27 = 3');
+  assert.equal(formatEquation('1255'),'∛125 = 5');
+  assert.equal(formatEquation('238'),null);
+  assert.equal(formatEquation('09'),null);
   assert.equal(formatEquations(['268','936','1243']), '2 + 6 = 8 · 9 − 3 = 6 · 12 ÷ 4 = 3');
 });
 

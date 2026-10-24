@@ -42,5 +42,19 @@ test('tentative equations show readable operation, not concatenated digits',()=>
   const board=emptyBoard();
   assert.equal(describeMovePreview(board,move('268')).detail,'2 + 6 = 8');
   assert.equal(describeMovePreview(board,move('236')).detail,'2 × 3 = 6');
-  assert.equal(describeMovePreview(board,move('1243',7,5)).detail,'12 ÷ 4 = 3');
+  assert.equal(describeMovePreview(board,move('1243',7,5)).detail,'12 ÷ 4 = 3 · 2² = 4');
+});
+
+test('powers and roots appear correctly in the live score preview',()=>{
+  const board=emptyBoard();
+  const square=move('24',7,7);
+  const root=move('42',7,7);
+  const cubeRoot=move('273');
+  for(const [placement,expected] of [[square,'2² = 4'],[root,'√4 = 2'],[cubeRoot,'∛27 = 3']]) {
+    const preview=describeMovePreview(board,placement);
+    const actual=validateMove(board,placement);
+    assert.equal(preview.state,'valid',expected);
+    assert.equal(preview.detail,expected);
+    assert.equal(preview.points,actual.points);
+  }
 });

@@ -1,0 +1,204 @@
+/* Only the local game page. Loaded last to override legacy header/layout rules. */
+
+/* Desktop: brand | remaining time | game actions, with digits + score below. */
+.game-app .top-bar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+  grid-template-rows:auto auto;
+  gap:7px 12px;
+  align-items:center;
+  min-height:0;
+  padding:8px clamp(12px,2.5vw,32px);
+}
+.game-app .top-bar .brand{
+  grid-column:1;grid-row:1;justify-self:start;min-width:0;
+}
+.game-app .top-bar .timer-wrap{
+  grid-column:2;grid-row:1;justify-self:center;
+  display:flex;flex-direction:row;align-items:center;gap:7px;
+  min-width:0;margin:0;padding:6px 12px;
+}
+.game-app .top-bar .timer-wrap span{font-size:10px;letter-spacing:.06em}
+.game-app .top-bar .timer-wrap strong{font-size:clamp(19px,2.2vw,26px);font-variant-numeric:tabular-nums;line-height:1}
+.game-app .top-bar .game-menu-toggle{display:none}
+.game-app .top-bar .game-navigation{
+  grid-column:3;grid-row:1;justify-self:end;
+  display:flex;align-items:center;gap:8px;
+  width:auto;margin:0;
+}
+.game-app .top-bar .game-navigation .gold-button{min-height:42px}
+.game-app .top-bar .game-header-score{
+  grid-column:1/-1;grid-row:2;
+  display:flex;justify-content:center;align-items:center;gap:16px;
+  width:100%;min-width:0;
+}
+.game-app .top-bar .game-header-score .bag-count{
+  display:flex;gap:5px;align-items:center;justify-content:center;
+  flex:0 0 auto;margin:0;min-width:0;white-space:nowrap;
+  font-size:13px;color:#aebfda;
+}
+.game-app .top-bar .game-header-score .bag-count strong{font-size:18px;color:#fbd477}
+.game-app .top-bar .game-header-score .match-scoreboard{
+  grid-column:auto;grid-row:auto;
+  flex:0 1 auto;width:auto;max-width:100%;min-width:0;
+  margin:0;padding:0;
+  display:flex;justify-content:center;align-items:center;gap:6px;
+}
+.game-app .top-bar .game-header-score .player-card{min-width:0;margin:0!important}
+.game-app .top-bar .game-header-score .score-divider{flex:none}
+
+/* The rack is now the entire control bar; timer and bag count live above the board. */
+.game-app .control-bar .rack-frame{min-width:0}
+
+@media(max-width:1000px){
+  .game-app .top-bar{gap:6px 9px;padding-inline:12px}
+  .game-app .top-bar .game-navigation{gap:5px}
+  .game-app .top-bar .game-navigation .gold-button{font-size:11px;padding:7px 8px;white-space:nowrap}
+}
+
+/* Same mobile menu interaction as the homepage, without four buttons over the board. */
+@media(max-width:760px){
+  .game-app .top-bar{
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+    grid-template-rows:auto auto;
+    gap:8px 6px;
+    padding:9px max(10px,env(safe-area-inset-left));
+    align-items:center;
+  }
+  .game-app .top-bar .brand{grid-column:1;grid-row:1;justify-self:start}
+  .game-app .top-bar .brand img.brand-mark{width:32px;height:32px}
+  .game-app .top-bar .brand strong{font-size:12px}
+  .game-app .top-bar .timer-wrap{
+    grid-column:2;grid-row:1;justify-self:center;
+    flex-direction:column;gap:0;
+    padding:5px 9px;
+  }
+  .game-app .top-bar .timer-wrap span{font-size:9px}
+  .game-app .top-bar .timer-wrap strong{font-size:20px}
+  .game-app .top-bar .game-menu-toggle{
+    grid-column:3;grid-row:1;justify-self:end;
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:44px;min-width:82px;
+    padding:8px 11px;
+    font-size:13px;
+  }
+  .game-app .top-bar .game-navigation{
+    grid-column:1/-1;grid-row:2;
+    justify-self:stretch;
+    display:none;flex-direction:column;align-items:stretch;
+    width:100%;padding-top:9px;margin:0;
+    border-top:1px solid #365578;
+  }
+  .game-app .top-bar .game-navigation.is-open{display:flex}
+  .game-app .top-bar .game-navigation .gold-button{
+    display:flex;align-items:center;justify-content:flex-start;
+    width:100%;min-height:44px;text-align:left;
+    font-size:13px;padding:9px 12px;
+  }
+  .game-app .top-bar .game-header-score{grid-column:1/-1;grid-row:2;gap:7px}
+  .game-app .top-bar:has(.game-navigation.is-open) .game-header-score{grid-row:3}
+  .game-app .top-bar .game-header-score .bag-count{font-size:11px;gap:3px}
+  .game-app .top-bar .game-header-score .bag-count strong{font-size:15px}
+  .game-app .top-bar .game-header-score .match-scoreboard{gap:3px}
+  .game-app .top-bar .game-header-score .match-scoreboard .player-card{
+    min-height:38px;padding:4px 5px;gap:4px!important;
+  }
+  .game-app .top-bar .game-header-score .match-scoreboard .player-name{
+    font-size:clamp(10px,2.55vw,13px)!important;
+  }
+  .game-app .top-bar .game-header-score .match-scoreboard .score strong{
+    font-size:clamp(19px,5vw,25px);
+  }
+  .game-app .top-bar .game-header-score .score-divider{font-size:19px}
+  .game-app .control-bar{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:370px){
+  .game-app .top-bar .game-header-score .bag-count{font-size:10px}
+  .game-app .top-bar .game-header-score .match-scoreboard .player-card{padding:4px 3px}
+  .game-app .top-bar .game-menu-toggle{min-width:74px;padding:7px}
+}
+
+/* Same compact style and option groupings as the homepage settings. */
+#settingsDialog{
+  width:min(94vw,590px);
+  max-width:590px;
+  max-height:calc(100dvh - 24px);
+  overflow-y:auto;
+}
+#settingsDialog .game-settings-body{
+  display:flex;flex-direction:column;gap:9px;
+  padding:16px 18px;
+  color:#e7edf6;
+}
+#settingsDialog .game-settings-body h2{
+  margin:0 0 2px;
+  color:var(--arena-gold-hi,#fbd477);
+  font-size:23px;text-align:left;
+  text-transform:none;letter-spacing:0;
+}
+#settingsDialog .game-settings-section{display:grid;gap:8px}
+#settingsDialog .game-settings-section h3{
+  margin:4px 0 0;color:var(--arena-gold-hi,#fbd477);
+  font-size:15px;
+}
+#settingsDialog .game-settings-fields{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
+}
+#settingsDialog .game-settings-fields .game-settings-field{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  grid-template-rows:auto auto;align-items:end;
+  gap:5px;min-width:0;
+  font-size:12px;line-height:1.3;
+  color:#d7e2f0;
+}
+#settingsDialog .game-settings-fields .game-settings-field select{
+  display:block;width:100%;min-width:0;max-width:none;min-height:43px;
+  box-sizing:border-box;padding:8px!important;font-size:13px;
+}
+#settingsDialog .game-settings-toggles{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+}
+#settingsDialog .game-settings-toggles .check-line{
+  display:flex;align-items:center;justify-content:flex-start!important;
+  gap:7px;min-width:0;min-height:43px;
+  margin:0;padding:7px 9px;
+  border:1px solid #426181;border-radius:10px;
+  background:#112b4c;color:#dce7f5;
+  font-size:12px;line-height:1.2;
+}
+#settingsDialog .game-settings-toggles .check-line input{flex:none;width:18px;height:18px;margin:0}
+#settingsDialog .game-settings-details{
+  margin:0;padding:7px 10px;
+  border:1px solid #39597e;border-radius:10px;
+  background:#102846;
+}
+#settingsDialog .game-settings-details summary{
+  cursor:pointer;min-height:28px;line-height:28px;
+  font-size:12px;font-weight:700;color:#dce7f5;
+}
+#settingsDialog .game-settings-details p{margin:8px 0 0;font-size:12px;line-height:1.5;color:#afc2dc}
+#settingsDialog .game-settings-report-body{display:grid;gap:8px}
+#settingsDialog .game-settings-report-body .gold-button{width:100%;white-space:normal}
+#settingsDialog .game-settings-report-body #reportGameStatus:empty{display:none}
+#settingsDialog .version-history{margin:0;padding:7px 10px}
+#settingsDialog .version-history summary{min-height:28px;line-height:28px;font-size:12px}
+#settingsDialog .game-settings-body menu{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;margin:3px 0 0;padding:0;
+}
+#settingsDialog .game-settings-body menu .gold-button{min-height:43px;min-width:0}
+#settingsDialog .game-settings-report-problem{
+  align-self:center;min-height:32px;
+  padding:3px 8px;margin:0;
+  background:transparent;border:0;box-shadow:none;
+  font-size:12px;color:#dce7f5;text-decoration:underline;
+}
+#settingsDialog .game-settings-report-problem:hover:not(:disabled){
+  background:transparent;border:0;box-shadow:none;
+  color:var(--arena-gold-hi,#fbd477);
+}
+@media(max-width:370px){
+  #settingsDialog .game-settings-body{padding:12px}
+  #settingsDialog .game-settings-fields{gap:7px}
+  #settingsDialog .game-settings-toggles .check-line{padding:6px;font-size:11px}
+}

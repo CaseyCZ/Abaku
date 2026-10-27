@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="./arena-modern.css?v=1" />
   <link rel="stylesheet" href="./arena-layout.css?v=2">
   <link rel="stylesheet" href="./version-history.css?v=0.2.3">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.12">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body>
@@ -25,22 +26,27 @@
   <div class="game-app">
     <header class="top-bar">
       <div class="brand"><img class="brand-mark" src="./assets/arena-icon.png" alt="" aria-hidden="true" width="47" height="47"><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
-      <div class="match-scoreboard" role="group" aria-label="Skóre partie">
-        <div class="player-card active" id="player0Card">
-          <div class="player-name" id="player0Name">Hráč 1</div>
-          <div class="score"><strong id="player0Score">0</strong><small id="player0Status">Na tahu</small></div>
+      <div class="timer-wrap" role="timer" aria-label="Čas do konce tahu"><span>ČAS</span><strong id="timer">01:00</strong></div>
+      <button type="button" id="menuToggle" class="gold-button game-menu-toggle" aria-expanded="false" aria-controls="siteNavigation" aria-label="Otevřít menu">☰ Menu</button>
+      <nav class="header-actions game-navigation" id="siteNavigation" aria-label="Menu hry">
+        <button type="button" id="lobbyButton" class="gold-button small">⌂ Nabídka</button>
+        <button type="button" id="rulesButton" class="gold-button small">Pravidla</button>
+        <button type="button" id="settingsButton" class="gold-button small" aria-haspopup="dialog" aria-controls="settingsDialog">Nastavení</button>
+        <button type="button" id="newButton" class="gold-button primary small" aria-haspopup="dialog" aria-controls="newGameDialog">Nová hra</button>
+      </nav>
+      <div class="game-header-score">
+        <div class="bag-count">V sáčku <strong id="bagCount">100</strong> čísel</div>
+        <div class="match-scoreboard" role="group" aria-label="Skóre partie">
+          <div class="player-card active" id="player0Card">
+            <div class="player-name" id="player0Name">Hráč 1</div>
+            <div class="score"><strong id="player0Score">0</strong><small id="player0Status">Na tahu</small></div>
+          </div>
+          <span class="score-divider" aria-hidden="true">:</span>
+          <div class="player-card" id="player1Card">
+            <div class="player-name" id="player1Name">Počítač</div>
+            <div class="score"><strong id="player1Score">0</strong><small id="player1Status">Čeká</small></div>
+          </div>
         </div>
-        <span class="score-divider" aria-hidden="true">:</span>
-        <div class="player-card" id="player1Card">
-          <div class="player-name" id="player1Name">Počítač</div>
-          <div class="score"><strong id="player1Score">0</strong><small id="player1Status">Čeká</small></div>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button id="lobbyButton" class="gold-button small">⌂ Nabídka</button>
-        <button id="rulesButton" class="gold-button small">Pravidla</button>
-        <button id="settingsButton" class="gold-button small">Nastavení</button>
-        <button id="newButton" class="gold-button primary small">Nová hra</button>
       </div>
     </header>
 
@@ -102,7 +108,6 @@
     </main>
 
     <footer class="control-bar">
-      <div class="bag-count">V sáčku <strong id="bagCount">100</strong> čísel</div>
         <div class="rack-frame">
           <button class="round-button" id="undoButton" title="Vrátit rozložená čísla" aria-label="Vrátit čísla">↶</button>
           <div class="rack" id="rack" aria-label="Tvoje čísla"></div>
@@ -113,7 +118,6 @@
         <button id="exchangeButton" class="gold-button">Vyměnit</button>
         <button id="passButton" class="gold-button">Vynechat tah</button>
       </div>
-          <div class="timer-wrap"><span>ČAS</span><strong id="timer">01:00</strong></div>
       <div class="game-mode" id="modeLabel">Proti počítači</div>
     </footer>
     <div class="fine-print">
@@ -134,38 +138,63 @@
     </div>
   </dialog>
 
-  <dialog id="settingsDialog">
-    <form method="dialog" class="dialog-body" id="settingsForm">
-      <h2>Nastavení partie</h2>
+  <dialog id="settingsDialog" aria-labelledby="localSettingsTitle">
+    <form method="dialog" class="dialog-body game-settings-body" id="settingsForm">
+      <h2 id="localSettingsTitle">Nastavení partie</h2>
+      <section class="game-settings-section" aria-labelledby="localSettingsGameTitle">
+        <h3 id="localSettingsGameTitle">Partie</h3>
+        <div class="game-settings-fields">
+          <label class="game-settings-field">Herní režim
+            <select id="modeSetting"><option value="bot">Proti počítači</option><option value="local">Dva hráči</option></select>
+          </label>
+          <label class="game-settings-field">Obtížnost počítače
+            <select id="difficultySetting"><option value="easy">Začátečník</option><option value="medium">Pokročilý</option><option value="hard">Expert</option></select>
+          </label>
+          <label class="game-settings-field">Čas na tah
+            <select id="timeSetting"><option value="30">30 sekund</option><option value="60" selected>60 sekund</option><option value="90">90 sekund</option></select>
+          </label>
+          <label class="game-settings-field">Zobrazení příkladu
+            <select id="scoreRecapSecondsSetting">
+              <option value="0">Vypnuto</option>
+              <option value="2">2 sekundy</option>
+              <option value="3" selected>3 sekundy</option>
+              <option value="5">5 sekund</option>
+              <option value="8">8 sekund</option>
+              <option value="10">10 sekund</option>
+            </select>
+          </label>
+        </div>
+      </section>
+      <section class="game-settings-section" aria-labelledby="localSettingsDisplayTitle">
+        <h3 id="localSettingsDisplayTitle">Herní obrazovka</h3>
+        <div class="game-settings-toggles" role="group" aria-label="Zobrazení a zvuk">
+          <label class="check-line"><input type="checkbox" id="historySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
+          <label class="check-line"><input type="checkbox" id="chatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
+          <label class="check-line"><input type="checkbox" id="soundSetting" checked> Zvuky</label>
+        </div>
+      </section>
+      <details class="game-settings-details">
+        <summary>Vysvětlení nastavení</summary>
+        <p>Změna herního režimu zahájí novou partii a vyžádá si potvrzení. Ostatní nastavení platí ihned.</p>
+        <p>Průběh a chat jsou vedle desky, na telefonu pod ní. Proti počítači se chat nezobrazuje.</p>
+        <p>„Vypnuto“ přeskočí vyhodnocení bodů, ale nová čísla se na desce ještě 3 sekundy zvýrazní. Zobrazení příkladu je společné i pro online hru.</p>
+      </details>
+      <details class="game-settings-details game-settings-report">
+        <summary>Odeslat partii ke kontrole</summary>
+        <div class="game-settings-report-body">
+          <p>Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
+          <button type="button" id="reportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
+          <p id="reportGameStatus" class="dialog-note" role="status" aria-live="polite"></p>
+        </div>
+      </details>
       <details class="version-history" data-version-history><summary>Historie změn</summary></details>
-      <label>Herní režim <select id="modeSetting"><option value="bot">Hráč proti počítači</option><option value="local">Dva hráči na jednom PC</option></select></label>
-      <label>Obtížnost počítače <select id="difficultySetting"><option value="easy">Začátečník</option><option value="medium">Pokročilý</option><option value="hard">Expert</option></select></label>
-      <label>Délka tahu <select id="timeSetting"><option value="30">30 sekund</option><option value="60" selected>60 sekund</option><option value="90">90 sekund</option></select></label>
-      <label class="check-line"><input type="checkbox" id="historySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
-      <label class="check-line"><input type="checkbox" id="chatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
-      <p class="dialog-note">Panely jsou vedle desky, na telefonu pod ní. Proti počítači se chat nezobrazuje.</p>
-      <label>Doba zobrazení každého příkladu <select id="scoreRecapSecondsSetting">
-        <option value="0">Vypnuto</option>
-        <option value="2">2 sekundy</option>
-        <option value="3" selected>3 sekundy</option>
-        <option value="5">5 sekund</option>
-        <option value="8">8 sekund</option>
-        <option value="10">10 sekund</option>
-      </select></label>
-      <p class="dialog-note">Při volbě Vypnuto se vyhodnocení přeskočí, ale nová čísla se na desce ještě 3 sekundy zvýrazní. Nastavení platí i pro online hru.</p>
-      <label class="check-line"><input type="checkbox" id="soundSetting" checked /> Zvuky</label>
-      <div class="report-game-options">
-        <button type="button" id="reportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
-        <p class="dialog-note">Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
-        <p id="reportGameStatus" class="dialog-note" role="status" aria-live="polite"></p>
-        <button type="button" id="reportProblemButton" class="gold-button">Nahlásit problém</button>
-      </div>
-      <p class="dialog-note">Změna herního režimu začne novou partii. Ostatní nastavení se použije ihned.</p>
-      <menu><button value="cancel" class="gold-button">Zrušit</button><button value="save" class="gold-button primary">Uložit</button></menu>
+      <menu>
+        <button value="cancel" class="gold-button">Zrušit</button>
+        <button value="save" class="gold-button primary">Uložit</button>
+      </menu>
+      <button type="button" id="reportProblemButton" class="gold-button game-settings-report-problem">Nahlásit problém</button>
     </form>
-  </dialog>
-
-  <dialog id="feedbackDialog" aria-labelledby="feedbackTitle">
+  </dialog>  <dialog id="feedbackDialog" aria-labelledby="feedbackTitle">
     <form class="dialog-body feedback-form" id="feedbackForm">
       <h2 id="feedbackTitle">Nahlásit problém</h2>
       <label for="feedbackDescription">Co nefungovalo?</label>
@@ -221,7 +250,8 @@
   </dialog>
 
   <script type="module" src="./src/arena-ui.js?v=2"></script>
+  <script type="module" src="./src/site-navigation.js?v=1"></script>
   <script type="module" src="./src/main.js?v=0.2.10"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.11"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.12"></script>
 </body>
 </html>

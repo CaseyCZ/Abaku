@@ -448,7 +448,7 @@ test('homepage text is centered without modifying mode card geometry or responsi
   assert.ok(css.includes('.arena-home .game-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'));
   assert.ok(css.includes('.home-start{grid-template-columns:minmax(0,1fr);gap:18px}'));
   assert.ok(css.includes('.arena-home .lobby-intro .hero-resume{width:min(100%,430px)'));
-  assert.ok(landing.includes('href="./arena-home.css?v=0.2.8"'));
+  assert.ok(landing.includes('href="./arena-home.css?v='+JSON.parse(file('../package.json')).version+'"'));
 });
 
 test('home lower sections are centered and saved card bottom aligns with mode grid only on desktop',()=>{
@@ -465,5 +465,5 @@ test('home lower sections are centered and saved card bottom aligns with mode gr
   // Only align desktop bottom edges when the unified saved/online card is visible.
   assert.match(css,/@media\(min-width:761px\)\{\s*\.arena-home \.home-start:has\(#resumeCard:not\(\[hidden\]\)\)\{align-items:end\}/);
   assert.match(css,/@media\(max-width:760px\)\{[\s\S]*?\.home-start\{grid-template-columns:minmax\(0,1fr\);gap:18px\}/);
-  assert.ok(landing.includes('href="./arena-home.css?v=0.2.8"'));
+  assert.ok(landing.includes('href="./arena-home.css?v='+JSON.parse(file('../package.json')).version+'"'));
 });

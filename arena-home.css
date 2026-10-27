@@ -31,10 +31,37 @@
 .arena-home .quick-rules{max-width:1500px;margin:24px auto 0;text-align:center}
 .arena-home .quick-rules .how-to-link{justify-self:center;width:100%;text-align:center}
 .arena-home .quick-rules ol{padding-left:0;list-style-position:inside;text-align:center}
-#onlineGameSettingsDialog{width:min(94vw,580px);max-height:90dvh}
-#onlineGameSettingsDialog .online-game-settings-body{padding:22px;gap:10px}
-#onlineGameSettingsDialog h3{margin:12px 0 0;padding-top:14px;border-top:1px solid #395476;color:var(--arena-gold-hi);font-size:15px}
-#onlineGameSettingsDialog h3:first-of-type{border:0;padding:0}
+/* Compact, responsive settings. Help and diagnostics remain accessible on demand. */
+#onlineGameSettingsDialog{width:min(94vw,580px);max-height:calc(100dvh - 24px)}
+#onlineGameSettingsDialog .online-game-settings-body{padding:16px 18px;gap:9px;text-align:left}
+#onlineGameSettingsDialog h2{margin:0 0 2px;font-size:23px}
+#onlineGameSettingsDialog .settings-main{display:grid;gap:10px;min-width:0}
+#onlineGameSettingsDialog .settings-main h3{margin:0;padding:0;border:0;color:var(--arena-gold-hi);font-size:15px}
+#onlineGameSettingsDialog .settings-toggle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#onlineGameSettingsDialog .settings-toggle-grid .check-line{min-width:0;min-height:43px;display:flex;align-items:center;gap:7px;margin:0;padding:8px;border:1px solid #426181;border-radius:10px;background:#112b4c;font-size:12px;line-height:1.2}
+#onlineGameSettingsDialog .settings-toggle-grid .check-line input{flex:none;width:18px;height:18px;margin:0}
+#onlineGameSettingsDialog .settings-select-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#onlineGameSettingsDialog .settings-field{display:grid;grid-template-rows:32px auto;gap:4px;min-width:0}
+#onlineGameSettingsDialog .settings-field label{display:flex;align-items:flex-end;min-width:0;font-size:12px;line-height:1.2}
+#onlineGameSettingsDialog .settings-field select{box-sizing:border-box;width:100%;min-width:0;min-height:43px;font-size:14px;padding:8px!important}
+#onlineGameSettingsDialog .settings-inline-note{font-size:12px;line-height:1.4}
+#onlineGameSettingsDialog :is(.settings-help-details,.settings-report-details){margin:0;padding:7px 10px;border:1px solid #39597e;border-radius:10px;background:#102846}
+#onlineGameSettingsDialog :is(.settings-help-details,.settings-report-details) summary{cursor:pointer;min-height:28px;line-height:28px;font-size:12px;font-weight:700;color:#dce7f5}
+#onlineGameSettingsDialog :is(.settings-help-details,.settings-report-details) p{margin:8px 0 0;font-size:12px;line-height:1.5}
+#onlineGameSettingsDialog .settings-report-body{display:grid;gap:8px}
+#onlineGameSettingsDialog .settings-report-body .gold-button{width:100%;white-space:normal}
+#onlineGameSettingsDialog .settings-report-body #onlineReportGameStatus:empty{display:none}
+#onlineGameSettingsDialog .version-history{margin:0;padding:7px 10px}
+#onlineGameSettingsDialog .version-history summary{min-height:28px;line-height:28px;font-size:12px}
+#onlineGameSettingsDialog .online-game-settings-actions{gap:8px;margin-top:3px}
+#onlineGameSettingsDialog .online-game-settings-actions .gold-button{min-width:0}
+#onlineGameSettingsDialog .settings-report-problem{align-self:center;min-height:32px;margin:0;padding:3px 8px;background:transparent;border:0;box-shadow:none;color:#dce7f5;font-size:12px;text-decoration:underline}
+#onlineGameSettingsDialog .settings-report-problem:hover:not(:disabled){background:transparent;border:0;color:var(--arena-gold-hi);box-shadow:none}
+@media(max-width:340px){
+  #onlineGameSettingsDialog .online-game-settings-body{padding:12px}
+  #onlineGameSettingsDialog .settings-toggle-grid .check-line{font-size:11px;gap:5px;padding:6px}
+  #onlineGameSettingsDialog .settings-select-grid{gap:6px}
+}
 .arena-public .public-page{width:min(100% - 32px,1000px);margin:30px auto 48px;line-height:1.6}
 .public-page h1{color:var(--arena-gold-hi);margin:0 0 8px;font-size:clamp(30px,4vw,44px)}
 .public-page .page-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:22px}

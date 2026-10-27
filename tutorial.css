@@ -1,0 +1,138 @@
+/* Číselná aréna / How to play — modern navy + gold, touch first. */
+.tutorial-page{width:min(100% - 30px,1130px);margin:25px auto 55px;display:flex;flex-direction:column;gap:22px}
+.tutorial-header-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.tutorial-header-actions a{text-decoration:none}
+.tutorial-hero{
+  padding:clamp(20px,3.5vw,41px);
+  border:1px solid #345779;border-radius:19px;
+  background:radial-gradient(circle at 85% 5%,#23518075,transparent 48%),linear-gradient(150deg,#152e52,#091f3e);
+  box-shadow:0 10px 27px #050d1b70;
+}
+.tutorial-hero .eyebrow{font-size:12px;letter-spacing:.14em;color:#f1c669;font-weight:800}
+.tutorial-hero h1{color:#fff5dd;line-height:1.08;font-size:clamp(32px,5vw,59px);letter-spacing:-.045em;margin:8px 0 15px}
+.tutorial-hero h1 span{color:#f4cb72}
+.tutorial-hero>p:not(.eyebrow){max-width:760px;font-size:clamp(13px,1.3vw,16px);color:#bdcde1;line-height:1.65}
+.tutorial-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:23px}
+.tutorial-nav a{
+  color:#f2dc9f;text-decoration:none;font-weight:700;font-size:12px;
+  border:1px solid #45658a;border-radius:9px;padding:10px 12px;background:#122c50;min-height:42px;
+}
+.tutorial-nav a:hover{border-color:#f5cb71;color:#fff0bd}
+.tutorial-section{
+  scroll-margin-top:16px;
+  padding:clamp(17px,2.6vw,30px);
+  border:1px solid #335474;border-radius:18px;
+  background:linear-gradient(156deg,#173255,#0d233f);box-shadow:0 8px 28px #030a1861;
+}
+.tutorial-section-heading{display:flex;gap:15px;align-items:flex-start;margin-bottom:18px}
+.tutorial-step-number{
+  flex:0 0 48px;width:48px;height:48px;display:grid;place-items:center;
+  color:#142943;font-size:18px;font-weight:900;background:linear-gradient(#ffe7ab,#e6b046);
+  border:1px solid #ffebb8;border-radius:13px;
+}
+.tutorial-section-heading h2{margin:0 0 7px;color:#ffe2a5;font-size:clamp(20px,2.6vw,29px);letter-spacing:-.025em}
+.tutorial-section-heading p{margin:0;max-width:860px;color:#c3d2e4;font-size:13px;line-height:1.65}
+.tutorial-demo{display:grid;grid-template-columns:minmax(290px,1fr) minmax(220px,.8fr);gap:25px;align-items:center}
+.tutorial-demo-main{display:flex;flex-direction:column;align-items:center;gap:13px}
+.tutorial-board{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-template-rows:repeat(5,minmax(0,1fr));
+  width:min(100%,360px);aspect-ratio:1;
+  border:4px solid #476b97;border-radius:13px;overflow:hidden;background:#152f53;
+  box-shadow:0 8px 25px #010818b0;
+}
+.tutorial-demo-cell{
+  padding:0;margin:0;background:#193659;color:#c8e3fa;
+  border:1px solid #3f6086;display:grid;place-items:center;font-weight:850;font-size:clamp(13px,3vw,24px);
+  text-shadow:none;min-width:0;min-height:0;
+}
+.tutorial-demo-cell:disabled{opacity:1;cursor:default}
+.tutorial-demo-cell.tutorial-demo-center{background:#76571c;color:#ffe5a2}
+.tutorial-demo-cell.target{
+  background:#205a49;color:#c4ffdc;border-color:#74edac;
+  box-shadow:inset 0 0 0 3px #62d9a0;cursor:pointer;
+}
+.tutorial-demo-cell.placed{
+  color:#142943;background:linear-gradient(148deg,#ffeeb9,#facb6a);border-color:#d6a64e;
+  box-shadow:inset 0 1px 0 #fff8d5;
+}
+.tutorial-rack-area{display:flex;align-items:center;flex-direction:column;gap:7px}
+.tutorial-rack-label{font-size:11px;letter-spacing:.1em;color:#abc0da;font-weight:800}
+.tutorial-rack{display:flex;justify-content:center;gap:9px}
+.tutorial-demo-tile{
+  width:56px;height:59px;border-radius:11px;border:1px solid #f6df96;
+  background:linear-gradient(155deg,#ffedb5,#eabb54);
+  color:#142741;font-size:30px;font-weight:900;box-shadow:0 3px #a87925;
+}
+.tutorial-demo-tile.selected{background:linear-gradient(#b6f4d3,#59d79b);border-color:#77f2b5;color:#0c3a29}
+.tutorial-demo-tile:disabled{background:#304b69;border-color:#455e7d;color:#8396ac;opacity:.5}
+.tutorial-demo-guide{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.tutorial-counter{color:#f6ce73;font-weight:800;font-size:12px}
+.tutorial-demo-guide h3{font-size:clamp(21px,2.2vw,28px);margin:0;color:#fff3d5}
+.tutorial-demo-guide p{font-size:14px;line-height:1.7;color:#c7d7e8;margin:0}
+.tutorial-demo-status{
+  width:100%;padding:11px 13px;
+  background:#113a31;border-left:3px solid #73e5ae;border-radius:10px;color:#c2f8db!important;
+}
+.tutorial-demo-status[data-error="true"]{background:#482a37;border-color:#e67f90;color:#ffcad0!important}
+.tutorial-demo-score{
+  display:flex;flex-direction:column;gap:6px;width:100%;
+  padding:14px;background:#224c4b;border:1px solid #78d8a9;border-radius:11px;
+}
+.tutorial-demo-score strong{color:#b9ffda;font-size:21px}
+.tutorial-demo-score span{color:#f2f8f2;line-height:1.5;font-size:13px}
+.tutorial-demo-score b{color:#ffdb88}
+.tutorial-demo-guide small{color:#93aac8;line-height:1.5}
+.tutorial-equation-grid,.tutorial-control-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
+}
+.tutorial-example,.tutorial-control-grid>div{
+  display:flex;flex-direction:column;gap:10px;padding:16px;
+  border-radius:13px;border:1px solid #3a587c;background:#102846;
+}
+.tutorial-stones{color:#ffe4a0;font-weight:900;font-size:19px;letter-spacing:.08em}
+.tutorial-example strong{color:#eaf0fa;font-size:19px}
+.tutorial-example small{font-size:11px;color:#9cb5d1}
+.tutorial-control-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tutorial-control-grid strong{color:#ffe0a0;font-size:15px}
+.tutorial-control-grid p{margin:0;color:#bfcee1;font-size:13px;line-height:1.6}
+.tutorial-notes{display:grid;gap:9px;margin-top:15px}
+.tutorial-notes p{margin:0;font-size:13px;line-height:1.7;color:#c7d7e9;padding:11px 15px;border-left:3px solid #d9b060;background:#0e2848;border-radius:8px}
+.tutorial-notes strong{color:#f6dc9f}
+.tutorial-bonuses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tutorial-bonuses>div{display:flex;align-items:center;gap:13px;background:#102745;border:1px solid #375575;padding:14px;border-radius:12px}
+.tutorial-bonus-chip{
+  display:grid;place-items:center;flex:none;width:63px;height:63px;border-radius:10px;
+  font-weight:900;font-size:20px;border:1px solid #8badcf;
+}
+.tutorial-bonus-chip.dd{background:#2a5f92;color:#e4f4ff}
+.tutorial-bonus-chip.td{background:#97712d;color:#fff1c8;border-color:#d7b15b}
+.tutorial-bonus-chip.de{background:#244a77;color:#d5ebff}
+.tutorial-bonus-chip.te{background:#bd8f35;color:#1b2c45;border-color:#f0ca71}
+.tutorial-bonuses strong{color:#fce0a3}
+.tutorial-bonuses p{margin:4px 0 0;color:#bbcee1;font-size:12px;line-height:1.55}
+.tutorial-highlight{
+  background:#0d2f4a;border:1px solid #9d823e;border-left:4px solid #e9ba51;
+  padding:14px 17px;border-radius:11px;color:#dfe9f3;line-height:1.75;font-size:13px;margin:17px 0 0;
+}
+.tutorial-highlight strong{color:#ffdc8b}
+.tutorial-finish{text-align:center;padding:27px;border:1px solid #b09147;border-radius:17px;background:linear-gradient(145deg,#193c62,#0d2443)}
+.tutorial-finish h2{margin:0 0 8px;font-size:clamp(24px,3vw,32px);color:#f8d588}
+.tutorial-finish p{margin:0 auto 18px;max-width:620px;color:#c4d4e6;line-height:1.7;font-size:13px}
+.tutorial-finish .gold-button{text-decoration:none}
+@media(max-width:850px){
+  .tutorial-equation-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tutorial-demo{grid-template-columns:1fr}
+}
+@media(max-width:580px){
+  .tutorial-page{width:calc(100% - 18px);margin:12px auto 30px;gap:12px}
+  .tutorial-section{padding:14px}
+  .tutorial-section-heading{gap:9px}
+  .tutorial-step-number{width:39px;height:39px;flex-basis:39px;font-size:15px}
+  .tutorial-bonuses,.tutorial-control-grid{grid-template-columns:1fr}
+  .tutorial-bonuses>div{padding:11px}
+  .tutorial-example,.tutorial-control-grid>div{padding:11px}
+  .tutorial-board{max-width:320px}
+  .tutorial-demo-tile{width:51px;height:53px}
+  .tutorial-nav{gap:6px}
+  .tutorial-nav a{font-size:11px;padding:9px}
+}

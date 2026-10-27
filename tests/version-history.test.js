@@ -16,14 +16,14 @@ test('lobby and offline game expose one shared current version and changelog',()
   for(const page of pages){
     assert.match(page,/<details class="version-history" data-version-history><summary>Historie změn<\/summary><\/details>/);
     assert.match(page,/version-history\.css\?v=0\.2\.3/);
-    assert.match(page,/src\/version-ui\.js\?v=0\.2\.6/);
+    assert.match(page,/src\/version-ui\.js\?v=0\.2\.7/);
     assert.doesNotMatch(page,/<summary>Verze 0\.2\.[0-9]+/);
   }
 });
 
 test('shared renderer shows release dates and notes on both settings screens',()=>{
   const source=read('../src/version-ui.js');
-  assert.match(source,/from '\.\/version-data\.js\?v=0\.2\.6'/);
+  assert.match(source,/from '\.\/version-data\.js\?v=0\.2\.7'/);
   assert.doesNotMatch(source,/innerHTML|document\.write|localStorage/);
   function element(tag){
     return {tag,children:[],textContent:'',className:'',
@@ -43,7 +43,7 @@ test('shared renderer shows release dates and notes on both settings screens',()
     const notes=node.children[1];
     assert.equal(notes.tag,'ol');
     assert.equal(notes.children.length,RELEASE_HISTORY.length);
-    assert.equal(notes.children[0].children[0].textContent,'0.2.6 · 27. 10. 2026');
+    assert.equal(notes.children[0].children[0].textContent,'0.2.7 · 27. 10. 2026');
     assert.equal(notes.children[0].children[1].textContent,RELEASE_HISTORY[0].description);
   }
 });

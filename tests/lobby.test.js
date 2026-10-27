@@ -435,3 +435,18 @@ test('keyboard users can skip the homepage navigation without changing its layou
   assert.match(css,/\.arena-home \.skip-to-content\{[^}]*position:fixed;[^}]*transform:translateY\(-220%\)/);
   assert.match(css,/\.arena-home \.skip-to-content:focus\{transform:none;/);
 });
+
+test('homepage text is centered without modifying mode card geometry or responsive columns',()=>{
+  const css=file('../arena-home.css');
+  const intro='.arena-home .lobby-intro{display:flex;flex-direction:column;align-items:center;gap:14px;min-height:0;margin:0;padding:12px 0;text-align:center}';
+  const eyebrow='.arena-home .lobby-intro .eyebrow{align-self:center}';
+  const cards='.arena-home .mode-card{min-height:178px;padding:16px;gap:8px;align-items:center;text-align:center}';
+  assert.ok(css.includes(intro));
+  assert.ok(css.includes(eyebrow));
+  assert.ok(css.includes(cards));
+  assert.ok(css.includes('.arena-home .mode-copy,.arena-home .mode-queue{width:100%;text-align:center}'));
+  assert.ok(css.includes('.arena-home .game-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'));
+  assert.ok(css.includes('.home-start{grid-template-columns:minmax(0,1fr);gap:18px}'));
+  assert.ok(css.includes('.arena-home .lobby-intro .hero-resume{width:min(100%,430px)'));
+  assert.ok(landing.includes('href="./arena-home.css?v=0.2.7"'));
+});

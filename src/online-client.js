@@ -1073,10 +1073,11 @@ async function refreshFriends(){
       dot.setAttribute('role','img');dot.setAttribute('aria-label',dot.title);
       row.firstElementChild.prepend(dot);
       const remove=document.createElement('button');remove.type='button';
-      remove.className='gold-button friend-remove';remove.textContent='Odebrat';
+      remove.className='gold-button friend-remove';remove.textContent='×';
       remove.disabled=data.canRemoveFriends!==true;
       if(remove.disabled)remove.title='Odebírání přátel čeká na aktualizaci serveru.';
       remove.setAttribute('aria-label','Odebrat přítele '+player.nickname);
+      if(!remove.disabled)remove.title='Odebrat přítele '+player.nickname;
       remove.addEventListener('click',async()=>{
         if(!confirm('Odebrat přítele '+player.nickname+'?'))return;
         friendsBusy=true;remove.disabled=true;

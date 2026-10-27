@@ -78,4 +78,5 @@
 .friend-presence{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:#94a3b8}
 .friend-presence.is-online{background:#55df91}
 .friend-presence.is-offline{background:#ff7272}
-.friend-remove{color:#ffb5b5}
+.friend-entry .friend-remove{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;min-height:44px;padding:0;border-color:transparent;background:transparent;box-shadow:none;color:#ffb5b5;font-size:25px;line-height:1}
+.friend-entry .friend-remove:hover:not(:disabled){background:#ff727214;border-color:#ff727260}

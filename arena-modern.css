@@ -708,3 +708,134 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
 @media(max-width:420px){
   .server-state{flex:1 1 100%;order:3}
 }
+
+/* v2: Board-first layout.
+   The square board is the primary element. Keep sidebars grouped tightly around
+   it on desktop; on tablets/phones let it use nearly the entire screen width.
+   CSS only: no changes to turn handling, game state, or element IDs. */
+@media (min-width:741px) and (orientation:landscape), (min-width:1101px){
+  :root{
+    --board-side:clamp(330px,min(880px,calc(100dvh - 300px),calc(100vw - 405px)),880px);
+  }
+  body{min-width:0}
+  .game-app{min-height:100dvh;height:auto;overflow:visible}
+  .top-bar{min-height:60px;padding-block:8px}
+  .progress-track{width:min(100% - 42px,800px);height:14px;margin:7px auto 3px}
+  .main-stage{
+    width:100%;max-width:calc(var(--board-side) + 580px);
+    margin-inline:auto;
+    flex:0 0 auto;min-height:0;
+    display:grid;grid-template-columns:minmax(174px,1fr) minmax(0,calc(var(--board-side) + 12px)) minmax(174px,1fr);
+    gap:12px;align-items:start;justify-content:center;
+    padding:8px 11px 3px;
+  }
+  .center-area{width:100%;min-width:0;align-self:start;margin:0}
+  .board-crest{margin-bottom:5px}
+  .board-rim{padding:5px;border-width:1px;width:100%;max-width:none}
+  .board{
+    width:100%;height:auto;aspect-ratio:1 / 1;
+    grid-template-columns:repeat(15,minmax(0,1fr));
+    grid-template-rows:repeat(15,minmax(0,1fr));
+  }
+  .player-side{min-width:0;height:auto;align-self:start;justify-content:flex-start;gap:10px}
+  .player-card{flex:none;order:-1}
+  .side-panel{
+    width:100%;height:auto;max-height:clamp(170px,calc(var(--board-side) - 110px),510px);
+    min-height:160px;margin:0;overflow:hidden;
+  }
+  .status-panel .mobile-panel-content,.chat-panel .mobile-panel-content{min-height:0}
+  .under-board{min-height:39px;margin:4px 1px 2px}
+  .rack-frame{min-height:61px;padding:2px 0 3px}
+  .rack{height:54px;min-width:0;max-width:415px}
+  .tile{height:46px;width:48px;font-size:29px}
+  .control-bar{
+    width:min(100%,calc(var(--board-side) + 580px));
+    margin:6px auto 0;min-height:56px;padding:8px 13px;
+    display:grid;grid-template-columns:minmax(95px,1fr) auto minmax(95px,1fr);
+    gap:10px;border:1px solid #304e74;border-radius:12px;
+  }
+  .game-controls{display:flex;justify-content:center;flex-wrap:wrap}
+  .fine-print{padding:5px 9px 8px}
+  /* Online game uses the same balanced three-column proportions. */
+  #onlineDialog{
+    --board-side:clamp(330px,min(840px,calc(100dvh - 305px),calc(100vw - 415px)),840px);
+  }
+  #onlineDialog .online-dialog-header{min-height:58px;padding:8px 15px}
+  #onlineDialog .online-match-layout{
+    width:100%;max-width:calc(var(--board-side) + 580px);margin-inline:auto;
+    grid-template-columns:minmax(174px,1fr) minmax(0,calc(var(--board-side) + 12px)) minmax(174px,1fr);
+    gap:12px;align-items:start;padding:4px 11px;
+  }
+  #onlineDialog .online-game-board{width:100%;min-width:0}
+  #onlineDialog .online-board-rim{width:100%;max-width:none;padding:5px}
+  #onlineDialog .online-board{width:100%;height:auto;aspect-ratio:1 / 1}
+  #onlineDialog .online-player-side{align-self:start;justify-content:flex-start;gap:10px}
+  #onlineDialog .online-panel{height:auto;max-height:clamp(170px,calc(var(--board-side) - 105px),510px);min-height:160px}
+  #onlineDialog .online-player-card{order:-1;flex:none}
+  #onlineDialog .online-under-board{min-height:42px}
+  #onlineDialog .online-rack-frame{min-height:62px;padding:3px 0}
+  #onlineDialog .online-rack{height:55px}
+  #onlineDialog .online-tile{height:45px}
+  #onlineDialog .online-control-bar{
+    width:min(100%,calc(var(--board-side) + 580px));margin:6px auto 0;min-height:57px;
+    padding:8px 12px;border:1px solid #304e74;border-radius:12px;
+  }
+}
+/* Portrait phones and tablets get an edge-to-edge square, with score above,
+   tools below, and collapsible history/chat out of the board's way. */
+@media (max-width:1100px) and (orientation:portrait), (max-width:740px){
+  .game-app{min-width:0;width:100%;max-width:none;overflow-x:clip}
+  .center-area{
+    width:100%;max-width:none;min-width:0;
+    padding-inline:clamp(3px,.8vw,9px);margin:0;
+  }
+  .board-crest{margin-bottom:4px}
+  .board-rim{width:100%;padding:3px;border-width:1px;border-radius:11px}
+  .board{
+    display:grid;width:100%;height:auto;aspect-ratio:1 / 1;min-width:0;
+    grid-template-columns:repeat(15,minmax(0,1fr));
+    grid-template-rows:repeat(15,minmax(0,1fr));
+  }
+  .board .cell{font-size:clamp(10px,2.7vw,25px)}
+  .player-card{order:initial}
+  .rack-frame{width:100%;max-width:720px;min-width:0;margin:0 auto;padding:3px 0}
+  .rack{flex:1;min-width:0;max-width:560px}
+  .tile{max-width:65px}
+  .under-board{width:100%;gap:6px}
+  .control-bar{
+    width:100%;position:static;min-height:0;margin:0;border:0;
+    border-top:1px solid #355677;border-radius:0;
+  }
+  .side-panel{width:auto;min-height:0;max-height:none;height:auto;overflow:visible}
+  .side-panel.mobile-expanded .mobile-panel-content{display:flex}
+  .fine-print{font-size:10px}
+  #onlineDialog .online-match{width:100%}
+  #onlineDialog .online-game-board{
+    width:100%;max-width:none;min-width:0;
+    padding:0 clamp(3px,.8vw,8px);
+  }
+  #onlineDialog .online-board-rim{width:100%;max-width:none;padding:3px;border-width:1px}
+  #onlineDialog .online-board{
+    display:grid;width:100%;height:auto;aspect-ratio:1 / 1;
+    grid-template-columns:repeat(15,minmax(0,1fr));
+    grid-template-rows:repeat(15,minmax(0,1fr));
+  }
+  #onlineDialog .online-cell{font-size:clamp(10px,2.7vw,25px)}
+  #onlineDialog .online-player-card{order:initial}
+  #onlineDialog .online-rack-frame{width:100%;max-width:720px;margin:0 auto}
+  #onlineDialog .online-rack{max-width:560px}
+  #onlineDialog .online-control-bar{
+    position:static;width:100%;margin:0;border:0;
+    border-top:1px solid #355677;border-radius:0;
+  }
+  #onlineDialog .online-panel{height:auto;min-height:0;max-height:none;overflow:visible}
+}
+/* Compact landscape phones: avoid a postage-stamp board or horizontal overflow.
+   Allow scrolling if the physical screen is shorter than the playfield. */
+@media (min-width:741px) and (max-width:1100px) and (orientation:landscape) and (max-height:570px){
+  :root{--board-side:clamp(330px,calc(100dvh - 75px),540px)}
+  #onlineDialog{--board-side:clamp(330px,calc(100dvh - 75px),540px)}
+  .main-stage,#onlineDialog .online-match-layout{gap:7px;padding-inline:6px}
+  .top-bar{flex-wrap:wrap}
+  .side-panel,#onlineDialog .online-panel{min-height:115px;max-height:260px}
+}

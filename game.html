@@ -18,32 +18,6 @@
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body>
-  <svg class="svg-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="fur"><stop stop-color="#fff"/><stop offset=".7" stop-color="#d0d3d9"/><stop offset="1" stop-color="#818995"/></radialGradient>
-      <linearGradient id="face" x2="1" y2="1"><stop stop-color="#ebf0f3"/><stop offset="1" stop-color="#657c91"/></linearGradient>
-      <linearGradient id="gold" x2="0" y2="1"><stop stop-color="#fff8bb"/><stop offset=".35" stop-color="#fac857"/><stop offset=".7" stop-color="#b66a13"/><stop offset="1" stop-color="#ffde68"/></linearGradient>
-      <symbol id="little-mascot" viewBox="0 0 170 186">
-        <g stroke="#f9fbff" stroke-width="2" stroke-dasharray="2.7 2" fill="url(#fur)">
-          <ellipse cx="85" cy="70" rx="61" ry="54"/>
-          <ellipse cx="85" cy="17" rx="20" ry="16"/><ellipse cx="49" cy="28" rx="20" ry="16" transform="rotate(-28 49 28)"/>
-          <ellipse cx="120" cy="28" rx="20" ry="16" transform="rotate(28 120 28)"/>
-          <ellipse cx="24" cy="65" rx="19" ry="18"/><ellipse cx="146" cy="65" rx="19" ry="18"/>
-          <ellipse cx="34" cy="111" rx="18" ry="19"/><ellipse cx="136" cy="111" rx="18" ry="19"/>
-          <ellipse cx="84" cy="123" rx="38" ry="33"/>
-        </g>
-        <ellipse cx="85" cy="93" rx="48" ry="49" fill="url(#face)" stroke="#657386" stroke-width="3"/>
-        <ellipse cx="69" cy="81" rx="21" ry="26" fill="#eff9ff" stroke="#536376" stroke-width="2.5"/>
-        <ellipse cx="107" cy="81" rx="21" ry="26" fill="#ffca21" stroke="#536376" stroke-width="2.5"/>
-        <ellipse cx="74" cy="84" rx="9" ry="14" fill="#202532"/><ellipse cx="102" cy="84" rx="9" ry="14" fill="#202532"/>
-        <circle cx="78" cy="78" r="4.4" fill="#fff"/><circle cx="105" cy="78" r="4.4" fill="#fff"/>
-        <ellipse cx="89" cy="113" rx="19" ry="11" fill="#f08f9e" stroke="#9b5266" stroke-width="2"/>
-        <circle cx="89" cy="116" r="12" fill="#aaf0f9" stroke="#b5548e" stroke-width="4"/>
-        <circle cx="89" cy="116" r="5" fill="#f9e5aa"/>
-        <path d="M57 130q28 22 59 0l14 40H44z" fill="#78869c" stroke="#52677a" stroke-width="3"/>
-      </symbol>
-    </defs>
-  </svg>
 
   <div class="game-app">
     <header class="top-bar">
@@ -77,7 +51,6 @@
           <ol class="move-history" id="moveHistory" aria-label="Historie tahů"></ol>
           </div>
         </section>
-        <svg class="mascot" viewBox="0 0 170 186" aria-hidden="true"><use href="#little-mascot"/></svg>
         <div class="player-card active" id="player0Card">
           <div class="player-name" id="player0Name">Hráč 1</div>
           <div class="score"><strong id="player0Score">0</strong><small id="player0Status">Na tahu</small></div>
@@ -121,7 +94,6 @@
           <p class="chat-note">Chat funguje místně na tomto zařízení.</p>
           </div>
         </section>
-        <svg class="mascot" viewBox="0 0 170 186" aria-hidden="true"><use href="#little-mascot"/></svg>
         <div class="player-card" id="player1Card">
           <div class="player-name" id="player1Name">Počítač</div>
           <div class="score"><strong id="player1Score">0</strong><small id="player1Status">Čeká</small></div>

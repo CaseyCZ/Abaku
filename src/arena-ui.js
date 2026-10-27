@@ -1,71 +1,59 @@
-// Číselná aréna: presentation preferences only.
-// Affects CSS layout and panel visibility, never game rules or network state.
-const LAYOUT_KEY='ciselna-arena-layout-v1';
-const layouts=new Set(['focus','side','stack']);
+// Presentation preferences only; never change a saved game or network state.
+const PANEL_KEY='ciselna-arena-panels-v1';
+const LEGACY_LAYOUT_KEY='ciselna-arena-layout-v1';
 const byId=id=>document.getElementById(id);
 
-function storedLayout(){
-  // Default: maximum board against AI, visible history and chat in online matches.
-  const fallback=byId('onlineDialog')?'side':'focus';
-  try{const saved=localStorage.getItem(LAYOUT_KEY);return layouts.has(saved)?saved:fallback;}
-  catch{return fallback;}
+function storedPanels(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(PANEL_KEY)||'null');
+    if(typeof saved?.history==='boolean'&&typeof saved?.chat==='boolean')return saved;
+    // Preserve old visibility without deleting or rewriting the legacy key.
+    if(localStorage.getItem(LEGACY_LAYOUT_KEY)==='focus')return {history:false,chat:false};
+  }catch{/* Preferences also work with blocked storage. */}
+  return {history:true,chat:true};
 }
-function applyLayout(value,persist=false){
-  const chosen=layouts.has(value)?value:'focus';
-  document.documentElement.dataset.arenaLayout=chosen;
-  if(persist){try{localStorage.setItem(LAYOUT_KEY,chosen);}catch{/* Private mode */}}
-  for(const id of ['layoutSetting','onlineLayoutSetting']){
-    const field=byId(id);
-    if(field&&field.value!==chosen)field.value=chosen;
-  }
-  // Changing modes closes overlays so a panel cannot get stuck across layouts.
-  for(const element of document.querySelectorAll('.game-app.panel-open,#onlineDialog.panel-open')){
-    element.classList.remove('panel-open');
-  }
-  for(const id of ['gameInfoToggle','onlineInfoToggle']){
-    const button=byId(id);
-    if(button)button.setAttribute('aria-expanded','false');
+let savedPanels=storedPanels();
+function applyPanels(value){
+  document.documentElement.dataset.arenaHistory=String(value.history);
+  document.documentElement.dataset.arenaChat=String(value.chat);
+  for(const input of document.querySelectorAll('[data-arena-panel]')){
+    input.checked=value[input.dataset.arenaPanel];
   }
 }
-function togglePanel(buttonId,container){
-  const button=byId(buttonId);
-  if(!button||!container)return;
-  button.addEventListener('click',()=>{
-    const opened=container.classList.toggle('panel-open');
-    button.setAttribute('aria-expanded',String(opened));
-  });
+function selectedPanels(){
+  return Object.fromEntries([...document.querySelectorAll('[data-arena-panel]')]
+    .map(input=>[input.dataset.arenaPanel,input.checked]));
+}
+function savePanels(){
+  savedPanels=selectedPanels();
+  try{localStorage.setItem(PANEL_KEY,JSON.stringify(savedPanels));}catch{/* Keep current-page preferences. */}
+  applyPanels(savedPanels);
+}
+// A new-message notification may reveal chat without changing saved preferences.
+export function revealArenaChat(){
+  applyPanels({history:document.documentElement.dataset.arenaHistory==='true',chat:true});
 }
 function init(){
-  applyLayout(storedLayout());
-  for(const id of ['layoutSetting','onlineLayoutSetting']){
-    const field=byId(id);
-    if(field){
-      field.value=storedLayout();
-      // Live preview while the settings window is open; persist only on Save.
-      field.addEventListener('change',()=>applyLayout(field.value,false));
-    }
+  applyPanels(savedPanels);
+  for(const input of document.querySelectorAll('[data-arena-panel]')){
+    input.addEventListener('change',()=>applyPanels(selectedPanels()));
   }
-  const offlineForm=byId('settingsForm');
-  if(offlineForm){
-    offlineForm.addEventListener('submit',event=>{
-      if(event.submitter?.value==='save'){
-        // The game may cancel submission if a mode switch was declined.
-        queueMicrotask(()=>applyLayout(event.defaultPrevented?storedLayout():byId('layoutSetting').value,
-          !event.defaultPrevented));
-      }else applyLayout(storedLayout());
+  for(const id of ['settingsButton','lobbySettingsButton','onlineSettingsButton']){
+    byId(id)?.addEventListener('click',()=>applyPanels(savedPanels));
+  }
+  byId('settingsForm')?.addEventListener('submit',event=>{
+    // The game may reject a mode change; rejected submission must not save preferences.
+    queueMicrotask(()=>{
+      if(event.submitter?.value==='save'&&!event.defaultPrevented)savePanels();
+      else applyPanels(savedPanels);
     });
-    byId('settingsDialog').addEventListener('close',()=>applyLayout(storedLayout()));
+  });
+  byId('onlineSettingsSave')?.addEventListener('click',savePanels);
+  for(const id of ['settingsDialog','onlineGameSettingsDialog']){
+    byId(id)?.addEventListener('close',()=>applyPanels(savedPanels));
   }
-  const onlineSave=byId('onlineSettingsSave');
-  if(onlineSave){
-    onlineSave.addEventListener('click',()=>applyLayout(byId('onlineLayoutSetting').value,true));
-    byId('onlineSettingsCancel').addEventListener('click',()=>applyLayout(storedLayout()));
-    byId('onlineGameSettingsDialog').addEventListener('close',()=>applyLayout(storedLayout()));
-  }
-  togglePanel('gameInfoToggle',document.querySelector('.game-app'));
-  togglePanel('onlineInfoToggle',byId('onlineDialog'));
   window.addEventListener('storage',event=>{
-    if(event.key===LAYOUT_KEY)applyLayout(storedLayout());
+    if(event.key===PANEL_KEY||event.key===null){savedPanels=storedPanels();applyPanels(savedPanels);}
   });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});

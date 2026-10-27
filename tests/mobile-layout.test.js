@@ -21,16 +21,17 @@ test('mobile hint messages are visible even with a collapsed status panel',()=>{
   assert.match(html,/id="hintButton"/);
   assert.match(html,/id="confirmButton"/);
 });
-test('status and chat panels expand on demand but keep desktop elements',()=>{
-  assert.match(html,/aria-controls="statusPanelContent"/);
-  assert.match(html,/aria-controls="chatPanelContent"/);
-  assert.match(css,/\.side-panel\.mobile-expanded \.mobile-panel-content/);
-  assert.match(js,/panel\.classList\.toggle\('mobile-expanded'\)/);
-  assert.match(js,/setAttribute\('aria-expanded',String\(expanded\)\)/);
+test('status and chat visibility is controlled from settings on every screen size',()=>{
+  assert.match(html,/id="statusPanelContent"/);
+  assert.match(html,/id="chatPanelContent"/);
+  assert.match(html,/data-arena-panel="history"/);
+  assert.match(html,/data-arena-panel="chat"/);
+  assert.doesNotMatch(html,/id="gameInfoToggle"|class="mobile-panel-toggle"|id="layoutSetting"/);
+  assert.match(file('../src/arena-ui.js'),/event\.defaultPrevented/);
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.10/);
-  assert.match(html,/main\.js\?v=0\.1\.19/);
+  assert.match(html,/main\.js\?v=0\.1\.20/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{

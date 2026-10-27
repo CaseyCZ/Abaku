@@ -27,8 +27,8 @@ test('game mode selection preserves access to local and AI play',()=>{
 });
 test('Guest mode keeps online auth optional until the Oracle API becomes available',()=>{
   assert.match(landing,/id="googleSignIn"/);
-  assert.match(landing,/Online režim připravujeme/);
-  assert.match(lobby,/googleSignIn:'Google přihlášení/);
+  assert.match(landing,/Přihlášení pro online hru/);
+  assert.match(lobby,/googleSignIn:'Přihlášení přes Google/);
   assert.match(lobby,/playRandom:'Pro náhodný online zápas/);
 });
 
@@ -132,8 +132,8 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   assert.match(onlineClient,/clearSavedCredential\(\)/);
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
-  assert.match(landing,/Číselná aréna Online/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.26/);
+  assert.match(landing,/Hráči a partie/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.27/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -158,7 +158,7 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
   assert.match(onlineClient,/renderOnlineProgress\(s\)/);
   assert.match(onlineClient,/renderOnlineStatus\(s\)/);
   assert.match(onlineClient,/updateOnlineTimer\(\)/);
-  assert.match(onlineClient,/panel\.classList\.toggle\('mobile-expanded'\)/);
+  assert.match(onlineClient,/revealArenaChat\(\)/);
   assert.match(onlineClient,/formatEquations\(last\.equations,10\)/);
   assert.match(onlineClient,/s\.history/);
   assert.match(onlineClient,/gameState\.deadline/);
@@ -204,7 +204,7 @@ test('Oracle health automatically retries after intermittent refresh failures',(
   assert.match(onlineClient,/onlineInitStarted=true/);
   assert.match(onlineClient,/onlineInitRetryTimer=setTimeout\(\(\)=>\{/);
   assert.match(onlineClient,/initOnline\(\);\s*\},5000\)/);
-  assert.match(onlineClient,/Oracle dočasně neodpovídá/);
+  assert.match(onlineClient,/Server dočasně neodpovídá/);
   assert.match(onlineClient,/if\(!configured\|\|onlineServerReady\)return;/);
 });
 

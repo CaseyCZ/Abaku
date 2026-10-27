@@ -68,7 +68,7 @@ Budu rád za zpětnou vazbu. Napiš ji na [GitHubu v sekci Issues](https://githu
 
 Číselná aréna je nezávislý fanouškovský projekt. Není propojena s autory ani provozovateli původní hry. Práva k původní hře, názvu a případným původním grafickým prvkům patří jejich vlastníkům.
 
-Nastavení najdeš pod jedním tlačítkem **Nastavení** v hlavní nabídce i během hry. [Žebříček](https://caseycz.github.io/Abaku/leaderboard.html) má vlastní stránku; na telefonu je navigace v menu ☰.
+Nastavení najdeš pod jedním tlačítkem **Nastavení** v hlavní nabídce i během hry. Zobrazení průběhu a chatu se zapíná jednotlivě; na PC jsou panely vedle desky, na mobilu pod ní. [Žebříček](https://caseycz.github.io/Abaku/leaderboard.html) má vlastní stránku; na telefonu je navigace v menu ☰.
 
 ---
 

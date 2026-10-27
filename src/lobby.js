@@ -1,4 +1,4 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.26';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.27';
 const PROFILE_KEY = 'abaku-local-profile-v1';
 const GAME_KEY = 'retro-abaku-game-v1';
 const byId = id => document.getElementById(id);
@@ -48,7 +48,7 @@ for(const id of ['profileOpen','editProfile']){
     byId('avatarSelect').value=value.avatar;
     byId('profileTitle').textContent=online?'Upravit online profil':'Místní profil';
     byId('profileDialogDescription').textContent=online
-      ? 'Změna přezdívky a avataru se uloží na Oracle a zobrazí na dalších zařízeních.'
+      ? 'Změna přezdívky a avataru se uloží k účtu a zobrazí na dalších zařízeních.'
       : 'Přezdívka je uložená pouze v tomto zařízení. Nejde o online přihlášení.';
     byId('profileDialog').showModal();
   });
@@ -79,12 +79,13 @@ byId('profileForm').addEventListener('submit',async event=>{
 });
 byId('nickname').addEventListener('input',()=>byId('nickname').setCustomValidity(''));
 const planned={
-  playRandom:'Pro náhodný online zápas se nejdříve přihlas přes Google v panelu Můj profil. Pokud přihlášení nevidíš, Oracle API nemusí být dostupné.',
+  playRandom:'Pro náhodný online zápas se nejdříve přihlas přes Google v panelu Můj profil. Pokud přihlášení nevidíš, server může být dočasně nedostupný.',
   playFriends:'Pro online partii se přihlas přes Google. Pak vyber přítele ze seznamu a vyzvi ho, případně se připoj pomocí kódu.',
-  googleSignIn:'Google přihlášení se aktivuje po nastavení Google OAuth Web Client ID a HTTPS API na Oracle serveru.'
+  googleSignIn:'Přihlášení přes Google je dočasně nedostupné. Zkus to prosím za chvíli.'
 };
 for(const [id,description] of Object.entries(planned)){
   byId(id).addEventListener('click',()=>{
+    byId('plannedTitle').textContent=id==='googleSignIn'?'Přihlášení není dostupné':'Přihlášení pro online hru';
     byId('plannedText').textContent=description;
     byId('plannedDialog').showModal();
   });

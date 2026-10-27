@@ -62,3 +62,13 @@
   .arena-home .mode-card{min-height:150px}
   .arena-home .mini-brand .brand-logo,.arena-public .mini-brand .brand-logo{max-width:52vw;height:48px}
 }
+
+/* Online activity and resumable matches share one card. */
+.arena-home .resume-section{margin-top:18px;padding-top:16px;border-top:1px solid #365578}
+.arena-home .resume-section h3{margin:0 0 8px;font-size:15px;color:var(--arena-gold-hi)}
+.arena-home .resume-section p{margin:8px 0 12px}
+.arena-home .lobby-header>.server-state{display:flex;color:#ffb5b5}
+@media(max-width:760px){
+  .arena-home .lobby-header>.server-state{order:2;flex-basis:100%;margin:0}
+  .arena-home .site-navigation{order:3}
+}

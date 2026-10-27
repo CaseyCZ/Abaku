@@ -1,3 +1,4 @@
+import {revealArenaChat} from './arena-ui.js?v=2';
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
 import { describeMovePreview } from './preview.js?v=0.2.24';
 import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.24';
@@ -104,6 +105,10 @@ function paintPresence(data){
   $('queueActivity').textContent=msg;
   $('onlineWaitingCount').textContent='Nyní čeká na náhodného soupeře: '+data.waiting+'.';
 }
+function setServerOffline(offline){
+  const indicator=document.querySelector('.server-state');
+  indicator.hidden=!offline;
+}
 async function refreshPresence(){
   if(!apiBase)return;
   try{
@@ -113,7 +118,9 @@ async function refreshPresence(){
     if(!Number.isSafeInteger(data.online)||!Number.isSafeInteger(data.waiting)||
        data.online<0||data.waiting<0||data.waiting>data.online)throw new Error('Neplatná data');
     paintPresence(data);
+    setServerOffline(false);
   }catch{
+    setServerOffline(true);
     // Never display an old cached count as if it were current.
     lastPresence=null;
     $('onlineCount').textContent='—';
@@ -227,10 +234,10 @@ function showProfile(profile){
   $('googleSignInWidget').hidden=true;
   $('onlineLoginNotice').hidden=true;
   $('profileSubtitle').textContent='Google účet · online';
-  $('profileDescription').textContent='Tento profil a statistiky jsou uložené na Oracle. Úpravy přezdívky se synchronizují mezi zařízeními.';
+  $('profileDescription').textContent='Tento profil a statistiky jsou uložené u tvého účtu. Úpravy přezdívky se synchronizují mezi zařízeními.';
   $('editProfile').textContent='Upravit online profil';
   $('manageFriends').hidden=false;
-  $('onlineInfoText').textContent='Oracle je připojený. Můžeš vyzvat přítele přímo ze seznamu nebo najít náhodného soupeře.';
+  $('onlineInfoText').textContent='Můžeš vyzvat přítele přímo ze seznamu nebo najít náhodného soupeře.';
   const onlineModes=[
     ['playRandom','HLEDAT SOUPEŘE'],
     ['playFriends','VYBRAT PŘÍTELE']
@@ -267,7 +274,7 @@ async function googleCredential(value){
     }else saveCredential(value);
     showProfile(profile);
     if(!lastingSession){
-      $('onlineInfoText').textContent='Google je přihlášený, ale delší relace zatím není dostupná. Aktualizuj Oracle API.';
+      $('onlineInfoText').textContent='Jsi přihlášený. Po zavření prohlížeče se může být potřeba přihlásit znovu.';
     }
     await heartbeat().catch(()=>{});
     await refreshPresence();
@@ -278,7 +285,7 @@ async function googleCredential(value){
     // Network outages and throttling do NOT invalidate a verified Google ID
     // token. Try the same saved session again after five seconds.
     if(error.httpStatus!==400&&error.httpStatus!==401){
-      status('Oracle dočasně neodpovídá. Obnovuji přihlášení za 5 sekund…',true);
+      status('Server dočasně neodpovídá. Obnovuji přihlášení za 5 sekund…',true);
       $('onlineLoginNotice').hidden=false;
       $('onlineLoginNotice').textContent='Spojení se serverem není dostupné. Zkusím znovu za 5 sekund.';
       setTimeout(()=>{if(credential===value)googleCredential(value);},5000);
@@ -313,12 +320,9 @@ function refreshUnreadChat(){
     latestUnreadChat='';
   }
   const hasUnread=unreadOnlineChat>0;
-  const headerBadge=$('onlineUnreadBadgeHeader');
   toast.hidden=!hasUnread;
   badge.hidden=!hasUnread;
-  headerBadge.hidden=!hasUnread;
   if(hasUnread){
-    headerBadge.textContent=unreadOnlineChat>99?'99+':String(unreadOnlineChat);
     badge.textContent=unreadOnlineChat>99?'99+':String(unreadOnlineChat);
     $('onlineChatToastCount').textContent=unreadOnlineChat===1?'Nová zpráva · Chat':'Nové zprávy ('+unreadOnlineChat+')';
     $('onlineChatToastPreview').textContent=latestUnreadChat;
@@ -326,14 +330,7 @@ function refreshUnreadChat(){
   }
 }
 function revealOnlineChat(){
-  // In maximum-board mode, reveal the overlay before scrolling to messages.
-  $('onlineDialog').classList.add('panel-open');
-  $('onlineInfoToggle').setAttribute('aria-expanded','true');
-  const panel=$('onlinePanelChat').closest('.online-panel');
-  panel.classList.add('mobile-expanded');
-  const toggle=panel.querySelector('.online-panel-toggle');
-  toggle?.setAttribute('aria-expanded','true');
-  if(toggle?.firstChild)toggle.firstChild.textContent='▾ Chat ';
+  revealArenaChat();
   $('onlineChat').scrollIntoView({behavior:'smooth',block:'center'});
   // Unread status clears once the chat really comes into view.
   setTimeout(refreshUnreadChat,450);
@@ -501,8 +498,6 @@ function connectOnline(action,{reconnecting=false}={}){
     resetOnlineResult();
     if(!$('onlineDialog').open)$('onlineDialog').showModal();
     $('onlineMatchScoreboard').hidden=true;
-    $('onlineDialog').classList.remove('panel-open');
-    $('onlineInfoToggle').setAttribute('aria-expanded','false');
     $('onlineBoardWrapper').hidden=true;
     $('onlineWaiting').hidden=false;
     $('onlineCode').textContent='';
@@ -513,7 +508,7 @@ function connectOnline(action,{reconnecting=false}={}){
   }
   $('onlineResumeCard').hidden=true;
   refreshPresence();
-  status(reconnecting?'Znovu se připojuji k Oracle serveru…':'Připojuji se k Oracle serveru…');
+  status(reconnecting?'Znovu se připojuji k serveru…':'Připojuji se k serveru…');
   const wsUrl=apiBase.replace(/^http/,'ws')+'/ws';
   let socket;
   try{socket=new WebSocket(wsUrl);}
@@ -823,17 +818,6 @@ function renderOnline(){
   $('onlineExchange').textContent=exchanging?'Potvrdit výměnu ('+selectedExchange.size+')':'Vyměnit';
 }
 function initializeActions(){
-  // Mobile only: match the collapsible Progress / Chat panels in the offline UI.
-  for(const panel of document.querySelectorAll('#onlineDialog .online-panel')){
-    const toggle=panel.querySelector('.online-panel-toggle');
-    if(!toggle)continue;
-    toggle.addEventListener('click',()=>{
-      const expanded=panel.classList.toggle('mobile-expanded');
-      toggle.setAttribute('aria-expanded',String(expanded));
-      if(toggle.firstChild)toggle.firstChild.textContent=(expanded?'▾ ':'▸ ')+(panel.classList.contains('online-status-panel')?'Průběh partie':'Chat')+' ';
-      refreshUnreadChat();
-    });
-  }
   if(!onlineTimerTicker)onlineTimerTicker=setInterval(updateOnlineTimer,250);
   // Keep NGINX/Safari from idling out the WebSocket silently, and detect
   // dead connections if no state/sync reply has arrived for >75 seconds.
@@ -876,8 +860,6 @@ function initializeActions(){
     if(inGameSettings.open)inGameSettings.close();
     if($('onlineDialog').open)$('onlineDialog').close();
     $('onlineMatchScoreboard').hidden=true;
-    $('onlineDialog').classList.remove('panel-open');
-    $('onlineInfoToggle').setAttribute('aria-expanded','false');
     gameState=null;
     refreshResumeCard();
   }
@@ -1146,12 +1128,12 @@ export async function initOnline(){
   const timeout=setTimeout(()=>controller.abort(),4500);
   try{
     const response=await fetch(apiBase+'/health',{cache:'no-store',signal:controller.signal});
-    if(!response.ok)throw new Error('Oracle dočasně neodpovídá.');
+    if(!response.ok)throw new Error('Server dočasně neodpovídá.');
     const data=await response.json();
     if(data?.status!=='ok'||data?.service!=='abaku-api')
-      throw new Error('Oracle není připraven.');
+      throw new Error('Server není připraven.');
   }catch{
-    document.querySelector('.server-state').textContent='● Oracle se znovu připojuje';
+    setServerOffline(true);
     $('onlineInfoText').textContent='Server nyní neodpovídá. Znovu se připojím za 5 sekund.';
     if(!onlineInitRetryTimer)onlineInitRetryTimer=setTimeout(()=>{
       onlineInitRetryTimer=null;
@@ -1163,12 +1145,12 @@ export async function initOnline(){
   }
   onlineServerReady=true;
   if(onlineInitRetryTimer){clearTimeout(onlineInitRetryTimer);onlineInitRetryTimer=null;}
-  document.querySelector('.server-state').textContent='● Oracle Online připojeno';
+  setServerOffline(false);
   startPresenceUpdates();
   $('googleSignIn').hidden=true;
   $('onlineLoginNotice').hidden=false;
   $('onlineLoginNotice').textContent='Obnovuji přihlášení…';
-  $('onlineInfoText').textContent='Oracle API běží. Hraj s náhodným soupeřem nebo pozvi přítele.';
+  $('onlineInfoText').textContent='Hraj s náhodným soupeřem nebo pozvi přítele.';
 
   // Restore a server-verified device session from any browser tab; fallback to
   // the old single-tab Google ID token during the server upgrade. A session

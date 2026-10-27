@@ -17,20 +17,20 @@
   <link rel="stylesheet" href="./score-recap.css?v=0.2.15">
   <link rel="stylesheet" href="./analytics.css?v=1">
   <link rel="stylesheet" href="./arena-modern.css?v=1">
-  <link rel="stylesheet" href="./arena-layout.css?v=1">
-  <link rel="stylesheet" href="./arena-home.css?v=1">
+  <link rel="stylesheet" href="./arena-layout.css?v=2">
+  <link rel="stylesheet" href="./arena-home.css?v=2">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body class="arena-home">
   <div class="lobby-shell">
     <header class="lobby-header">
       <a class="mini-brand" href="./index.html" aria-label="Číselná aréna, hlavní nabídka"><img class="brand-logo" src="./assets/arena-logo.svg" alt="" width="640" height="220"></a>
-      <span class="server-state"><span class="status-dot"></span>Zjišťuji stav online…</span>
+      <span class="server-state" role="status" hidden>Server offline</span>
       <button type="button" id="menuToggle" class="gold-button menu-toggle" aria-expanded="false" aria-controls="siteNavigation" aria-label="Otevřít menu">☰ Menu</button>
       <nav class="lobby-account site-navigation" id="siteNavigation" aria-label="Hlavní navigace">
         <a class="header-link" href="./leaderboard.html">Žebříček</a>
         <a class="header-link" href="./how-to-play.html">Jak hrát</a>
-        <button type="button" class="gold-button" id="lobbySettingsButton" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">⚙ Nastavení</button>
+        <button type="button" class="gold-button" id="lobbySettingsButton" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
         <button type="button" class="gold-button" id="profileOpen">Můj profil</button>
       </nav>
     </header>
@@ -86,30 +86,29 @@
             <div id="googleSignInWidget" hidden></div>
             <p id="onlineStats" hidden></p>
             <button type="button" id="onlineLogout" class="gold-button wide" hidden>Odhlásit online účet</button>
-            <button type="button" id="googleSignIn" class="gold-button wide">Přihlášení přes Google – připravujeme</button>
+            <button type="button" id="googleSignIn" class="gold-button wide">Přihlásit přes Google</button>
             <button type="button" id="editProfile" class="gold-button wide">Upravit místní profil</button>
             <button type="button" id="manageFriends" class="gold-button wide" hidden>Moji přátelé a žádosti</button>
           </div>
-          <div class="side-card saved-card" id="savedCard" hidden>
-            <h2>✦ Rozehraná partie</h2>
-            <p id="savedDescription">Máš uloženou partii.</p>
-            <a class="gold-button wide link-button" href="./game.html">Pokračovat ve hře</a>
-          </div>
-          <div class="side-card online-resume-card" id="onlineResumeCard" hidden>
-            <h2>✦ Rozehraná online partie</h2>
-            <p id="onlineResumeDescription">Na serveru máš rozehranou partii.</p>
-            <button type="button" id="onlineResumeButton" class="gold-button wide">Pokračovat v online partii</button>
-            <p class="online-resume-note">Obnovení funguje, dokud je partie stále aktivní na serveru.</p>
-          </div>
           <div class="side-card" id="onlineInfo">
-            <h2>✦ Číselná aréna Online</h2>
+            <h2>✦ Hráči a partie</h2>
             <div class="online-presence" aria-label="Aktuální aktivita hráčů">
               <div><strong id="onlineCount">—</strong><span>hráčů online</span></div>
               <div><strong id="waitingCount">—</strong><span>hledá soupeře</span></div>
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-            <span class="build-label">Číselná aréna · online</span>
+          <div class="resume-section" id="savedCard" hidden>
+            <h3>✦ Rozehraná partie</h3>
+            <p id="savedDescription">Máš uloženou partii.</p>
+            <a class="gold-button wide link-button" href="./game.html">Pokračovat ve hře</a>
+          </div>
+          <div class="resume-section" id="onlineResumeCard" hidden>
+            <h3>✦ Rozehraná online partie</h3>
+            <p id="onlineResumeDescription">Na serveru máš rozehranou partii.</p>
+            <button type="button" id="onlineResumeButton" class="gold-button wide">Pokračovat v online partii</button>
+            <p class="online-resume-note">Obnovení funguje, dokud je partie stále aktivní na serveru.</p>
+          </div>
           </div>
         </aside>
       </section>
@@ -154,8 +153,8 @@
   </dialog>
   <dialog id="plannedDialog" aria-labelledby="plannedTitle">
     <div class="dialog-body">
-      <h2 id="plannedTitle">Online režim připravujeme</h2>
-      <p id="plannedText">Tato funkce bude přístupná po zprovoznění Oracle API.</p>
+      <h2 id="plannedTitle">Přihlášení pro online hru</h2>
+      <p id="plannedText">Online hra je dočasně nedostupná. Zkus to prosím za chvíli.</p>
       <button type="button" class="gold-button primary" id="plannedClose">Rozumím</button>
     </div>
   </dialog>
@@ -203,8 +202,7 @@
             </div>
         </div>
         <div class="online-header-actions">
-          <button type="button" id="onlineInfoToggle" class="gold-button panel-toggle" aria-expanded="false" aria-controls="onlineInfoPanel">☰ Průběh a chat <span id="onlineUnreadBadgeHeader" class="online-unread-badge" hidden>0</span></button>
-          <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">⚙ Nastavení</button>
+          <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
           <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka</button>
         </div>
       </header>
@@ -230,25 +228,18 @@
 
 
           <section class="online-game-board" aria-label="Online herní plocha">
-            <div class="online-board-crest">✦ ČÍSELNÁ BITVA ✦</div>
+            <div class="board-heading">
+              <div class="online-board-crest">ČÍSELNÁ BITVA</div>
+              <div id="onlinePreview" class="online-preview" aria-live="polite">Polož kameny na desku</div>
+            </div>
             <div class="online-board-rim">
               <div id="onlineBoard" class="online-board" role="grid" aria-label="Online deska 15 krát 15"></div>
             </div>
-            <div class="online-under-board">
-              <div id="onlinePreview" class="online-preview" aria-live="polite">Polož kameny na desku</div>
-              <div class="online-timer-wrap"><span>ČAS</span><strong id="onlineTimer">01:00</strong></div>
-            </div>
             <div id="onlineLastMoveReview" class="online-last-move-review" role="status" aria-live="polite" hidden></div>
-            <div class="online-rack-frame">
-              <button id="onlineUndo" class="online-round-button" type="button" aria-label="Vrátit rozložené kameny" title="Vrátit">↶</button>
-              <div id="onlineRack" class="online-rack" aria-label="Tvoje kameny"></div>
-              <button id="onlineConfirm" class="online-round-button online-confirm" type="button" aria-label="Potvrdit tah" title="Potvrdit tah">✓</button>
-            </div>
           </section>
 
           <aside class="online-player-side online-right" id="onlineInfoPanel">
             <section class="online-panel online-status-panel" aria-label="Průběh online partie">
-              <button type="button" class="online-panel-toggle" aria-expanded="false" aria-controls="onlinePanelHistory">▸ Průběh partie</button>
               <div class="online-panel-content" id="onlinePanelHistory">
                 <h2>Průběh partie</h2>
                 <div class="online-status-turn"><span>Na tahu</span><strong id="onlineTurnName">Hráč 1</strong></div>
@@ -268,9 +259,8 @@
               </div>
             </section>
             <section class="online-panel online-match-chat" aria-label="Chat online partie">
-              <button type="button" class="online-panel-toggle" aria-expanded="false" aria-controls="onlinePanelChat">▸ Chat <span id="onlineUnreadBadge" class="online-unread-badge" hidden>0</span></button>
               <div id="onlinePanelChat" class="online-panel-content">
-                <h2>Chat</h2>
+                <h2>Chat <span id="onlineUnreadBadge" class="online-unread-badge" hidden>0</span></h2>
                 <div id="onlineChat" class="online-chat-scroll" role="log" aria-live="polite"></div>
                 <form id="onlineChatForm">
                   <input id="onlineChatInput" maxlength="160" placeholder="Napsat zprávu…" aria-label="Chatová zpráva">
@@ -282,10 +272,16 @@
         </div>
         <div class="online-control-bar">
           <div class="online-bag-count">V sáčku <strong id="onlineBagCount">100</strong> kamenů</div>
+            <div class="online-rack-frame">
+              <button id="onlineUndo" class="online-round-button" type="button" aria-label="Vrátit rozložené kameny" title="Vrátit">↶</button>
+              <div id="onlineRack" class="online-rack" aria-label="Tvoje kameny"></div>
+              <button id="onlineConfirm" class="online-round-button online-confirm" type="button" aria-label="Potvrdit tah" title="Potvrdit tah">✓</button>
+            </div>
           <div class="online-match-actions">
             <button class="gold-button" type="button" id="onlineExchange">Vyměnit</button>
             <button class="gold-button" type="button" id="onlinePass">Vynechat tah</button>
           </div>
+              <div class="online-timer-wrap"><span>ČAS</span><strong id="onlineTimer">01:00</strong></div>
           <div class="online-game-mode">Online · 2 hráči</div>
         </div>
       </div>
@@ -298,15 +294,11 @@
   </dialog>
   <dialog id="onlineGameSettingsDialog" class="online-game-settings-dialog" aria-labelledby="onlineGameSettingsTitle">
     <div class="online-game-settings-body">
-      <h2 id="onlineGameSettingsTitle">⚙ Nastavení</h2>
+      <h2 id="onlineGameSettingsTitle">Nastavení</h2>
       <h3>Herní obrazovka</h3>
-      <label for="onlineLayoutSetting">Rozložení obrazovky</label>
-      <select id="onlineLayoutSetting" aria-label="Rozložení herní obrazovky">
-        <option value="focus">Maximální deska</option>
-        <option value="side">Deska a boční panel</option>
-        <option value="stack">Panely pod deskou</option>
-      </select>
-      <p>Vzhled se uloží také pro hru proti počítači. Na telefonu má přednost velikost desky.</p>
+      <label class="check-line"><input type="checkbox" id="onlineHistorySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
+      <label class="check-line"><input type="checkbox" id="onlineChatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
+      <p>Panely jsou vedle desky, na telefonu pod ní. Proti počítači se chat nezobrazuje.</p>
       <label for="onlineRecapSeconds">Doba zobrazení příkladu</label>
       <select id="onlineRecapSeconds" aria-label="Doba zobrazení každého příkladu">
         <option value="0">Vypnuto</option>
@@ -370,7 +362,7 @@
     </div>
   </dialog>
   <script type="module" src="./src/site-navigation.js?v=1"></script>
-  <script type="module" src="./src/arena-ui.js?v=1"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.26"></script>
+  <script type="module" src="./src/arena-ui.js?v=2"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.27"></script>
 </body>
 </html>

@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="./result-dialog.css?v=1" />
   <link rel="stylesheet" href="./analytics.css?v=1" />
   <link rel="stylesheet" href="./arena-modern.css?v=1" />
-  <link rel="stylesheet" href="./arena-layout.css?v=1">
+  <link rel="stylesheet" href="./arena-layout.css?v=2">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body>
@@ -36,10 +36,9 @@
         </div>
       </div>
       <div class="header-actions">
-        <button type="button" id="gameInfoToggle" class="gold-button small panel-toggle" aria-expanded="false" aria-controls="gameInfoPanel">☰ Průběh</button>
         <button id="lobbyButton" class="gold-button small">⌂ Nabídka</button>
         <button id="rulesButton" class="gold-button small">Pravidla</button>
-        <button id="settingsButton" class="gold-button small">⚙ Nastavení</button>
+        <button id="settingsButton" class="gold-button small">Nastavení</button>
         <button id="newButton" class="gold-button primary small">Nová hra</button>
       </div>
     </header>
@@ -50,30 +49,23 @@
 
 
       <section class="center-area" aria-label="Herní plocha">
-        <div class="board-crest"><span>✦</span> ČÍSELNÁ BITVA <span>✦</span></div>
-        <div class="board-rim">
-          <div class="board" id="board" role="grid" aria-label="Hrací deska 15 krát 15"></div>
-        </div>
-        <div class="under-board">
+        <div class="board-heading">
+          <div class="board-crest">ČÍSELNÁ BITVA</div>
           <div id="movePreview" class="move-preview" data-state="empty" aria-live="polite" aria-atomic="true">
             <span class="move-preview-label">Body za tah</span>
             <strong id="previewPoints">—</strong>
             <span id="previewDetails" class="move-preview-details">Polož kameny na desku</span>
           </div>
-          <div class="timer-wrap"><span>ČAS</span><strong id="timer">01:00</strong></div>
+        </div>
+        <div class="board-rim">
+          <div class="board" id="board" role="grid" aria-label="Hrací deska 15 krát 15"></div>
         </div>
         <div id="lastMoveReview" class="last-move-review" role="status" aria-live="polite" hidden></div>
-        <div class="rack-frame">
-          <button class="round-button" id="undoButton" title="Vrátit rozložené kameny" aria-label="Vrátit kameny">↶</button>
-          <div class="rack" id="rack" aria-label="Tvoje kameny"></div>
-          <button class="round-button play" id="confirmButton" title="Potvrdit tah" aria-label="Potvrdit tah">✓</button>
-        </div>
         <div class="mobile-game-message" id="mobileGameMessage" role="status" aria-live="polite">Začni příkladem přes střed desky.</div>
       </section>
 
       <aside class="player-side right-side" id="gameInfoPanel">
         <section class="side-panel status-panel" aria-label="Informace o partii">
-          <button type="button" class="mobile-panel-toggle" aria-expanded="false" aria-controls="statusPanelContent">▸ Průběh partie</button>
           <div id="statusPanelContent" class="mobile-panel-content">
           <h2>Průběh partie</h2>
           <div class="status-turn"><span>Na tahu</span><strong id="turnName">Hráč 1</strong></div>
@@ -94,7 +86,6 @@
           </div>
         </section>
         <section class="side-panel chat-panel" aria-label="Chat hráčů">
-          <button type="button" class="mobile-panel-toggle" aria-expanded="false" aria-controls="chatPanelContent">▸ Chat</button>
           <div id="chatPanelContent" class="mobile-panel-content">
           <h2>Chat</h2>
           <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Zprávy z partie"></div>
@@ -111,11 +102,17 @@
 
     <footer class="control-bar">
       <div class="bag-count">V sáčku <strong id="bagCount">100</strong> kamenů</div>
+        <div class="rack-frame">
+          <button class="round-button" id="undoButton" title="Vrátit rozložené kameny" aria-label="Vrátit kameny">↶</button>
+          <div class="rack" id="rack" aria-label="Tvoje kameny"></div>
+          <button class="round-button play" id="confirmButton" title="Potvrdit tah" aria-label="Potvrdit tah">✓</button>
+        </div>
       <div class="game-controls">
-        <button id="hintButton" class="gold-button">💡 Nápověda</button>
+        <button id="hintButton" class="gold-button">Nápověda</button>
         <button id="exchangeButton" class="gold-button">Vyměnit</button>
         <button id="passButton" class="gold-button">Vynechat tah</button>
       </div>
+          <div class="timer-wrap"><span>ČAS</span><strong id="timer">01:00</strong></div>
       <div class="game-mode" id="modeLabel">Proti počítači</div>
     </footer>
     <div class="fine-print">
@@ -142,12 +139,9 @@
       <label>Herní režim <select id="modeSetting"><option value="bot">Hráč proti počítači</option><option value="local">Dva hráči na jednom PC</option></select></label>
       <label>Obtížnost počítače <select id="difficultySetting"><option value="easy">Začátečník</option><option value="medium">Pokročilý</option><option value="hard">Expert</option></select></label>
       <label>Délka tahu <select id="timeSetting"><option value="30">30 sekund</option><option value="60" selected>60 sekund</option><option value="90">90 sekund</option></select></label>
-      <label class="layout-setting">Rozložení obrazovky <select id="layoutSetting" aria-label="Rozložení herní obrazovky">
-        <option value="focus">Maximální deska</option>
-        <option value="side">Deska a boční panel</option>
-        <option value="stack">Panely pod deskou</option>
-      </select></label>
-      <p class="dialog-note">Rozložení si hra zapamatuje. Na mobilu má přednost co největší deska.</p>
+      <label class="check-line"><input type="checkbox" id="historySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
+      <label class="check-line"><input type="checkbox" id="chatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
+      <p class="dialog-note">Panely jsou vedle desky, na telefonu pod ní. Proti počítači se chat nezobrazuje.</p>
       <label>Doba zobrazení každého příkladu <select id="scoreRecapSecondsSetting">
         <option value="0">Vypnuto</option>
         <option value="2">2 sekundy</option>
@@ -224,7 +218,7 @@
     </div>
   </dialog>
 
-  <script type="module" src="./src/arena-ui.js?v=1"></script>
-  <script type="module" src="./src/main.js?v=0.1.19"></script>
+  <script type="module" src="./src/arena-ui.js?v=2"></script>
+  <script type="module" src="./src/main.js?v=0.1.20"></script>
 </body>
 </html>

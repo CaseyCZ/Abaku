@@ -715,12 +715,12 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
    CSS only: no changes to turn handling, game state, or element IDs. */
 @media (min-width:741px) and (orientation:landscape), (min-width:1101px){
   :root{
-    --board-side:clamp(330px,min(880px,calc(100dvh - 300px),calc(100vw - 405px)),880px);
+    --board-side:clamp(330px,min(1100px,calc(100dvh - 300px),calc(100vw - 405px)),1100px);
   }
   body{min-width:0}
   .game-app{min-height:100dvh;height:auto;overflow:visible}
   .top-bar{min-height:60px;padding-block:8px}
-  .progress-track{width:min(100% - 42px,800px);height:14px;margin:7px auto 3px}
+  .progress-track{width:min(calc(100% - 42px),800px);height:14px;margin:7px auto 3px}
   .main-stage{
     width:100%;max-width:calc(var(--board-side) + 580px);
     margin-inline:auto;
@@ -758,7 +758,7 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
   .fine-print{padding:5px 9px 8px}
   /* Online game uses the same balanced three-column proportions. */
   #onlineDialog{
-    --board-side:clamp(330px,min(840px,calc(100dvh - 305px),calc(100vw - 415px)),840px);
+    --board-side:clamp(330px,min(1060px,calc(100dvh - 305px),calc(100vw - 415px)),1060px);
   }
   #onlineDialog .online-dialog-header{min-height:58px;padding:8px 15px}
   #onlineDialog .online-match-layout{
@@ -838,4 +838,12 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
   .main-stage,#onlineDialog .online-match-layout{gap:7px;padding-inline:6px}
   .top-bar{flex-wrap:wrap}
   .side-panel,#onlineDialog .online-panel{min-height:115px;max-height:260px}
+}
+
+@media (min-width:741px) and (max-width:1000px) and (orientation:landscape){
+  .main-stage,#onlineDialog .online-match-layout{
+    grid-template-columns:minmax(132px,1fr) minmax(0,calc(var(--board-side) + 12px)) minmax(132px,1fr);
+  }
+  .player-side,#onlineDialog .online-player-side{min-width:0}
+  .side-panel,#onlineDialog .online-panel{padding:9px}
 }

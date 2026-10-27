@@ -179,7 +179,7 @@ html[data-arena-history="false"] .game-app[data-arena-mode="bot"] .main-stage{gr
 /* Multipliers should be readable without memorising four shades of blue/gold. */
 .board .cell.bonus-hint:is(.dd,.td,.de,.te),
 #onlineDialog .online-cell.bonus-hint:is(.dd,.td,.de,.te){
-  font-size:clamp(9px,1vw,16px);font-weight:800;letter-spacing:-.04em;
+  font-size:clamp(8px,.8vw,13px);font-weight:800;letter-spacing:-.04em;
   text-shadow:none;opacity:1;
 }
 .bonus-guide{
@@ -198,6 +198,6 @@ html[data-arena-history="false"] .game-app[data-arena-mode="bot"] .main-stage{gr
 .bonus-key.te{background:#bd9038;border-color:#d9b45c;color:#142843}
 @media (max-width:1100px) and (orientation:portrait),(max-width:740px){
   .board .cell.bonus-hint:is(.dd,.td,.de,.te),
-  #onlineDialog .online-cell.bonus-hint:is(.dd,.td,.de,.te){font-size:clamp(9px,2.45vw,17px)}
+  #onlineDialog .online-cell.bonus-hint:is(.dd,.td,.de,.te){font-size:clamp(8px,1.9vw,12px)}
   .bonus-guide{grid-template-columns:repeat(2,minmax(0,1fr))}
 }

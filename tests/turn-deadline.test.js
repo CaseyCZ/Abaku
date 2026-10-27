@@ -34,8 +34,8 @@ test('game saves deadlines on turn start, settings change and after score reveal
   assert.match(main,/if\(game\.turnDeadline!==restored\)\{[\s\S]*?game\.turnDeadline=restored;[\s\S]*?save\(\);/);
   assert.match(main,/resetDeadline\(\);save\(\);render\(\);/);
   assert.match(main,/if\(modeChanged\)newGame\(\);else\{resetDeadline\(\);save\(\);render\(\);\}/);
-  const currentVersion=JSON.parse(read('../package.json')).version;
-  assert.ok(game.includes('src/main.js?v='+currentVersion));
+  // main.js has its own cache token. Landscape-only CSS releases leave its logic unchanged.
+  assert.match(game,/src\/main\.js\?v=\d+\.\d+\.\d+/);
 });
 
 test('scoreboard is a two-column grid below the centered bag count',()=>{

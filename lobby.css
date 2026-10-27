@@ -9,6 +9,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .lobby-header{min-height:75px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px clamp(18px,3vw,44px);background:linear-gradient(#300810,#5b1820 52%,#2e080e);border-bottom:5px double #bc762a;position:relative;z-index:1}
 .mini-brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:#ffde8a;font-size:12px;letter-spacing:1px;line-height:1.15}
 .mini-brand b{font-size:19px}
+.mini-brand .brand-logo{display:block;height:50px;width:auto;max-width:44vw;object-fit:contain}
 .brand-glyph{width:47px;height:47px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,#fff6bc,#e9a43a 48%,#9d510c);box-shadow:inset 0 0 0 3px #a45810,0 0 0 2px #ffe38b;color:#692118;font-size:32px;font-weight:bold}
 .lobby-account{display:flex;gap:24px;align-items:center}
 .server-state{font:12px Verdana,sans-serif;color:#eed0a3;display:flex;gap:8px;align-items:center}

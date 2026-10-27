@@ -242,6 +242,12 @@ function renderMovePreview() {
   const preview = describeMovePreview(game.board, pending, game.finished);
   const box = byId('movePreview');
   box.dataset.state = preview.state;
+  byId('board').dataset.moveState = preview.state;
+  const confirm=byId('confirmButton');
+  confirm.dataset.state=preview.state;
+  confirm.title=preview.state==='valid'?'Potvrdit tah za '+preview.points+' bodů':preview.state==='invalid'?preview.detail:'Nejprve polož kameny';
+  confirm.setAttribute('aria-label',confirm.title);
+  byId('undoButton').dataset.hasPending=String(pending.length>0||exchangeMode||exchangeIndices.size>0);
   const points = byId('previewPoints');
   points.textContent = preview.state === 'valid' ? '+' + preview.points : '—';
   const details = byId('previewDetails');
@@ -277,6 +283,9 @@ function renderChat() {
   byId('chatInput').placeholder = enabled ? 'Napiš zprávu…' : 'Chat pouze pro dva hráče';
 }
 function render() {
+  // The AI has no chat partner; use that space for the board.
+  document.querySelector('.game-app').dataset.arenaMode=settings.mode;
+  byId('gameInfoToggle').textContent=settings.mode==='bot'?'☰ Průběh':'☰ Průběh a chat';
   renderBoard();renderRack();renderProgress();
   byId('player0Name').textContent=playerLabel(0);byId('player1Name').textContent=playerLabel(1);
   for(let i=0;i<2;i++) {

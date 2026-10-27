@@ -82,7 +82,7 @@ test('duplicate board title and preview are hidden but live scoring remains func
   const center=game.slice(game.indexOf('<section class="center-area"'),game.indexOf('</section>',game.indexOf('<section class="center-area"')));
   assert.match(center,/<div class="board-heading" hidden>/);
   assert.match(css,/\.game-app \.center-area > \.board-heading\[hidden\]\{display:none!important\}/);
-  for(const id of ['movePreview','previewPoints','previewDetails','board','lastMoveReview','mobileGameMessage']){
+  for(const id of ['movePreview','previewPoints','previewDetails','board','mobileGameMessage']){
     assert.equal((game.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id+' must be retained once');
   }
   assert.match(main,/function renderMovePreview\(\)/);
@@ -90,5 +90,6 @@ test('duplicate board title and preview are hidden but live scoring remains func
   assert.match(main,/byId\('previewPoints'\)/);
   assert.match(main,/byId\('previewDetails'\)/);
   assert.match(main,/confirm\.dataset\.state=preview\.state/);
-  assert.match(main,/function renderRecentMove\(/);
+  assert.match(main,/function showRecentMove\(/);
+  assert.doesNotMatch(game,/id="lastMoveReview"/);
 });

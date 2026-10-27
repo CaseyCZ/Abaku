@@ -43,7 +43,7 @@ test('shared renderer shows release dates and notes on both settings screens',()
     const notes=node.children[1];
     assert.equal(notes.tag,'ol');
     assert.equal(notes.children.length,RELEASE_HISTORY.length);
-    assert.equal(notes.children[0].children[0].textContent,'0.2.21 · 27. 10. 2026');
+    assert.equal(notes.children[0].children[0].textContent,APP_VERSION+' · '+RELEASE_HISTORY[0].date);
     assert.equal(notes.children[0].children[1].textContent,RELEASE_HISTORY[0].description);
   }
 });

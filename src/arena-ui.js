@@ -41,8 +41,26 @@ function init(){
     const field=byId(id);
     if(field){
       field.value=storedLayout();
-      field.addEventListener('change',()=>applyLayout(field.value,true));
+      // Live preview while the settings window is open; persist only on Save.
+      field.addEventListener('change',()=>applyLayout(field.value,false));
     }
+  }
+  const offlineForm=byId('settingsForm');
+  if(offlineForm){
+    offlineForm.addEventListener('submit',event=>{
+      if(event.submitter?.value==='save'){
+        // The game may cancel submission if a mode switch was declined.
+        queueMicrotask(()=>applyLayout(event.defaultPrevented?storedLayout():byId('layoutSetting').value,
+          !event.defaultPrevented));
+      }else applyLayout(storedLayout());
+    });
+    byId('settingsDialog').addEventListener('close',()=>applyLayout(storedLayout()));
+  }
+  const onlineSave=byId('onlineSettingsSave');
+  if(onlineSave){
+    onlineSave.addEventListener('click',()=>applyLayout(byId('onlineLayoutSetting').value,true));
+    byId('onlineSettingsCancel').addEventListener('click',()=>applyLayout(storedLayout()));
+    byId('onlineGameSettingsDialog').addEventListener('close',()=>applyLayout(storedLayout()));
   }
   togglePanel('gameInfoToggle',document.querySelector('.game-app'));
   togglePanel('onlineInfoToggle',byId('onlineDialog'));

@@ -1,0 +1,11 @@
+/* Shared release history: used by both the lobby and offline game settings. */
+.version-history{
+  margin:10px 0 16px;padding:12px 14px;
+  border:1px solid #48688f;border-radius:10px;
+  background:rgba(15,36,66,.55);color:inherit;
+}
+.version-history summary{cursor:pointer;font-weight:700;min-height:28px;line-height:28px}
+.version-history summary:focus-visible{outline:2px solid #f0c56c;outline-offset:3px}
+.version-history-list{margin:12px 0 0;padding-left:22px;font-size:13px;line-height:1.5}
+.version-history-list li+li{margin-top:12px}
+.version-history-list p{margin:3px 0 0;color:var(--arena-muted,#cbd5e1)}

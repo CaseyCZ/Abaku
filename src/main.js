@@ -12,7 +12,6 @@ import {reportEligibility,addReportReceipt} from './report-policy.js?v=1';
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.19';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};

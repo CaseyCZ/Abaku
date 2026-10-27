@@ -30,11 +30,11 @@
 .game-app .top-bar .game-navigation .gold-button{min-height:42px}
 .game-app .top-bar .game-header-score{
   grid-column:1/-1;grid-row:2;
-  display:flex;justify-content:center;align-items:center;gap:16px;
+  display:flex;justify-content:space-between;align-items:center;gap:clamp(18px,3vw,44px);
   width:100%;min-width:0;
 }
 .game-app .top-bar .game-header-score .bag-count{
-  display:flex;gap:5px;align-items:center;justify-content:center;
+  display:flex;gap:5px;align-items:center;justify-content:flex-start;
   flex:0 0 auto;margin:0;min-width:0;white-space:nowrap;
   font-size:13px;color:#aebfda;
 }
@@ -50,6 +50,9 @@
 
 /* The rack is now the entire control bar; timer and bag count live above the board. */
 .game-app .control-bar .rack-frame{min-width:0}
+
+/* Keep preview state/confirmation logic alive, without duplicate text above the board. */
+.game-app .center-area > .board-heading[hidden]{display:none!important}
 
 @media(max-width:1000px){
   .game-app .top-bar{gap:6px 9px;padding-inline:12px}
@@ -96,7 +99,7 @@
     width:100%;min-height:44px;text-align:left;
     font-size:13px;padding:9px 12px;
   }
-  .game-app .top-bar .game-header-score{grid-column:1/-1;grid-row:2;gap:7px}
+  .game-app .top-bar .game-header-score{grid-column:1/-1;grid-row:2;gap:clamp(12px,3vw,24px);justify-content:space-between}
   .game-app .top-bar:has(.game-navigation.is-open) .game-header-score{grid-row:3}
   .game-app .top-bar .game-header-score .bag-count{font-size:11px;gap:3px}
   .game-app .top-bar .game-header-score .bag-count strong{font-size:15px}

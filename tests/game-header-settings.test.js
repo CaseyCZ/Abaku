@@ -25,7 +25,7 @@ test('timer stays live in the top center and the bag count precedes the scoreboa
   assert.match(css,/\.game-app \.top-bar \.timer-wrap\.warning strong\{color:#ff8066\}/);
   assert.match(css,/@media\(max-width:370px\)\{[\s\S]*?\.game-app \.top-bar \.game-header-score\{flex-wrap:wrap;row-gap:3px\}/);
   assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:2/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.12/);
+  assert.match(game,/game-chrome\.css\?v=0\.2\.13/);
 });
 
 test('game menu reuses the homepage mobile navigation and keeps actions functional',()=>{
@@ -62,5 +62,26 @@ test('local match settings mirror the compact homepage without changing setting 
   assert.match(main,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
   assert.match(css,/#settingsDialog \.game-settings-fields\{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css,/#settingsDialog \.game-settings-toggles\{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(game,/src\/version-ui\.js\?v=0\.2\.12/);
+  assert.match(game,/src\/version-ui\.js\?v=0\.2\.13/);
+});
+
+test('bag count sits on the left, with breathing room before the scoreboard',()=>{
+  assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:2;\s*display:flex;justify-content:space-between;align-items:center;gap:clamp\(18px,3vw,44px\)/);
+  assert.match(css,/\.game-app \.top-bar \.game-header-score \.bag-count\{\s*display:flex;gap:5px;align-items:center;justify-content:flex-start/);
+  assert.match(css,/@media\(max-width:760px\)\{[\s\S]*?\.game-app \.top-bar \.game-header-score\{grid-column:1\/-1;grid-row:2;gap:clamp\(12px,3vw,24px\);justify-content:space-between\}/);
+});
+
+test('duplicate board title and preview are hidden but live scoring remains functional',()=>{
+  const center=game.slice(game.indexOf('<section class="center-area"'),game.indexOf('</section>',game.indexOf('<section class="center-area"')));
+  assert.match(center,/<div class="board-heading" hidden>/);
+  assert.match(css,/\.game-app \.center-area > \.board-heading\[hidden\]\{display:none!important\}/);
+  for(const id of ['movePreview','previewPoints','previewDetails','board','lastMoveReview','mobileGameMessage']){
+    assert.equal((game.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id+' must be retained once');
+  }
+  assert.match(main,/function renderMovePreview\(\)/);
+  assert.match(main,/describeMovePreview\(game\.board, pending, game\.finished\)/);
+  assert.match(main,/byId\('previewPoints'\)/);
+  assert.match(main,/byId\('previewDetails'\)/);
+  assert.match(main,/confirm\.dataset\.state=preview\.state/);
+  assert.match(main,/function renderRecentMove\(/);
 });

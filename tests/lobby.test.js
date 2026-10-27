@@ -410,3 +410,16 @@ test('online authenticated profile updates offline nickname cache and clears it 
   assert.match(identity,/const ONLINE_PROFILE_KEY='abaku-online-display-profile-v1'/);
   assert.match(identity,/function validName\(value\)/);
 });
+
+test('offline server indicator uses a single display rule at every breakpoint',()=>{
+  const css=file('../arena-home.css');
+  const selector='.arena-home .lobby-header>.server-state';
+  const rule=selector+'{display:flex;color:#ffb5b5;margin-left:auto}';
+  assert.ok(css.includes(rule));
+  assert.equal(css.split(selector+'{display:').length-1,1,
+    'No second display override should silently hide or show the indicator');
+  assert.doesNotMatch(css,/\.server-state\{display:none\}/);
+  assert.match(css,/@media\(max-width:760px\)\{\s*\.arena-home \.lobby-header>\.server-state\{order:2;flex-basis:100%;margin:0\}/);
+  assert.match(file('../lobby.css'),/\[hidden\]\{display:none!important\}/);
+  assert.match(landing,/<span class="server-state" role="status" hidden>Server offline<\/span>/);
+});

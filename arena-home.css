@@ -1,7 +1,7 @@
 /* Compact home and public navigation; game-board layouts stay in arena-layout.css. */
 .arena-home .lobby-shell{max-width:1760px}
 .arena-home .lobby-header,.arena-public .lobby-header{gap:16px;padding:12px clamp(16px,3vw,44px)}
-.arena-home .lobby-header>.server-state{margin-left:auto}
+.arena-home .lobby-header>.server-state{display:flex;color:#ffb5b5;margin-left:auto}
 .site-navigation{display:flex;align-items:center;gap:12px}
 .site-navigation a{text-decoration:none}
 .site-navigation .header-link{display:inline-flex;align-items:center;min-height:44px;padding:8px 12px}
@@ -40,7 +40,6 @@
 .leaderboard-table tbody tr:first-child{background:#eac1610c}
 .leaderboard-status{color:var(--arena-muted)}
 @media(max-width:1050px){
-  .arena-home .lobby-header>.server-state{display:none}
   .home-start{grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr);gap:20px}
   .arena-home .lobby-intro h1{font-size:38px}
 }
@@ -67,7 +66,6 @@
 .arena-home .resume-section{margin-top:18px;padding-top:16px;border-top:1px solid #365578}
 .arena-home .resume-section h3{margin:0 0 8px;font-size:15px;color:var(--arena-gold-hi)}
 .arena-home .resume-section p{margin:8px 0 12px}
-.arena-home .lobby-header>.server-state{display:flex;color:#ffb5b5}
 @media(max-width:760px){
   .arena-home .lobby-header>.server-state{order:2;flex-basis:100%;margin:0}
   .arena-home .site-navigation{order:3}

@@ -680,3 +680,31 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
   .abaku-score-face{padding:20px 14px}
   .abaku-score-counter{width:75px;height:75px;border-width:1px}
 }
+
+/* Accessible rules directly from the landing page. */
+.header-link{
+  color:#f5d58f;display:inline-flex;align-items:center;justify-content:center;
+  min-height:42px;padding:9px 13px;font-size:13px;font-weight:700;text-decoration:none;
+  border:1px solid #3a5e86;border-radius:11px;background:#0c2444;
+}
+.header-link:hover{background:#1a3961;border-color:var(--arena-gold);color:#ffe39a}
+.quick-rules{
+  scroll-margin-top:25px;
+  display:grid;grid-template-columns:1.15fr 1fr;gap:26px;align-items:center;
+  width:min(100%,1350px);margin:27px auto 0;padding:25px 29px;
+  border:1px solid #345778;border-radius:17px;
+  background:linear-gradient(130deg,#173254,#0a1f3b);
+  box-shadow:0 8px 26px #0208144d;
+}
+.quick-rules .eyebrow{margin:0 0 5px;letter-spacing:.15em;font-size:11px;color:var(--arena-gold)}
+.quick-rules h2{margin:0;color:#fff0c1;font-size:clamp(19px,2.3vw,27px);letter-spacing:-.02em}
+.quick-rules p:not(.eyebrow){margin:9px 0 0;color:#b7c9dd;line-height:1.6;font-size:13px}
+.quick-rules ol{margin:0;padding-left:22px;color:#e2eaf4;font-size:13px;line-height:1.9}
+.quick-rules li::marker{color:var(--arena-gold);font-weight:800}
+@media(max-width:720px){
+  .quick-rules{grid-template-columns:1fr;gap:11px;margin-top:17px;padding:18px}
+  .header-link{min-height:40px;padding:8px;font-size:12px}
+}
+@media(max-width:420px){
+  .server-state{flex:1 1 100%;order:3}
+}

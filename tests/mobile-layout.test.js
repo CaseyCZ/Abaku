@@ -29,8 +29,8 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
   assert.match(js,/setAttribute\('aria-expanded',String\(expanded\)\)/);
 });
 test('mobile assets use cache-busted current version',()=>{
-  assert.match(html,/style\.css\?v=0\.1\.8/);
-  assert.match(html,/main\.js\?v=0\.1\.16/);
+  assert.match(html,/style\.css\?v=0\.1\.9/);
+  assert.match(html,/main\.js\?v=0\.1\.17/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -157,4 +157,3 @@ test('offline games display the saved authenticated Google nickname as Player 1'
   assert.match(js,/refreshLocalPlayerName\(\);/);
   assert.match(js,/ONLINE_CONFIG\.apiBase\+'\/api\/me'/);
 });
- 

@@ -33,6 +33,9 @@
       <p>Online režimy používají volitelné přihlášení přes Google. Server ověřuje přihlašovací token a uchovává přezdívku, symbol profilu, herní statistiky a schválená přátelství. Rozehrané online partie, pozvánky a chat probíhají v paměti herního serveru.</p>
       <p>Po přihlášení se může do místního úložiště prohlížeče (<code>localStorage</code>) uložit relace tohoto zařízení, aby přihlášení zůstalo zachované i po obnovení stránky nebo otevření další karty. Pokud server delší relaci zatím nepodporuje, může se přihlašovací údaj dočasně uchovávat jen v aktuální kartě (<code>sessionStorage</code>). Relace může vypršet nebo být zrušena na serveru. Při odhlášení se uložené přihlašovací údaje z prohlížeče odstraní.</p>
       <p>Offline rozehraná partie a nastavení hry se ukládají do místního úložiště prohlížeče. Analytics neodesílá obsah chatu, číselné kameny, přezdívku ani přihlašovací token jako vlastní události.</p>
+      <h2>Dobrovolná kontrola partie</h2>
+      <p>Pokud během hry klikneš na <strong>Odeslat partii ke kontrole</strong>, odešle se na herní server historie tahů: umístění kamenů, vytvořené příklady, získané body, bonusy a přijaté či zamítnuté pokusy. Slouží pouze k hledání chyb v pravidlech. Bez stisknutí tlačítka se žádný kontrolní soubor nevytvoří. Do záznamu nepřidáváme jména, e-maily, chat ani přihlašovací tokeny.</p>
+      <p>Odeslaný záznam není veřejný a ze serveru se automaticky odstraní nejpozději po 24 hodinách. U rozehrané místní partie zůstává historie tahů v prohlížeči spolu s uloženou hrou a při nové partii se nahradí.</p>
     </main>
     <footer class="lobby-footer">
       <a href="./index.html" class="abaku-privacy-link">Hlavní nabídka</a>

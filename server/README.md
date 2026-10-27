@@ -24,6 +24,17 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - A server restart ends ongoing matches and clears matchmaking/chat; persisted profile statistics remain.
 - Changing to any public domain requires updating Google authorized JavaScript origins and `CORS_ORIGIN`.
 
+## Dobrovolná kontrola partií
+
+- V nastavení místní i online hry a na výsledkové obrazovce je tlačítko **Odeslat partii ke kontrole**. Nikdy neodesílá nic samo.
+- Offline hra si vede soukromou historii umístění kamenů, zamítnutých pokusů, příkladů, skóre a bonusů v uložené partii v prohlížeči. Online hra vede tuto historii pouze v RAM serveru; při odeslání se neukládají UID, přezdívky, chat ani přihlašovací tokeny.
+- `POST /api/reports` přijímá dobrovolný anonymní offline záznam (max. 256 KiB); `POST /api/reports/online` vyžaduje přihlášení a ID vlastní online partie a vytváří záznam ze serverové historie.
+- Samostatný modul `report-audit.js` **nepoužívá** herní validátor: přehrává desku, samostatně vyhodnotí matematiku i sousednost kamenů a přepočítá body/bonusy. Hlásí rozdíly ve vyhodnocení přijatých/zamítnutých tahů.
+- Soubory ukládej **mimo repozitář a mimo webový adresář**. Výchozí soukromá cesta je `/home/ubuntu/abaku-reports`, změnitelná pomocí `ABAKU_REPORT_DIR`; práva složky `0700`, souborů `0600`. Počet uchovávaných reportů je omezen na 500.
+- Server soubory maže při spuštění, při každém seznamu a jednou za hodinu, jakmile jsou starší než 24 hodin. Oprávněný správce může soukromě používat `GET /api/reports` a `GET /api/reports/detail?id=<uuid>` s HTTP hlavičkou `Authorization: Bearer <ABAKU_REPORT_ADMIN_TOKEN>`; token musí mít alespoň 32 znaků. Bez tohoto nastavení jsou čtecí cesty uzamčené.
+- Přístup do existujícího dashboardu lze připojit pouze ze serverové části dashboardu; **nikdy** nevkládej admin token do veřejné stránky nebo JavaScriptu.
+- Před nasazením spusť `npm test` z kořene repozitáře. Pokud měníš online server, restartuj proces `abaku-api` až po skončení aktivních zápasů (rozehrané online partie jsou v RAM).
+
 ## Local smoke tests
 
 ```sh

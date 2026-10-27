@@ -52,6 +52,7 @@ Podrobnosti najdeš přímo ve hře pod tlačítkem **Pravidla**.
 - **Pokračování v rozehrané místní partii**.
 - **Výsledky na konci zápasu** s vítězem, skóre a možností odvety.
 - **Hráčské profily, statistiky, žebříček, přátele a chat** pro online hraní.
+- **Dobrovolné odeslání partie ke kontrole** přímo z nastavení hry nebo z výsledkové tabulky. Odeslaný záznam se po 24 hodinách smaže.
 
 ## 📱 Kde si zahrát?
 

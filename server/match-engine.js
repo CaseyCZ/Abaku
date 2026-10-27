@@ -137,7 +137,8 @@ export class MatchEngine {
     const players=[{uid:uidA,score:0,rack:drawTiles(bag,[])},{uid:uidB,score:0,rack:drawTiles(bag,[])}];
     const match={id:'m'+(++this.nextId),players,board:emptyBoard(),bag,
       turn:0,turns:0,passStreak:0,seconds:legalTime(seconds),
-      deadline:this.clock()+legalTime(seconds)*1000,finished:false,winner:null,reason:null,endedAt:null};
+      deadline:this.clock()+legalTime(seconds)*1000,finished:false,winner:null,reason:null,endedAt:null,
+      auditEvents:[]};
     this.matches.set(match.id,match);
     this.byPlayer.set(uidA,match);this.byPlayer.set(uidB,match);
     for(const uid of [uidA,uidB]) {this.sendTo(uid,{type:'match-start',matchId:match.id});this.sync(uid);}
@@ -162,7 +163,13 @@ export class MatchEngine {
       return {row:p.row,col:p.col,digit:rack[idx],rackIndex:idx};
     });
     const validated=validateMove(match.board,safe);
-    if(!validated.valid)throw new Error(validated.reason);
+    const auditPlacements=safe.map(p=>({row:p.row,col:p.col,digit:p.digit}));
+    if(!validated.valid){
+      this.recordAudit(match,{type:'move',player:match.turn,accepted:false,placements:auditPlacements});
+      throw new Error(validated.reason);
+    }
+    this.recordAudit(match,{type:'move',player:match.turn,accepted:true,placements:auditPlacements,
+      points:validated.points,equations:validated.equations,breakdown:validated.equationBreakdown});
     match.board=validated.board;
     const player=match.players[match.turn];
     for(const index of [...used].sort((a,b)=>b-a))player.rack.splice(index,1);
@@ -190,6 +197,7 @@ export class MatchEngine {
     const removed=[...indexes].sort((a,b)=>b-a).map(i=>player.rack.splice(i,1)[0]);
     player.rack=drawTiles(match.bag,player.rack);
     match.bag.unshift(...removed);
+    this.recordAudit(match,{type:'exchange',player:match.turn});
     match.passStreak++;
     this.nextTurn(match);
   }
@@ -198,6 +206,7 @@ export class MatchEngine {
     this.passTurn(match,'pass');
   }
   passTurn(match,reason) {
+    this.recordAudit(match,{type:'pass',player:match.turn});
     match.passStreak++;
     this.toAll(match,{type:'turn-passed',by:match.turn,reason});
     this.nextTurn(match);
@@ -265,6 +274,23 @@ export class MatchEngine {
     if(this.clock()-(this.chatAt.get(uid)||0)<1000)throw new Error('Zprávy posíláš příliš rychle.');
     this.chatAt.set(uid,this.clock());
     this.toAll(match,{type:'chat',from:match.players.findIndex(p=>p.uid===uid),text:text.trim()});
+  }
+  recordAudit(match,event){
+    if(match.auditEvents.length>=600){
+      match.auditPartial=true;
+      const index=match.auditEvents.findIndex(e=>e.type!=='move'||!e.accepted);
+      if(index<0)return;
+      match.auditEvents.splice(index,1);
+    }
+    match.auditEvents.push(event);
+  }
+  reportFor(uid,matchId){
+    const match=this.matchOf(uid);
+    if(!match||match.id!==matchId||!match.players.some(p=>p.uid===uid))
+      throw new Error('Partie není dostupná.');
+    return {mode:'online',ruleset:'legacy-0.2',partial:Boolean(match.auditPartial),
+      initialBoard:emptyBoard(),initialScores:[0,0],events:match.auditEvents,
+      finalBoard:match.board,finalScores:match.players.map(p=>p.score)};
   }
   tick() {
     const now=this.clock();

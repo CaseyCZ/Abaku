@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { timingSafeEqual } from 'node:crypto';
 import { URL } from 'node:url';
 import { OAuth2Client } from 'google-auth-library';
 import { WebSocketServer } from 'ws';
@@ -6,6 +7,7 @@ import { openStore } from './store.js';
 import { MatchEngine } from './match-engine.js';
 import { PresenceTracker } from './presence.js';
 import { FriendChallenges } from './friend-challenges.js';
+import {ReportStore} from './report-store.js';
 
 const clientId=process.env.GOOGLE_CLIENT_ID||'';
 const origins=(process.env.CORS_ORIGIN||'').split(',').map(x=>x.trim()).filter(Boolean);
@@ -20,6 +22,21 @@ const authClient=new OAuth2Client(clientId);
 const tokenCache=new Map();
 const sockets=new Map();
 const rate=new Map();
+const reportRate=new Map();
+const reportStore=new ReportStore({directory:process.env.ABAKU_REPORT_DIR||'/home/ubuntu/abaku-reports'});
+const adminToken=process.env.ABAKU_REPORT_ADMIN_TOKEN||'';
+
+function reportLimited(ip){
+  const now=Date.now(),current=reportRate.get(ip);
+  if(!current||now-current.start>=10*60_000){reportRate.set(ip,{start:now,count:1});return false;}
+  return ++current.count>20;
+}
+function adminAllowed(request){
+  if(adminToken.length<32)return false;
+  const token=(request.headers.authorization||'').replace(/^Bearer /,'');
+  if(token.length!==adminToken.length)return false;
+  return timingSafeEqual(Buffer.from(token),Buffer.from(adminToken));
+}
 
 function limited(ip,limit=180){
   const now=Date.now();
@@ -72,11 +89,11 @@ async function identity(request){
   if(!header.startsWith('Bearer '))throw new Error('Pro tuto akci je nutné přihlášení.');
   return verify(header.slice(7));
 }
-async function body(request){
+async function body(request,maxBytes=8192){
   let size=0,parts=[];
   for await(const part of request){
     size+=part.length;
-    if(size>8192)throw new Error('Požadavek je příliš velký.');
+    if(size>maxBytes)throw new Error('Požadavek je příliš velký.');
     parts.push(part);
   }
   try {return JSON.parse(Buffer.concat(parts).toString('utf8'));}
@@ -100,8 +117,13 @@ const presence=new PresenceTracker();
 const clock=setInterval(()=>{engine.tick();friendChallenges.tick();
   const now=Date.now();
   for(const [key,item] of rate)if(now-item.start>120_000)rate.delete(key);
+  for(const [key,item] of reportRate)if(now-item.start>10*60_000)reportRate.delete(key);
 },1000);
 clock.unref();
+const cleanupClock=setInterval(()=>reportStore.cleanup().catch(error=>
+  console.error('Abaku report cleanup:',error.message)),60*60_000);
+cleanupClock.unref();
+reportStore.cleanup().catch(error=>console.error('Abaku report directory:',error.message));
 
 const http=createServer(async(request,response)=>{
   cors(request,response);
@@ -116,6 +138,22 @@ const http=createServer(async(request,response)=>{
     if(request.method==='GET'&&pathname==='/api/presence')return respond(response,200,{
       online:presence.count(engine.connections),waiting:engine.waitingCount(),refreshSeconds:20
     });
+    if(pathname==='/api/reports'&&request.method==='POST'){
+      if(reportLimited(request.socket.remoteAddress||'unknown'))
+        return respond(response,429,{error:'Příliš mnoho odeslaných partií. Zkus to později.'});
+      const data=await body(request,256*1024);
+      if(data?.mode==='online')throw new Error('Online partie se odesílá přímo ze serveru.');
+      return respond(response,201,await reportStore.submit(data));
+    }
+    if(pathname==='/api/reports'&&request.method==='GET'){
+      if(!adminAllowed(request))return respond(response,403,{error:'Kontroly jsou soukromé.'});
+      return respond(response,200,{reports:await reportStore.list()});
+    }
+    if(pathname==='/api/reports/detail'&&request.method==='GET'){
+      if(!adminAllowed(request))return respond(response,403,{error:'Kontroly jsou soukromé.'});
+      const item=await reportStore.get(searchParams.get('id'));
+      return respond(response,item?200:404,item||{error:'Záznam už neexistuje.'});
+    }
     // Exchange an already verified Google ID token for a revocable session.
     // Google is required for initial sign-in, not for each later page load.
     if(request.method==='POST'&&pathname==='/api/session'){
@@ -126,6 +164,12 @@ const http=createServer(async(request,response)=>{
     }
     const uid=await identity(request);
     store.ensure(uid);
+    if(request.method==='POST'&&pathname==='/api/reports/online'){
+      if(reportLimited(request.socket.remoteAddress||'unknown'))
+        return respond(response,429,{error:'Příliš mnoho odeslaných partií. Zkus to později.'});
+      const data=await body(request);
+      return respond(response,201,await reportStore.submit(engine.reportFor(uid,data?.matchId)));
+    }
     if(request.method==='DELETE'&&pathname==='/api/session'){
       const bearer=request.headers.authorization||'';
       store.revokeSession(bearer.slice(7));

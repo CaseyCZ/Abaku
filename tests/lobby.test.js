@@ -133,7 +133,7 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
   assert.match(landing,/Abaku Online 0\.2\.22/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.22/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.23/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -378,4 +378,3 @@ test('online authenticated profile updates offline nickname cache and clears it 
   assert.match(identity,/const ONLINE_PROFILE_KEY='abaku-online-display-profile-v1'/);
   assert.match(identity,/function validName\(value\)/);
 });
- 

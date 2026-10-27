@@ -165,6 +165,17 @@ async function api(path,method='GET',data){
   }
   return json;
 }
+async function reportOnlineGame(button,statusElement){
+  if(button.disabled)return;
+  if(!gameState?.matchId){statusElement.textContent='Nejdříve zahraj partii.';return;}
+  button.disabled=true;
+  statusElement.textContent='Odesílám partii…';
+  try{
+    const result=await api('/api/reports/online','POST',{matchId:gameState.matchId});
+    statusElement.textContent=`Partie odeslána ke kontrole (č. ${result.id.slice(0,8)}).`;
+  }catch(error){statusElement.textContent=error.message||'Odeslání se nezdařilo.';}
+  finally{button.disabled=false;}
+}
 function googleSdk(){
   return new Promise((resolve,reject)=>{
     if(window.google?.accounts?.id)return resolve(window.google.accounts.id);
@@ -872,6 +883,10 @@ function initializeActions(){
   $('onlineRetryNow').addEventListener('click',retryOnlineConnection);
   // Available throughout an online match, not just in the lobby.
   const inGameSettings=$('onlineGameSettingsDialog');
+  $('onlineReportGameButton').addEventListener('click',()=>reportOnlineGame(
+    $('onlineReportGameButton'),$('onlineReportGameStatus')));
+  $('onlineReportResultButton').addEventListener('click',()=>reportOnlineGame(
+    $('onlineReportResultButton'),$('onlineReportResultStatus')));
   $('onlineSettingsButton').addEventListener('click',()=>{
     $('onlineGameRecapSeconds').value=String(getRecapSeconds());
     if(!inGameSettings.open)inGameSettings.showModal();

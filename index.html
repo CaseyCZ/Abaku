@@ -322,6 +322,9 @@
         <option value="10">10 sekund</option>
       </select>
       <p>Vypnuto přeskočí svitek se sčítáním; položené kameny se stále na 3 sekundy zvýrazní. Změna platí i proti počítači.</p>
+      <button type="button" id="onlineReportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
+      <p>Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
+      <p id="onlineReportGameStatus" role="status" aria-live="polite"></p>
       <div class="online-game-settings-actions">
         <button type="button" id="onlineSettingsCancel" class="gold-button">Zrušit</button>
         <button type="button" id="onlineSettingsSave" class="gold-button primary">Uložit</button>
@@ -341,11 +344,13 @@
       <p id="onlineResultReason"></p>
       <p id="onlineRematchStatus" role="status" aria-live="polite"></p>
       <div class="online-result-actions">
+        <button type="button" id="onlineReportResultButton" class="gold-button">Odeslat partii ke kontrole</button>
         <button type="button" id="onlineRematch" class="gold-button">⚔ Odveta</button>
         <button type="button" id="onlineResultExit" class="gold-button">⌂ Ukončit</button>
       </div>
+      <p id="onlineReportResultStatus" role="status" aria-live="polite"></p>
     </div>
   </dialog>
-  <script type="module" src="./src/lobby.js?v=0.2.22"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.23"></script>
 </body>
 </html>

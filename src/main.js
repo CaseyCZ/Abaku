@@ -5,6 +5,7 @@ import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2
 import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
   from './player-identity.js?v=1';
+import {ensureAudit,recordAudit,sendLocalReport} from './report-client.js?v=1';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
@@ -127,7 +128,9 @@ function freshGame() {
   const players = [{rack:[],score:0},{rack:[],score:0}];
   players[0].rack = drawTiles(bag, []);
   players[1].rack = drawTiles(bag, []);
-  return {board:emptyBoard(),bag,players,turn:0,turns:0,passStreak:0,finished:false,history:[],chat:[]};
+  const next={board:emptyBoard(),bag,players,turn:0,turns:0,passStreak:0,finished:false,history:[],chat:[]};
+  ensureAudit(next);
+  return next;
 }
 function clearPending() { pending = []; selectedIndex = null; exchangeMode = false; exchangeIndices.clear(); }
 function newGame() {
@@ -145,6 +148,7 @@ function restore() {
   const saved = load(saveKey, null);
   if (saved && Array.isArray(saved.board) && saved.board.length === SIZE && saved.players?.length === 2 && Array.isArray(saved.bag)) {
     game = saved;
+    ensureAudit(game);
     if (!Array.isArray(game.history)) game.history = [];
     // Older versions recorded automatic game events in chat: keep player messages only.
     const oldChat = Array.isArray(game.chat) ? game.chat : [];
@@ -347,7 +351,9 @@ function finish(reason='Partie skončila podle pravidel.') {
 }
 function commitMove(placements, fromBot=false) {
   const checked=validateMove(game.board,placements);
-  if(!checked.valid) {notify(checked.reason,'error');sound('error');return false;}
+  recordAudit(game,{type:'move',player:game.turn,accepted:checked.valid,placements,
+    points:checked.points,equations:checked.equations,breakdown:checked.equationBreakdown});
+  if(!checked.valid) {save();notify(checked.reason,'error');sound('error');return false;}
   game.board=checked.board;
   const player=currentPlayer();
   const usedIndexes=placements.map(p=>p.rackIndex).sort((a,b)=>b-a);
@@ -380,7 +386,10 @@ function commitMove(placements, fromBot=false) {
 }
 byId('confirmButton').addEventListener('click',()=>{if(pending.length)commitMove(pending);});
 byId('undoButton').addEventListener('click',()=>{clearPending();render();notify('Rozložené kameny vráceny do zásobníku.');});
-byId('passButton').addEventListener('click',()=>{const who=playerLabel(game.turn);notify(`${who} vynechal tah.`);advanceTurn(true);});
+byId('passButton').addEventListener('click',()=>{
+  const who=playerLabel(game.turn);recordAudit(game,{type:'pass',player:game.turn});
+  notify(`${who} vynechal tah.`);advanceTurn(true);
+});
 byId('exchangeButton').addEventListener('click',()=>{
   if(pending.length){notify('Před výměnou vrať položené kameny.','error');return;}
   if(game.bag.length===0){notify('V sáčku už nejsou kameny.','error');return;}
@@ -389,6 +398,7 @@ byId('exchangeButton').addEventListener('click',()=>{
   const player=currentPlayer();
   const indexes=[...exchangeIndices].sort((a,b)=>b-a);
   const removed=indexes.map(index=>player.rack.splice(index,1)[0]);
+  recordAudit(game,{type:'exchange',player:game.turn});
   replenishPlayerRack(game.bag,player);
   game.bag.unshift(...removed);
   clearPending();sound();notify(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);advanceTurn(true);
@@ -417,6 +427,7 @@ function runBot() {
     const move=chooseMove(game.board,currentPlayer().rack,settings.difficulty);
     botBusy=false;
     if(!move){
+      recordAudit(game,{type:game.bag.length?'exchange':'pass',player:game.turn});
       if(game.bag.length){
         const bot=currentPlayer();game.bag.unshift(...bot.rack.splice(0,bot.rack.length));replenishPlayerRack(game.bag,bot);
         notify('Počítač vyměnil kameny.');
@@ -441,7 +452,9 @@ function tick(){
   const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
   display.textContent=`${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
   display.parentElement.classList.toggle('warning',remaining<=15);
-  if(remaining===0&&!botBusy) {const name=playerLabel(game.turn);clearPending();notify(`${name}: vypršel časový limit.`,'error');advanceTurn(true);}
+  if(remaining===0&&!botBusy) {const name=playerLabel(game.turn);
+    recordAudit(game,{type:'pass',player:game.turn});
+    clearPending();notify(`${name}: vypršel časový limit.`,'error');advanceTurn(true);}
 }
 setInterval(tick,250);
 
@@ -477,6 +490,20 @@ byId('settingsButton').addEventListener('click',()=>{
   byId('scoreRecapSecondsSetting').value=String(getRecapSeconds());
   byId('settingsDialog').showModal();
 });
+async function reportCurrentGame(button,statusElement){
+  if(button.disabled)return;
+  button.disabled=true;
+  statusElement.textContent='Odesílám partii…';
+  try{
+    const result=await sendLocalReport(game,settings.mode);
+    statusElement.textContent=`Partie odeslána ke kontrole (č. ${result.id.slice(0,8)}).`;
+  }catch(error){statusElement.textContent=error.message||'Odeslání se nezdařilo.';}
+  finally{button.disabled=false;}
+}
+byId('reportGameButton').addEventListener('click',()=>reportCurrentGame(
+  byId('reportGameButton'),byId('reportGameStatus')));
+byId('offlineReportResultButton').addEventListener('click',()=>reportCurrentGame(
+  byId('offlineReportResultButton'),byId('onlineRematchStatus')));
 byId('settingsForm').addEventListener('submit',event=>{
   if(event.submitter?.value!=='save')return;
   const mode=byId('modeSetting').value;

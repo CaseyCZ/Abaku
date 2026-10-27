@@ -7,7 +7,7 @@
   <meta name="description" content="Číselná desková hra inspirovaná klasickým Abaku – vlastní retro rekonstrukce pro PC." />
   <title>Číselná aréna – retro Abaku</title>
   <meta name="analytics-page-title" content="Abaku — Herní deska" />
-  <link rel="stylesheet" href="./style.css?v=0.1.8" />
+  <link rel="stylesheet" href="./style.css?v=0.1.9" />
   <link rel="stylesheet" href="./score-recap.css?v=0.2.15" />
   <link rel="stylesheet" href="./result-dialog.css?v=1" />
   <link rel="stylesheet" href="./analytics.css?v=1" />
@@ -168,6 +168,11 @@
       </select></label>
       <p class="dialog-note">Při volbě Vypnuto se vyhodnocení přeskočí, ale nové kameny se na desce ještě 3 sekundy zvýrazní. Nastavení platí i pro online hru.</p>
       <label class="check-line"><input type="checkbox" id="soundSetting" checked /> Zvuky</label>
+      <div class="report-game-options">
+        <button type="button" id="reportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
+        <p class="dialog-note">Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
+        <p id="reportGameStatus" class="dialog-note" role="status" aria-live="polite"></p>
+      </div>
       <p class="dialog-note">Změna herního režimu začne novou partii. Ostatní nastavení se použije ihned.</p>
       <menu><button value="cancel" class="gold-button">Zrušit</button><button value="save" class="gold-button primary">Uložit</button></menu>
     </form>
@@ -203,12 +208,13 @@
       <p id="onlineResultReason"></p>
       <p id="onlineRematchStatus" role="status" aria-live="polite"></p>
       <div class="online-result-actions">
+        <button type="button" id="offlineReportResultButton" class="gold-button">Odeslat partii ke kontrole</button>
         <button type="button" id="onlineRematch" class="gold-button">⚔ Odveta</button>
         <button type="button" id="onlineResultExit" class="gold-button">⌂ Ukončit</button>
       </div>
     </div>
   </dialog>
 
-  <script type="module" src="./src/main.js?v=0.1.16"></script>
+  <script type="module" src="./src/main.js?v=0.1.17"></script>
 </body>
 </html>

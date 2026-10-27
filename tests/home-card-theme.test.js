@@ -12,8 +12,8 @@ test('regular home cards and navigation use the same visual tokens',()=>{
   assert.match(css,/--home-card-shadow:0 8px 24px/);
   assert.match(css,/\.arena-home :is\(\.mode-card,\.side-card,\.quick-rules\)\{\s*background:var\(--home-card-background\);\s*border-color:var\(--home-card-border\);\s*box-shadow:var\(--home-card-shadow\);/);
   assert.match(css,/\.arena-home :is\(\.site-navigation \.header-link,\.site-navigation \.gold-button,\.menu-toggle\)\{\s*background:var\(--home-card-background\);\s*border-color:var\(--home-card-border\);/);
-  const currentVersion=JSON.parse(read('../package.json')).version;
-  assert.ok(landing.includes('href="./arena-home.css?v='+currentVersion+'"'));
+  // Homepage CSS has its own cache token; game-only releases need not bump it.
+  assert.match(landing,/href="\.\/arena-home\.css\?v=\d+\.\d+\.\d+"/);
 });
 
 test('saved game card remains subtly highlighted without losing mode states',()=>{

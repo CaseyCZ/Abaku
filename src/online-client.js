@@ -108,6 +108,19 @@ function paintPresence(data){
 function setServerOffline(offline){
   const indicator=document.querySelector('.server-state');
   indicator.hidden=!offline;
+  $('retryServerButton').hidden=!offline;
+  for(const id of ['playRandom','playFriends']) $(id).disabled=offline;
+  if(offline){
+    // The API may fail before the first presence request: never leave a loading label stuck.
+    lastPresence=null;
+    $('onlineCount').textContent='—';
+    $('waitingCount').textContent='—';
+    $('queueActivity').textContent='Server je offline. Počet čekajících není dostupný.';
+    $('onlineWaitingCount').textContent='Server je offline.';
+  }else if($('queueActivity').textContent.startsWith('Server je offline')){
+    $('queueActivity').textContent='Zjišťuji stav čekajících…';
+    $('onlineWaitingCount').textContent='Zjišťuji počet čekajících…';
+  }
 }
 async function refreshPresence(){
   if(!apiBase)return;
@@ -120,13 +133,8 @@ async function refreshPresence(){
     paintPresence(data);
     setServerOffline(false);
   }catch{
+    // Clear stale counts and enable retry, including when /api/presence alone fails.
     setServerOffline(true);
-    // Never display an old cached count as if it were current.
-    lastPresence=null;
-    $('onlineCount').textContent='—';
-    $('waitingCount').textContent='—';
-    $('queueActivity').textContent='Aktuální počet čekajících není dostupný.';
-    $('onlineWaitingCount').textContent='Počet čekajících není dostupný.';
   }
 }
 function startPresenceUpdates(){
@@ -818,6 +826,20 @@ function renderOnline(){
   $('onlineExchange').textContent=exchanging?'Potvrdit výměnu ('+selectedExchange.size+')':'Vyměnit';
 }
 function initializeActions(){
+  $('retryServerButton').addEventListener('click',async()=>{
+    const button=$('retryServerButton');
+    button.disabled=true;
+    if(onlineInitRetryTimer){
+      clearTimeout(onlineInitRetryTimer);
+      onlineInitRetryTimer=null;
+    }
+    try {
+      if(!onlineServerReady)await initOnline();
+      else await refreshPresence();
+    }finally{
+      button.disabled=false;
+    }
+  });
   if(!onlineTimerTicker)onlineTimerTicker=setInterval(updateOnlineTimer,250);
   // Keep NGINX/Safari from idling out the WebSocket silently, and detect
   // dead connections if no state/sync reply has arrived for >75 seconds.
@@ -1159,7 +1181,12 @@ export async function initOnline(){
     initOnlineTimeSetting();
     initializeActions();
   }
-  if(!configured||onlineServerReady)return;
+  if(!configured){
+    setServerOffline(true);
+    $('onlineInfoText').textContent='Online režim není nastaven. Hra proti počítači a hra ve dvou fungují dál.';
+    return;
+  }
+  if(onlineServerReady)return;
 
   // A temporary 404/502/connection timeout during Safari refresh should not
   // permanently disable Google login or online resume for this page load.

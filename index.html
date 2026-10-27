@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="./analytics.css?v=1">
   <link rel="stylesheet" href="./arena-modern.css?v=1">
   <link rel="stylesheet" href="./arena-layout.css?v=2">
-  <link rel="stylesheet" href="./arena-home.css?v=5">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.2">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body class="arena-home">
@@ -99,6 +99,7 @@
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
+            <button type="button" id="retryServerButton" class="gold-button" hidden>Zkusit připojení znovu</button>
 
           <div class="resume-section" id="onlineResumeCard" hidden>
             <h3>✦ Rozehraná online partie</h3>
@@ -292,7 +293,7 @@
   <dialog id="onlineGameSettingsDialog" class="online-game-settings-dialog" aria-labelledby="onlineGameSettingsTitle">
     <div class="online-game-settings-body">
       <h2 id="onlineGameSettingsTitle">Nastavení</h2>
-      <details class="version-history"><summary>Verze 0.2.1 · Historie změn</summary><p><strong>0.2.1 (27. 10. 2026)</strong> — Rozehraná partie na úvodní stránce; verze a historie změn v nastavení.</p><p>0.2.0-dev — předchozí vývojová verze.</p></details>
+      <details class="version-history"><summary>Verze 0.2.2 · Historie změn</summary><p><strong>0.2.2 (27. 10. 2026)</strong> — Zobrazení offline stavu serveru, vypnutí nedostupných online režimů a ruční obnovení připojení.</p><p><strong>0.2.1 (27. 10. 2026)</strong> — Rozehraná partie na úvodní stránce; verze a historie změn v nastavení.</p><p>0.2.0-dev — předchozí vývojová verze.</p></details>
       <h3>Herní obrazovka</h3>
       <label class="check-line"><input type="checkbox" id="onlineHistorySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
       <label class="check-line"><input type="checkbox" id="onlineChatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
@@ -361,6 +362,6 @@
   </dialog>
   <script type="module" src="./src/site-navigation.js?v=1"></script>
   <script type="module" src="./src/arena-ui.js?v=2"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.30"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.2"></script>
 </body>
 </html>

@@ -428,10 +428,10 @@ test('offline server indicator uses a single display rule at every breakpoint',(
 test('keyboard users can skip the homepage navigation without changing its layout',()=>{
   const css=file('../arena-home.css');
   const link='<a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>';
-  assert.match(landing,/<body class="arena-home">\\s*<a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah<\\/a>/);
+  assert.match(landing,/<body class="arena-home">\s*<a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah<\/a>/);
   assert.ok(landing.includes(link));
   assert.match(landing,/<main class="lobby-main" id="mainContent" tabindex="-1">/);
   assert.ok(landing.indexOf(link)<landing.indexOf('<header class="lobby-header">'));
-  assert.match(css,/\\.arena-home \\.skip-to-content\\{[^}]*position:fixed;[^}]*transform:translateY\\(-220%\\)/);
-  assert.match(css,/\\.arena-home \\.skip-to-content:focus\\{transform:none;/);
+  assert.match(css,/\.arena-home \.skip-to-content\{[^}]*position:fixed;[^}]*transform:translateY\(-220%\)/);
+  assert.match(css,/\.arena-home \.skip-to-content:focus\{transform:none;/);
 });

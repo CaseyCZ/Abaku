@@ -80,3 +80,21 @@
 .friend-presence.is-offline{background:#ff7272}
 .friend-entry .friend-remove{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;min-height:44px;padding:0;border-color:transparent;background:transparent;box-shadow:none;color:#ffb5b5;font-size:25px;line-height:1}
 .friend-entry .friend-remove:hover:not(:disabled){background:#ff727214;border-color:#ff727260}
+
+/* Saved local match replaces the two hero action buttons. */
+.arena-home .lobby-intro .hero-resume{
+  width:min(100%,430px);box-sizing:border-box;margin:4px 0 0;
+  padding:16px 18px;border:1px solid #48688f;border-radius:16px;
+  background:linear-gradient(150deg,#1c3658,#0e2442);
+  box-shadow:0 8px 22px #040e2390;
+}
+.arena-home .lobby-intro .hero-resume h2{
+  margin:0 0 7px;color:var(--arena-gold-hi);font-size:18px;
+}
+.arena-home .lobby-intro .hero-resume p{
+  margin:0 0 14px;color:var(--arena-muted);font-size:13px;line-height:1.5;
+}
+.arena-home .lobby-intro .hero-resume .gold-button{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:10px 18px;font-size:14px;
+}

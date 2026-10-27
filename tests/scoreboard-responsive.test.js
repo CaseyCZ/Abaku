@@ -14,6 +14,8 @@ test('bag count is centered below time and two player cards are equally wide',()
   assert.match(css,/\.game-header-score \.match-scoreboard \.player-card,[\s\S]*?#player1Card\{\s*display:flex!important;flex-direction:column!important/);
   assert.match(game,/id="bagCount"/);
   assert.doesNotMatch(game,/class="score-divider"/);
+  assert.match(css,/\.game-header-score \.match-scoreboard #player0Card\{grid-column:1;grid-row:1\}/);
+  assert.match(css,/\.game-header-score \.match-scoreboard #player1Card\{grid-column:2;grid-row:1\}/);
 });
 
 test('long names truncate but scores and active player marking remain unchanged',()=>{

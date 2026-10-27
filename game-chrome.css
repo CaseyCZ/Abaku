@@ -56,6 +56,9 @@
   margin:0!important;padding:8px 12px!important;gap:4px!important;
   box-sizing:border-box;
 }
+/* Explicit slots override older mobile grid positions for both players. */
+.game-app .top-bar .game-header-score .match-scoreboard #player0Card{grid-column:1;grid-row:1}
+.game-app .top-bar .game-header-score .match-scoreboard #player1Card{grid-column:2;grid-row:1}
 .game-app .top-bar .game-header-score .match-scoreboard .player-name{
   flex:0 1 auto;display:block;
   width:100%;max-width:100%;min-width:0;

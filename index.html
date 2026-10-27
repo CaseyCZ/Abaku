@@ -145,6 +145,7 @@
           <h2 id="quickRulesTitle">Čísla místo slov. Vítězí dobrý tah.</h2>
           <p>Z číselných kamenů skládáš matematické příklady. Znaménka nepokládáš – hra je rozpozná sama. Za správné příklady získáváš body.</p>
         </div>
+        <div class="how-to-link"><a href="./how-to-play.html" class="gold-button hero-primary">Otevřít podrobný návod →</a></div>
         <ol>
           <li>První tah vede přes střed hrací desky.</li>
           <li>Další tahy navazují na už položená čísla.</li>
@@ -216,7 +217,19 @@
       <header class="online-dialog-header">
         <div class="online-game-brand"><span class="online-brand-mark">A</span><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
         <div class="online-game-title" id="onlineDialogTitle"><span>✦ ČÍSELNÁ ARÉNA ✦</span><small>Matematický souboj · ONLINE</small></div>
+        <div class="online-match-scoreboard" id="onlineMatchScoreboard" role="group" aria-label="Skóre online partie" hidden>
+            <div class="online-player-card" id="onlinePlayer0Card">
+              <div class="online-player-name" id="onlinePlayer0Name">Hráč 1</div>
+              <div class="online-player-score"><strong id="onlinePlayer0Score">0</strong><small id="onlinePlayer0Status">Na tahu</small></div>
+            </div>
+          <span class="score-divider" aria-hidden="true">:</span>
+            <div class="online-player-card" id="onlinePlayer1Card">
+              <div class="online-player-name" id="onlinePlayer1Name">Hráč 2</div>
+              <div class="online-player-score"><strong id="onlinePlayer1Score">0</strong><small id="onlinePlayer1Status">Čeká</small></div>
+            </div>
+        </div>
         <div class="online-header-actions">
+          <button type="button" id="onlineInfoToggle" class="gold-button panel-toggle" aria-expanded="false" aria-controls="onlineInfoPanel">☰ Průběh a chat <span id="onlineUnreadBadgeHeader" hidden></span></button>
           <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">⚙ Nastavení</button>
           <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka</button>
         </div>
@@ -240,26 +253,7 @@
           <strong id="onlineTurn">Čekám na partii.</strong>
         </div>
         <div class="online-match-layout">
-          <aside class="online-player-side online-left">
-            <section class="online-panel online-status-panel" aria-label="Průběh online partie">
-              <button type="button" class="online-panel-toggle" aria-expanded="false" aria-controls="onlinePanelHistory">▸ Průběh partie</button>
-              <div class="online-panel-content" id="onlinePanelHistory">
-                <h2>Průběh partie</h2>
-                <div class="online-status-turn"><span>Na tahu</span><strong id="onlineTurnName">Hráč 1</strong></div>
-                <div class="online-status-details">
-                  <div><span>Poslední tah</span><strong id="onlineLastPlayer">—</strong></div>
-                  <div><span>Příklad</span><strong id="onlineLastEquation">—</strong></div>
-                  <div><span>Body za tah</span><strong id="onlineLastPoints">—</strong></div>
-                </div>
-                <h3>Poslední tahy</h3>
-                <ol id="onlineMoveHistory" class="online-move-history"></ol>
-              </div>
-            </section>
-            <div class="online-player-card" id="onlinePlayer0Card">
-              <div class="online-player-name" id="onlinePlayer0Name">Hráč 1</div>
-              <div class="online-player-score"><strong id="onlinePlayer0Score">0</strong><small id="onlinePlayer0Status">Na tahu</small></div>
-            </div>
-          </aside>
+
 
           <section class="online-game-board" aria-label="Online herní plocha">
             <div class="online-board-crest">✦ ČÍSELNÁ BITVA ✦</div>
@@ -278,7 +272,21 @@
             </div>
           </section>
 
-          <aside class="online-player-side online-right">
+          <aside class="online-player-side online-right" id="onlineInfoPanel">
+            <section class="online-panel online-status-panel" aria-label="Průběh online partie">
+              <button type="button" class="online-panel-toggle" aria-expanded="false" aria-controls="onlinePanelHistory">▸ Průběh partie</button>
+              <div class="online-panel-content" id="onlinePanelHistory">
+                <h2>Průběh partie</h2>
+                <div class="online-status-turn"><span>Na tahu</span><strong id="onlineTurnName">Hráč 1</strong></div>
+                <div class="online-status-details">
+                  <div><span>Poslední tah</span><strong id="onlineLastPlayer">—</strong></div>
+                  <div><span>Příklad</span><strong id="onlineLastEquation">—</strong></div>
+                  <div><span>Body za tah</span><strong id="onlineLastPoints">—</strong></div>
+                </div>
+                <h3>Poslední tahy</h3>
+                <ol id="onlineMoveHistory" class="online-move-history"></ol>
+              </div>
+            </section>
             <section class="online-panel online-match-chat" aria-label="Chat online partie">
               <button type="button" class="online-panel-toggle" aria-expanded="false" aria-controls="onlinePanelChat">▸ Chat <span id="onlineUnreadBadge" class="online-unread-badge" hidden>0</span></button>
               <div id="onlinePanelChat" class="online-panel-content">
@@ -290,10 +298,6 @@
                 </form>
               </div>
             </section>
-            <div class="online-player-card" id="onlinePlayer1Card">
-              <div class="online-player-name" id="onlinePlayer1Name">Hráč 2</div>
-              <div class="online-player-score"><strong id="onlinePlayer1Score">0</strong><small id="onlinePlayer1Status">Čeká</small></div>
-            </div>
           </aside>
         </div>
         <div class="online-control-bar">
@@ -315,6 +319,13 @@
   <dialog id="onlineGameSettingsDialog" class="online-game-settings-dialog" aria-labelledby="onlineGameSettingsTitle">
     <div class="online-game-settings-body">
       <h2 id="onlineGameSettingsTitle">⚙ Nastavení online hry</h2>
+      <label for="onlineLayoutSetting">Rozložení obrazovky</label>
+      <select id="onlineLayoutSetting" aria-label="Rozložení online hry">
+        <option value="focus">Maximální deska</option>
+        <option value="side">Deska a boční panel</option>
+        <option value="stack">Panely pod deskou</option>
+      </select>
+      <p>Vzhled se uloží také pro hru proti počítači. Na telefonu má přednost velikost desky.</p>
       <label for="onlineGameRecapSeconds">Doba zobrazení příkladu</label>
       <select id="onlineGameRecapSeconds" aria-label="Doba zobrazení jednoho příkladu v online partii">
         <option value="0">Vypnuto</option>
@@ -367,6 +378,8 @@
       <p id="onlineReportResultStatus" role="status" aria-live="polite"></p>
     </div>
   </dialog>
+  <link rel="stylesheet" href="./arena-layout.css?v=1">
+  <script type="module" src="./src/arena-ui.js?v=1"></script>
   <script type="module" src="./src/lobby.js?v=0.2.25"></script>
 </body>
 </html>

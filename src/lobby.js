@@ -22,13 +22,13 @@ function paintProfile() {
 }
 function showSavedGame() {
   const game=getSaved(GAME_KEY);
-  const valid=game && !game.finished && Array.isArray(game.board) &&
-    Array.isArray(game.players) && game.players.length === 2;
+  const valid=game && Array.isArray(game.board) && Array.isArray(game.players) && game.players.length === 2;
   byId('savedCard').hidden=!valid;
   if (!valid) return;
   const [a,b]=game.players.map(x=>Number(x.score)||0);
-  byId('savedDescription').textContent='Rozehraná partie · skóre '+a+' : '+b+
-    ' · tah '+(Number(game.turns||0)+1)+'.';
+  byId('savedDescription').textContent=game.finished
+    ? 'Poslední partie skončila · skóre '+a+' : '+b+'.'
+    : 'Rozehraná partie · skóre '+a+' : '+b+' · tah '+(Number(game.turns||0)+1)+'.';
 }
 function start(mode) {
   const saved=getSaved(GAME_KEY);

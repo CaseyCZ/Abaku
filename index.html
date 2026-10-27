@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="./analytics.css?v=1">
   <link rel="stylesheet" href="./arena-modern.css?v=1">
   <link rel="stylesheet" href="./arena-layout.css?v=2">
-  <link rel="stylesheet" href="./arena-home.css?v=5">
+  <link rel="stylesheet" href="./arena-home.css?v=4">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body class="arena-home">
@@ -41,10 +41,9 @@
         <h1 id="heroTitle">Skládej příklady<br><strong>z číselných kamenů.</strong></h1>
         <p class="subtitle">Znaménka nepokládáš, hra je pozná sama.</p>
         <p class="welcome">Vítej, <strong id="welcomeName">Host</strong>. Sbírej body, procvič počítání a vyzvi soupeře v Číselné aréně.</p>
-        <div class="hero-resume resume-section" id="savedCard" hidden>
-          <h2>✦ Rozehraná partie</h2>
-          <p id="savedDescription">Máš uloženou partii.</p>
-          <a class="gold-button hero-primary link-button" href="./game.html">Pokračovat ve hře</a>
+        <div class="hero-actions">
+          <button type="button" data-mode="bot" class="gold-button hero-primary">Hrát proti počítači</button>
+          <a class="hero-secondary" href="#gameModes">Vybrat herní režim</a>
         </div>
       </section>
         <div class="game-options" id="gameModes">
@@ -99,7 +98,11 @@
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-
+          <div class="resume-section" id="savedCard" hidden>
+            <h3>✦ Rozehraná partie</h3>
+            <p id="savedDescription">Máš uloženou partii.</p>
+            <a class="gold-button wide link-button" href="./game.html">Pokračovat ve hře</a>
+          </div>
           <div class="resume-section" id="onlineResumeCard" hidden>
             <h3>✦ Rozehraná online partie</h3>
             <p id="onlineResumeDescription">Na serveru máš rozehranou partii.</p>
@@ -360,6 +363,6 @@
   </dialog>
   <script type="module" src="./src/site-navigation.js?v=1"></script>
   <script type="module" src="./src/arena-ui.js?v=2"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.30"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.29"></script>
 </body>
 </html>

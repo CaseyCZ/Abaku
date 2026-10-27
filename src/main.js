@@ -1,6 +1,6 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.24';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.10';
 import {chooseMove} from './ai.js?v=0.2.24';
-import {describeMovePreview} from './preview.js?v=0.2.24';
+import {describeMovePreview} from './preview.js?v=0.2.10';
 import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.24';
 import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
@@ -209,7 +209,7 @@ function renderRack() {
     tile.className=`tile ${digit === undefined || used.has(index) ? 'empty' : ''} ${selectedIndex === index ? 'selected' : ''} ${exchangeIndices.has(index) ? 'exchange-selected' : ''}`;
     tile.textContent=digit === undefined || used.has(index) ? '' : digit;
     tile.disabled=busy || digit === undefined || used.has(index);tile.dataset.index=index;
-    tile.setAttribute('aria-label', digit === undefined ? 'Prázdné místo' : `Kámen ${digit}`);
+    tile.setAttribute('aria-label', digit === undefined ? 'Prázdné místo' : `Číslo ${digit}`);
     rack.append(tile);
   }
 }
@@ -246,7 +246,7 @@ function renderMovePreview() {
   byId('board').dataset.moveState = preview.state;
   const confirm=byId('confirmButton');
   confirm.dataset.state=preview.state;
-  confirm.title=preview.state==='valid'?'Potvrdit tah za '+preview.points+' bodů':preview.state==='invalid'?preview.detail:'Nejprve polož kameny';
+  confirm.title=preview.state==='valid'?'Potvrdit tah za '+preview.points+' bodů':preview.state==='invalid'?preview.detail:'Nejprve polož čísla';
   confirm.setAttribute('aria-label',confirm.title);
   byId('undoButton').dataset.hasPending=String(pending.length>0||exchangeMode||exchangeIndices.size>0);
   const points = byId('previewPoints');
@@ -310,11 +310,11 @@ boardElement.addEventListener('click',event=>{
   const prior=pending.findIndex(p=>p.row===row&&p.col===col);
   if(prior!==-1) {selectedIndex=pending[prior].rackIndex;pending.splice(prior,1);render();return;}
   if(game.board[row][col]!==null)return;
-  if(selectedIndex===null) {notify('Nejdříve vyber číselný kámen dole.','error');return;}
+  if(selectedIndex===null) {notify('Nejdříve vyber číslo dole.','error');return;}
   const digit=currentPlayer().rack[selectedIndex];
   pending.push({row,col,digit,rackIndex:selectedIndex});
   selectedIndex=null;sound();render();
-  if(pending.length===5) notify('Všech pět kamenů je položeno. Potvrď tah.');
+  if(pending.length===5) notify('Všech pět čísel je položeno. Potvrď tah.');
 });
 byId('rack').addEventListener('click',event=>{
   const tile=event.target.closest('.tile');if(!tile||tile.disabled)return;
@@ -328,7 +328,7 @@ function advanceTurn(pass=false,waitForRecap=false) {
   if(pass)game.passStreak++;else game.passStreak=0;
   game.turns++;
   if(game.passStreak>=6 || (game.bag.length===0 && game.players.some(p=>p.rack.length===0))) {
-    finish(game.passStreak>=6?'Šest tahů po sobě bylo vynecháno.':'Kameny byly rozebrány.');return;
+    finish(game.passStreak>=6?'Šest tahů po sobě bylo vynecháno.':'Sáček je prázdný a některému hráči došla čísla.');return;
   }
   game.turn=1-game.turn;clearPending();resetDeadline();save();render();
   if(isBotTurn()&&!waitForRecap)runBot();
@@ -401,15 +401,15 @@ function commitMove(placements, fromBot=false) {
   sound('success');advanceTurn(false,true);return true;
 }
 byId('confirmButton').addEventListener('click',()=>{if(pending.length)commitMove(pending);});
-byId('undoButton').addEventListener('click',()=>{clearPending();render();notify('Rozložené kameny vráceny do zásobníku.');});
+byId('undoButton').addEventListener('click',()=>{clearPending();render();notify('Rozložená čísla vrácena do zásobníku.');});
 byId('passButton').addEventListener('click',()=>{
   const who=playerLabel(game.turn);recordAudit(game,{type:'pass',player:game.turn});
   notify(`${who} vynechal tah.`);advanceTurn(true);
 });
 byId('exchangeButton').addEventListener('click',()=>{
-  if(pending.length){notify('Před výměnou vrať položené kameny.','error');return;}
-  if(game.bag.length===0){notify('V sáčku už nejsou kameny.','error');return;}
-  if(!exchangeMode){exchangeMode=true;selectedIndex=null;exchangeIndices.clear();notify('Vyber kameny pro výměnu a znovu stiskni Vyměnit.');render();return;}
+  if(pending.length){notify('Před výměnou vrať položená čísla.','error');return;}
+  if(game.bag.length===0){notify('V sáčku už nejsou čísla.','error');return;}
+  if(!exchangeMode){exchangeMode=true;selectedIndex=null;exchangeIndices.clear();notify('Vyber čísla pro výměnu a znovu stiskni Vyměnit.');render();return;}
   if(!exchangeIndices.size){exchangeMode=false;render();return;}
   const player=currentPlayer();
   const indexes=[...exchangeIndices].sort((a,b)=>b-a);
@@ -417,15 +417,15 @@ byId('exchangeButton').addEventListener('click',()=>{
   recordAudit(game,{type:'exchange',player:game.turn});
   replenishPlayerRack(game.bag,player);
   game.bag.unshift(...removed);
-  clearPending();sound();notify(`${playerLabel(game.turn)} vyměnil ${indexes.length} kamenů.`);advanceTurn(true);
+  clearPending();sound();notify(`${playerLabel(game.turn)} vyměnil čísla (${indexes.length}).`);advanceTurn(true);
 });
 byId('hintButton').addEventListener('click',()=>{
   if(settings.mode !== 'bot' || game.finished || isBotTurn()) return;
-  if(pending.length){notify('Pro nápovědu nejprve vrať rozložené kameny.','error');return;}
+  if(pending.length){notify('Pro nápovědu nejprve vrať rozložená čísla.','error');return;}
   notify('Hledám vhodný příklad…');
   setTimeout(()=>{
     const move=chooseMove(game.board,currentPlayer().rack,'hard');
-    if(!move){notify('Nenašel jsem jednoduchý tah. Zkus vyměnit kameny.');return;}
+    if(!move){notify('Nenašel jsem jednoduchý tah. Zkus vyměnit čísla.');return;}
     const available=currentPlayer().rack.map((digit,index)=>({digit,index}));
     pending=move.placements.map(p=>{
       const i=available.findIndex(v=>v.digit===p.digit);
@@ -446,7 +446,7 @@ function runBot() {
       recordAudit(game,{type:game.bag.length?'exchange':'pass',player:game.turn});
       if(game.bag.length){
         const bot=currentPlayer();game.bag.unshift(...bot.rack.splice(0,bot.rack.length));replenishPlayerRack(game.bag,bot);
-        notify('Počítač vyměnil kameny.');
+        notify('Počítač vyměnil čísla.');
       } else {notify('Počítač vynechal tah.');}
       advanceTurn(true);return;
     }

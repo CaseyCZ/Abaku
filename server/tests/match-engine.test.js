@@ -26,8 +26,8 @@ test('invalid rack indices and turns are rejected server-side',()=>{
   const {game}=rig();
   game.connect('a');game.connect('b');game.createMatch('a','b');
   assert.throws(()=>game.place('b',[{row:7,col:7,rackIndex:0}]),/na tahu/);
-  assert.throws(()=>game.place('a',[{row:7,col:7,rackIndex:100}]),/výběr kamene/);
-  assert.throws(()=>game.place('a',[{row:7,col:7,rackIndex:0},{row:7,col:8,rackIndex:0}]),/výběr kamene/);
+  assert.throws(()=>game.place('a',[{row:7,col:7,rackIndex:100}]),/výběr čísla/);
+  assert.throws(()=>game.place('a',[{row:7,col:7,rackIndex:0},{row:7,col:8,rackIndex:0}]),/výběr čísla/);
   assert.equal(game.matchOf('a').players[0].score,0);
 });
 test('six consecutive passes finish and update statistics exactly once',()=>{

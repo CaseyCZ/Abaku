@@ -40,7 +40,7 @@
       <div class="home-start">
       <section class="lobby-intro" aria-labelledby="heroTitle">
         <div class="eyebrow">MATEMATICKÝ SOUBOJ</div>
-        <h1 id="heroTitle">Skládej příklady<br><strong>z číselných kamenů.</strong></h1>
+        <h1 id="heroTitle">Skládej příklady<br><strong>z čísel.</strong></h1>
         <p class="subtitle">Znaménka nepokládáš, hra je pozná sama.</p>
         <p class="welcome">Vítej, <strong id="welcomeName">Host</strong>. Sbírej body, procvič počítání a vyzvi soupeře v Číselné aréně.</p>
         <div class="hero-resume" id="resumeCard" hidden>
@@ -119,13 +119,13 @@
         <div>
           <p class="eyebrow">JAK HRÁT</p>
           <h2 id="quickRulesTitle">Čísla místo slov. Vítězí dobrý tah.</h2>
-          <p>Z číselných kamenů skládáš matematické příklady. Znaménka nepokládáš – hra je rozpozná sama. Za správné příklady získáváš body.</p>
+          <p>Z čísel skládáš matematické příklady. Znaménka nepokládáš – hra je rozpozná sama. Za správné příklady získáváš body.</p>
         </div>
         <div class="how-to-link"><a href="./how-to-play.html" class="gold-button hero-primary">Otevřít podrobný návod →</a></div>
         <ol>
           <li>První tah vede přes střed hrací desky.</li>
           <li>Další tahy navazují na už položená čísla.</li>
-          <li>Bonusová pole násobí hodnotu kamene nebo příkladu.</li>
+          <li>Bonusová pole násobí hodnotu čísla nebo příkladu.</li>
         </ol>
       </section>
     </main>
@@ -224,7 +224,7 @@
       <div id="onlineBoardWrapper" class="online-match" hidden>
         <div id="onlineProgress" class="online-progress" aria-label="Průběh partie"></div>
         <div class="online-match-info">
-          <span id="onlineScore">V sáčku 100 kamenů</span>
+          <span id="onlineScore">V sáčku 100 čísel</span>
           <strong id="onlineTurn">Čekám na partii.</strong>
         </div>
         <div class="online-match-layout">
@@ -233,7 +233,7 @@
           <section class="online-game-board" aria-label="Online herní plocha">
             <div class="board-heading">
               <div class="online-board-crest">ČÍSELNÁ BITVA</div>
-              <div id="onlinePreview" class="online-preview" aria-live="polite">Polož kameny na desku</div>
+              <div id="onlinePreview" class="online-preview" aria-live="polite">Polož čísla na desku</div>
             </div>
             <div class="online-board-rim">
               <div id="onlineBoard" class="online-board" role="grid" aria-label="Online deska 15 krát 15"></div>
@@ -274,10 +274,10 @@
           </aside>
         </div>
         <div class="online-control-bar">
-          <div class="online-bag-count">V sáčku <strong id="onlineBagCount">100</strong> kamenů</div>
+          <div class="online-bag-count">V sáčku <strong id="onlineBagCount">100</strong> čísel</div>
             <div class="online-rack-frame">
-              <button id="onlineUndo" class="online-round-button" type="button" aria-label="Vrátit rozložené kameny" title="Vrátit">↶</button>
-              <div id="onlineRack" class="online-rack" aria-label="Tvoje kameny"></div>
+              <button id="onlineUndo" class="online-round-button" type="button" aria-label="Vrátit rozložená čísla" title="Vrátit">↶</button>
+              <div id="onlineRack" class="online-rack" aria-label="Tvoje čísla"></div>
               <button id="onlineConfirm" class="online-round-button online-confirm" type="button" aria-label="Potvrdit tah" title="Potvrdit tah">✓</button>
             </div>
           <div class="online-match-actions">
@@ -312,7 +312,7 @@
         <option value="8">8 sekund</option>
         <option value="10">10 sekund</option>
       </select>
-      <p>Vypnuto přeskočí svitek se sčítáním; položené kameny se stále na 3 sekundy zvýrazní. Změna platí i proti počítači.</p>
+      <p>Vypnuto přeskočí svitek se sčítáním; položená čísla se stále na 3 sekundy zvýrazní. Změna platí i proti počítači.</p>
       <h3>Nová online partie</h3>
       <label for="onlineTurnSeconds">Čas na tah</label>
       <select id="onlineTurnSeconds" aria-describedby="onlineTimeHelp">
@@ -367,7 +367,7 @@
   </dialog>
   <script type="module" src="./src/site-navigation.js?v=1"></script>
   <script type="module" src="./src/arena-ui.js?v=2"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.4"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.9"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.10"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.10"></script>
 </body>
 </html>

@@ -12,11 +12,11 @@ Zahraj si číselnou deskovou hru, ve které skládáš matematické příklady,
 
 ## 🎮 O hře
 
-Hra se hraje na desce **15 × 15 polí**. Místo slov skládáš z číselných kamenů správné matematické příklady. Znaménka na desku nepokládáš — hra je rozpozná sama.
+Hra se hraje na desce **15 × 15 polí**. Místo slov skládáš z čísel správné matematické příklady. Znaménka na desku nepokládáš — hra je rozpozná sama.
 
-Například z kamenů **2, 6 a 8** může vzniknout příklad **2 + 6 = 8**. Využít můžeš sčítání, odčítání, násobení, dělení, druhé i třetí mocniny a odmocniny. Stačí dokonce dva kameny: **24** znamená **2² = 4** a **42** znamená **√4 = 2**.
+Například z čísel **2, 6 a 8** může vzniknout příklad **2 + 6 = 8**. Využít můžeš sčítání, odčítání, násobení, dělení, druhé i třetí mocniny a odmocniny. Stačí dokonce dvě čísla: **24** znamená **2² = 4** a **42** znamená **√4 = 2**.
 
-Za vytvořené příklady získáváš body. Bonusová políčka a chytré napojení na již položené kameny ti pomohou dosáhnout vyššího skóre.
+Za vytvořené příklady získáváš body. Bonusová políčka a chytré napojení na již položená čísla ti pomohou dosáhnout vyššího skóre.
 
 ## ⚔️ Jak chceš hrát?
 
@@ -33,11 +33,11 @@ Proti počítači a ve dvou na jednom zařízení můžeš hrát **bez účtu**.
 
 1. Vyber herní režim a začni novou partii.
 2. Vyber čísla ze svého stojánku a polož je na herní desku. **První tah musí vést přes střed.**
-3. Slož platný matematický příklad. Další tahy musí navazovat na kameny na desce.
+3. Slož platný matematický příklad. Další tahy musí navazovat na čísla na desce.
 4. Využívej bonusová políčka a potvrď svůj tah.
 5. Sbírej body a snaž se porazit soupeře!
 
-V jednom tahu můžeš položit **až pět kamenů**. Pokud se ti kameny nehodí, můžeš je vyměnit nebo tah vynechat.
+V jednom tahu můžeš položit **až pět čísel**. Pokud se ti čísla nehodí, můžeš je vyměnit nebo tah vynechat.
 
 Podrobnosti najdeš přímo ve hře pod tlačítkem **Pravidla**.
 

@@ -24,14 +24,14 @@ function render(){
     if(step===numbers.length||index<0||index<step)cell.disabled=true;
     else cell.addEventListener('click',()=>{
       if(index!==step){
-        feedback('Kameny musí pokračovat v jedné souvislé řadě. Použij zeleně vyznačené pole.',true);return;
+        feedback('Čísla musí pokračovat v jedné souvislé řadě. Použij zeleně vyznačené pole.',true);return;
       }
       if(chosen!==numbers[step]){
-        feedback('Nejprve vyber kámen '+numbers[step]+' dole.',true);return;
+        feedback('Nejprve vyber číslo '+numbers[step]+' dole.',true);return;
       }
       step++;chosen=null;render();
       if(step===3)feedback('Výborně! 2 + 6 = 8. Střed ×3 zvyšuje 16 na 48 bodů.',false);
-      else feedback('Správně, pokračuj dalším kamenem.',false);
+      else feedback('Správně, pokračuj dalším číslem.',false);
     });
     board.append(cell);
   }
@@ -43,18 +43,18 @@ function render(){
     if(numbers[i]===chosen)tile.classList.add('selected');
     tile.textContent=numbers[i];
     tile.disabled=i<step||step===3;
-    tile.setAttribute('aria-label','Vybrat kámen '+numbers[i]);
+    tile.setAttribute('aria-label','Vybrat číslo '+numbers[i]);
     tile.setAttribute('aria-pressed',String(numbers[i]===chosen));
     tile.addEventListener('click',()=>{chosen=chosen===numbers[i]?null:numbers[i];render();});
     rack.append(tile);
   }
   const completed=step===3;
   $('tutorialCounter').textContent=completed?'Tah dokončen':'Krok '+(step+1)+' ze 3';
-  $('tutorialPrompt').textContent=completed?'První tah je správný!':'Vyber kámen '+numbers[step];
+  $('tutorialPrompt').textContent=completed?'První tah je správný!':'Vyber číslo '+numbers[step];
   const instruction=[
-    'Klepni na zlatý kámen 2 a potom ho polož na zeleně označené pole nalevo od středu.',
-    'Vyber kámen 6 a polož ho na středové pole ×3 příklad.',
-    'Nakonec polož kámen 8 napravo od středu.'
+    'Klepni na zlaté číslo 2 a potom ho polož na zeleně označené pole nalevo od středu.',
+    'Vyber číslo 6 a polož ho na středové pole ×3 příklad.',
+    'Nakonec polož číslo 8 napravo od středu.'
   ];
   $('tutorialInstruction').textContent=completed
     ?'Získal jsi 48 bodů. Takto může vypadat první tah skutečné partie.'

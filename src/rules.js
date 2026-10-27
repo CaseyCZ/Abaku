@@ -123,38 +123,38 @@ function findNewEquations(board, newIds) {
 
 export function validateMove(board, placements) {
   if (!Array.isArray(placements) || placements.length < 1 || placements.length > RACK_SIZE)
-    return {valid: false, reason: 'Polož 1 až 5 kamenů.'};
+    return {valid: false, reason: 'Polož 1 až 5 čísel.'};
   const keys = new Set();
   for (const p of placements) {
     if (!Number.isInteger(p.row) || !Number.isInteger(p.col) || p.row < 0 || p.col < 0 || p.row >= SIZE || p.col >= SIZE || !Number.isInteger(p.digit) || p.digit < 0 || p.digit > 9 || board[p.row]?.[p.col] !== null)
-      return {valid: false, reason: 'Kámen nelze položit na toto pole.'};
+      return {valid: false, reason: 'Číslo nelze položit na toto pole.'};
     const key = id(p.row, p.col);
-    if (keys.has(key)) return {valid: false, reason: 'Na jednom poli může být jen jeden kámen.'};
+    if (keys.has(key)) return {valid: false, reason: 'Na jednom poli může být jen jedno číslo.'};
     keys.add(key);
   }
   const horizontal = placements.every(p => p.row === placements[0].row);
   const vertical = placements.every(p => p.col === placements[0].col);
-  if (!horizontal && !vertical) return {valid: false, reason: 'Kameny musí ležet v jedné řadě nebo sloupci.'};
+  if (!horizontal && !vertical) return {valid: false, reason: 'Čísla musí ležet v jedné řadě nebo sloupci.'};
   const next = board.map(row => [...row]);
   for (const p of placements) next[p.row][p.col] = p.digit;
   const index = horizontal ? placements[0].row : placements[0].col;
   const coords = placements.map(p => horizontal ? p.col : p.row);
   for (let i = Math.min(...coords); i <= Math.max(...coords); i++) {
     if ((horizontal ? next[index][i] : next[i][index]) === null)
-      return {valid: false, reason: 'Mezi novými kameny nesmí být prázdné pole.'};
+      return {valid: false, reason: 'Mezi novými čísly nesmí být prázdné pole.'};
   }
   const hasOld = board.some(row => row.some(v => v !== null));
   if (!hasOld && !keys.has('7:7')) return {valid: false, reason: 'První tah musí procházet středem.'};
   if (hasOld && !placements.some(p => [[1,0],[-1,0],[0,1],[0,-1]].some(([dr,dc]) => {
     const r = p.row + dr, c = p.col + dc;
     return r >= 0 && c >= 0 && r < SIZE && c < SIZE && board[r][c] !== null;
-  }))) return {valid: false, reason: 'Nový tah musí navazovat na položené kameny.'};
+  }))) return {valid: false, reason: 'Nový tah musí navazovat na položená čísla.'};
 
   const equations = findNewEquations(next, keys);
   if (!equations.length) return {valid: false, reason: 'Nevznikl žádný platný početní příklad.'};
   const covered = new Set(equations.flatMap(eq => eq.cells.map(p => id(p.row,p.col))));
   if (placements.some(p => !covered.has(id(p.row,p.col))))
-    return {valid: false, reason: 'Každý nový kámen musí být součástí příkladu.'};
+    return {valid: false, reason: 'Každé nové číslo musí být součástí příkladu.'};
 
   // Newly adjacent tiles must belong to a common recognised example.
   for (const p of placements) {
@@ -162,7 +162,7 @@ export function validateMove(board, placements) {
       const r = p.row + dr, c = p.col + dc;
       if (r < 0 || c < 0 || r >= SIZE || c >= SIZE || next[r][c] === null) continue;
       if (!equations.some(eq => eq.cells.some(x => x.row === p.row && x.col === p.col) && eq.cells.some(x => x.row === r && x.col === c))) {
-        return {valid: false, reason: 'Sousední kameny musí tvořit platný příklad.'};
+        return {valid: false, reason: 'Sousední čísla musí tvořit platný příklad.'};
       }
     }
   }

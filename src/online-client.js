@@ -1,8 +1,8 @@
 import {revealArenaChat} from './arena-ui.js?v=2';
 import {syncResumeCard} from './resume-card.js?v=0.2.4';
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
-import { describeMovePreview } from './preview.js?v=0.2.24';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.24';
+import { describeMovePreview } from './preview.js?v=0.2.10';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.10';
 import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.24';
 import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=1';
 import {bindFeedback} from './feedback-client.js?v=1';
@@ -807,7 +807,7 @@ function renderOnline(){
     tile.className='online-tile'+(selected===i?' chosen':'')+(selectedExchange.has(i)?' chosen':'');
     tile.textContent=String(s.rack[i]);
     tile.disabled=!canPlay||pending.some(p=>p.rackIndex===i);
-    tile.setAttribute('aria-label','Kámen '+s.rack[i]);
+    tile.setAttribute('aria-label','Číslo '+s.rack[i]);
     tile.addEventListener('click',()=>{
       if(exchanging){selectedExchange.has(i)?selectedExchange.delete(i):selectedExchange.add(i);}
       else selected=selected===i?null:i;
@@ -820,7 +820,7 @@ function renderOnline(){
   $('onlineBoard').dataset.moveState=preview.state;
   const confirm=$('onlineConfirm');
   confirm.dataset.state=preview.state;
-  confirm.title=preview.state==='valid'?'Potvrdit tah za '+preview.points+' bodů':preview.state==='invalid'?preview.detail:'Nejprve polož kameny';
+  confirm.title=preview.state==='valid'?'Potvrdit tah za '+preview.points+' bodů':preview.state==='invalid'?preview.detail:'Nejprve polož čísla';
   confirm.setAttribute('aria-label',confirm.title);
   $('onlineUndo').dataset.hasPending=String(pending.length>0||exchanging||selectedExchange.size>0);
   $('onlinePreview').textContent=preview.state==='valid'?('+'+preview.points+' bodů · '+preview.detail):preview.detail;

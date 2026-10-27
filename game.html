@@ -55,7 +55,7 @@
           <div id="movePreview" class="move-preview" data-state="empty" aria-live="polite" aria-atomic="true">
             <span class="move-preview-label">Body za tah</span>
             <strong id="previewPoints">—</strong>
-            <span id="previewDetails" class="move-preview-details">Polož kameny na desku</span>
+            <span id="previewDetails" class="move-preview-details">Polož čísla na desku</span>
           </div>
         </div>
         <div class="board-rim">
@@ -102,10 +102,10 @@
     </main>
 
     <footer class="control-bar">
-      <div class="bag-count">V sáčku <strong id="bagCount">100</strong> kamenů</div>
+      <div class="bag-count">V sáčku <strong id="bagCount">100</strong> čísel</div>
         <div class="rack-frame">
-          <button class="round-button" id="undoButton" title="Vrátit rozložené kameny" aria-label="Vrátit kameny">↶</button>
-          <div class="rack" id="rack" aria-label="Tvoje kameny"></div>
+          <button class="round-button" id="undoButton" title="Vrátit rozložená čísla" aria-label="Vrátit čísla">↶</button>
+          <div class="rack" id="rack" aria-label="Tvoje čísla"></div>
           <button class="round-button play" id="confirmButton" title="Potvrdit tah" aria-label="Potvrdit tah">✓</button>
         </div>
       <div class="game-controls">
@@ -152,7 +152,7 @@
         <option value="8">8 sekund</option>
         <option value="10">10 sekund</option>
       </select></label>
-      <p class="dialog-note">Při volbě Vypnuto se vyhodnocení přeskočí, ale nové kameny se na desce ještě 3 sekundy zvýrazní. Nastavení platí i pro online hru.</p>
+      <p class="dialog-note">Při volbě Vypnuto se vyhodnocení přeskočí, ale nová čísla se na desce ještě 3 sekundy zvýrazní. Nastavení platí i pro online hru.</p>
       <label class="check-line"><input type="checkbox" id="soundSetting" checked /> Zvuky</label>
       <div class="report-game-options">
         <button type="button" id="reportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
@@ -181,7 +181,7 @@
   <dialog id="rulesDialog">
     <div class="dialog-body rules-body">
       <h2>Jak hrát</h2>
-      <p>Podobně jako ve Scrabblu pokládáš na desku kameny, ale místo slov vytváříš <strong>početní příklady bez znamének</strong>.</p>
+      <p>Podobně jako ve Scrabblu pokládáš na desku čísla, ale místo slov vytváříš <strong>početní příklady bez znamének</strong>.</p>
       <div class="example"><span>2</span><span>7</span><span>9</span><b>→</b> 2 + 7 = 9</div>
       <div class="example"><span>1</span><span>2</span><span>4</span><span>3</span><b>→</b> 12 ÷ 4 = 3</div>
       <div class="example"><span>2</span><span>4</span><b>→</b> 2² = 4</div>
@@ -189,12 +189,12 @@
       <p>Můžeš tvořit také třetí mocniny (8³ = 512) a třetí odmocniny (∛27 = 3). I tato znaménka si pouze představuješ.</p>
       <ul>
         <li>První tah musí procházet prostředním polem.</li>
-        <li>Každý další tah musí navázat na kameny, které už leží na desce.</li>
-        <li>Nové kameny polož do jednoho řádku nebo sloupce. Každý musí být součástí příkladu.</li>
-        <li>Bonusová políčka násobí hodnotu kamene nebo celého příkladu.</li>
+        <li>Každý další tah musí navázat na čísla, která už leží na desce.</li>
+        <li>Nová čísla polož do jednoho řádku nebo sloupce. Každé musí být součástí příkladu.</li>
+        <li>Bonusová políčka násobí hodnotu čísla nebo celého příkladu.</li>
         <li>Vyhrává hráč s vyšším počtem bodů po skončení partie.</li>
       </ul>
-      <p><strong>Jak provést tah:</strong> Vyber kámen dole, klepni na pole, vytvoř platný příklad a potvrď zeleným tlačítkem. Pokud je tah chybný, uvidíš červené upozornění s důvodem.</p>
+      <p><strong>Jak provést tah:</strong> Vyber číslo dole, klepni na pole, vytvoř platný příklad a potvrď zeleným tlačítkem. Pokud je tah chybný, uvidíš červené upozornění s důvodem.</p>
       <p><a class="gold-button rules-full-link" href="./how-to-play.html" target="_blank" rel="noopener">Podrobný návod pro začátečníky</a></p>
       <menu><button id="closeRules" class="gold-button primary">Rozumím</button></menu>
     </div>
@@ -221,7 +221,7 @@
   </dialog>
 
   <script type="module" src="./src/arena-ui.js?v=2"></script>
-  <script type="module" src="./src/main.js?v=0.1.20"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.9"></script>
+  <script type="module" src="./src/main.js?v=0.2.10"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.10"></script>
 </body>
 </html>

@@ -155,12 +155,12 @@ export class MatchEngine {
   }
   place(uid,placements) {
     const match=this.requireTurn(uid);
-    if(!Array.isArray(placements)||placements.length<1||placements.length>RACK_SIZE)throw new Error('Neplatný počet kamenů.');
+    if(!Array.isArray(placements)||placements.length<1||placements.length>RACK_SIZE)throw new Error('Neplatný počet čísel.');
     const rack=match.players[match.turn].rack;
     const used=new Set();
     const safe=placements.map(p=>{
       const idx=p?.rackIndex;
-      if(!Number.isInteger(idx)||idx<0||idx>=rack.length||used.has(idx))throw new Error('Neplatný výběr kamene.');
+      if(!Number.isInteger(idx)||idx<0||idx>=rack.length||used.has(idx))throw new Error('Neplatný výběr čísla.');
       used.add(idx);
       return {row:p.row,col:p.col,digit:rack[idx],rackIndex:idx};
     });
@@ -192,10 +192,10 @@ export class MatchEngine {
   exchange(uid,indices) {
     const match=this.requireTurn(uid);
     if(!Array.isArray(indices)||!indices.length||indices.length>RACK_SIZE||match.bag.length<indices.length)
-      throw new Error('Nelze vyměnit tyto kameny.');
+      throw new Error('Nelze vyměnit tato čísla.');
     const player=match.players[match.turn];
     const indexes=new Set(indices);
-    if(indexes.size!==indices.length||[...indexes].some(i=>!Number.isInteger(i)||i<0||i>=player.rack.length))throw new Error('Neplatné kameny.');
+    if(indexes.size!==indices.length||[...indexes].some(i=>!Number.isInteger(i)||i<0||i>=player.rack.length))throw new Error('Neplatná čísla.');
     const removed=[...indexes].sort((a,b)=>b-a).map(i=>player.rack.splice(i,1)[0]);
     player.rack=drawTiles(match.bag,player.rack);
     match.bag.unshift(...removed);

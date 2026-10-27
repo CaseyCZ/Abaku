@@ -7,8 +7,8 @@
   "start_url": "./index.html",
   "scope": "./",
   "display": "browser",
-  "background_color": "#27070c",
-  "theme_color": "#4c0e13",
+  "background_color": "#0a1630",
+  "theme_color": "#0f2347",
   "icons": [
     {
       "src": "./assets/arena-home-192.png",

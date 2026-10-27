@@ -14,36 +14,36 @@
   justify-content:space-between;
   gap:12px 20px;
   padding:16px 20px;
-  color:#fff0c6;
-  background:linear-gradient(140deg,#4b1019,#26070c);
-  border:2px solid #d8a34b;
+  color:#ffe0c6;
+  background:linear-gradient(140deg,#142747,#091324);
+  border:2px solid #d8864b;
   border-radius:13px;
-  box-shadow:0 9px 30px #120207cb, inset 0 0 0 1px #f5ce6940;
+  box-shadow:0 9px 30px #030811cb, inset 0 0 0 1px #f5a86940;
   font:13px/1.5 Verdana,sans-serif;
 }
 .abaku-consent-copy{display:flex;flex:1 1 260px;flex-direction:column;gap:5px;min-width:0}
-.abaku-consent-copy strong{font:700 20px Georgia,serif;color:#ffdc87}
+.abaku-consent-copy strong{font:700 20px Georgia,serif;color:#ffbc87}
 .abaku-consent-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
 .abaku-consent-actions button,.abaku-consent-actions a{
   box-sizing:border-box;min-height:42px;display:inline-flex;
   align-items:center;justify-content:center;
-  border:1px solid #dfad58;border-radius:8px;
+  border:1px solid #df9158;border-radius:8px;
   padding:9px 13px;text-decoration:none;
   font:700 12px Verdana,sans-serif;
   cursor:pointer;
 }
-.abaku-consent-accept{background:linear-gradient(#ffe9ad,#daa650);color:#502310}
-.abaku-consent-reject{background:#31121b;color:#ffe0a3}
-.abaku-consent-actions a{background:transparent;color:#ffe2ac}
+.abaku-consent-accept{background:linear-gradient(#ffd2ad,#da8a50);color:#502410}
+.abaku-consent-reject{background:#141e2f;color:#ffcaa3}
+.abaku-consent-actions a{background:transparent;color:#ffcfac}
 .abaku-consent-actions button:focus-visible,.abaku-consent-actions a:focus-visible,
 .abaku-cookie-settings:focus-visible{
   outline:3px solid #9fe9ff;outline-offset:2px
 }
 .abaku-cookie-settings,.abaku-privacy-link {
-  border:0;background:none;color:#efd19a;text-decoration:underline;
+  border:0;background:none;color:#efbe9a;text-decoration:underline;
   cursor:pointer;font:inherit;padding:2px 4px
 }
-.abaku-privacy-link:visited{color:#efd19a}
+.abaku-privacy-link:visited{color:#efbe9a}
 .abaku-consent[hidden]{display:none!important}
 @media(max-width:600px){
   .abaku-consent{width:calc(100vw - 18px);bottom:max(6px,env(safe-area-inset-bottom));padding:12px;gap:9px}
@@ -61,22 +61,22 @@
   flex:1;
   margin:28px auto 40px;
   padding:clamp(18px,4vw,38px);
-  border:2px solid #d9a64d;
+  border:2px solid #d9884d;
   border-radius:14px;
-  color:#f8deb0;
-  background:linear-gradient(140deg,#3d0f18,#26070de8);
-  box-shadow:0 5px 16px #16030877;
+  color:#f8ceb0;
+  background:linear-gradient(140deg,#12213a,#091324e8);
+  box-shadow:0 5px 16px #040a1577;
   font:15px/1.7 Verdana,sans-serif;
 }
 .abaku-privacy-page h1,
 .abaku-privacy-page h2 {
-  color:#f5c76f;
+  color:#f5a86f;
   font-family:Georgia,serif;
   line-height:1.3;
 }
 .abaku-privacy-page h1{font-size:clamp(23px,5vw,36px)}
 .abaku-privacy-page h2{margin-top:28px;font-size:23px}
-.abaku-privacy-page code{overflow-wrap:anywhere;color:#fff4c6}
+.abaku-privacy-page code{overflow-wrap:anywhere;color:#ffe1c6}
 .abaku-privacy-page .gold-button {
   display:inline-flex;
   justify-content:center;
@@ -84,9 +84,9 @@
   align-items:center;
   padding:9px 16px;
   border-radius:7px;
-  border:1px solid #ad772d;
-  color:#4e210e;
-  background:linear-gradient(#ffe5a2,#dba654);
+  border:1px solid #ad612d;
+  color:#4e220e;
+  background:linear-gradient(#ffcba2,#db8c54);
 }
 @media(max-width:600px){
   .abaku-privacy-page{width:calc(100% - 18px);margin:12px auto 28px;padding:17px;font-size:13px}

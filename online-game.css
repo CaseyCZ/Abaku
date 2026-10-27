@@ -9,9 +9,9 @@
   overflow-x:hidden;
   overflow-y:auto;
   overscroll-behavior:contain;
-  background:radial-gradient(ellipse at 50% 0%,#852626 0%,#4b1118 58%,#21070b 100%);
-  color:#fff0c9;
-  border:4px ridge #e3b85a;
+  background:radial-gradient(ellipse at 50% 0%,#2d4b7e 0%,#152747 58%,#09111f 100%);
+  color:#ffe1c9;
+  border:4px ridge #e3965a;
   border-radius:10px;
 }
 #onlineDialog .online-dialog-inner{padding:0}
@@ -20,37 +20,37 @@
   display:grid;grid-template-columns:1fr auto 1fr;
   align-items:center;gap:10px;
   margin:0;padding:13px 17px 10px;
-  border-bottom:5px ridge #bc772c;
-  background:linear-gradient(100deg,#330d16,#53171e,#26080f);
+  border-bottom:5px ridge #bc642c;
+  background:linear-gradient(100deg,#101c30,#1c2e4e,#0a1424);
 }
 #onlineDialog .online-game-brand{
   display:flex;align-items:center;gap:9px;
   font:12px/1.05 Georgia,serif;letter-spacing:1px;
-  color:#ffe3a3;
+  color:#ffcba3;
 }
 #onlineDialog .online-brand-mark{
   display:grid;place-items:center;flex:none;
   width:48px;height:48px;
-  background:linear-gradient(130deg,#f8e7aa,#b87a28);
-  border:3px ridge #f8d37a;
-  border-radius:12px;box-shadow:0 0 0 2px #853c1b;
-  color:#5a2119;font:bold 33px Georgia,serif;
-  text-shadow:1px 1px #fff7ce;
+  background:linear-gradient(130deg,#f8ceaa,#b86228);
+  border:3px ridge #f8b27a;
+  border-radius:12px;box-shadow:0 0 0 2px #853d1b;
+  color:#1e3255;font:bold 33px Georgia,serif;
+  text-shadow:1px 1px #ffe6ce;
 }
 #onlineDialog .online-game-title{
   display:flex;flex-direction:column;align-items:center;
   white-space:nowrap;text-align:center;letter-spacing:3px;
-  color:#ffdd8d;text-shadow:0 2px #43110f,0 0 12px #d7963c;
+  color:#ffbf8d;text-shadow:0 2px #13233f,0 0 12px #d77b3c;
   font:bold clamp(19px,3vw,35px) Georgia,serif;
 }
 #onlineDialog .online-game-title small{
   margin-top:4px;font:11px Verdana,sans-serif;
-  letter-spacing:2px;color:#dfbd90;text-shadow:none;
+  letter-spacing:2px;color:#dfb090;text-shadow:none;
 }
 #onlineDialog #onlineCancel{justify-self:end;white-space:nowrap;min-height:43px}
 #onlineDialog #onlineStatus{
   min-height:25px;margin:0;padding:9px 14px 4px;
-  font:12px/1.45 Verdana,sans-serif;text-align:center;color:#f2d1a1;
+  font:12px/1.45 Verdana,sans-serif;text-align:center;color:#f2c2a1;
 }
 #onlineDialog #onlineStatus[data-error="true"]{color:#ffab9a}
 #onlineDialog .online-waiting{padding:30px 12px 50px}
@@ -58,9 +58,9 @@
 #onlineDialog .online-progress{
   display:flex;align-items:center;justify-content:center;gap:3px;
   width:min(65%,800px);height:31px;margin:4px auto 8px;
-  padding:3px 12px;background:#3e1019;
-  border:4px ridge #c58a38;border-radius:14px;
-  box-shadow:inset 0 0 0 2px #fff1ad,0 3px 8px #210309;
+  padding:3px 12px;background:#13223b;
+  border:4px ridge #c57138;border-radius:14px;
+  box-shadow:inset 0 0 0 2px #ffd4ad,0 3px 8px #050f1f;
 }
 #onlineDialog .online-progress i{
   display:block;flex:1;max-width:23px;aspect-ratio:1;border-radius:50%;
@@ -72,8 +72,8 @@
 #onlineDialog .online-match-info{
   width:min(calc(100% - 28px),920px);min-height:0;
   display:flex;justify-content:space-between;gap:10px;
-  margin:0 auto 7px;padding:5px 9px;border:1px solid #9c6131;
-  border-radius:6px;background:#2609138c;color:#efcf9f;
+  margin:0 auto 7px;padding:5px 9px;border:1px solid #9c5831;
+  border-radius:6px;background:#0b14248c;color:#efc09f;
   font:11px/1.4 Verdana,sans-serif;
 }
 #onlineDialog .online-match-info strong{color:#b7e9fb}
@@ -89,58 +89,58 @@
 #onlineDialog .online-panel{
   width:100%;display:flex;flex-direction:column;gap:9px;
   min-width:0;min-height:135px;max-height:380px;overflow:hidden;
-  padding:10px;border:3px ridge #d3a450;border-radius:10px;
-  background:linear-gradient(145deg,#44151d,#260a12);
-  box-shadow:0 5px 13px #1a050b;
+  padding:10px;border:3px ridge #d38750;border-radius:10px;
+  background:linear-gradient(145deg,#192740,#0c1524);
+  box-shadow:0 5px 13px #070d18;
 }
 #onlineDialog .online-panel-content{
   display:flex;flex-direction:column;gap:9px;min-height:0;min-width:0;
 }
 #onlineDialog .online-panel h2{
   text-align:center;margin:0 0 5px;padding-bottom:8px;
-  font:bold 20px Georgia,serif;color:#f9d88e;border-bottom:1px solid #bd914a;
+  font:bold 20px Georgia,serif;color:#f9bd8e;border-bottom:1px solid #bd7a4a;
 }
 #onlineDialog .online-panel h3{
-  margin:5px 0 0;font:bold 13px Georgia,serif;color:#f5d289;
+  margin:5px 0 0;font:bold 13px Georgia,serif;color:#f5b889;
 }
 #onlineDialog .online-panel-toggle{display:none}
 #onlineDialog .online-status-turn{
   display:flex;justify-content:space-between;align-items:center;gap:8px;
-  border:1px solid #966336;background:#301019;border-radius:5px;
-  padding:8px;color:#eccb99;font:11px Verdana,sans-serif;
+  border:1px solid #965a36;background:#121c2e;border-radius:5px;
+  padding:8px;color:#ecbb99;font:11px Verdana,sans-serif;
 }
 #onlineDialog .online-status-turn strong{color:#a8dfff;text-align:right}
 #onlineDialog .online-status-details{display:grid;gap:5px}
 #onlineDialog .online-status-details>div{
   display:flex;justify-content:space-between;gap:9px;
-  padding:5px 0;border-bottom:1px solid #76472c;
+  padding:5px 0;border-bottom:1px solid #76452c;
   font:11px/1.4 Verdana,sans-serif;
 }
-#onlineDialog .online-status-details>div span{color:#d9ad79;flex:none}
+#onlineDialog .online-status-details>div span{color:#d99f79;flex:none}
 #onlineDialog .online-status-details>div strong{text-align:right;overflow-wrap:anywhere;min-width:0}
 #onlineDialog .online-move-history{
   margin:2px 0 0;padding-left:20px;overflow:auto;min-height:0;
-  font:11px/1.5 Verdana,sans-serif;color:#f5dab1;
+  font:11px/1.5 Verdana,sans-serif;color:#f5cdb1;
 }
 #onlineDialog .online-move-history li{overflow-wrap:anywhere;margin-bottom:5px}
 #onlineDialog .online-move-history strong{color:#aef9b2}
 #onlineDialog .online-mascot{
   width:min(100%,175px);height:145px;margin:auto 0 -13px;
-  filter:drop-shadow(0 4px 5px #20080b);
+  filter:drop-shadow(0 4px 5px #0a111e);
 }
 #onlineDialog .online-right .online-mascot{transform:scaleX(-1)}
 #onlineDialog .online-player-card{
   width:100%;max-width:240px;min-width:0;
-  background:linear-gradient(#22151b,#37151d);
-  border:4px ridge #efb953;border-radius:5px;
-  box-shadow:inset 0 1px #fff1ba,0 3px 11px #22040a;
+  background:linear-gradient(#161a21,#182234);
+  border:4px ridge #ef9553;border-radius:5px;
+  box-shadow:inset 0 1px #ffdaba,0 3px 11px #061020;
   position:relative;z-index:1;
 }
-#onlineDialog .online-player-card.active{border-color:#fbd469;box-shadow:0 0 12px #edb65980}
+#onlineDialog .online-player-card.active{border-color:#fbab69;box-shadow:0 0 12px #ed975980}
 #onlineDialog .online-player-name{
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   padding:9px 7px;background:#121017;
-  color:#f6d5a3;text-align:center;
+  color:#f6c5a3;text-align:center;
   font:13px Verdana,sans-serif;
 }
 /* Highlight the player whose turn it actually is, not permanently player 1. */
@@ -151,36 +151,36 @@
 }
 #onlineDialog .online-player-score{
   display:flex;align-items:center;justify-content:space-between;
-  gap:5px;border-top:3px solid #d5a03e;
+  gap:5px;border-top:3px solid #d57e3e;
   padding:8px 10px;
 }
 #onlineDialog .online-player-score strong{font:bold 27px Georgia,serif}
-#onlineDialog .online-player-score small{font:11px Verdana,sans-serif;color:#e8ca9d;text-align:right}
+#onlineDialog .online-player-score small{font:11px Verdana,sans-serif;color:#e8bc9d;text-align:right}
 #onlineDialog .online-game-board{
   display:flex;flex-direction:column;align-items:center;min-width:0;gap:0;
 }
 #onlineDialog .online-board-crest{
-  color:#f4c474;text-align:center;
+  color:#f4a974;text-align:center;
   font:bold 12px/1.5 Georgia,serif;letter-spacing:3px;
-  text-shadow:0 2px #260608;
+  text-shadow:0 2px #081224;
 }
 #onlineDialog .online-board-rim{
-  width:100%;min-width:0;padding:7px;border:4px ridge #eec668;
-  background:linear-gradient(130deg,#ffe8a0,#b25918 18%,#e6aa3a 60%,#8e400d);
-  box-shadow:0 5px 16px #210407,inset 0 0 0 2px #85400f;
+  width:100%;min-width:0;padding:7px;border:4px ridge #eea368;
+  background:linear-gradient(130deg,#ffcba0,#b24f18 18%,#e6833a 60%,#8e3a0d);
+  box-shadow:0 5px 16px #060f1f,inset 0 0 0 2px #85390f;
 }
 #onlineDialog .online-board{
   display:grid;grid-template-columns:repeat(15,minmax(0,1fr));
   grid-template-rows:repeat(15,minmax(0,1fr));
-  width:100%;height:auto;aspect-ratio:1;border:3px solid #531918;
-  background:#fbf9ed;overflow:hidden;user-select:none;touch-action:manipulation;
+  width:100%;height:auto;aspect-ratio:1;border:3px solid #1c2f4f;
+  background:#fbf4ed;overflow:hidden;user-select:none;touch-action:manipulation;
 }
 #onlineDialog .online-cell{
   width:100%;height:100%;min-width:0;min-height:0;
-  padding:0;margin:0;border:0;border-right:1px solid #934945;border-bottom:1px solid #934945;
+  padding:0;margin:0;border:0;border-right:1px solid #4b638d;border-bottom:1px solid #4b638d;
   display:grid;place-items:center;
   font:bold clamp(10px,1.5vw,23px) Georgia,serif;
-  color:#582b22;background:#fffefa;outline:none;
+  color:#263754;background:#fffcfa;outline:none;
 }
 #onlineDialog .online-cell:nth-child(15n){border-right:0}
 #onlineDialog .online-cell:nth-last-child(-n+15){border-bottom:0}
@@ -188,37 +188,37 @@
 #onlineDialog .online-cell.td{background:#43a839}
 #onlineDialog .online-cell.de{background:#caf1f9}
 #onlineDialog .online-cell.te{background:#57b1e3}
-#onlineDialog .online-cell.fixed{background:#ecd1aa;text-shadow:1px 1px #fff9dd}
+#onlineDialog .online-cell.fixed{background:#ecc5aa;text-shadow:1px 1px #ffeddd}
 #onlineDialog .online-cell.staged{
-  background:#ffc56c;color:#612508;
-  box-shadow:inset 0 0 0 2px #eb8616
+  background:#ffa96c;color:#612508;
+  box-shadow:inset 0 0 0 2px #eb6916
 }
 #onlineDialog .online-cell.recent-equation.fixed{
   background:#c9f2da;color:#164b2d;
   box-shadow:inset 0 0 0 2px #2aaf77;position:relative;z-index:1
 }
 #onlineDialog .online-cell.recent-tile.fixed{
-  background:#ffdb68;color:#5b2709;
-  box-shadow:inset 0 0 0 2px #e88710,0 0 7px #ffe58e;position:relative;z-index:2
+  background:#ffad68;color:#5b2509;
+  box-shadow:inset 0 0 0 2px #e86510,0 0 7px #ffc28e;position:relative;z-index:2
 }
 #onlineDialog .online-cell:disabled{opacity:1;cursor:default}
-#onlineDialog .online-cell:focus-visible{outline:3px solid #df641c;z-index:3}
+#onlineDialog .online-cell:focus-visible{outline:3px solid #df5e1c;z-index:3}
 #onlineDialog .online-under-board{
   width:100%;min-height:54px;display:flex;align-items:center;justify-content:space-between;
   gap:8px;padding:4px 1px;
 }
 #onlineDialog .online-preview{
   flex:1;min-width:0;text-align:left;margin:0;
-  font:12px/1.4 Verdana,sans-serif;color:#e8cd9b;
+  font:12px/1.4 Verdana,sans-serif;color:#e8bc9b;
   overflow-wrap:anywhere;
 }
 #onlineDialog .online-timer-wrap{
   flex:none;min-width:77px;display:flex;flex-direction:column;align-items:center;
-  border:2px solid #b78237;border-radius:5px;background:#280b13;
+  border:2px solid #b76b37;border-radius:5px;background:#0d1626;
   padding:4px 7px;
 }
-#onlineDialog .online-timer-wrap span{color:#eabd76;font:10px Verdana,sans-serif;letter-spacing:2px}
-#onlineDialog .online-timer-wrap strong{color:#f7dca0;font:bold 20px Georgia,serif}
+#onlineDialog .online-timer-wrap span{color:#eaa676;font:10px Verdana,sans-serif;letter-spacing:2px}
+#onlineDialog .online-timer-wrap strong{color:#f7c6a0;font:bold 20px Georgia,serif}
 #onlineDialog .online-timer-wrap.warning strong{color:#ff896a}
 #onlineDialog .online-last-move-review{width:100%;margin:3px 0 5px}
 #onlineDialog .online-rack-frame{
@@ -229,61 +229,61 @@
   flex:1 1 auto;min-width:0;max-width:350px;height:74px;
   display:flex;align-items:center;justify-content:center;
   gap:5px;flex-wrap:nowrap;padding:6px 8px;
-  background:linear-gradient(#ffedae,#b67e3e);
-  border:3px ridge #ffe18a;border-radius:5px;
-  box-shadow:0 4px 7px #220507;
+  background:linear-gradient(#ffd4ae,#b66d3e);
+  border:3px ridge #ffbf8a;border-radius:5px;
+  box-shadow:0 4px 7px #071020;
 }
 #onlineDialog .online-tile{
   flex:1 1 0;min-width:0;max-width:54px;
   width:0;height:53px;padding:0;
-  border:2px solid #c48a57;border-radius:2px;
-  background:linear-gradient(#fff4d7,#e6bd8e);
-  color:#642b17;font:bold 30px Georgia,serif;
-  text-shadow:1px 1px #fff6d7;
+  border:2px solid #c47f57;border-radius:2px;
+  background:linear-gradient(#ffe9d7,#e6b08e);
+  color:#642f17;font:bold 30px Georgia,serif;
+  text-shadow:1px 1px #ffead7;
 }
 #onlineDialog .online-tile.chosen{
-  background:linear-gradient(#fff9bd,#ffcd56);
-  box-shadow:0 0 0 2px #fff1b2,0 4px 7px #391708;
+  background:linear-gradient(#ffdebd,#ffa156);
+  box-shadow:0 0 0 2px #ffd7b2,0 4px 7px #391808;
   transform:translateY(-5px)
 }
 #onlineDialog .online-tile:disabled{opacity:.4}
 #onlineDialog .online-round-button{
   display:grid;place-items:center;flex:none;
   width:51px;height:51px;padding:0;
-  border:5px ridge #edc45f;border-radius:50%;
-  background:linear-gradient(140deg,#fff2ae,#89909c,#5b5e69);
-  color:#fff1c4;font:bold 34px Georgia,serif;
-  text-shadow:1px 1px #452314;box-shadow:0 4px 8px #220507;
+  border:5px ridge #ed9e5f;border-radius:50%;
+  background:linear-gradient(140deg,#ffd5ae,#89909c,#5b5e69);
+  color:#ffdfc4;font:bold 34px Georgia,serif;
+  text-shadow:1px 1px #452414;box-shadow:0 4px 8px #071020;
 }
 #onlineDialog .online-round-button.online-confirm{
-  background:linear-gradient(140deg,#fff6ab,#efbd43,#b47710);
-  color:#54340c;
+  background:linear-gradient(140deg,#ffd5ab,#ef8f43,#b45510);
+  color:#54290c;
 }
 #onlineDialog .online-round-button:disabled{opacity:.4}
 #onlineDialog .online-match-chat{max-height:380px}
 #onlineDialog .online-chat-scroll{
   flex:1;min-height:65px;max-height:185px;overflow-y:auto;
-  border:1px solid #673b32;border-radius:4px;
-  background:#260a12;color:#f5dcb3;padding:7px;
+  border:1px solid #364663;border-radius:4px;
+  background:#0c1524;color:#f5ceb3;padding:7px;
   font:11px/1.55 Verdana,sans-serif;
 }
 #onlineDialog #onlineChatForm{display:flex;gap:5px;flex-wrap:wrap}
 #onlineDialog #onlineChatInput{
   min-width:0;flex:1 1 100px;
-  padding:7px;border:1px solid #9a653c;border-radius:5px;
-  background:#fff4d9;color:#421f13;font:12px Verdana,sans-serif;
+  padding:7px;border:1px solid #9a5e3c;border-radius:5px;
+  background:#ffead9;color:#422113;font:12px Verdana,sans-serif;
 }
 #onlineDialog #onlineChatForm .gold-button{flex:none;min-height:37px;padding:6px 10px;font-size:11px}
 #onlineDialog .online-control-bar{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
   width:100%;min-height:68px;margin-top:8px;
-  padding:10px 17px;border-top:5px ridge #ba752b;
-  background:linear-gradient(#44151c,#21070e);
+  padding:10px 17px;border-top:5px ridge #ba622b;
+  background:linear-gradient(#192740,#09111f);
 }
 #onlineDialog .online-bag-count,.online-dialog .online-game-mode{
-  min-width:125px;color:#ead2a3;font:12px Verdana,sans-serif
+  min-width:125px;color:#eac1a3;font:12px Verdana,sans-serif
 }
-#onlineDialog .online-bag-count strong{font:bold 19px Georgia,serif;color:#fff4c6}
+#onlineDialog .online-bag-count strong{font:bold 19px Georgia,serif;color:#ffe1c6}
 #onlineDialog .online-game-mode{text-align:right}
 #onlineDialog .online-match-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 #onlineDialog .online-match-actions .gold-button{font-size:13px;min-height:45px;padding:8px 18px}
@@ -350,7 +350,7 @@
   #onlineDialog .online-board-rim{width:100%;border-width:3px;padding:5px}
   #onlineDialog .online-board{border-width:2px}
   #onlineDialog .online-cell{font:bold clamp(10px,3.3vw,20px) Georgia,serif}
-  #onlineDialog .online-cell.staged{box-shadow:inset 0 0 0 1.5px #eb8616}
+  #onlineDialog .online-cell.staged{box-shadow:inset 0 0 0 1.5px #eb6916}
   #onlineDialog .online-under-board{min-height:44px;gap:5px;padding:5px 0}
   #onlineDialog .online-preview{font-size:11px;line-height:1.35}
   #onlineDialog .online-timer-wrap{min-width:69px;padding:2px 5px}
@@ -372,8 +372,8 @@
     display:flex;flex-direction:column;gap:5px;
     position:sticky;bottom:0;z-index:15;
     margin:0;padding:7px 8px calc(8px + env(safe-area-inset-bottom));
-    border-top:3px ridge #c58b39;
-    background:linear-gradient(#49141df5,#21070efa)
+    border-top:3px ridge #c57239;
+    background:linear-gradient(#182845f5,#09111ffa)
   }
   #onlineDialog .online-bag-count{order:-1;text-align:center;font-size:11px}
   #onlineDialog .online-bag-count strong{font-size:14px}
@@ -396,7 +396,7 @@
   #onlineDialog .online-panel-toggle{
     display:block;text-align:left;
     width:100%;min-height:43px;padding:10px 12px;
-    border:0;background:transparent;color:#f8d693;
+    border:0;background:transparent;color:#f8be93;
     font:bold 15px Georgia,serif
   }
   #onlineDialog .online-panel-content{display:none}
@@ -467,30 +467,30 @@
   display:flex;align-items:center;gap:9px;
   width:max-content;max-width:min(275px,72vw);min-height:52px;
   padding:9px 10px;
-  border:2px solid #e8b956;border-radius:14px 0 0 14px;
-  background:linear-gradient(110deg,#582b22,#32131b);
-  color:#fff2c7;box-shadow:0 6px 23px #170506cb;
+  border:2px solid #e89556;border-radius:14px 0 0 14px;
+  background:linear-gradient(110deg,#263754,#151f30);
+  color:#ffe1c7;box-shadow:0 6px 23px #060c16cb;
   text-align:left;cursor:pointer;touch-action:manipulation;
 }
 #onlineDialog .online-chat-toast[hidden]{display:none!important}
 #onlineDialog .online-chat-toast-icon{font-size:24px;flex:none}
 #onlineDialog .online-chat-toast-copy{display:flex;flex:1;flex-direction:column;min-width:0;gap:2px}
-#onlineDialog .online-chat-toast-copy strong{font:700 12px Verdana,sans-serif;color:#fbe0a1}
+#onlineDialog .online-chat-toast-copy strong{font:700 12px Verdana,sans-serif;color:#fbc9a1}
 #onlineDialog .online-chat-toast-copy small{
-  font:11px/1.4 Verdana,sans-serif;color:#f7ebd5;
+  font:11px/1.4 Verdana,sans-serif;color:#f7e3d5;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap
 }
-#onlineDialog .online-chat-toast-arrow{font:bold 22px Georgia,serif;flex:none;color:#ffce7c}
+#onlineDialog .online-chat-toast-arrow{font:bold 22px Georgia,serif;flex:none;color:#ffb37c}
 #onlineDialog .online-unread-badge{
   display:inline-block;min-width:22px;min-height:22px;margin-left:8px;
-  padding:2px 5px;border-radius:99px;border:1px solid #fff2c0;
-  background:#d45e23;color:#fff;font:700 12px/17px Verdana,sans-serif;
+  padding:2px 5px;border-radius:99px;border:1px solid #ffddc0;
+  background:#d45d23;color:#fff;font:700 12px/17px Verdana,sans-serif;
   vertical-align:middle;text-align:center
 }
 #onlineDialog .online-unread-badge[hidden]{display:none!important}
 #onlineDialog .online-opponent-notice{
-  margin:3px 12px 9px;padding:10px;border:2px solid #f8aa59;
-  border-radius:8px;background:#4b2417;color:#ffdfb4;
+  margin:3px 12px 9px;padding:10px;border:2px solid #f89659;
+  border-radius:8px;background:#4b2717;color:#ffd2b4;
   text-align:center;font:700 12px/1.5 Verdana,sans-serif
 }
 #onlineDialog .online-opponent-notice[hidden]{display:none!important}
@@ -512,25 +512,25 @@
 #onlineGameSettingsDialog.online-game-settings-dialog{
   box-sizing:border-box;width:min(calc(100vw - 24px),460px);max-height:calc(100dvh - 24px);
   overflow-y:auto;padding:0;
-  background:linear-gradient(140deg,#fff4d5,#e4c18c);
-  border:4px ridge #e3b65a;border-radius:13px;
-  box-shadow:0 12px 45px #180509aa;color:#592c17;
+  background:linear-gradient(140deg,#ffe8d5,#e4b08c);
+  border:4px ridge #e3955a;border-radius:13px;
+  box-shadow:0 12px 45px #060c17aa;color:#592c17;
 }
-#onlineGameSettingsDialog::backdrop{background:#16050bc4}
+#onlineGameSettingsDialog::backdrop{background:#060c15c4}
 #onlineGameSettingsDialog .online-game-settings-body{
   display:flex;flex-direction:column;gap:13px;padding:20px;
   font:13px/1.5 Verdana,sans-serif;
 }
 #onlineGameSettingsDialog h2{
-  font:bold 23px Georgia,serif;color:#6c2818;text-align:center;margin:0 0 4px;
+  font:bold 23px Georgia,serif;color:#1e3866;text-align:center;margin:0 0 4px;
 }
 #onlineGameSettingsDialog label{font-weight:bold}
 #onlineGameSettingsDialog select{
   width:100%;min-height:45px;padding:9px;
-  border:2px solid #c18a37;border-radius:7px;
-  background:#fff9e9;color:#502515;font-size:15px;
+  border:2px solid #c17037;border-radius:7px;
+  background:#fff3e9;color:#502715;font-size:15px;
 }
-#onlineGameSettingsDialog p{margin:0;color:#6a492b}
+#onlineGameSettingsDialog p{margin:0;color:#6a422b}
 #onlineGameSettingsDialog .online-game-settings-actions{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:5px;
 }

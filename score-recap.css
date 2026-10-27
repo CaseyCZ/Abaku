@@ -11,14 +11,14 @@
   width:min(480px,94vw);min-height:270px;
   display:grid;grid-template-columns:21px minmax(0,1fr) 21px;
   border-radius:14px;
-  filter:drop-shadow(0 9px 17px #120206b3);
+  filter:drop-shadow(0 9px 17px #030811b3);
   font-family:Georgia,serif;
 }
 .abaku-score-cap{
   border-radius:13px;
-  background:linear-gradient(90deg,#aa5f12,#ffdd68 31%,#fff6bd 50%,#dfa52d 72%,#90500c);
-  border:2px solid #bb6f19;
-  box-shadow:inset 0 0 5px #fff4ad;
+  background:linear-gradient(90deg,#aa4c12,#ffae68 31%,#ffddbd 50%,#df7a2d 72%,#903f0c);
+  border:2px solid #bb5819;
+  box-shadow:inset 0 0 5px #ffd5ad;
   position:relative;z-index:2
 }
 .abaku-score-cap::after{
@@ -27,14 +27,14 @@
   width:13px;height:13px;
   transform:translate(-50%,-50%);
   border-radius:50%;border:2px solid #50210b;
-  background:radial-gradient(circle at 35% 25%,#ffc268,#8d1318 75%);
+  background:radial-gradient(circle at 35% 25%,#ffa668,#1c4284 75%);
 }
 .abaku-score-face{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   min-width:0;padding:13px 14px 18px;
-  color:#6a321e;
-  background:linear-gradient(115deg,#fff1c3 0%,#fff6d4 45%,#efdcaa 100%);
-  border-top:3px solid #c5904c;border-bottom:3px solid #b57c35;
+  color:#6a351e;
+  background:linear-gradient(115deg,#ffdfc3 0%,#ffe8d4 45%,#efc9aa 100%);
+  border-top:3px solid #c57c4c;border-bottom:3px solid #b56835;
   text-align:center;
 }
 .abaku-score-player{
@@ -46,24 +46,24 @@
 }
 .abaku-score-equation{
   font:bold clamp(25px,6vw,41px)/1.15 Georgia,serif;
-  color:#603122;overflow-wrap:anywhere;min-height:47px;
+  color:#603522;overflow-wrap:anywhere;min-height:47px;
 }
-.abaku-score-addition{margin:9px auto 1px;color:#7e4a2a;font:bold 20px Georgia,serif}
-.abaku-score-bonus{min-height:20px;color:#9f6533;font:12px/1.5 Verdana,sans-serif}
+.abaku-score-addition{margin:9px auto 1px;color:#7e472a;font:bold 20px Georgia,serif}
+.abaku-score-bonus{min-height:20px;color:#9f5b33;font:12px/1.5 Verdana,sans-serif}
 .abaku-score-separator{
   width:96%;height:2px;margin:12px 0 8px;
-  background:linear-gradient(90deg,transparent,#b88d54,transparent)
+  background:linear-gradient(90deg,transparent,#b87c54,transparent)
 }
-.abaku-score-total-label{color:#745031;font:12px Verdana,sans-serif;margin:0 0 7px}
+.abaku-score-total-label{color:#744a31;font:12px Verdana,sans-serif;margin:0 0 7px}
 .abaku-score-counter{
   width:89px;height:89px;display:grid;place-items:center;
-  color:#fff4e0;font:bold 37px Georgia,serif;
+  color:#ffede0;font:bold 37px Georgia,serif;
   background:radial-gradient(circle at 35% 20%,#626363,#16151a 70%);
-  border:8px ridge #eabb40;border-radius:50%;
-  box-shadow:0 3px 0 #7c4b1d,inset 0 3px 11px #020204
+  border:8px ridge #ea8c40;border-radius:50%;
+  box-shadow:0 3px 0 #7c411d,inset 0 3px 11px #020204
 }
 .abaku-score-progress{
-  margin-top:12px;color:#9b6439;font:11px Verdana,sans-serif
+  margin-top:12px;color:#9b5c39;font:11px Verdana,sans-serif
 }
 @keyframes abaku-recap-in{
   from{opacity:.68;transform:scale(.97) translateY(8px)}

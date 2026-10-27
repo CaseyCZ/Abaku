@@ -24,8 +24,8 @@ test('updated client modules are requested with fresh versioned URLs',()=>{
   const preview=read('../src/preview.js');
   assert.match(index,/src\/lobby\.js\?v=0\.2\.10/);
   assert.match(lobby,/online-client\.js\?v=0\.2\.10/);
-  const currentVersion=JSON.parse(read('../package.json')).version;
-  assert.ok(game.includes('src/main.js?v='+currentVersion));
+  // Game logic has its own cache token; visual-only releases should not bump it.
+  assert.match(game,/src\/main\.js\?v=\d+\.\d+\.\d+/);
   assert.match(tutorial,/src\/tutorial\.js\?v=0\.2\.10/);
   assert.match(main,/\.\/rules\.js\?v=0\.2\.10/);
   assert.match(online,/\.\/rules\.js\?v=0\.2\.10/);

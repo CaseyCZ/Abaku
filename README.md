@@ -56,7 +56,7 @@ Podrobnosti najdeš přímo ve hře pod tlačítkem **Pravidla**.
 
 ## 📱 Kde si zahrát?
 
-<https://caseycz.github.io/Abaku/>
+[Otevřít Číselnou arénu](https://caseycz.github.io/Abaku/)
 
 Hra se spouští přímo v internetovém prohlížeči. **Nic nemusíš stahovat ani instalovat.**
 
@@ -64,13 +64,11 @@ Hra se spouští přímo v internetovém prohlížeči. **Nic nemusíš stahovat
 
 Budu rád za zpětnou vazbu. Napiš ji na [GitHubu v sekci Issues](https://github.com/CaseyCZ/Abaku/issues).
 
-## 📚 Inspirace
+## O projektu a právech
 
-Číselná aréna je **neoficiální fanouškovská hra inspirovaná původním Abaku**. Není propojena s původními autory ani provozovateli. Práva k původní hře, názvu a případným původním grafickým prvkům patří jejich vlastníkům.
+Číselná aréna je nezávislý fanouškovský projekt. Není propojena s autory ani provozovateli původní hry. Práva k původní hře, názvu a případným původním grafickým prvkům patří jejich vlastníkům.
 
-- [Původní Abaku na Seznamu](https://hry.seznam.cz/hra/abaku)
-- [Pravidla a metodika Abaku](https://abaku.cz/metodika/deskova-hra)
-- [Abaku Play](https://abakuplay.com/)
+Nastavení najdeš pod jedním tlačítkem **Nastavení** v hlavní nabídce i během hry. [Žebříček](https://caseycz.github.io/Abaku/leaderboard.html) má vlastní stránku; na telefonu je navigace v menu ☰.
 
 ---
 

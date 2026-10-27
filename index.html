@@ -18,19 +18,24 @@
   <link rel="stylesheet" href="./analytics.css?v=1">
   <link rel="stylesheet" href="./arena-modern.css?v=1">
   <link rel="stylesheet" href="./arena-layout.css?v=1">
+  <link rel="stylesheet" href="./arena-home.css?v=1">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
-<body>
+<body class="arena-home">
   <div class="lobby-shell">
     <header class="lobby-header">
       <a class="mini-brand" href="./index.html" aria-label="Číselná aréna, hlavní nabídka"><img class="brand-logo" src="./assets/arena-logo.svg" alt="" width="640" height="220"></a>
-      <div class="lobby-account">
-        <span class="server-state"><span class="status-dot"></span>Zjišťuji stav online…</span>
+      <span class="server-state"><span class="status-dot"></span>Zjišťuji stav online…</span>
+      <button type="button" id="menuToggle" class="gold-button menu-toggle" aria-expanded="false" aria-controls="siteNavigation" aria-label="Otevřít menu">☰ Menu</button>
+      <nav class="lobby-account site-navigation" id="siteNavigation" aria-label="Hlavní navigace">
+        <a class="header-link" href="./leaderboard.html">Žebříček</a>
         <a class="header-link" href="./how-to-play.html">Jak hrát</a>
+        <button type="button" class="gold-button" id="lobbySettingsButton" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">⚙ Nastavení</button>
         <button type="button" class="gold-button" id="profileOpen">Můj profil</button>
-      </div>
+      </nav>
     </header>
     <main class="lobby-main">
+      <div class="home-start">
       <section class="lobby-intro" aria-labelledby="heroTitle">
         <div class="eyebrow">MATEMATICKÝ SOUBOJ</div>
         <h1 id="heroTitle">Skládej příklady<br><strong>z číselných kamenů.</strong></h1>
@@ -40,16 +45,7 @@
           <button type="button" data-mode="bot" class="gold-button hero-primary">Hrát proti počítači</button>
           <a class="hero-secondary" href="#gameModes">Vybrat herní režim</a>
         </div>
-        <div class="hero-showcase" aria-hidden="true">
-          <span class="hero-preview-tile one">8</span>
-          <span class="hero-preview-tile two">4</span>
-          <span class="hero-preview-tile three">2</span>
-          <span class="hero-preview-bonus a">×3</span>
-          <span class="hero-preview-bonus b">×2</span>
-          <span class="hero-preview-bonus c">×3</span>
-        </div>
       </section>
-      <section class="lobby-content" aria-label="Vyber herní režim">
         <div class="game-options" id="gameModes">
           <button type="button" id="playAi" data-mode="bot" class="mode-card mode-ready">
             <span class="mode-icon" aria-hidden="true">◈</span>
@@ -79,6 +75,8 @@
             <span class="mode-action muted">JAK ZAČÍT ›</span>
           </button>
         </div>
+      </div>
+      <section class="lobby-content" aria-label="Profil a aktivita">
         <aside class="lobby-sidebar" aria-label="Profil a rozehraná hra">
           <div class="side-card">
             <h2>✦ Můj profil</h2>
@@ -105,27 +103,6 @@
           </div>
           <div class="side-card" id="onlineInfo">
             <h2>✦ Číselná aréna Online</h2>
-            <label class="online-time-setting" for="onlineTurnSeconds">
-              <span>Čas na tah</span>
-              <select id="onlineTurnSeconds" aria-label="Čas na tah online partie">
-                <option value="30">30 sekund</option>
-                <option value="60" selected>60 sekund</option>
-                <option value="90">90 sekund</option>
-              </select>
-            </label>
-            <p class="online-time-help">Platí pro nové hledání soupeře nebo vytvořenou pozvánku. U připojení přes kód určuje čas zakladatel.</p>
-            <label class="online-time-setting" for="onlineRecapSeconds">
-              <span>Zobrazení příkladu</span>
-              <select id="onlineRecapSeconds" aria-label="Doba zobrazení každého příkladu">
-                <option value="0">Vypnuto</option>
-                <option value="2">2 sekundy</option>
-                <option value="3" selected>3 sekundy</option>
-                <option value="5">5 sekund</option>
-                <option value="8">8 sekund</option>
-                <option value="10">10 sekund</option>
-              </select>
-            </label>
-            <p class="online-time-help">Po každém příkladu se součet zobrazí po zvolenou dobu. Vypnuto přeskočí svitek, ale zachová zvýraznění tahu na desce. Platí i proti počítači.</p>
             <div class="online-presence" aria-label="Aktuální aktivita hráčů">
               <div><strong id="onlineCount">—</strong><span>hráčů online</span></div>
               <div><strong id="waitingCount">—</strong><span>hledá soupeře</span></div>
@@ -133,10 +110,6 @@
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
             <span class="build-label">Číselná aréna · online</span>
-          </div>
-          <div class="side-card" id="leaderboardPanel" hidden>
-            <h2>✦ Žebříček</h2>
-            <ol id="leaderboard" class="leaderboard"></ol>
           </div>
         </aside>
       </section>
@@ -155,7 +128,7 @@
       </section>
     </main>
     <footer class="lobby-footer">
-      Neoficiální fanouškovská hra inspirovaná hrou Abaku. S původními autory nijak nepropojená.
+      Číselná aréna · Matematický souboj
       <a href="./privacy.html" class="abaku-privacy-link">Soukromí a cookies</a>
       <button type="button" class="abaku-cookie-settings" data-cookie-settings>Nastavení cookies</button>
     </footer>
@@ -325,16 +298,17 @@
   </dialog>
   <dialog id="onlineGameSettingsDialog" class="online-game-settings-dialog" aria-labelledby="onlineGameSettingsTitle">
     <div class="online-game-settings-body">
-      <h2 id="onlineGameSettingsTitle">⚙ Nastavení online hry</h2>
+      <h2 id="onlineGameSettingsTitle">⚙ Nastavení</h2>
+      <h3>Herní obrazovka</h3>
       <label for="onlineLayoutSetting">Rozložení obrazovky</label>
-      <select id="onlineLayoutSetting" aria-label="Rozložení online hry">
+      <select id="onlineLayoutSetting" aria-label="Rozložení herní obrazovky">
         <option value="focus">Maximální deska</option>
         <option value="side">Deska a boční panel</option>
         <option value="stack">Panely pod deskou</option>
       </select>
       <p>Vzhled se uloží také pro hru proti počítači. Na telefonu má přednost velikost desky.</p>
-      <label for="onlineGameRecapSeconds">Doba zobrazení příkladu</label>
-      <select id="onlineGameRecapSeconds" aria-label="Doba zobrazení jednoho příkladu v online partii">
+      <label for="onlineRecapSeconds">Doba zobrazení příkladu</label>
+      <select id="onlineRecapSeconds" aria-label="Doba zobrazení každého příkladu">
         <option value="0">Vypnuto</option>
         <option value="2">2 sekundy</option>
         <option value="3" selected>3 sekundy</option>
@@ -343,6 +317,16 @@
         <option value="10">10 sekund</option>
       </select>
       <p>Vypnuto přeskočí svitek se sčítáním; položené kameny se stále na 3 sekundy zvýrazní. Změna platí i proti počítači.</p>
+      <h3>Nová online partie</h3>
+      <label for="onlineTurnSeconds">Čas na tah</label>
+      <select id="onlineTurnSeconds" aria-describedby="onlineTimeHelp">
+        <option value="30">30 sekund</option>
+        <option value="60" selected>60 sekund</option>
+        <option value="90">90 sekund</option>
+      </select>
+      <p id="onlineTimeHelp">Platí pro nové hledání soupeře nebo vytvořenou pozvánku. Rozehranou partii nemění; při připojení přes kód určuje čas zakladatel.</p>
+      <h3>Pomoc a soukromí</h3>
+      <a href="./privacy.html" target="_blank" rel="noopener">Soukromí a cookies ↗</a>
       <button type="button" id="onlineReportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
       <p>Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
       <p id="onlineReportGameStatus" role="status" aria-live="polite"></p>
@@ -385,7 +369,8 @@
       <p id="onlineReportResultStatus" role="status" aria-live="polite"></p>
     </div>
   </dialog>
+  <script type="module" src="./src/site-navigation.js?v=1"></script>
   <script type="module" src="./src/arena-ui.js?v=1"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.25"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.26"></script>
 </body>
 </html>

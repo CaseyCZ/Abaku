@@ -3,7 +3,7 @@
   "version": "0.2.0-dev",
   "private": true,
   "type": "module",
-  "description": "Číselná aréna – neoficiální fanouškovská číselná desková hra inspirovaná hrou Abaku",
+  "description": "Číselná aréna – nezávislá matematická desková hra",
   "scripts": {
     "test": "node --test",
     "dev": "npx --yes serve . -l 3000"

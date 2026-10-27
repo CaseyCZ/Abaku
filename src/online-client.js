@@ -74,9 +74,6 @@ const selectedTurnSeconds=()=>validTurnSeconds.includes(Number($('onlineTurnSeco
 function initOnlineTimeSetting(){
   const recapSelect=$('onlineRecapSeconds');
   recapSelect.value=String(getRecapSeconds());
-  recapSelect.addEventListener('change',()=>{
-    setRecapSeconds(recapSelect.value);
-  });
   const select=$('onlineTurnSeconds');
   try{
     const migrationKey='abaku-online-default-60-migrated-v1';
@@ -90,10 +87,6 @@ function initOnlineTimeSetting(){
       localStorage.setItem(migrationKey,'yes');
     }
   }catch{ /* browser storage may be disabled */ }
-  select.addEventListener('change',()=>{
-    try{localStorage.setItem(timeStorageKey,String(selectedTurnSeconds()));}
-    catch{ /* selecting a time must always remain possible */ }
-  });
 }
 let presenceTimer=null;
 let lastPresence=null;
@@ -278,7 +271,6 @@ async function googleCredential(value){
     }
     await heartbeat().catch(()=>{});
     await refreshPresence();
-    await showLeaderboard();
     await refreshResumeCard();
     startFriendChallengeUpdates();
     return true;
@@ -300,22 +292,6 @@ async function googleCredential(value){
     $('googleSignInWidget').hidden=false;
     return false;
   }
-}
-async function showLeaderboard(){
-  if(!credential)return;
-  try{
-    const r=await fetch(apiBase+'/api/leaderboard');
-    if(!r.ok)return;
-    const data=await r.json();
-    const board=$('leaderboard');
-    board.replaceChildren();
-    for(const p of (data.players||[]).slice(0,5)){
-      const li=document.createElement('li');
-      li.textContent=p.nickname+' · '+p.wins+' výher · '+p.winRate+' %';
-      board.append(li);
-    }
-    $('leaderboardPanel').hidden=!(data.players||[]).length;
-  }catch{ /* leaderboard is optional */ }
 }
 // Chat can be collapsed or far below the visible game board on a phone.
 // Keep a compact, tappable notification at the viewport edge until read.
@@ -950,18 +926,30 @@ function initializeActions(){
   }});
   $('onlineReportResultButton').addEventListener('click',()=>reportOnlineGame(
     $('onlineReportResultButton'),$('onlineReportResultStatus')));
-  $('onlineSettingsButton').addEventListener('click',()=>{
-    $('onlineGameRecapSeconds').value=String(getRecapSeconds());
+  let savedTurnSeconds=selectedTurnSeconds();
+  const openSettings=()=>{
+    $('onlineRecapSeconds').value=String(getRecapSeconds());
+    $('onlineTurnSeconds').value=String(savedTurnSeconds);
     updateOnlineReportButtons();
     if(!inGameSettings.open)inGameSettings.showModal();
+  };
+  $('onlineSettingsButton').addEventListener('click',openSettings);
+  $('lobbySettingsButton').addEventListener('click',openSettings);
+  if(location.hash==='#settings')openSettings();
+  window.addEventListener('hashchange',()=>{if(location.hash==='#settings')openSettings();});
+  inGameSettings.addEventListener('close',()=>{
+    $('onlineTurnSeconds').value=String(savedTurnSeconds);
+    $('onlineRecapSeconds').value=String(getRecapSeconds());
+    if(location.hash==='#settings')history.replaceState(null,'',location.pathname+location.search);
   });
   $('onlineSettingsCancel').addEventListener('click',()=>{
     inGameSettings.close();
   });
   $('onlineSettingsSave').addEventListener('click',()=>{
-    const choice=$('onlineGameRecapSeconds').value;
+    const choice=$('onlineRecapSeconds').value;
     if(setRecapSeconds(choice)){
-      $('onlineRecapSeconds').value=choice;
+      savedTurnSeconds=selectedTurnSeconds();
+      try{localStorage.setItem(timeStorageKey,String(savedTurnSeconds));}catch{/* Storage may be disabled. */}
       inGameSettings.close();
       status('Nastavení uloženo: každý příklad '+choice+' s (použije se při příštím tahu).');
     }

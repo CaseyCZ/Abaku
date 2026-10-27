@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08152c">
+  <meta name="description" content="Žebříček online hráčů Číselné arény, výhry a herní úspěšnost.">
+  <meta name="analytics-page-title" content="Číselná aréna — Žebříček">
+  <title>Žebříček – Číselná aréna</title>
+  <link rel="icon" type="image/png" sizes="128x128" href="./assets/arena-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
+  <link rel="manifest" href="./site.webmanifest">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.23-logo1">
+  <link rel="stylesheet" href="./analytics.css?v=1">
+  <link rel="stylesheet" href="./arena-modern.css?v=1">
+  <link rel="stylesheet" href="./arena-home.css?v=1">
+  <script src="./src/analytics.js?v=1" defer></script>
+</head>
+<body class="arena-public">
+  <div class="lobby-shell">
+    <header class="lobby-header">
+      <a class="mini-brand" href="./index.html" aria-label="Číselná aréna, hlavní nabídka"><img class="brand-logo" src="./assets/arena-logo.svg" alt="" width="640" height="220"></a>
+      <button type="button" id="menuToggle" class="gold-button menu-toggle" aria-expanded="false" aria-controls="siteNavigation" aria-label="Otevřít menu">☰ Menu</button>
+      <nav class="site-navigation" id="siteNavigation" aria-label="Hlavní navigace">
+        <a class="header-link" href="./index.html">Hrát</a>
+        <a class="header-link" href="./leaderboard.html" aria-current="page">Žebříček</a>
+        <a class="header-link" href="./how-to-play.html">Jak hrát</a>
+        <a class="gold-button" href="./index.html#settings">⚙ Nastavení</a>
+      </nav>
+    </header>
+    <main class="public-page">
+      <div class="page-heading">
+        <div><h1>Žebříček</h1><p>Výsledky online hráčů. Pořadí podle úspěšnosti, potom počtu výher a partií.</p></div>
+        <button type="button" id="leaderboardRefresh" class="gold-button">Obnovit výsledky</button>
+      </div>
+      <p id="leaderboardStatus" class="leaderboard-status" role="status" aria-live="polite">Načítám žebříček…</p>
+      <div id="leaderboardPanel" class="leaderboard-wrap" hidden>
+        <table class="leaderboard-table">
+          <caption>Nejlepší hráči · nejvýše 30 výsledků</caption>
+          <thead><tr><th scope="col">#</th><th scope="col">Hráč</th><th scope="col">Partie</th><th scope="col">Výhry</th><th scope="col">Úspěšnost</th></tr></thead>
+          <tbody id="leaderboard"></tbody>
+        </table>
+      </div>
+    </main>
+    <footer class="lobby-footer">
+      Číselná aréna · Matematický souboj
+      <a href="./privacy.html" class="abaku-privacy-link">Soukromí a cookies</a>
+      <button type="button" class="abaku-cookie-settings" data-cookie-settings>Nastavení cookies</button>
+    </footer>
+  </div>
+  <script type="module" src="./src/site-navigation.js?v=1"></script>
+  <script type="module" src="./src/leaderboard.js?v=1"></script>
+</body>
+</html>

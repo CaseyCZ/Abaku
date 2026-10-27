@@ -27,7 +27,7 @@ test('game mode selection preserves access to local and AI play',()=>{
 });
 test('Guest mode keeps online auth optional until the Oracle API becomes available',()=>{
   assert.match(landing,/id="googleSignIn"/);
-  assert.match(landing,/Online režimy připravujeme/);
+  assert.match(landing,/Online režim připravujeme/);
   assert.match(lobby,/googleSignIn:'Google přihlášení/);
   assert.match(lobby,/playRandom:'Pro náhodný online zápas/);
 });
@@ -132,8 +132,8 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   assert.match(onlineClient,/clearSavedCredential\(\)/);
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
-  assert.match(landing,/Číselná aréna Online 0\.2\.22/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.25/);
+  assert.match(landing,/Číselná aréna Online/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.26/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -289,7 +289,7 @@ test('online lobby offers saved per-equation animation seconds shared with offli
     assert.match(landing,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
   assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from/);
   assert.match(onlineClient,/recapSelect\.value=String\(getRecapSeconds\(\)\)/);
-  assert.match(onlineClient,/setRecapSeconds\(recapSelect\.value\)/);
+  assert.match(onlineClient,/setRecapSeconds\(choice\)/);
   assert.match(onlineClient,/onlineScoreRecap\.play\(\{/);
 });
 
@@ -308,20 +308,21 @@ test('online scoring highlight starts after automatic calculations, not under pa
 
 test('in-match online settings are always accessible and persist for the next move',()=>{
   const css=file('../online-game.css');
-  assert.match(landing,/id="onlineGameRecapSeconds"[\s\S]*?<option value="0">Vypnuto<\/option>/);
+  assert.match(landing,/id="onlineRecapSeconds"[\s\S]*?<option value="0">Vypnuto<\/option>/);
   assert.match(landing,/id="onlineSettingsButton"/);
   assert.match(landing,/id="onlineGameSettingsDialog"/);
-  assert.match(landing,/id="onlineGameRecapSeconds"/);
+  assert.match(landing,/id="onlineRecapSeconds"/);
   assert.match(landing,/id="onlineSettingsSave"/);
   assert.match(landing,/id="onlineSettingsCancel"/);
   assert.match(landing,/id="onlineCancel"/);
   for(const seconds of [2,3,5,8,10])
     assert.match(landing,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
-  assert.match(onlineClient,/onlineSettingsButton'\)\.addEventListener\('click'/);
-  assert.match(onlineClient,/onlineGameRecapSeconds'\)\.value=String\(getRecapSeconds\(\)\)/);
+  assert.match(onlineClient,/onlineSettingsButton'\)\.addEventListener\('click',openSettings/);
+  assert.match(onlineClient,/lobbySettingsButton'\)\.addEventListener\('click',openSettings/);
+  assert.match(onlineClient,/onlineRecapSeconds'\)\.value=String\(getRecapSeconds\(\)\)/);
   assert.match(onlineClient,/onlineSettingsSave'\)\.addEventListener\('click'/);
   assert.match(onlineClient,/setRecapSeconds\(choice\)/);
-  assert.match(onlineClient,/onlineRecapSeconds'\)\.value=choice/);
+  assert.match(onlineClient,/localStorage\.setItem\(timeStorageKey,String\(savedTurnSeconds\)\)/);
   assert.match(css,/#onlineDialog \.online-header-actions/);
   assert.match(css,/#onlineDialog \.online-header-actions #onlineCancel/);
   assert.match(css,/#onlineGameSettingsDialog\.online-game-settings-dialog/);

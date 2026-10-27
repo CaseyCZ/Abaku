@@ -255,3 +255,77 @@
   #settingsDialog .game-settings-fields{gap:7px}
   #settingsDialog .game-settings-toggles .check-line{padding:6px;font-size:11px}
 }
+
+
+/* iPhone landscape only: board is based on screen WIDTH, not the short height.
+   Vertical scrolling is intentional for the full 15x15 board. Portrait and PC
+   remain unchanged. Keep any optional history/chat panels below the board. */
+@media (orientation:landscape) and (max-width:1100px) and (max-height:600px) and (pointer:coarse){
+  :root{
+    --arena-board-size:calc(100vw - 16px - env(safe-area-inset-left) - env(safe-area-inset-right));
+  }
+  .game-app .main-stage{
+    display:grid;grid-template-columns:minmax(0,1fr)!important;
+    gap:6px;max-width:none;width:100%;min-width:0;
+    padding:4px max(8px,env(safe-area-inset-right)) 0 max(8px,env(safe-area-inset-left));
+    align-items:start;justify-content:stretch;
+  }
+  .game-app .center-area{
+    grid-column:1;grid-row:1;justify-self:stretch;
+    width:100%;max-width:none;min-width:0;margin:0;padding:0;
+  }
+  .game-app .board-rim{
+    box-sizing:border-box;width:100%;max-width:none;margin:0;
+  }
+  .game-app .board{
+    box-sizing:border-box;width:100%;height:auto!important;aspect-ratio:1;
+  }
+  .game-app .right-side{
+    grid-column:1;grid-row:2;width:100%;max-height:none;
+    margin:6px 0 0;overflow:visible;
+  }
+  .game-app .right-side .side-panel{
+    width:100%;max-height:none;overflow:visible;
+  }
+  .game-app .control-bar{
+    box-sizing:border-box;width:calc(100% - 16px);
+    max-width:none;flex-wrap:wrap;
+  }
+
+  /* Score animation: a short, fully visible card instead of a portrait-sized
+     overlay on the narrow landscape viewport. No changes to animation timing. */
+  .abaku-score-recap{padding:7px}
+  .abaku-score-recap .abaku-score-scroll{
+    box-sizing:border-box;width:min(410px,calc(100vw - 24px));
+    min-height:0;max-height:calc(100dvh - 14px);
+    grid-template-columns:minmax(0,1fr);overflow-y:auto;
+  }
+  .abaku-score-recap .abaku-score-face{
+    min-height:0;padding:8px 14px 10px;gap:1px;
+  }
+  .abaku-score-recap .abaku-score-player{
+    margin:0 0 4px;padding:5px 9px;
+    font-size:12px;line-height:1.1;
+  }
+  .abaku-score-recap .abaku-score-equation{
+    min-height:0;font-size:clamp(17px,4vh,24px);line-height:1.15;
+  }
+  .abaku-score-recap .abaku-score-addition{
+    margin:4px auto 0;font-size:16px;
+  }
+  .abaku-score-recap .abaku-score-bonus{
+    min-height:0;font-size:10px;line-height:1.2;
+  }
+  .abaku-score-recap .abaku-score-separator{
+    margin:5px 0 3px;height:1px;
+  }
+  .abaku-score-recap .abaku-score-total-label{
+    margin:0 0 3px;font-size:10px;
+  }
+  .abaku-score-recap .abaku-score-counter{
+    width:52px;height:52px;font-size:25px;border-radius:10px;
+  }
+  .abaku-score-recap .abaku-score-progress{
+    margin-top:4px;font-size:10px;
+  }
+}

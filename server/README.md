@@ -132,7 +132,8 @@ only when matches are finished because active matches are held in RAM.
 - `GET /api/me` – own authenticated profile
 - `POST /api/me` – nickname and avatar
 - `GET /api/players?name=<prefix>` – nickname search
-- `GET /api/friends` – friends and incoming requests
+- `GET /api/friends` – friends (with boolean `online`, heartbeat or connected socket) and incoming requests
+- `POST /api/friends/remove` – body `{"id":"public-player-id"}`; removes only an accepted friendship of the authenticated caller, in both directions. Deploy the updated API with the frontend to enable presence dots and removal.
 - `POST /api/friends/request` – body `{"id":"public-player-id"}`
 - `POST /api/friends/respond` – body `{"id":"public-player-id","accept":true}`
 

@@ -232,7 +232,17 @@ const http=createServer(async(request,response)=>{
       if(search.length<2)return respond(response,200,{players:[]});
       return respond(response,200,{players:store.findPlayers(search).filter(p=>p.id!==store.get(uid)?.id)});
     }
-    if(request.method==='GET'&&pathname==='/api/friends')return respond(response,200,{friends:store.friends(uid),requests:store.incoming(uid)});
+    if(request.method==='GET'&&pathname==='/api/friends'){
+      const active=presence.active();
+      for(const connected of engine.connections)active.add(connected);
+      const friends=store.friends(uid).map(friend=>({...friend,online:active.has(store.resolveFriend(uid,friend.id).uid)}));
+      return respond(response,200,{friends,requests:store.incoming(uid),canRemoveFriends:true});
+    }
+    if(request.method==='POST'&&pathname==='/api/friends/remove'){
+      const data=await body(request);
+      store.removeFriend(uid,data.id);
+      return respond(response,200,{ok:true});
+    }
     if(request.method==='GET'&&pathname==='/api/challenges')return respond(response,200,{challenge:friendChallenges.pending(uid)});
     if(request.method==='POST'&&pathname==='/api/challenges/respond'){
       const data=await body(request);

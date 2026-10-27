@@ -102,3 +102,22 @@ test('active device session extends automatically and limits sessions per accoun
       .get('google-user-C').count<=10);
   }finally{s.close();}
 });
+
+test('removing a friend is mutual, scoped to caller, and permits a new request',()=>{
+  const s=openStore(':memory:');
+  try{
+    for(const uid of ['a','b','c'])s.ensure(uid);
+    const a=s.get('a').id,b=s.get('b').id;
+    s.request('a',b);s.respond('b',a,true);
+    assert.throws(()=>s.removeFriend('c',b),/přáteli/);
+    assert.equal(s.friends('a').length,1);
+    s.removeFriend('b',a);
+    assert.equal(s.friends('a').length,0);
+    assert.equal(s.friends('b').length,0);
+    assert.throws(()=>s.resolveFriend('a',b),/přáteli/);
+    assert.throws(()=>s.removeFriend('a',b),/přáteli/);
+    s.request('b',a);s.respond('a',b,true);s.removeFriend('b',a);
+    assert.equal(s.friends('a').length,0);
+    assert.equal(s.get('a').played,0);
+  }finally{s.close();}
+});

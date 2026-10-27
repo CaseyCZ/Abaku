@@ -953,8 +953,20 @@ function initializeActions(){
     const input=$('onlineChatInput'),text=input.value.trim();
     if(text){send('chat',{text:text.slice(0,160)});input.value='';}
   });
+  $('friendsOpen')?.addEventListener('click',()=>{
+    if(credential){$('manageFriends').click();return;}
+    $('friendsDialog').showModal();
+    $('friendSearchForm').hidden=true;document.querySelector('.friend-invite-options').hidden=true;
+    $('friendRequests').textContent='';$('friendList').textContent='';
+    $('friendSearchResults').replaceChildren();
+    $('friendMessage').textContent='Pro seznam přátel se přihlas přes Google v kartě Můj profil.';
+  });
+  setInterval(()=>{
+    if(credential&&$('friendsDialog').open&&document.visibilityState!=='hidden'&&!friendsBusy)refreshFriends();
+  },20_000);
   $('manageFriends').addEventListener('click',async()=>{
     if(!credential)return;
+    $('friendSearchForm').hidden=false;document.querySelector('.friend-invite-options').hidden=false;
     $('friendsDialog').showModal();
     $('friendSearchResults').replaceChildren();
     $('friendMessage').textContent='';
@@ -1018,6 +1030,7 @@ function initializeActions(){
     location.reload();
   });
 }
+let friendsBusy=false;
 function appendFriend(container,player,buttonText,handler){
   const row=document.createElement('div');row.className='friend-entry';
   const name=document.createElement('span');name.textContent=(player.avatar||'✦')+' '+player.nickname;
@@ -1025,14 +1038,15 @@ function appendFriend(container,player,buttonText,handler){
   if(handler){
     const button=document.createElement('button');button.type='button';button.className='gold-button';button.textContent=buttonText;
     button.addEventListener('click',async()=>{
-      button.disabled=true;
+      button.disabled=true;friendsBusy=true;
       try{await handler();await refreshFriends();}
       catch(error){$('friendMessage').textContent=error.message;}
-      finally{button.disabled=false;}
+      finally{button.disabled=false;friendsBusy=false;}
     });
     row.append(button);
   }
   container.append(row);
+  return row;
 }
 async function refreshFriends(){
   try{
@@ -1050,6 +1064,30 @@ async function refreshFriends(){
         $('friendsDialog').close();
         connectOnline({type:'friend',targetId:player.id,friendName:player.nickname,seconds:selectedTurnSeconds()});
       });
+    }
+    for(const [i,player] of (data.friends||[]).entries()){
+      const row=friends.children[i],dot=document.createElement('span');
+      const known=typeof player.online==='boolean';
+      dot.className='friend-presence'+(known?(player.online?' is-online':' is-offline'):'');
+      dot.title=known?(player.online?'Online':'Offline'):'Dostupnost zatím není známá';
+      dot.setAttribute('role','img');dot.setAttribute('aria-label',dot.title);
+      row.firstElementChild.prepend(dot);
+      const remove=document.createElement('button');remove.type='button';
+      remove.className='gold-button friend-remove';remove.textContent='Odebrat';
+      remove.disabled=data.canRemoveFriends!==true;
+      if(remove.disabled)remove.title='Odebírání přátel čeká na aktualizaci serveru.';
+      remove.setAttribute('aria-label','Odebrat přítele '+player.nickname);
+      remove.addEventListener('click',async()=>{
+        if(!confirm('Odebrat přítele '+player.nickname+'?'))return;
+        friendsBusy=true;remove.disabled=true;
+        try{
+          await api('/api/friends/remove','POST',{id:player.id});
+          $('friendMessage').textContent='Přítel byl odebrán.';
+          await refreshFriends();
+        }catch(error){$('friendMessage').textContent=error.message;}
+        finally{friendsBusy=false;remove.disabled=false;}
+      });
+      row.append(remove);
     }
     if(!data.requests?.length)incoming.textContent='Žádné nové žádosti.';
     if(!data.friends?.length)friends.textContent='Zatím nemáš přidané přátele.';

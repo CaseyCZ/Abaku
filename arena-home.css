@@ -19,7 +19,7 @@
 .arena-home .mode-icon{font-size:25px}
 .arena-home .mode-title{font-size:18px}
 .arena-home .lobby-content{max-width:1500px}
-.arena-home .lobby-sidebar{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;align-items:start}
+.arena-home .lobby-sidebar{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;align-items:stretch}
 .arena-home .side-card{padding:18px}
 .arena-home .quick-rules{max-width:1500px;margin:24px auto 0}
 #onlineGameSettingsDialog{width:min(94vw,580px);max-height:90dvh}
@@ -72,3 +72,10 @@
   .arena-home .lobby-header>.server-state{order:2;flex-basis:100%;margin:0}
   .arena-home .site-navigation{order:3}
 }
+
+.friend-entry{flex-wrap:wrap;gap:8px}
+.friend-entry>span{flex:1;min-width:120px;overflow-wrap:anywhere}
+.friend-presence{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:#94a3b8}
+.friend-presence.is-online{background:#55df91}
+.friend-presence.is-offline{background:#ff7272}
+.friend-remove{color:#ffb5b5}

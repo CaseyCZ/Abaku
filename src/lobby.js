@@ -1,4 +1,4 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.27';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.28';
 const PROFILE_KEY = 'abaku-local-profile-v1';
 const GAME_KEY = 'retro-abaku-game-v1';
 const byId = id => document.getElementById(id);
@@ -40,7 +40,7 @@ function start(mode) {
 for(const button of document.querySelectorAll('[data-mode]')){
   button.addEventListener('click',()=>start(button.dataset.mode));
 }
-for(const id of ['profileOpen','editProfile']){
+for(const id of ['editProfile']){
   byId(id).addEventListener('click',()=>{
     const online=getOnlineProfile();
     const value=online||loadProfile();

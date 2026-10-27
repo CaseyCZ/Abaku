@@ -24,8 +24,13 @@
 .arena-home .mode-copy,.arena-home .mode-queue{width:100%;text-align:center}
 .arena-home .lobby-content{max-width:1500px}
 .arena-home .lobby-sidebar{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;align-items:stretch}
-.arena-home .side-card{padding:18px}
-.arena-home .quick-rules{max-width:1500px;margin:24px auto 0}
+.arena-home .side-card{padding:18px;text-align:center}
+.arena-home .side-card .profile-row{justify-content:center;text-align:center}
+.arena-home .side-card .profile-row>div:last-child{min-width:0}
+.arena-home .side-card #retryServerButton{display:block;margin:10px auto 0}
+.arena-home .quick-rules{max-width:1500px;margin:24px auto 0;text-align:center}
+.arena-home .quick-rules .how-to-link{justify-self:center;width:100%;text-align:center}
+.arena-home .quick-rules ol{padding-left:0;list-style-position:inside;text-align:center}
 #onlineGameSettingsDialog{width:min(94vw,580px);max-height:90dvh}
 #onlineGameSettingsDialog .online-game-settings-body{padding:22px;gap:10px}
 #onlineGameSettingsDialog h3{margin:12px 0 0;padding-top:14px;border-top:1px solid #395476;color:var(--arena-gold-hi);font-size:15px}
@@ -46,6 +51,9 @@
 @media(max-width:1050px){
   .home-start{grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr);gap:20px}
   .arena-home .lobby-intro h1{font-size:38px}
+}
+@media(min-width:761px){
+  .arena-home .home-start:has(#resumeCard:not([hidden])){align-items:end}
 }
 @media(max-width:760px){
   .arena-home .lobby-header,.arena-public .lobby-header{flex-wrap:wrap;gap:10px;z-index:5}
@@ -83,10 +91,10 @@
 .friend-entry .friend-remove{display:inline-flex;align-items:center;justify-content:center;flex:none;width:44px;height:44px;min-height:44px;padding:0;border-color:transparent;background:transparent;box-shadow:none;color:#ffb5b5;font-size:25px;line-height:1}
 .friend-entry .friend-remove:hover:not(:disabled){background:#ff727214;border-color:#ff727260}
 
-.arena-home .lobby-intro .hero-resume{width:min(100%,430px);box-sizing:border-box;margin-top:8px;padding:16px 18px;border:1px solid #48688f;border-radius:16px;background:#1c3658}
-.arena-home .lobby-intro .hero-resume h2{margin:0 0 8px;color:var(--arena-gold-hi);font-size:18px}
-.arena-home .lobby-intro .hero-resume p{margin:0 0 12px;font-size:13px}
-.arena-home .lobby-intro .hero-resume .resume-choice h3{margin:0 0 6px;color:var(--arena-gold-hi);font-size:13px;letter-spacing:.02em}
+.arena-home .lobby-intro .hero-resume{width:min(100%,430px);box-sizing:border-box;margin-top:4px;padding:12px 16px;border:1px solid #48688f;border-radius:16px;background:#1c3658}
+.arena-home .lobby-intro .hero-resume h2{margin:0 0 6px;color:var(--arena-gold-hi);font-size:18px}
+.arena-home .lobby-intro .hero-resume p{margin:0 0 8px;font-size:13px}
+.arena-home .lobby-intro .hero-resume .resume-choice h3{margin:0 0 4px;color:var(--arena-gold-hi);font-size:13px;letter-spacing:.02em}
 .arena-home .lobby-intro .hero-resume .resume-choice:not([hidden]) ~ .resume-choice:not([hidden]){margin-top:16px;padding-top:16px;border-top:1px solid #48688f}
 .arena-home .lobby-intro .hero-resume .gold-button{max-width:100%;white-space:normal;min-height:44px}
 .arena-home .lobby-intro .hero-resume .online-resume-note{margin:10px 0 0;font-size:12px;color:var(--arena-muted)}

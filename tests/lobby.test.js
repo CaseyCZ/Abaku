@@ -450,3 +450,20 @@ test('homepage text is centered without modifying mode card geometry or responsi
   assert.ok(css.includes('.arena-home .lobby-intro .hero-resume{width:min(100%,430px)'));
   assert.ok(landing.includes('href="./arena-home.css?v=0.2.7"'));
 });
+
+test('home lower sections are centered and saved card bottom aligns with mode grid only on desktop',()=>{
+  const css=file('../arena-home.css');
+  // Lower home cards and their profile row retain original geometry but center their text.
+  assert.match(css,/\.arena-home \.side-card\{padding:18px;text-align:center\}/);
+  assert.match(css,/\.arena-home \.side-card \.profile-row\{justify-content:center;text-align:center\}/);
+  assert.match(css,/\.arena-home \.side-card #retryServerButton\{display:block;margin:10px auto 0\}/);
+  // The Google widget is already horizontally centered and should keep its layout.
+  assert.match(file('../lobby.css'),/#googleSignInWidget\{\s*width:100%;max-width:100%;min-width:0;min-height:44px;\s*display:flex;justify-content:center;align-items:center/);
+  assert.match(css,/\.arena-home \.quick-rules\{max-width:1500px;margin:24px auto 0;text-align:center\}/);
+  assert.match(css,/\.arena-home \.quick-rules \.how-to-link\{justify-self:center;width:100%;text-align:center\}/);
+  assert.match(css,/\.arena-home \.quick-rules ol\{padding-left:0;list-style-position:inside;text-align:center\}/);
+  // Only align desktop bottom edges when the unified saved/online card is visible.
+  assert.match(css,/@media\(min-width:761px\)\{\s*\.arena-home \.home-start:has\(#resumeCard:not\(\[hidden\]\)\)\{align-items:end\}/);
+  assert.match(css,/@media\(max-width:760px\)\{[\s\S]*?\.home-start\{grid-template-columns:minmax\(0,1fr\);gap:18px\}/);
+  assert.ok(landing.includes('href="./arena-home.css?v=0.2.8"'));
+});

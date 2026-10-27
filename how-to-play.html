@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08152c">
+  <meta name="description" content="Podrobný návod Číselné arény: první tah, početní příklady, bonusová pole, bodování a interaktivní ukázka.">
+  <title>Jak hrát – Číselná aréna</title>
+  <link rel="icon" type="image/png" sizes="128x128" href="./assets/arena-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
+  <link rel="manifest" href="./site.webmanifest">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.23-logo1">
+  <link rel="stylesheet" href="./arena-modern.css?v=1">
+  <link rel="stylesheet" href="./arena-layout.css?v=1">
+  <link rel="stylesheet" href="./tutorial.css?v=1">
+</head>
+<body>
+  <div class="lobby-shell">
+    <header class="lobby-header">
+      <a class="mini-brand" href="./index.html" aria-label="Číselná aréna – hlavní nabídka"><img class="brand-logo" src="./assets/arena-logo.svg" alt="Číselná aréna" width="640" height="220"></a>
+      <nav class="tutorial-header-actions" aria-label="Navigace">
+        <a href="#firstMove" class="header-link">První tah</a>
+        <a href="./index.html" class="gold-button hero-primary">Zpět do hry</a>
+      </nav>
+    </header>
+
+    <main class="tutorial-page">
+      <div class="tutorial-hero">
+        <p class="eyebrow">PRAVIDLA A PRAKTICKÝ NÁVOD</p>
+        <h1>Jak hrát <span>Číselnou arénu</span></h1>
+        <p>Čísla místo slov. Ze svých kamenů sestavuješ matematické příklady, navazuješ na soupeře a sbíráš body. Tady si vyzkoušíš první tah a pochopíš všechny důležité bonusy.</p>
+        <nav class="tutorial-nav" aria-label="Obsah návodu">
+          <a href="#firstMove">1. První tah</a>
+          <a href="#equations">2. Příklady</a>
+          <a href="#bonuses">3. Bonusy a body</a>
+          <a href="#controls">4. Ovládání</a>
+          <a href="#strategy">5. Strategie a konec hry</a>
+        </nav>
+      </div>
+
+      <section id="firstMove" class="tutorial-section" aria-labelledby="tutorialFirstTitle">
+        <div class="tutorial-section-heading">
+          <span class="tutorial-step-number">01</span>
+          <div>
+            <h2 id="tutorialFirstTitle">Vyzkoušej první tah</h2>
+            <p>Na skutečné desce je 15 × 15 polí. První příklad musí vést přes prostřední pole. V této zmenšené ukázce si to můžeš hned zkusit.</p>
+          </div>
+        </div>
+        <div class="tutorial-demo">
+          <div class="tutorial-demo-main">
+            <div id="tutorialBoard" class="tutorial-board" role="group" aria-label="Zmenšená ukázka herní desky"></div>
+            <div class="tutorial-rack-area">
+              <span class="tutorial-rack-label">TVÉ KAMENY</span>
+              <div id="tutorialRack" class="tutorial-rack" role="group" aria-label="Kameny pro první tah"></div>
+            </div>
+          </div>
+          <div class="tutorial-demo-guide">
+            <span class="tutorial-counter" id="tutorialCounter">Krok 1 ze 3</span>
+            <h3 id="tutorialPrompt">Vyber kámen 2</h3>
+            <p id="tutorialInstruction">Klepni na zlatý kámen 2 a potom ho polož na zeleně označené pole nalevo od středu.</p>
+            <p class="tutorial-demo-status" id="tutorialMessage" role="status" aria-live="polite">První tah bude tvořit příklad 2 + 6 = 8.</p>
+            <div class="tutorial-demo-score" id="tutorialScore" hidden>
+              <strong>2 + 6 = 8</strong>
+              <span>2 + 6 + 8 = 16 bodů, prostřední pole ×3 příklad → <b>48 bodů</b></span>
+            </div>
+            <button id="tutorialReset" type="button" class="gold-button">↻ Zkusit znovu</button>
+            <small>Ukázka nic nemění na skutečně rozehrané partii.</small>
+          </div>
+        </div>
+      </section>
+
+      <section id="equations" class="tutorial-section" aria-labelledby="tutorialEquationsTitle">
+        <div class="tutorial-section-heading">
+          <span class="tutorial-step-number">02</span>
+          <div>
+            <h2 id="tutorialEquationsTitle">Jak fungují početní příklady</h2>
+            <p>Na desku pokládáš pouze číslice. Znaménka a rovnítko se nepokládají: hra sama rozpozná matematicky platnou posloupnost.</p>
+          </div>
+        </div>
+        <div class="tutorial-equation-grid">
+          <div class="tutorial-example"><span class="tutorial-stones">2&nbsp; 6&nbsp; 8</span><strong>2 + 6 = 8</strong><small>Sčítání</small></div>
+          <div class="tutorial-example"><span class="tutorial-stones">9&nbsp; 5&nbsp; 4</span><strong>9 − 5 = 4</strong><small>Odčítání</small></div>
+          <div class="tutorial-example"><span class="tutorial-stones">3&nbsp; 4&nbsp; 1&nbsp; 2</span><strong>3 × 4 = 12</strong><small>Násobení</small></div>
+          <div class="tutorial-example"><span class="tutorial-stones">1&nbsp; 2&nbsp; 4&nbsp; 3</span><strong>12 ÷ 4 = 3</strong><small>Dělení</small></div>
+          <div class="tutorial-example"><span class="tutorial-stones">2&nbsp; 4</span><strong>2² = 4</strong><small>Druhá mocnina</small></div>
+          <div class="tutorial-example"><span class="tutorial-stones">4&nbsp; 2</span><strong>√4 = 2</strong><small>Druhá odmocnina</small></div>
+          <div class="tutorial-example"><span class="tutorial-stones">2&nbsp; 8</span><strong>2³ = 8</strong><small>Třetí mocnina</small></div>
+          <div class="tutorial-example"><span class="tutorial-stones">8&nbsp; 2</span><strong>∛8 = 2</strong><small>Třetí odmocnina</small></div>
+        </div>
+        <div class="tutorial-notes">
+          <p><strong>Nový tah:</strong> polož 1 až 5 nových kamenů do jedné řady nebo sloupce. Mezi novými kameny nesmí zůstat mezera, pokud ji nevyplňuje již položený kámen.</p>
+          <p><strong>Navazování:</strong> po prvním tahu musí nový kámen sousedit s některým starším. Každý přidaný kámen musí být součástí platného příkladu. I další sousední kameny musí dohromady tvořit správné příklady.</p>
+          <p><strong>Více příkladů:</strong> pokud jedním tahem vytvoříš několik platných příkladů současně, hra jejich body sečte.</p>
+        </div>
+      </section>
+
+      <section id="bonuses" class="tutorial-section" aria-labelledby="tutorialBonusesTitle">
+        <div class="tutorial-section-heading">
+          <span class="tutorial-step-number">03</span>
+          <div>
+            <h2 id="tutorialBonusesTitle">Bonusová pole a bodování</h2>
+            <p>Bonusy se počítají jen při položení nového kamene na bonusové pole. Existují bonusy pro jednu číslici a bonusy pro celý příklad.</p>
+          </div>
+        </div>
+        <div class="tutorial-bonuses">
+          <div><span class="tutorial-bonus-chip dd">×2</span><div><strong>Číslo ×2</strong><p>Zdvojnásobí hodnotu číslice na tomto poli.</p></div></div>
+          <div><span class="tutorial-bonus-chip td">×3</span><div><strong>Číslo ×3</strong><p>Ztrojnásobí hodnotu číslice na tomto poli.</p></div></div>
+          <div><span class="tutorial-bonus-chip de">×2</span><div><strong>Příklad ×2</strong><p>Zdvojnásobí součet všech číslic daného příkladu.</p></div></div>
+          <div><span class="tutorial-bonus-chip te">×3</span><div><strong>Příklad ×3</strong><p>Ztrojnásobí součet celého příkladu. Střední pole je právě tento bonus.</p></div></div>
+        </div>
+        <p class="tutorial-highlight">Příklad: číslice 2, 6 a 8 dávají 16 bodů. Pokud nově položená šestka leží na středovém poli ×3 příklad, přinese tah <strong>48 bodů</strong>. U více příkladů se boduje každý zvlášť.</p>
+      </section>
+
+      <section id="controls" class="tutorial-section" aria-labelledby="tutorialControlsTitle">
+        <div class="tutorial-section-heading">
+          <span class="tutorial-step-number">04</span>
+          <div>
+            <h2 id="tutorialControlsTitle">Ovládání hry</h2>
+            <p>Na počítači klikáš myší, na telefonu a tabletu klepáš prstem. Funkce jsou stejné na všech zařízeních.</p>
+          </div>
+        </div>
+        <div class="tutorial-control-grid">
+          <div><strong>1. Vyber kámen</strong><p>Klepni na číslici ve spodním zásobníku. Vybraný kámen se zvýrazní zeleně.</p></div>
+          <div><strong>2. Polož kámen</strong><p>Klepni na volné políčko desky. Opakuj, dokud nesložíš příklad.</p></div>
+          <div><strong>3. Zkontroluj tah</strong><p>Zelené potvrzení znamená platný tah, červené upozorňuje na chybu. Pod deskou uvidíš důvod nebo předpokládané body.</p></div>
+          <div><strong>4. Potvrď</strong><p>Zeleným tlačítkem ✓ tah odešleš. Kameny se doplní ze společného sáčku, dokud v něm jsou.</p></div>
+          <div><strong>Vrátit ↶</strong><p>Odstraní rozložené kameny z aktuálního tahu, aniž by ses vzdal celého tahu.</p></div>
+          <div><strong>Vyměnit / Vynechat</strong><p>Vyber kameny pro výměnu, nebo tah vynech. Čas na tah lze nastavit na 30, 60 nebo 90 sekund.</p></div>
+          <div><strong>Nápověda</strong><p>Ve hře proti počítači můžeš požádat o návrh tahu. Sám ho potom můžeš upravit nebo potvrdit.</p></div>
+          <div><strong>Klávesnice na PC</strong><p>Klávesy 1–5 vybírají kámen ze zásobníku, Escape vrací rozložené kameny a Enter potvrzuje tah.</p></div>
+        </div>
+      </section>
+
+      <section id="strategy" class="tutorial-section" aria-labelledby="tutorialStrategyTitle">
+        <div class="tutorial-section-heading">
+          <span class="tutorial-step-number">05</span>
+          <div>
+            <h2 id="tutorialStrategyTitle">Jak vyhrát a co dál</h2>
+            <p>Vyhrává hráč s nejvyšším počtem bodů. Nestačí hledat správný příklad — důležité je také využívat bonusová pole a navazovat více příkladů.</p>
+          </div>
+        </div>
+        <div class="tutorial-control-grid">
+          <div><strong>Proti počítači</strong><p>Vyber jednu ze tří obtížností. Hraješ bez online účtu a můžeš použít nápovědu.</p></div>
+          <div><strong>Dva na jednom zařízení</strong><p>Hráči se střídají u stejného počítače nebo tabletu.</p></div>
+          <div><strong>Online hraní</strong><p>Po přihlášení se můžeš spojit s náhodným soupeřem nebo pozvat přítele. Chat je dostupný pouze při hraní s dalšími hráči.</p></div>
+          <div><strong>Konec partie</strong><p>Partie skončí po šesti vynechaných tazích v řadě, nebo pokud je sáček prázdný a některému hráči dojdou kameny.</p></div>
+        </div>
+        <p class="tutorial-highlight">Tip: sleduj nejen své bonusy, ale i místa, která svým tahem nabídneš soupeři. Někdy je výhodnější menší jistý příklad než otevřená cesta k velkému bonusu.</p>
+      </section>
+
+      <div class="tutorial-finish">
+        <h2>Teď už víš, jak začít.</h2>
+        <p>První partii doporučujeme proti počítači na obtížnost Začátečník. Návod najdeš kdykoliv z nabídky Pravidla.</p>
+        <a href="./index.html" class="gold-button hero-primary">Přejít na Číselnou arénu</a>
+      </div>
+    </main>
+    <footer class="lobby-footer">
+      Neoficiální fanouškovská matematická hra inspirovaná hrou Abaku. S původními autory nijak nepropojená.
+      <a href="./privacy.html">Soukromí a cookies</a>
+    </footer>
+  </div>
+  <script type="module" src="./src/tutorial.js?v=1"></script>
+</body>
+</html>

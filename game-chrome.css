@@ -68,10 +68,12 @@
 .game-app .top-bar .game-header-score .match-scoreboard .score{
   flex:0 0 auto;justify-content:center;
   padding:0!important;min-width:0;max-width:100%;
+  background:transparent!important;
 }
 .game-app .top-bar .game-header-score .match-scoreboard .score strong{
   font-size:clamp(25px,3vw,40px);
   font-variant-numeric:tabular-nums;white-space:nowrap;
+  background:transparent!important;
 }
 /* The rack is now the entire control bar; timer and bag count live above the board. */
 .game-app .control-bar .rack-frame{min-width:0}
@@ -221,6 +223,16 @@
 #settingsDialog .game-settings-report-body{display:grid;gap:8px}
 #settingsDialog .game-settings-report-body .gold-button{width:100%;white-space:normal}
 #settingsDialog .game-settings-report-body #reportGameStatus:empty{display:none}
+#settingsDialog .game-settings-privacy-actions{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  gap:10px 18px;padding:8px 0 4px;
+}
+#settingsDialog .game-settings-privacy-actions a,
+#settingsDialog .game-settings-privacy-actions button{
+  color:#f5d48c;background:transparent;border:0;
+  padding:4px 0;font:inherit;font-size:12px;text-decoration:underline;
+  cursor:pointer;
+}
 #settingsDialog .version-history{margin:0;padding:7px 10px}
 #settingsDialog .version-history summary{min-height:28px;line-height:28px;font-size:12px}
 #settingsDialog .game-settings-body menu{

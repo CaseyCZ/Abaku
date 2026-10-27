@@ -107,6 +107,10 @@
     for (const button of document.querySelectorAll('[data-cookie-settings]')) {
       button.addEventListener('click', event => {
         event.preventDefault();
+        // Consent controls live outside modal dialogs; close settings first
+        // so the user can interact with the consent banner.
+        const dialog = button.closest('dialog');
+        if (dialog?.open) dialog.close();
         showBanner(true);
       });
     }

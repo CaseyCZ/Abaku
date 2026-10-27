@@ -1,6 +1,6 @@
 {
   "name": "ciselna-arena",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "private": true,
   "type": "module",
   "description": "Číselná aréna – nezávislá matematická desková hra",

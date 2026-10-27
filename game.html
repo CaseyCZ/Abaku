@@ -18,8 +18,8 @@
   <link rel="stylesheet" href="./arena-modern.css?v=1" />
   <link rel="stylesheet" href="./arena-layout.css?v=0.2.14">
   <link rel="stylesheet" href="./version-history.css?v=0.2.3">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.20">
-  <script src="./src/analytics.js?v=1" defer></script>
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.21">
+  <script src="./src/analytics.js?v=2" defer></script>
 </head>
 <body>
 
@@ -119,11 +119,7 @@
       </div>
       <div class="game-mode" id="modeLabel">Proti počítači</div>
     </footer>
-    <div class="fine-print">
-      Číselná aréna · Matematický souboj
-      <a href="./privacy.html" class="abaku-privacy-link">Soukromí a cookies</a>
-      <button type="button" class="abaku-cookie-settings" data-cookie-settings>Nastavení cookies</button>
-    </div>
+
   </div>
 
   <dialog id="newGameDialog" aria-labelledby="newGameTitle">
@@ -184,6 +180,13 @@
           <p>Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
           <button type="button" id="reportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
           <p id="reportGameStatus" class="dialog-note" role="status" aria-live="polite"></p>
+        </div>
+      </details>
+      <details class="game-settings-details game-settings-privacy">
+        <summary>Soukromí a cookies</summary>
+        <div class="game-settings-privacy-actions">
+          <a href="./privacy.html" class="game-settings-privacy-link">Zásady soukromí</a>
+          <button type="button" class="game-settings-cookie-button" data-cookie-settings>Nastavení cookies</button>
         </div>
       </details>
       <details class="version-history" data-version-history><summary>Historie změn</summary></details>
@@ -251,6 +254,6 @@
   <script type="module" src="./src/arena-ui.js?v=2"></script>
   <script type="module" src="./src/site-navigation.js?v=1"></script>
   <script type="module" src="./src/main.js?v=0.2.18"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.20"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.21"></script>
 </body>
 </html>

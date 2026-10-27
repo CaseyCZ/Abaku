@@ -72,7 +72,8 @@ test('sack, player one and player two share one three-column row',()=>{
   assert.match(css,/\.game-app \.top-bar \.game-header-score \.match-scoreboard\{\s*grid-column:2\/4;grid-row:1;justify-self:stretch/);
   assert.match(css,/@media\(max-width:1000px\)\{[\s\S]*?\.game-app \.top-bar \.game-header-score\{\s*grid-template-columns:repeat\(3,minmax\(0,1fr\)\);\s*grid-template-rows:auto/);
   assert.match(css,/@media\(max-width:760px\)\{[\s\S]*?\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:2;grid-template-columns:repeat\(3,minmax\(0,1fr\)\);\s*grid-template-rows:auto/);
-  assert.doesNotMatch(css,/grid-template-rows:auto auto/);
+  // The header itself needs two rows; only the bag/score subsection must stay on one.
+  assert.doesNotMatch(css,/\.game-app \.top-bar \.game-header-score\{[^}]*grid-template-rows:auto auto/);
 });
 
 test('duplicate board title and preview are hidden but live scoring remains functional',()=>{

@@ -524,6 +524,9 @@ function connectOnline(action,{reconnecting=false}={}){
     onlineScoreRecap.cancel();
     resetOnlineResult();
     if(!$('onlineDialog').open)$('onlineDialog').showModal();
+    $('onlineMatchScoreboard').hidden=true;
+    $('onlineDialog').classList.remove('panel-open');
+    $('onlineInfoToggle').setAttribute('aria-expanded','false');
     $('onlineBoardWrapper').hidden=true;
     $('onlineWaiting').hidden=false;
     $('onlineCode').textContent='';
@@ -896,6 +899,9 @@ function initializeActions(){
     clearOnlineReview();
     if(inGameSettings.open)inGameSettings.close();
     if($('onlineDialog').open)$('onlineDialog').close();
+    $('onlineMatchScoreboard').hidden=true;
+    $('onlineDialog').classList.remove('panel-open');
+    $('onlineInfoToggle').setAttribute('aria-expanded','false');
     gameState=null;
     refreshResumeCard();
   }

@@ -133,7 +133,7 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
   assert.match(landing,/Hráči a partie/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.29/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.2/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
@@ -205,9 +205,40 @@ test('Oracle health automatically retries after intermittent refresh failures',(
   assert.match(onlineClient,/onlineInitRetryTimer=setTimeout\(\(\)=>\{/);
   assert.match(onlineClient,/initOnline\(\);\s*\},5000\)/);
   assert.match(onlineClient,/Server dočasně neodpovídá/);
-  assert.match(onlineClient,/if\(!configured\|\|onlineServerReady\)return;/);
+  assert.match(onlineClient,/if\(!configured\)\{/);
+  assert.match(onlineClient,/if\(onlineServerReady\)return;/);
 });
 
+
+test('offline homepage clears stuck loading and disables online choices until recovery',()=>{
+  assert.match(landing,/id="retryServerButton"[^>]*hidden/);
+  assert.match(onlineClient,/retryServerButton'\)\.addEventListener\('click'/);
+  const start=onlineClient.indexOf('function setServerOffline(offline){');
+  const end=onlineClient.indexOf('async function refreshPresence(){',start);
+  assert.ok(start>=0&&end>start);
+  const state={onlineCount:{textContent:'9'},waitingCount:{textContent:'3'},
+    queueActivity:{textContent:'Zjišťuji stav čekajících…'},
+    onlineWaitingCount:{textContent:'Zjišťuji počet čekajících…'},
+    retryServerButton:{hidden:true},
+    playRandom:{disabled:false},playFriends:{disabled:false}};
+  const indicator={hidden:true};
+  const context={document:{querySelector:()=>indicator},$:id=>state[id],lastPresence:{online:9,waiting:3}};
+  const code=onlineClient.slice(start,end);
+  new Script(code+';setServerOffline(true);').runInNewContext(context);
+  assert.equal(indicator.hidden,false);
+  assert.equal(state.retryServerButton.hidden,false);
+  assert.equal(state.queueActivity.textContent.includes('Server je offline'),true);
+  assert.equal(state.onlineCount.textContent,'—');
+  assert.equal(state.waitingCount.textContent,'—');
+  assert.equal(state.playRandom.disabled,true);
+  assert.equal(state.playFriends.disabled,true);
+  new Script(code+';setServerOffline(false);').runInNewContext(context);
+  assert.equal(indicator.hidden,true);
+  assert.equal(state.retryServerButton.hidden,true);
+  assert.equal(state.playRandom.disabled,false);
+  assert.equal(state.playFriends.disabled,false);
+  assert.equal(state.queueActivity.textContent,'Zjišťuji stav čekajících…');
+});
 
 test('online reconnection client remains parseable JavaScript after new state handlers',()=>{
   const withoutImports=onlineClient.replace(/^import\s+.*?;\s*$/gm,'').replace(/\bexport\s+(?=(?:async\s+)?function|const|let|class)/g,'');

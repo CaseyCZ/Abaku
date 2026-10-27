@@ -176,6 +176,7 @@ function restore() {
 }
 
 const boardElement = byId('board');
+const BONUS_LABELS={dd:'Číslo ×2',td:'Číslo ×3',de:'Příklad ×2',te:'Příklad ×3'};
 function renderBoard() {
   const placed = new Map(pending.map(p => [`${p.row}:${p.col}`,p]));
   const fragment = document.createDocumentFragment();
@@ -183,15 +184,16 @@ function renderBoard() {
     const key = `${r}:${c}`;
     const staged = placed.get(key);
     const digit = staged ? staged.digit : game.board[r][c];
+    const bonus=bonusAt(r,c);
     const cell = document.createElement('button');
-    cell.type = 'button';cell.className = `cell ${bonusAt(r,c)} ${digit !== null ? 'occupied' : ''} ${staged ? 'pending' : digit !== null ? 'old' : ''}`;
+    cell.type = 'button';cell.className = `cell ${bonus} ${digit !== null ? 'occupied' : 'bonus-hint'} ${staged ? 'pending' : digit !== null ? 'old' : ''}`;
     if(recentMove&&Date.now()<recentMove.until){
       if(recentMove.cells.has(key))cell.classList.add('recent-equation');
       if(recentMove.placed.has(key))cell.classList.add('recent-tile');
     }
     cell.dataset.row = r;cell.dataset.col = c;
-    cell.textContent = digit === null ? '' : String(digit);
-    cell.title = `${r+1}. řádek, ${c+1}. sloupec${digit === null ? '' : `, ${digit}`}`;
+    cell.textContent = digit === null ? (bonus ? ('×'+(bonus==='dd'||bonus==='de'?2:3)) : '') : String(digit);
+    cell.title = `${r+1}. řádek, ${c+1}. sloupec${digit === null ? '' : `, ${digit}`}${bonus ? ', '+BONUS_LABELS[bonus] : ''}`;
     cell.setAttribute('aria-label',cell.title);
     fragment.append(cell);
   }

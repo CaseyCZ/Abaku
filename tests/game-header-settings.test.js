@@ -22,6 +22,8 @@ test('timer stays live in the top center and the bag count precedes the scoreboa
   assert.match(main,/byId\('bagCount'\)\.textContent=game\.bag\.length/);
   assert.match(main,/const display=byId\('timer'\)/);
   assert.match(css,/\.game-app \.top-bar \.timer-wrap\{\s*grid-column:2;grid-row:1/);
+  assert.match(css,/\.game-app \.top-bar \.timer-wrap\.warning strong\{color:#ff8066\}/);
+  assert.match(css,/@media\(max-width:370px\)\{[\s\S]*?\.game-app \.top-bar \.game-header-score\{flex-wrap:wrap;row-gap:3px\}/);
   assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:2/);
   assert.match(game,/game-chrome\.css\?v=0\.2\.12/);
 });

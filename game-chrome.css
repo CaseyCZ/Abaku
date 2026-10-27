@@ -20,6 +20,7 @@
 }
 .game-app .top-bar .timer-wrap span{font-size:10px;letter-spacing:.06em}
 .game-app .top-bar .timer-wrap strong{font-size:clamp(19px,2.2vw,26px);font-variant-numeric:tabular-nums;line-height:1}
+.game-app .top-bar .timer-wrap.warning strong{color:#ff8066}
 .game-app .top-bar .game-menu-toggle{display:none}
 .game-app .top-bar .game-navigation{
   grid-column:3;grid-row:1;justify-self:end;
@@ -113,7 +114,8 @@
   .game-app .control-bar{grid-template-columns:minmax(0,1fr)}
 }
 @media(max-width:370px){
-  .game-app .top-bar .game-header-score .bag-count{font-size:10px}
+  .game-app .top-bar .game-header-score{flex-wrap:wrap;row-gap:3px}
+  .game-app .top-bar .game-header-score .bag-count{flex-basis:100%;font-size:10px}
   .game-app .top-bar .game-header-score .match-scoreboard .player-card{padding:4px 3px}
   .game-app .top-bar .game-menu-toggle{min-width:74px;padding:7px}
 }

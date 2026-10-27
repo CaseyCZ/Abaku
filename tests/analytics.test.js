@@ -43,7 +43,8 @@ test('all Abaku pages load the same consent-managed analytics, with distinct GA4
   const titles=[];
   for(const path of pages){
     const html=read(path);
-    assert.match(html,/src="\.(?:\/)src\/analytics\.js\?v=1" defer/);
+    // Pages may use independent cache versions for the consent script.
+    assert.match(html,/src="\.(?:\/)src\/analytics\.js\?v=\d+" defer/);
     assert.match(html,/href="\.(?:\/)analytics\.css\?v=1"/);
     assert.match(html,/data-cookie-settings/);
     assert.match(html,/href="\.\/privacy\.html"|id="privacyConsentTitle"|Soukromí a cookies/);

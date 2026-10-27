@@ -25,7 +25,7 @@ test('timer stays live in the top center and the bag count precedes the scoreboa
   assert.match(css,/\.game-app \.top-bar \.timer-wrap\.warning strong\{color:#ff8066\}/);
   assert.match(css,/@media\(max-width:370px\)\{[\s\S]*?\.game-app \.top-bar \.game-header-score\{column-gap:3px\}/);
   assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:2/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.19/);
+  assert.match(game,/game-chrome\.css\?v=0\.2\.20/);
 });
 
 test('game menu reuses the homepage mobile navigation and keeps actions functional',()=>{
@@ -66,12 +66,16 @@ test('local match settings mirror the compact homepage without changing setting 
   assert.ok(game.includes('src/version-ui.js?v='+currentVersion));
 });
 
-test('sack remains left while the compact score group is centered on one row',()=>{
-  assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:2;\s*display:grid;grid-template-columns:minmax\(0,1fr\) max-content minmax\(0,1fr\)/);
-  assert.match(css,/\.game-app \.top-bar \.game-header-score \.bag-count\{\s*grid-column:1;grid-row:1;justify-self:start/);
-  assert.match(css,/\.game-app \.top-bar \.game-header-score \.match-scoreboard\{\s*grid-column:2;grid-row:1;justify-self:center/);
-  assert.match(css,/\.game-header-score \.match-scoreboard\{[\s\S]*?display:flex;flex-wrap:nowrap;align-items:center;justify-content:center/);
-  assert.match(css,/@media\(max-width:760px\)\{[\s\S]*?\.game-header-score\{\s*grid-column:1\/-1;grid-row:2;\s*grid-template-columns:minmax\(0,1fr\) max-content minmax\(0,1fr\)/);
+test('bag centered below time and two even score columns on the row below',()=>{
+  const header=game.slice(game.indexOf('<header class="top-bar">'),game.indexOf('</header>'));
+  assert.ok(header.indexOf('id="timer"') < header.indexOf('id="bagCount"'));
+  assert.ok(header.indexOf('id="bagCount"') < header.indexOf('class="match-scoreboard"'));
+  assert.match(css,/\.game-app \.top-bar > \.bag-count\{\s*grid-column:2;grid-row:2;justify-self:center/);
+  assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:3/);
+  assert.match(css,/\.game-header-score \.match-scoreboard\{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(css,/\.game-app \.top-bar:has\(\.game-navigation\.is-open\) > \.bag-count\{grid-row:3\}/);
+  assert.match(css,/\.game-app \.top-bar:has\(\.game-navigation\.is-open\) \.game-header-score\{grid-row:4\}/);
+  assert.doesNotMatch(header,/score-divider/);
 });
 
 test('duplicate board title and preview are hidden but live scoring remains functional',()=>{

@@ -37,9 +37,8 @@ test('game saves deadlines on turn start, settings change and after score reveal
   assert.match(game,/src\/main\.js\?v=0\.2\.18/);
 });
 
-test('scoreboard uses a compact centered flex row with colon between the players',()=>{
-  assert.match(css,/\.game-header-score \.match-scoreboard\{[\s\S]*?display:flex;flex-wrap:nowrap;align-items:center;justify-content:center/);
-  assert.match(css,/\.game-header-score \.match-scoreboard \.player-card\{\s*flex:0 1 auto!important;min-width:0;max-width:100%;/);
-  assert.match(css,/\.game-header-score \.score-divider\{flex:0 0 auto;align-self:center;margin:0\}/);
-  assert.match(css,/\.game-header-score\{[\s\S]*?grid-template-columns:minmax\(0,1fr\) max-content minmax\(0,1fr\)/);
+test('scoreboard is a two-column grid below the centered bag count',()=>{
+  assert.match(css,/\.top-bar > \.bag-count\{\s*grid-column:2;grid-row:2;justify-self:center/);
+  assert.match(css,/\.game-header-score \.match-scoreboard\{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.doesNotMatch(css,/\.score-divider\{flex:0 0 auto;align-self:center;margin:0\}/);
 });

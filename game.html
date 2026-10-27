@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="./arena-modern.css?v=1" />
   <link rel="stylesheet" href="./arena-layout.css?v=0.2.14">
   <link rel="stylesheet" href="./version-history.css?v=0.2.3">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.19">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.20">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body>
@@ -34,14 +34,13 @@
         <button type="button" id="settingsButton" class="gold-button small" aria-haspopup="dialog" aria-controls="settingsDialog">Nastavení</button>
         <button type="button" id="newButton" class="gold-button primary small" aria-haspopup="dialog" aria-controls="newGameDialog">Nová hra</button>
       </nav>
+      <div class="bag-count">V sáčku <strong id="bagCount">100</strong> čísel</div>
       <div class="game-header-score">
-        <div class="bag-count">V sáčku <strong id="bagCount">100</strong> čísel</div>
         <div class="match-scoreboard" role="group" aria-label="Skóre partie">
           <div class="player-card active" id="player0Card">
             <div class="player-name" id="player0Name">Hráč 1</div>
             <div class="score"><strong id="player0Score">0</strong><small id="player0Status">Na tahu</small></div>
           </div>
-          <span class="score-divider" aria-hidden="true">:</span>
           <div class="player-card" id="player1Card">
             <div class="player-name" id="player1Name">Počítač</div>
             <div class="score"><strong id="player1Score">0</strong><small id="player1Status">Čeká</small></div>
@@ -252,6 +251,6 @@
   <script type="module" src="./src/arena-ui.js?v=2"></script>
   <script type="module" src="./src/site-navigation.js?v=1"></script>
   <script type="module" src="./src/main.js?v=0.2.18"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.19"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.20"></script>
 </body>
 </html>

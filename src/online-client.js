@@ -768,6 +768,7 @@ function renderOnlineStatus(s){
     history.append(item);
   }
 }
+const ONLINE_BONUS_LABELS={dd:'Číslo ×2',td:'Číslo ×3',de:'Příklad ×2',te:'Příklad ×3'};
 function renderOnline(){
   if(!gameState)return;
   updateOnlineReportButtons();
@@ -786,17 +787,19 @@ function renderOnline(){
   for(let row=0;row<15;row++)for(let col=0;col<15;col++){
     const p=staged.get(row+':'+col);
     const digit=p?.digit??s.board[row][col];
+    const bonus=bonusAt(row,col);
     const cell=document.createElement('button');
     cell.type='button';
-    cell.className='online-cell '+bonusAt(row,col)+(p?' staged':digit!==null?' fixed':'');
+    cell.className='online-cell '+bonus+(p?' staged':digit!==null?' fixed':' bonus-hint');
     const key=row+':'+col;
     if(recentOnlineMove&&Date.now()<recentOnlineMove.until){
       if(recentOnlineMove.cells.has(key))cell.classList.add('recent-equation');
       if(recentOnlineMove.placed.has(key))cell.classList.add('recent-tile');
     }
-    cell.textContent=digit===null?'':String(digit);
+    cell.textContent=digit===null?(bonus?'×'+(bonus==='dd'||bonus==='de'?2:3):''):String(digit);
     cell.disabled=!canPlay||(!p&&digit!==null);
-    cell.setAttribute('aria-label','Řádek '+(row+1)+', sloupec '+(col+1));
+    cell.setAttribute('aria-label','Řádek '+(row+1)+', sloupec '+(col+1)+(bonus?', '+ONLINE_BONUS_LABELS[bonus]:''));
+    cell.title=cell.getAttribute('aria-label');
     cell.addEventListener('click',()=>{
       const old=pending.findIndex(p=>p.row===row&&p.col===col);
       if(old>=0){selected=pending[old].rackIndex;pending.splice(old,1);renderOnline();return;}

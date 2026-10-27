@@ -1,0 +1,324 @@
+/* Číselná aréna — board-first layout, intentionally separate from colors.
+   Modes: focus (maximum board), side (board + panel), stack (panels below).
+   Keeps original element IDs and works with legacy saved games. */
+:root{--arena-board-size:min(1100px,calc(100dvh - 196px),calc(100vw - 26px));--arena-sidebar-width:clamp(230px,19vw,290px)}
+html[data-arena-layout]{scroll-padding-top:85px}
+.game-app{display:flex;flex-direction:column;max-width:none!important;width:100%!important;min-height:100dvh;height:auto!important;overflow:visible!important}
+.top-bar{
+  display:grid!important;grid-template-columns:minmax(135px,1fr) minmax(250px,auto) minmax(270px,1fr);
+  gap:12px;align-items:center;min-height:70px;padding:8px clamp(10px,2.2vw,30px);
+}
+.top-bar .brand{justify-self:start}
+.header-actions{justify-self:end;align-items:center}
+.match-scoreboard,.online-match-scoreboard{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;min-width:0;max-width:565px;margin-inline:auto;
+  font-variant-numeric:tabular-nums;
+}
+.match-scoreboard .player-card,.online-match-scoreboard .online-player-card{
+  order:initial!important;display:flex!important;align-items:center;justify-content:center;
+  flex:1 1 0;max-width:265px!important;min-width:0;width:auto!important;
+  min-height:49px;gap:9px;margin:0!important;padding:5px 11px;
+  background:transparent!important;border:1px solid transparent!important;
+  border-radius:11px;box-shadow:none!important;text-align:center;
+}
+.match-scoreboard .player-card.active,.online-match-scoreboard .online-player-card.active{
+  background:#f5c65915!important;border-color:#e0b85375!important;
+  box-shadow:0 0 0 1px #ffdc8530!important;
+}
+.match-scoreboard .player-name,.online-match-scoreboard .online-player-name{
+  flex:0 1 auto;min-width:0;max-width:150px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#f1f5fb!important;font-size:clamp(11px,1.1vw,16px)!important;font-weight:800!important;
+  text-align:center!important;padding:0!important;line-height:1.2;background:none!important;
+}
+.match-scoreboard .score,.online-match-scoreboard .online-player-score{
+  flex:0 0 auto;display:flex;align-items:center;padding:0!important;gap:4px;
+  justify-content:center;border:0;
+}
+.match-scoreboard .score strong,.online-match-scoreboard .online-player-score strong{
+  font-size:clamp(24px,2.1vw,35px);line-height:1.1;color:#f6f9ff;
+}
+.match-scoreboard .player-card.active .score strong,.online-match-scoreboard .online-player-card.active .online-player-score strong{color:#fbd06b}
+.match-scoreboard .score small,.online-match-scoreboard .online-player-score small{display:none}
+.score-divider{color:#e2bc5f;font-size:clamp(26px,2.2vw,37px);font-weight:800;line-height:1}
+.panel-toggle{white-space:nowrap}
+.game-app .progress-track{flex:none;margin:4px auto 2px;height:13px;max-width:620px}
+.game-app .main-stage{
+  position:relative;flex:1 0 auto;
+  display:grid;grid-template-columns:minmax(0,1fr) var(--arena-sidebar-width);
+  max-width:none;width:min(100%,1740px);min-height:0;align-items:start;
+  margin:0 auto;padding:5px clamp(8px,1.3vw,18px) 0;gap:12px;
+}
+.game-app .main-stage>.left-side{display:none}
+.game-app .center-area{
+  grid-column:1;grid-row:1;justify-self:center;align-self:start;
+  width:min(100%,calc(var(--arena-board-size) + 12px));max-width:none;
+  min-width:0;margin:0;padding:0;
+}
+.game-app .center-area .board-rim{width:100%;max-width:none;padding:4px}
+.game-app .center-area .board{
+  width:100%;height:auto!important;aspect-ratio:1/1;
+  grid-template-columns:repeat(15,minmax(0,1fr));
+  grid-template-rows:repeat(15,minmax(0,1fr));
+}
+.game-app .right-side{
+  grid-column:2;grid-row:1;display:flex;flex-direction:column;
+  align-items:stretch;gap:10px;justify-content:flex-start;
+  height:auto;min-width:0;min-height:0;overflow:visible;
+}
+.game-app .right-side .side-panel{
+  flex:0 0 auto;width:100%;height:auto;min-height:130px;max-height:min(36dvh,340px);
+  margin:0;overflow:hidden;
+}
+.game-app .right-side .chat-panel{min-height:165px}
+.game-app[data-arena-mode="bot"] .chat-panel{display:none!important}
+.game-app .right-side .mobile-panel-toggle{display:none}
+.game-app .right-side .mobile-panel-content{display:flex;flex-direction:column;min-height:0;gap:8px}
+.game-app .rack-frame{padding-block:2px;min-height:57px}
+.game-app .control-bar{
+  flex:0 0 auto;width:min(100%,1480px);min-height:50px;
+  margin:3px auto 0;padding:6px 12px;
+}
+.game-app .fine-print{padding:4px 10px 7px}
+
+/* Maximum board (default): sidebar is an optional overlay, never stealing board width. */
+html:not([data-arena-layout]) .game-app .main-stage,
+html[data-arena-layout="focus"] .game-app .main-stage{grid-template-columns:minmax(0,1fr)}
+html:not([data-arena-layout]) .game-app .right-side,
+html[data-arena-layout="focus"] .game-app .right-side{
+  display:none;position:absolute;z-index:50;top:6px;right:12px;
+  width:min(315px,calc(100vw - 35px));max-height:min(76dvh,700px);
+  padding:0;border-radius:15px;box-shadow:0 12px 40px #030c1dc9;
+}
+html:not([data-arena-layout]) .game-app.panel-open .right-side,
+html[data-arena-layout="focus"] .game-app.panel-open .right-side{display:flex}
+html:not([data-arena-layout]) .game-app .center-area,
+html[data-arena-layout="focus"] .game-app .center-area{width:min(100%,calc(var(--arena-board-size) + 12px))}
+
+/* Panels beneath the board (best for big portrait tablets or coaching). */
+html[data-arena-layout="stack"] .game-app .main-stage{grid-template-columns:minmax(0,1fr)}
+html[data-arena-layout="stack"] .game-app .right-side{
+  grid-column:1;grid-row:2;width:min(100%,1120px);justify-self:center;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px;
+}
+html[data-arena-layout="stack"] .game-app[data-arena-mode="bot"] .right-side{grid-template-columns:minmax(0,1fr)}
+html[data-arena-layout="stack"] .game-app .center-area{width:min(100%,calc(var(--arena-board-size) + 12px))}
+html[data-arena-layout="stack"] .game-app .right-side .side-panel{max-height:310px}
+
+/* Online game shares the same football-like scoreboard and panel placement. */
+#onlineDialog.online-dialog{width:min(calc(100vw - 12px),1800px);max-width:calc(100vw - 12px)}
+#onlineDialog .online-dialog-header{
+  display:grid;grid-template-columns:minmax(130px,1fr) minmax(230px,auto) minmax(270px,1fr);
+  gap:10px;align-items:center;padding:9px clamp(10px,2vw,27px);
+}
+#onlineDialog .online-game-brand{grid-column:1;justify-self:start}
+#onlineDialog .online-match-scoreboard{grid-column:2;grid-row:1}
+#onlineDialog .online-header-actions{
+  grid-column:3;grid-row:1;justify-self:end;display:flex;flex-wrap:wrap;gap:7px;
+}
+#onlineDialog .online-match-scoreboard .online-player-card{max-width:245px}
+#onlineDialog .online-match-scoreboard .online-player-name{padding:0;background:none}
+#onlineDialog .online-match-scoreboard[hidden]{display:none!important}
+#onlineDialog .online-progress{height:13px;max-width:630px;margin:5px auto 3px}
+#onlineDialog .online-match-layout{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr) var(--arena-sidebar-width);
+  gap:12px;width:min(100%,1740px);max-width:none;margin:0 auto;
+  align-items:start;padding:5px clamp(8px,1.3vw,18px);
+}
+#onlineDialog .online-match-layout>.online-left{display:none}
+#onlineDialog .online-game-board{
+  grid-column:1;grid-row:1;width:min(100%,calc(var(--arena-board-size) + 12px));
+  justify-self:center;align-self:start;max-width:none;min-width:0;
+}
+#onlineDialog .online-game-board .online-board-rim{width:100%;max-width:none;padding:4px}
+#onlineDialog .online-board{width:100%;height:auto;aspect-ratio:1/1}
+#onlineDialog .online-right{
+  grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:stretch;
+  gap:10px;justify-content:flex-start;height:auto;min-width:0;overflow:visible;
+}
+#onlineDialog .online-right .online-panel{min-height:130px;max-height:min(36dvh,340px);height:auto;margin:0}
+#onlineDialog .online-right .online-match-chat{min-height:170px}
+#onlineDialog .online-right .online-panel-toggle{display:none}
+#onlineDialog .online-right .online-panel-content{display:flex;flex-direction:column;min-height:0;gap:8px}
+#onlineDialog .online-match-info{padding:2px 8px;margin:1px auto 5px}
+#onlineDialog .online-control-bar{min-height:50px;padding:6px 13px;margin:3px auto 0}
+html:not([data-arena-layout]) #onlineDialog .online-match-layout,
+html[data-arena-layout="focus"] #onlineDialog .online-match-layout{grid-template-columns:minmax(0,1fr)}
+html:not([data-arena-layout]) #onlineDialog .online-right,
+html[data-arena-layout="focus"] #onlineDialog .online-right{
+  display:none;position:absolute;z-index:50;top:6px;right:12px;
+  width:min(315px,calc(100vw - 34px));max-height:min(76dvh,680px);
+  box-shadow:0 12px 39px #030a1ccc;
+}
+html:not([data-arena-layout]) #onlineDialog.panel-open .online-right,
+html[data-arena-layout="focus"] #onlineDialog.panel-open .online-right{display:flex}
+html[data-arena-layout="stack"] #onlineDialog .online-match-layout{grid-template-columns:minmax(0,1fr)}
+html[data-arena-layout="stack"] #onlineDialog .online-right{
+  grid-column:1;grid-row:2;width:min(100%,1120px);justify-self:center;margin-top:11px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+}
+html[data-arena-layout="stack"] #onlineDialog .online-right .online-panel{max-height:320px}
+
+/* Clear, actionable signal. Valid placement/selection is GREEN, invalid is RED. */
+#confirmButton,#onlineConfirm,#undoButton,#onlineUndo{transition:background .14s,border-color .14s,box-shadow .14s}
+#confirmButton[data-state="valid"],#onlineConfirm[data-state="valid"]{
+  color:#082e24!important;background:linear-gradient(160deg,#a6f4c3,#36d38e)!important;
+  border:2px solid #8bf1bb!important;box-shadow:0 0 0 2px #2dbf8345,0 0 15px #29d38a66!important;
+  opacity:1!important;
+}
+#confirmButton[data-state="invalid"],#onlineConfirm[data-state="invalid"]{
+  color:#fff1ed!important;background:#a63139!important;border:2px solid #f08b8b!important;
+  box-shadow:0 0 0 2px #f2575747!important;opacity:1!important;
+}
+#confirmButton[data-state="empty"],#onlineConfirm[data-state="empty"]{
+  background:#273d58!important;color:#8699b1!important;border:1px solid #50647e!important;
+  box-shadow:none!important;opacity:.7;
+}
+#undoButton[data-has-pending="true"],#onlineUndo[data-has-pending="true"]{
+  background:linear-gradient(150deg,#216b55,#17805c)!important;
+  border:1px solid #67e2aa!important;color:#e6fff0!important;
+  box-shadow:0 0 11px #4cda9655!important;opacity:1!important;
+}
+#confirmButton:disabled[data-state="invalid"],#onlineConfirm:disabled[data-state="invalid"]{opacity:1!important}
+.tile.selected,.online-tile.chosen{background:linear-gradient(155deg,#b8f8d4,#5fdaa2)!important;color:#07382c!important;border-color:#8ff4c0!important}
+.board[data-move-state="valid"] .cell.pending,#onlineBoard[data-move-state="valid"] .online-cell.staged{
+  background:linear-gradient(155deg,#b7f6ce,#54dba5)!important;
+  color:#083a2b!important;box-shadow:inset 0 0 0 2px #1fa16b,0 0 11px #33dba35f!important;
+}
+.board[data-move-state="invalid"] .cell.pending,#onlineBoard[data-move-state="invalid"] .online-cell.staged{
+  background:#b54d54!important;color:white!important;box-shadow:inset 0 0 0 2px #ed9296!important;
+}
+.move-preview[data-state="invalid"],.online-preview[data-state="invalid"]{color:#ffb5b5!important}
+.move-preview[data-state="valid"],.online-preview[data-state="valid"]{color:#95f4b9!important}
+
+/* Modern settings align labels, values and touch targets. */
+#settingsDialog{width:min(95vw,610px);max-width:610px}
+#settingsDialog .dialog-body{gap:13px;padding:21px}
+#settingsDialog .dialog-body>label:not(.check-line){
+  display:grid;grid-template-columns:minmax(150px,1fr) minmax(170px,1fr);align-items:center;
+  gap:12px;min-width:0;
+}
+#settingsDialog .dialog-body>label>select{width:100%;min-width:0}
+#settingsDialog .dialog-body .layout-setting{border-top:1px solid #375678;padding-top:11px}
+#settingsDialog .dialog-body menu{display:flex;justify-content:flex-end;margin:0}
+#settingsDialog .dialog-body .check-line{display:flex;align-items:center;gap:9px}
+#onlineGameSettingsDialog .online-game-settings-body{gap:9px}
+#onlineGameSettingsDialog select{min-width:0;width:100%}
+.rules-full-link{display:inline-block;text-decoration:none;white-space:normal}
+.how-to-link{margin-top:16px}
+.how-to-link .gold-button{text-decoration:none;display:inline-block}
+.quick-rules .how-to-link{grid-column:1}
+.quick-rules ol{grid-column:2;grid-row:1 / span 2}
+
+/* Tablet / phones: no side-by-side panels stealing width from a 15×15 board. */
+@media (max-width:1100px) and (orientation:portrait),(max-width:740px){
+  :root{--arena-board-size:calc(100vw - 12px)}
+  .game-app{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-auto-rows:max-content;align-content:start;
+  }
+  .game-app .top-bar{
+    grid-column:1/-1;grid-row:1;display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;
+    gap:6px;padding:8px 10px;
+  }
+  .top-bar .brand{grid-column:1;grid-row:1;justify-self:start}
+  .top-bar .header-actions{
+    grid-column:2;grid-row:1;width:auto;display:flex;justify-self:end;gap:5px;
+  }
+  .top-bar .header-actions .gold-button{min-height:35px;padding:6px 8px;font-size:11px}
+  .game-app .panel-toggle,#onlineDialog .panel-toggle{display:none!important}
+  .top-bar .match-scoreboard{
+    grid-column:1/-1;grid-row:2;width:100%;max-width:none;gap:7px;
+    padding:4px 0;
+  }
+  .match-scoreboard .player-card{min-height:42px}
+  .match-scoreboard .player-name{font-size:clamp(10px,2.5vw,15px)!important}
+  .match-scoreboard .score strong{font-size:clamp(22px,5vw,34px)}
+  .match-scoreboard .score-divider{font-size:24px}
+  .game-app .progress-track{grid-column:1/-1;grid-row:2;width:calc(100% - 22px);margin:8px auto 6px}
+  .game-app .main-stage,.game-app .right-side{display:contents!important}
+  .game-app .center-area{
+    grid-column:1/-1;grid-row:3;width:100%;max-width:none;
+    min-width:0;padding:0 clamp(3px,.65vw,8px);margin:0;
+  }
+  .game-app .board-rim{padding:2px!important;border-width:1px}
+  .game-app .board{width:100%;height:auto!important;aspect-ratio:1 / 1}
+  .game-app .board .cell{font-size:clamp(11px,2.7vw,23px)}
+  .game-app .control-bar{
+    grid-column:1/-1;grid-row:4;width:100%;margin:3px 0 0;
+    position:sticky;bottom:0;z-index:16;
+    border:0;border-top:1px solid #325475;border-radius:0;
+    padding:6px 9px calc(7px + env(safe-area-inset-bottom));
+  }
+  .game-app .status-panel,.game-app .chat-panel{
+    grid-column:1/-1;height:auto;max-height:none;min-height:0;
+    width:auto;margin:9px 10px 0;padding:0;overflow:visible;
+  }
+  .game-app .status-panel{grid-row:5}
+  .game-app .chat-panel{grid-row:6}
+  .game-app .right-side .mobile-panel-toggle{display:flex}
+  .game-app .right-side .mobile-panel-content{display:none}
+  .game-app .right-side .side-panel.mobile-expanded .mobile-panel-content{display:flex}
+  .game-app .fine-print{grid-column:1/-1;grid-row:7}
+  #onlineDialog .online-dialog-header{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;
+    grid-template-rows:auto auto;gap:6px;padding:8px 10px;
+  }
+  #onlineDialog .online-game-brand{grid-column:1;grid-row:1}
+  #onlineDialog .online-header-actions{
+    grid-column:2;grid-row:1;width:auto;display:flex;justify-self:end;
+  }
+  #onlineDialog .online-match-scoreboard{
+    grid-column:1/-1;grid-row:2;width:100%;max-width:none;
+    display:flex;gap:7px;
+  }
+  #onlineDialog .online-match-scoreboard[hidden]{display:none!important}
+  #onlineDialog .online-match-scoreboard .online-player-card{min-height:42px;max-width:none}
+  #onlineDialog .online-match-scoreboard .online-player-name{font-size:clamp(10px,2.5vw,15px)!important}
+  #onlineDialog .online-match-scoreboard .online-player-score strong{font-size:clamp(22px,5vw,34px)}
+  #onlineDialog .online-match{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:max-content;
+  }
+  #onlineDialog .online-match-layout,#onlineDialog .online-right{display:contents!important}
+  #onlineDialog .online-progress{grid-column:1/-1;grid-row:1}
+  #onlineDialog .online-game-board{
+    grid-column:1/-1;grid-row:2;width:100%;max-width:none;
+    padding:0 clamp(3px,.65vw,8px);
+  }
+  #onlineDialog .online-game-board .online-board-rim{width:100%;padding:2px}
+  #onlineDialog .online-board{width:100%;height:auto;aspect-ratio:1 / 1}
+  #onlineDialog .online-control-bar{
+    grid-column:1/-1;grid-row:3;width:100%;position:sticky;bottom:0;z-index:16;
+    padding:6px 9px calc(7px + env(safe-area-inset-bottom));
+    border:0;border-top:1px solid #345779;border-radius:0;
+  }
+  #onlineDialog .online-status-panel,#onlineDialog .online-match-chat{
+    grid-column:1/-1;width:auto;max-height:none;height:auto;min-height:0;
+    padding:0;margin:9px 10px 0;
+  }
+  #onlineDialog .online-status-panel{grid-row:4}
+  #onlineDialog .online-match-chat{grid-row:5;margin-bottom:10px}
+  #onlineDialog .online-right .online-panel-toggle{display:block}
+  #onlineDialog .online-right .online-panel-content{display:none}
+  #onlineDialog .online-right .online-panel.mobile-expanded .online-panel-content{display:flex}
+  #settingsDialog .dialog-body>label:not(.check-line){
+    display:grid;grid-template-columns:1fr;gap:5px;
+  }
+  .quick-rules ol{grid-column:1;grid-row:auto}
+}
+@media(max-width:465px){
+  .top-bar .brand img{width:32px;height:32px}
+  .top-bar .brand strong{font-size:11px}
+  .top-bar .header-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:auto}
+  .top-bar .header-actions .gold-button{min-height:32px;font-size:10px;padding:4px 6px}
+  .match-scoreboard,.online-match-scoreboard{gap:2px}
+  .match-scoreboard .player-card,.online-match-scoreboard .online-player-card{
+    gap:5px!important;padding:4px 6px!important;flex-wrap:wrap;
+  }
+  .match-scoreboard .player-name,.online-match-scoreboard .online-player-name{max-width:100px}
+  .score-divider{font-size:22px}
+  #onlineDialog .online-header-actions .gold-button{font-size:11px;padding:6px}
+  #onlineDialog .online-match-info{display:none}
+}

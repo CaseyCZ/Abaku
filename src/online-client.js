@@ -1,4 +1,5 @@
 import {revealArenaChat} from './arena-ui.js?v=2';
+import {syncResumeCard} from './resume-card.js?v=0.2.4';
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
 import { describeMovePreview } from './preview.js?v=0.2.24';
 import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.24';
@@ -387,11 +388,12 @@ function renderOnlineResult(state){
 // The server is authoritative: never infer a resumable match from localStorage.
 async function refreshResumeCard(){
   const card=$('onlineResumeCard');
-  if(!credential){card.hidden=true;return;}
+  if(!credential){card.hidden=true;syncResumeCard();return;}
   try{
     const data=await api('/api/match/current');
     if(!credential||!data.match||data.match.finished){
       card.hidden=true;
+      syncResumeCard();
       return;
     }
     const match=data.match;
@@ -401,9 +403,11 @@ async function refreshResumeCard(){
       ' · tah '+(Number(match.turns)+1)+'.';
     // Keep the button accessible when returning to the menu after a disconnect.
     card.hidden=$('onlineDialog').open;
+    syncResumeCard();
   }catch{
     // If Oracle is unavailable, don't promise that an old match still exists.
     card.hidden=true;
+    syncResumeCard();
   }
 }
 function clearReconnect(){
@@ -515,6 +519,7 @@ function connectOnline(action,{reconnecting=false}={}){
     renderOnline();
   }
   $('onlineResumeCard').hidden=true;
+  syncResumeCard();
   refreshPresence();
   status(reconnecting?'Znovu se připojuji k serveru…':'Připojuji se k serveru…');
   const wsUrl=apiBase.replace(/^http/,'ws')+'/ws';
@@ -1043,6 +1048,7 @@ function initializeActions(){
     socketAuthenticated=false;
     credential=null;gameState=null;currentProfile=null;
     $('onlineResumeCard').hidden=true;
+    syncResumeCard();
     clearSavedCredential();
     window.google?.accounts?.id?.disableAutoSelect?.();
     $('googleSignInWidget').hidden=false;

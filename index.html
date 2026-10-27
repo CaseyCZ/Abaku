@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="./analytics.css?v=1">
   <link rel="stylesheet" href="./arena-modern.css?v=1">
   <link rel="stylesheet" href="./arena-layout.css?v=2">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.2">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.4">
   <link rel="stylesheet" href="./version-history.css?v=0.2.3">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
@@ -42,10 +42,19 @@
         <h1 id="heroTitle">Skládej příklady<br><strong>z číselných kamenů.</strong></h1>
         <p class="subtitle">Znaménka nepokládáš, hra je pozná sama.</p>
         <p class="welcome">Vítej, <strong id="welcomeName">Host</strong>. Sbírej body, procvič počítání a vyzvi soupeře v Číselné aréně.</p>
-        <div class="hero-resume" id="savedCard" hidden>
+        <div class="hero-resume" id="resumeCard" hidden>
           <h2>✦ Rozehraná partie</h2>
-          <p id="savedDescription">Máš uloženou partii.</p>
-          <a class="gold-button hero-primary link-button" href="./game.html">Pokračovat ve hře</a>
+          <div class="resume-choice" id="savedCard" hidden>
+            <h3>Místní partie</h3>
+            <p id="savedDescription">Máš uloženou partii.</p>
+            <a class="gold-button hero-primary link-button" href="./game.html">Pokračovat v místní hře</a>
+          </div>
+          <div class="resume-choice" id="onlineResumeCard" hidden>
+            <h3>Online partie</h3>
+            <p id="onlineResumeDescription">Na serveru máš rozehranou partii.</p>
+            <button type="button" id="onlineResumeButton" class="gold-button hero-primary">Pokračovat v online partii</button>
+            <p class="online-resume-note">Pokračování je dostupné, dokud je partie aktivní na serveru.</p>
+          </div>
         </div>
       </section>
         <div class="game-options" id="gameModes">
@@ -102,12 +111,6 @@
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
             <button type="button" id="retryServerButton" class="gold-button" hidden>Zkusit připojení znovu</button>
 
-          <div class="resume-section" id="onlineResumeCard" hidden>
-            <h3>✦ Rozehraná online partie</h3>
-            <p id="onlineResumeDescription">Na serveru máš rozehranou partii.</p>
-            <button type="button" id="onlineResumeButton" class="gold-button wide">Pokračovat v online partii</button>
-            <p class="online-resume-note">Obnovení funguje, dokud je partie stále aktivní na serveru.</p>
-          </div>
           </div>
         </aside>
       </section>
@@ -363,7 +366,7 @@
   </dialog>
   <script type="module" src="./src/site-navigation.js?v=1"></script>
   <script type="module" src="./src/arena-ui.js?v=2"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.2"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.3"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.4"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.4"></script>
 </body>
 </html>

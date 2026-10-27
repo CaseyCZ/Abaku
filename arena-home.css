@@ -84,6 +84,10 @@
 .arena-home .lobby-intro .hero-resume{width:min(100%,430px);box-sizing:border-box;margin-top:8px;padding:16px 18px;border:1px solid #48688f;border-radius:16px;background:#1c3658}
 .arena-home .lobby-intro .hero-resume h2{margin:0 0 8px;color:var(--arena-gold-hi);font-size:18px}
 .arena-home .lobby-intro .hero-resume p{margin:0 0 12px;font-size:13px}
+.arena-home .lobby-intro .hero-resume .resume-choice h3{margin:0 0 6px;color:var(--arena-gold-hi);font-size:13px;letter-spacing:.02em}
+.arena-home .lobby-intro .hero-resume .resume-choice:not([hidden]) ~ .resume-choice:not([hidden]){margin-top:16px;padding-top:16px;border-top:1px solid #48688f}
+.arena-home .lobby-intro .hero-resume .gold-button{max-width:100%;white-space:normal;min-height:44px}
+.arena-home .lobby-intro .hero-resume .online-resume-note{margin:10px 0 0;font-size:12px;color:var(--arena-muted)}
 
 /* Disabled online choices are clearly unavailable while the API is offline. */
 .arena-home .mode-card:disabled{opacity:.5;filter:grayscale(.4);cursor:not-allowed}

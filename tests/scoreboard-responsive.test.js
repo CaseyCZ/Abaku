@@ -27,5 +27,5 @@ test('long nicknames truncate while score and names stay on one row',()=>{
   assert.match(css,/font-size:clamp\(17px,5\.1vw,23px\)/);
   assert.match(main,/byId\('player0Name'\)\.textContent=playerLabel\(0\)/);
   assert.match(main,/byId\(`player\$\{i\}Score`\)\.textContent=game\.players\[i\]\.score/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.17/);
+  assert.match(game,/game-chrome\.css\?v=0\.2\.18/);
 });

@@ -25,7 +25,7 @@ test('timer stays live in the top center and the bag count precedes the scoreboa
   assert.match(css,/\.game-app \.top-bar \.timer-wrap\.warning strong\{color:#ff8066\}/);
   assert.match(css,/@media\(max-width:370px\)\{[\s\S]*?\.game-app \.top-bar \.game-header-score\{column-gap:3px\}/);
   assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:2/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.17/);
+  assert.match(game,/game-chrome\.css\?v=0\.2\.18/);
 });
 
 test('game menu reuses the homepage mobile navigation and keeps actions functional',()=>{

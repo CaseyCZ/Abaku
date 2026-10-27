@@ -1,4 +1,5 @@
 import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.10';
+import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.18';
 import {chooseMove} from './ai.js?v=0.2.24';
 import {describeMovePreview} from './preview.js?v=0.2.10';
 import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.24';
@@ -144,7 +145,10 @@ function newGame() {
   game = freshGame(); clearPending();botBusy = false;
   resetDeadline();save();render();notify('První tah: sestav příklad přes prostřední pole.');
 }
-function resetDeadline() {deadline = settings.time ? Date.now() + settings.time*1000 : null;}
+function resetDeadline() {
+  deadline=createTurnDeadline(settings.time);
+  if(game)game.turnDeadline=deadline;
+}
 function restore() {
   scoreRecap.cancel();
   clearRecentMove();
@@ -168,7 +172,15 @@ function restore() {
       if (repaired || chatMigrated) save();
     } else if (chatMigrated) save();
   } else game = freshGame();
-  resetDeadline();render();
+  // A reload must not grant a fresh turn to an existing saved match.
+  // Saves made before deadlines existed are migrated once.
+  const restored=restoreTurnDeadline(game.turnDeadline,settings.time);
+  if(game.turnDeadline!==restored){
+    game.turnDeadline=restored;
+    save();
+  }
+  deadline=restored;
+  render();
   notify(game.finished ? 'Partie skončila.' : game.turns ? 'Vítej zpět! Partie byla automaticky obnovena.' : 'První tah: sestav příklad přes prostřední pole.');
   if(game.finished)showOfflineResult();
   if (isBotTurn() && !game.finished) runBot();
@@ -387,7 +399,7 @@ function commitMove(placements, fromBot=false) {
       // before displaying any queued future scoring animation.
       showRecentMove(checked,placements,who,()=>{
         if(!game?.finished&&game.turn===nextTurn){
-          resetDeadline();render();
+          resetDeadline();save();render();
           if(isBotTurn()&&!botBusy)runBot();
         }
         resolve();
@@ -569,7 +581,7 @@ byId('settingsForm').addEventListener('submit',event=>{
   settings={mode,difficulty:byId('difficultySetting').value,time:Number(byId('timeSetting').value),sound:byId('soundSetting').checked};
   setRecapSeconds(byId('scoreRecapSecondsSetting').value);
   try{localStorage.setItem(settingsKey,JSON.stringify(settings));}catch{}
-  if(modeChanged)newGame();else{resetDeadline();render();}
+  if(modeChanged)newGame();else{resetDeadline();save();render();}
 });
 window.addEventListener('keydown',event=>{
   if(document.querySelector('dialog[open]')||game.finished||isBotTurn())return;

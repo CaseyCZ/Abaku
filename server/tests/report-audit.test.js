@@ -60,6 +60,13 @@ test('rulesets are kept separate so future powers do not mislabel the old game',
   assert.equal(auditReport(report).ok,true);
 });
 
+test('independent checker agrees with actual powers and roots and their bonus scores',()=>{
+  for(const digits of ['24','42','273','749','8512']){
+    const report=gameReport(digits,'classic-powers-roots');
+    assert.equal(auditReport(report).ok,true,`${digits}: ${JSON.stringify(auditReport(report).issues)}`);
+  }
+});
+
 test('the online server retains the whole game without private profiles or chat',()=>{
   const engine=new MatchEngine({rng:()=>.2});
   engine.connect('private-user-a');engine.connect('private-user-b');

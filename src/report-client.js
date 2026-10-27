@@ -1,9 +1,10 @@
 import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
 
+export const REPORT_RULESET='classic-powers-roots';
 export function ensureAudit(game){
-  if(game.audit&&Array.isArray(game.audit.events))return;
-  // An already running saved game cannot be reconstructed retroactively.
-  game.audit={ruleset:'legacy-0.2',partial:Boolean(game.turns),
+  if(game.audit?.ruleset===REPORT_RULESET&&Array.isArray(game.audit.events))return;
+  // Old saved games can continue; never replay their previous turns under new rules.
+  game.audit={ruleset:REPORT_RULESET,partial:Boolean(game.turns),
     initialBoard:game.board.map(row=>row.slice()),
     initialScores:game.players.map(p=>p.score),events:[]};
 }

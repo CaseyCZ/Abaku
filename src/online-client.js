@@ -1,7 +1,7 @@
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
-import { describeMovePreview } from './preview.js?v=0.2.9';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.15';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.19';
+import { describeMovePreview } from './preview.js?v=0.2.24';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.24';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.24';
 import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=1';
 
 const $=id=>document.getElementById(id);

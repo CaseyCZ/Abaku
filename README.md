@@ -14,7 +14,7 @@ Zahraj si číselnou deskovou hru, ve které skládáš matematické příklady,
 
 Abaku se hraje na desce **15 × 15 polí**. Místo slov skládáš z číselných kamenů správné matematické příklady. Znaménka na desku nepokládáš — hra je rozpozná sama.
 
-Například z kamenů **2, 6 a 8** může vzniknout příklad **2 + 6 = 8**. Využít můžeš sčítání, odčítání, násobení i dělení.
+Například z kamenů **2, 6 a 8** může vzniknout příklad **2 + 6 = 8**. Využít můžeš sčítání, odčítání, násobení, dělení, druhé i třetí mocniny a odmocniny. Stačí dokonce dva kameny: **24** znamená **2² = 4** a **42** znamená **√4 = 2**.
 
 Za vytvořené příklady získáváš body. Bonusová políčka a chytré napojení na již položené kameny ti pomohou dosáhnout vyššího skóre.
 

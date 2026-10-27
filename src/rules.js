@@ -43,22 +43,33 @@ export function replenishPlayerRack(bag, player) {
   player.rack = drawTiles(bag, Array.isArray(player.rack) ? player.rack : []);
 }
 
-// Exactly the same accepted equations as before, now also exposing which
-// operation was recognised. Board tiles still contain only digits.
+// Eight arithmetic operations without symbols on stones. Powers and roots
+// use an implicit exponent/radical; two stones can be a complete example.
 export function formatEquation(sequence) {
-  if (!/^\d{3,9}$/.test(sequence)) return null;
-  for (let aEnd = 1; aEnd <= Math.min(3, sequence.length - 2); aEnd++) {
-    for (let bEnd = aEnd + 1; bEnd <= Math.min(aEnd + 3, sequence.length - 1); bEnd++) {
-      const parts = [sequence.slice(0, aEnd), sequence.slice(aEnd, bEnd), sequence.slice(bEnd)];
-      if (parts.some(s => s.length > 1 && s[0] === '0')) continue;
-      const [a, b, c] = parts.map(Number);
-      if (c === 0 || a === 0 || b === 0) continue;
-      if (a + b === c) return `${a} + ${b} = ${c}`;
-      if (a - b === c) return `${a} − ${b} = ${c}`;
-      if (a * b === c) return `${a} × ${b} = ${c}`;
-      if (a / b === c && b !== 0) return `${a} ÷ ${b} = ${c}`;
-      if ((b === 2 || b === 3) && a ** b === c) return `${a}^${b} = ${c}`;
+  if (!/^\d{2,9}$/.test(sequence)) return null;
+  if (sequence.length >= 3) {
+    for (let aEnd = 1; aEnd <= Math.min(3, sequence.length - 2); aEnd++) {
+      for (let bEnd = aEnd + 1; bEnd <= Math.min(aEnd + 3, sequence.length - 1); bEnd++) {
+        const parts = [sequence.slice(0, aEnd), sequence.slice(aEnd, bEnd), sequence.slice(bEnd)];
+        if (parts.some(s => s.length > 1 && s[0] === '0')) continue;
+        const [a, b, c] = parts.map(Number);
+        if (c === 0 || a === 0 || b === 0) continue;
+        if (a + b === c) return `${a} + ${b} = ${c}`;
+        if (a - b === c) return `${a} − ${b} = ${c}`;
+        if (a * b === c) return `${a} × ${b} = ${c}`;
+        if (a / b === c) return `${a} ÷ ${b} = ${c}`;
+      }
     }
+  }
+  for (let split = 1; split < sequence.length; split++) {
+    const left = sequence.slice(0, split), right = sequence.slice(split);
+    if ((left.length > 1 && left[0] === '0') || (right.length > 1 && right[0] === '0')) continue;
+    const a = Number(left), b = Number(right);
+    if (a === 0 || b === 0) continue;
+    if (a ** 2 === b) return `${a}² = ${b}`;
+    if (a ** 3 === b) return `${a}³ = ${b}`;
+    if (b ** 2 === a) return `√${a} = ${b}`;
+    if (b ** 3 === a) return `∛${a} = ${b}`;
   }
   return null;
 }
@@ -96,7 +107,7 @@ function findNewEquations(board, newIds) {
     for (const index of indices) {
       for (const run of getRuns(board, axis, index)) {
         for (let start = 0; start < run.length; start++) {
-          for (let end = start + 3; end <= Math.min(run.length, start + 9); end++) {
+          for (let end = start + 2; end <= Math.min(run.length, start + 9); end++) {
             const cells = run.slice(start, end);
             if (!cells.some(p => newIds.has(id(p.row, p.col)))) continue;
             if (readsAsEquation(cells.map(p => p.digit).join(''))) {

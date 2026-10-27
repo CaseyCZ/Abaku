@@ -30,3 +30,14 @@ test('already started old games are explicitly marked incomplete',()=>{
   ensureAudit(game);
   assert.equal(localReport(game,'local').partial,true);
 });
+
+test('changing the ruleset starts a partial audit without resetting saved scores',()=>{
+  const game={turns:3,board:emptyBoard(),players:[{score:20},{score:4}],
+    audit:{ruleset:'legacy-0.2',partial:false,initialBoard:emptyBoard(),
+      initialScores:[0,0],events:[{type:'pass',player:0}]}};
+  ensureAudit(game);
+  assert.equal(game.audit.ruleset,'classic-powers-roots');
+  assert.equal(game.audit.partial,true);
+  assert.deepEqual(game.audit.initialScores,[20,4]);
+  assert.deepEqual(game.audit.events,[]);
+});

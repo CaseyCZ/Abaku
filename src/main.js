@@ -1,16 +1,16 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.9';
-import {chooseMove} from './ai.js?v=0.2.9';
-import {describeMovePreview} from './preview.js?v=0.2.9';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.19';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.24';
+import {chooseMove} from './ai.js?v=0.2.24';
+import {describeMovePreview} from './preview.js?v=0.2.24';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.24';
 import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
   from './player-identity.js?v=1';
-import {ensureAudit,recordAudit,sendLocalReport} from './report-client.js?v=1';
+import {ensureAudit,recordAudit,sendLocalReport} from './report-client.js?v=2';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.16';
+const VERSION = '0.1.18';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};

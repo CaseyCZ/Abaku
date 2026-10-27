@@ -168,6 +168,19 @@ test('accepted online move syncs complete previous equation squares to both play
   assert.ok(latest.every(x=>!('rack' in x.lastMove)));
 });
 
+test('online server accepts a square root and reports it under the updated rules',()=>{
+  const {game,out}=rig();
+  game.connect('a');game.connect('b');
+  const match=game.createMatch('a','b',60);
+  match.players[0].rack=[4,2,8,1,9];
+  game.place('a',[{row:7,col:7,rackIndex:0},{row:7,col:8,rackIndex:1}]);
+  assert.deepEqual(match.lastMove.equations,['42']);
+  assert.equal(match.lastMove.equationBreakdown[0].equation,'√4 = 2');
+  assert.deepEqual(match.lastMove.cells,[{row:7,col:7},{row:7,col:8}]);
+  assert.ok(out.filter(x=>x.type==='match-state'&&x.turns===1).every(x=>x.lastMove.points===match.lastMove.points));
+  assert.equal(game.reportFor('a',match.id).ruleset,'classic-powers-roots');
+});
+
 test('online scorecards receive safe nicknames and recent move history after reconnect',()=>{
   const events=[];
   const game=new MatchEngine({send:(uid,msg)=>events.push({uid,...msg}),

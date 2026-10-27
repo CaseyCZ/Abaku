@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.9/);
-  assert.match(html,/main\.js\?v=0\.1\.17/);
+  assert.match(html,/main\.js\?v=0\.1\.18/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -65,7 +65,7 @@ test('accepted offline move shows full equation and highlighted board tiles for 
 test('offline accepted move starts an automatic one-equation-at-a-time score scroll',()=>{
   const scoreStyle=file('../score-recap.css');
   assert.match(html,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(js,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.19'/);
+  assert.match(js,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.24'/);
   assert.match(js,/const scoreRecap = new ScoreRecap\(document\.body\)/);
   assert.match(js,/scoreRecap\.play\(\{player:who,breakdown:checked\.equationBreakdown/);
   assert.match(js,/equations:checked\.equations,total:checked\.points/);

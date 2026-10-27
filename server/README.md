@@ -1,4 +1,4 @@
-# Abaku API – low-resource Oracle Free Tier
+# Číselná aréna API – low-resource Oracle Free Tier
 
 Server side is **implemented but not yet deployed**. Web application on GitHub Pages may continue to run offline AI games without the API. This is an isolated process and does not modify any existing PM2 services or NGINX sites.
 

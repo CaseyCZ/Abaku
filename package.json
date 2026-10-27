@@ -3,7 +3,7 @@
   "version": "0.2.0-dev",
   "private": true,
   "type": "module",
-  "description": "Neoficiální retro rekonstrukce matematické deskové hry pro PC",
+  "description": "Číselná aréna – neoficiální fanouškovská číselná desková hra inspirovaná hrou Abaku",
   "scripts": {
     "test": "node --test",
     "dev": "npx --yes serve . -l 3000"

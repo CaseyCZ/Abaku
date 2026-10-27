@@ -132,7 +132,7 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   assert.match(onlineClient,/clearSavedCredential\(\)/);
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
-  assert.match(landing,/Abaku Online 0\.2\.22/);
+  assert.match(landing,/Číselná aréna Online 0\.2\.22/);
   assert.match(lobby,/online-client\.js\?v=0\.2\.25/);
 });
 

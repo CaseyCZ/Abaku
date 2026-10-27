@@ -1,10 +1,10 @@
-# ✦ ABAKU — Číselná aréna ✦
+# ✦ ČÍSELNÁ ARÉNA ✦
 
 **Čísla místo slov. Taktika místo náhody.**
 
 Zahraj si číselnou deskovou hru, ve které skládáš matematické příklady, využíváš bonusová políčka a soupeříš o co nejvyšší skóre. S počítačem, s kamarádem na jednom zařízení nebo online.
 
-### [▶ HRÁT ABAKU](https://caseycz.github.io/Abaku/)
+### [▶ HRÁT ČÍSELNOU ARÉNU](https://caseycz.github.io/Abaku/)
 
 **Zdarma · Bez instalace · Na počítači, tabletu i telefonu**
 
@@ -12,7 +12,7 @@ Zahraj si číselnou deskovou hru, ve které skládáš matematické příklady,
 
 ## 🎮 O hře
 
-Abaku se hraje na desce **15 × 15 polí**. Místo slov skládáš z číselných kamenů správné matematické příklady. Znaménka na desku nepokládáš — hra je rozpozná sama.
+Hra se hraje na desce **15 × 15 polí**. Místo slov skládáš z číselných kamenů správné matematické příklady. Znaménka na desku nepokládáš — hra je rozpozná sama.
 
 Například z kamenů **2, 6 a 8** může vzniknout příklad **2 + 6 = 8**. Využít můžeš sčítání, odčítání, násobení, dělení, druhé i třetí mocniny a odmocniny. Stačí dokonce dva kameny: **24** znamená **2² = 4** a **42** znamená **√4 = 2**.
 

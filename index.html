@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#4c0e13">
-  <meta name="description" content="Abaku – číselná retro hra. Zahraj si proti počítači, místně ve dvou nebo online s přáteli.">
-  <title>ABAKU</title>
-  <meta name="analytics-page-title" content="Abaku — Hlavní nabídka">
-  <link rel="icon" type="image/png" sizes="128x128" href="./assets/abaku-icon.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+  <meta name="description" content="Číselná aréna – číselná retro hra. Zahraj si proti počítači, místně ve dvou nebo online s přáteli.">
+  <title>Číselná aréna</title>
+  <meta name="analytics-page-title" content="Číselná aréna — Hlavní nabídka">
+  <link rel="icon" type="image/png" sizes="128x128" href="./assets/arena-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
-  <meta name="apple-mobile-web-app-title" content="ABAKU">
+  <meta name="apple-mobile-web-app-title" content="Číselná aréna">
   <link rel="stylesheet" href="./lobby.css?v=0.2.23-logo1">
   <link rel="stylesheet" href="./online-game.css?v=0.2.18">
   <link rel="stylesheet" href="./result-dialog.css?v=1">
@@ -44,7 +44,7 @@
   </defs></svg>
   <div class="lobby-shell">
     <header class="lobby-header">
-      <a class="mini-brand" href="./index.html" aria-label="Abaku, hlavní nabídka"><img class="brand-logo" src="./assets/abaku-logo.webp" alt="" width="640" height="238"></a>
+      <a class="mini-brand" href="./index.html" aria-label="Číselná aréna, hlavní nabídka"><img class="brand-logo" src="./assets/arena-logo.svg" alt="" width="640" height="220"></a>
       <div class="lobby-account">
         <span class="server-state"><span class="status-dot"></span>Online režimy připravujeme</span>
         <button type="button" class="gold-button" id="profileOpen">Můj profil</button>
@@ -55,7 +55,7 @@
       <div class="decor decor-right" aria-hidden="true">❦</div>
       <section class="lobby-intro" aria-labelledby="heroTitle">
         <div class="eyebrow">✦ ČÍSELNÁ BITVA ✦</div>
-        <h1 id="heroTitle">ABAKU</h1>
+        <h1 id="heroTitle">ČÍSELNÁ ARÉNA</h1>
         <p class="subtitle">Matematický souboj</p>
         <p class="welcome">Vítej, <strong id="welcomeName">Host</strong>. Skládej početní příklady, sbírej body a vyzvi soupeře.</p>
       </section>
@@ -114,7 +114,7 @@
             <p class="online-resume-note">Obnovení funguje, dokud je partie stále aktivní na serveru.</p>
           </div>
           <div class="side-card" id="onlineInfo">
-            <h2>✦ Abaku Online</h2>
+            <h2>✦ Číselná aréna Online</h2>
             <label class="online-time-setting" for="onlineTurnSeconds">
               <span>Čas na tah</span>
               <select id="onlineTurnSeconds" aria-label="Čas na tah online partie">
@@ -142,7 +142,7 @@
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-            <span class="build-label">Abaku Online 0.2.22 · testovací provoz</span>
+            <span class="build-label">Číselná aréna Online 0.2.22 · testovací provoz</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>
@@ -152,7 +152,7 @@
       </section>
     </main>
     <footer class="lobby-footer">
-      Neoficiální fanouškovská rekonstrukce inspirovaná původní hrou Abaku.
+      Neoficiální fanouškovská hra inspirovaná hrou Abaku. S původními autory nijak nepropojená.
       <a href="./privacy.html" class="abaku-privacy-link">Soukromí a cookies</a>
       <button type="button" class="abaku-cookie-settings" data-cookie-settings>Nastavení cookies</button>
     </footer>
@@ -201,7 +201,7 @@
   <dialog id="friendChallengeDialog" aria-labelledby="friendChallengeTitle" class="friends-dialog">
     <div class="dialog-body">
       <h2 id="friendChallengeTitle">⚔ Výzva k partii</h2>
-      <p><strong id="friendChallengeFrom">Přítel</strong> tě zve do Abaku Online.</p>
+      <p><strong id="friendChallengeFrom">Přítel</strong> tě zve do hry Číselná aréna Online.</p>
       <p id="friendChallengeTime">Čas na tah: 60 sekund</p>
       <div class="dialog-actions">
         <button id="friendChallengeDecline" type="button" class="gold-button">Odmítnout</button>
@@ -214,7 +214,7 @@
     <div class="online-dialog-inner">
       <header class="online-dialog-header">
         <div class="online-game-brand"><span class="online-brand-mark">A</span><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
-        <div class="online-game-title" id="onlineDialogTitle"><span>✦ ABAKU ✦</span><small>Matematický souboj · ONLINE</small></div>
+        <div class="online-game-title" id="onlineDialogTitle"><span>✦ ČÍSELNÁ ARÉNA ✦</span><small>Matematický souboj · ONLINE</small></div>
         <div class="online-header-actions">
           <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">⚙ Nastavení</button>
           <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka</button>

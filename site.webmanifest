@@ -1,6 +1,6 @@
 {
-  "name": "ABAKU",
-  "short_name": "ABAKU",
+  "name": "Číselná aréna",
+  "short_name": "Číselná aréna",
   "description": "Matematický souboj",
   "lang": "cs",
   "id": "./",
@@ -11,19 +11,19 @@
   "theme_color": "#4c0e13",
   "icons": [
     {
-      "src": "./assets/abaku-home-192.png",
+      "src": "./assets/arena-home-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./assets/abaku-home-512.png",
+      "src": "./assets/arena-home-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./assets/abaku-maskable-512.png",
+      "src": "./assets/arena-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

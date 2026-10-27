@@ -4,7 +4,7 @@
   'use strict';
   const MEASUREMENT_ID = 'G-SZTERTRTCE';
   const CONSENT_KEY = 'abaku-analytics-consent-v1';
-  const TITLE = String(document.querySelector('meta[name="analytics-page-title"]')?.content || document.title || 'Abaku').trim();
+  const TITLE = String(document.querySelector('meta[name="analytics-page-title"]')?.content || document.title || 'Číselná aréna').trim();
   // Stable page paths distinguish /Abaku/ from other sites in the same GA4
   // property without sending potentially sensitive URL query parameters.
   const LOCATION = window.location.origin + window.location.pathname;
@@ -82,7 +82,7 @@
     const heading = document.createElement('strong');
     heading.textContent = 'Analytické cookies';
     const description = document.createElement('span');
-    description.textContent = 'Abaku používá Google Analytics jen s tvým souhlasem. Bez souhlasu se analytika nenačítá.';
+    description.textContent = 'Číselná aréna používá Google Analytics jen s tvým souhlasem. Bez souhlasu se analytika nenačítá.';
     copy.append(heading, description);
     const actions = document.createElement('div');
     actions.className = 'abaku-consent-actions';

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0f2347">
-  <meta name="description" content="Číselná aréna – číselná retro hra. Zahraj si proti počítači, místně ve dvou nebo online s přáteli.">
+  <meta name="theme-color" content="#08152c">
+  <meta name="description" content="Číselná aréna – moderní matematická hra pro počítač, tablet a telefon. Hraj proti počítači, ve dvou nebo online.">
   <title>Číselná aréna</title>
   <meta name="analytics-page-title" content="Číselná aréna — Hlavní nabídka">
   <link rel="icon" type="image/png" sizes="128x128" href="./assets/arena-icon.png">
@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="./result-dialog.css?v=1">
   <link rel="stylesheet" href="./score-recap.css?v=0.2.15">
   <link rel="stylesheet" href="./analytics.css?v=1">
+  <link rel="stylesheet" href="./arena-modern.css?v=1">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body>
@@ -23,29 +24,39 @@
     <header class="lobby-header">
       <a class="mini-brand" href="./index.html" aria-label="Číselná aréna, hlavní nabídka"><img class="brand-logo" src="./assets/arena-logo.svg" alt="" width="640" height="220"></a>
       <div class="lobby-account">
-        <span class="server-state"><span class="status-dot"></span>Online režimy připravujeme</span>
+        <span class="server-state"><span class="status-dot"></span>Zjišťuji stav online…</span>
         <button type="button" class="gold-button" id="profileOpen">Můj profil</button>
       </div>
     </header>
     <main class="lobby-main">
-      <div class="decor decor-left" aria-hidden="true">✦</div>
-      <div class="decor decor-right" aria-hidden="true">✦</div>
       <section class="lobby-intro" aria-labelledby="heroTitle">
-        <div class="eyebrow">✦ ČÍSELNÁ BITVA ✦</div>
-        <h1 id="heroTitle">ČÍSELNÁ ARÉNA</h1>
-        <p class="subtitle">Matematický souboj</p>
-        <p class="welcome">Vítej, <strong id="welcomeName">Host</strong>. Skládej početní příklady, sbírej body a vyzvi soupeře.</p>
+        <div class="eyebrow">MATEMATICKÝ SOUBOJ</div>
+        <h1 id="heroTitle">Skládej příklady<br><strong>z číselných kamenů.</strong></h1>
+        <p class="subtitle">Znaménka nepokládáš, hra je pozná sama.</p>
+        <p class="welcome">Vítej, <strong id="welcomeName">Host</strong>. Sbírej body, procvič počítání a vyzvi soupeře v Číselné aréně.</p>
+        <div class="hero-actions">
+          <button type="button" data-mode="bot" class="gold-button hero-primary">Hrát proti počítači</button>
+          <a class="hero-secondary" href="#gameModes">Vybrat herní režim</a>
+        </div>
+        <div class="hero-showcase" aria-hidden="true">
+          <span class="hero-preview-tile one">8</span>
+          <span class="hero-preview-tile two">4</span>
+          <span class="hero-preview-tile three">2</span>
+          <span class="hero-preview-bonus a">×3</span>
+          <span class="hero-preview-bonus b">×2</span>
+          <span class="hero-preview-bonus c">×3</span>
+        </div>
       </section>
       <section class="lobby-content" aria-label="Vyber herní režim">
-        <div class="game-options">
+        <div class="game-options" id="gameModes">
           <button type="button" id="playAi" data-mode="bot" class="mode-card mode-ready">
-            <span class="mode-icon" aria-hidden="true">♟</span>
+            <span class="mode-icon" aria-hidden="true">◈</span>
             <span class="mode-title">Proti počítači</span>
             <span class="mode-copy">Tři obtížnosti. Zahraj si proti počítači.</span>
             <span class="mode-action">HRÁT <span aria-hidden="true">›</span></span>
           </button>
           <button type="button" id="playLocal" data-mode="local" class="mode-card mode-ready">
-            <span class="mode-icon" aria-hidden="true">♟♟</span>
+            <span class="mode-icon" aria-hidden="true">◉◉</span>
             <span class="mode-title">Dva hráči</span>
             <span class="mode-copy">Hrajte střídavě na jednom zařízení.</span>
             <span class="mode-action">HRÁT <span aria-hidden="true">›</span></span>
@@ -119,7 +130,7 @@
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
-            <span class="build-label">Číselná aréna Online 0.2.22 · testovací provoz</span>
+            <span class="build-label">Číselná aréna · online</span>
           </div>
           <div class="side-card" id="leaderboardPanel" hidden>
             <h2>✦ Žebříček</h2>

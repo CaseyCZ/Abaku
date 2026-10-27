@@ -43,6 +43,9 @@ html[data-arena-layout]{scroll-padding-top:85px}
 .match-scoreboard .score small,.online-match-scoreboard .online-player-score small{display:none}
 .score-divider{color:#e2bc5f;font-size:clamp(26px,2.2vw,37px);font-weight:800;line-height:1}
 .panel-toggle{white-space:nowrap}
+/* A drawer button is only needed when the selected layout hides the panels. */
+html[data-arena-layout="side"] .panel-toggle,
+html[data-arena-layout="stack"] .panel-toggle{display:none!important}
 .game-app .progress-track{flex:none;margin:4px auto 2px;height:13px;max-width:620px}
 .game-app .main-stage{
   position:relative;flex:1 0 auto;

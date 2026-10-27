@@ -5,8 +5,10 @@ const layouts=new Set(['focus','side','stack']);
 const byId=id=>document.getElementById(id);
 
 function storedLayout(){
-  try{const saved=localStorage.getItem(LAYOUT_KEY);return layouts.has(saved)?saved:'focus';}
-  catch{return 'focus';}
+  // Default: maximum board against AI, visible history and chat in online matches.
+  const fallback=byId('onlineDialog')?'side':'focus';
+  try{const saved=localStorage.getItem(LAYOUT_KEY);return layouts.has(saved)?saved:fallback;}
+  catch{return fallback;}
 }
 function applyLayout(value,persist=false){
   const chosen=layouts.has(value)?value:'focus';

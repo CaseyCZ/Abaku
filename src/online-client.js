@@ -337,9 +337,12 @@ function refreshUnreadChat(){
     latestUnreadChat='';
   }
   const hasUnread=unreadOnlineChat>0;
+  const headerBadge=$('onlineUnreadBadgeHeader');
   toast.hidden=!hasUnread;
   badge.hidden=!hasUnread;
+  headerBadge.hidden=!hasUnread;
   if(hasUnread){
+    headerBadge.textContent=unreadOnlineChat>99?'99+':String(unreadOnlineChat);
     badge.textContent=unreadOnlineChat>99?'99+':String(unreadOnlineChat);
     $('onlineChatToastCount').textContent=unreadOnlineChat===1?'Nová zpráva · Chat':'Nové zprávy ('+unreadOnlineChat+')';
     $('onlineChatToastPreview').textContent=latestUnreadChat;

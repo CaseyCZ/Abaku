@@ -8,6 +8,7 @@ import { MatchEngine } from './match-engine.js';
 import { PresenceTracker } from './presence.js';
 import { FriendChallenges } from './friend-challenges.js';
 import {ReportStore} from './report-store.js';
+import {GitHubIssueReporter,validateFeedback} from './github-issues.js';
 
 const clientId=process.env.GOOGLE_CLIENT_ID||'';
 const origins=(process.env.CORS_ORIGIN||'').split(',').map(x=>x.trim()).filter(Boolean);
@@ -23,13 +24,26 @@ const tokenCache=new Map();
 const sockets=new Map();
 const rate=new Map();
 const reportRate=new Map();
+const feedbackRate=new Map();
+let feedbackDay='',feedbackDayCount=0;
 const reportStore=new ReportStore({directory:process.env.ABAKU_REPORT_DIR||'/home/ubuntu/abaku-reports'});
+const issueReporter=new GitHubIssueReporter({token:process.env.ABAKU_GITHUB_ISSUES_TOKEN});
 const adminToken=process.env.ABAKU_REPORT_ADMIN_TOKEN||'';
 
 function reportLimited(ip){
   const now=Date.now(),current=reportRate.get(ip);
   if(!current||now-current.start>=10*60_000){reportRate.set(ip,{start:now,count:1});return false;}
   return ++current.count>20;
+}
+function feedbackLimited(ip){
+  const now=Date.now(),day=new Date(now).toISOString().slice(0,10);
+  if(day!==feedbackDay){feedbackDay=day;feedbackDayCount=0;}
+  const current=feedbackRate.get(ip);
+  if(feedbackDayCount>=30||current&&now-current.start<60*60_000&&current.count>=10)return true;
+  if(!current||now-current.start>=60*60_000)feedbackRate.set(ip,{start:now,count:1});
+  else current.count++;
+  feedbackDayCount++;
+  return false;
 }
 function adminAllowed(request){
   if(adminToken.length<32)return false;
@@ -118,6 +132,7 @@ const clock=setInterval(()=>{engine.tick();friendChallenges.tick();
   const now=Date.now();
   for(const [key,item] of rate)if(now-item.start>120_000)rate.delete(key);
   for(const [key,item] of reportRate)if(now-item.start>10*60_000)reportRate.delete(key);
+  for(const [key,item] of feedbackRate)if(now-item.start>60*60_000)feedbackRate.delete(key);
 },1000);
 clock.unref();
 const cleanupClock=setInterval(()=>reportStore.cleanup().catch(error=>
@@ -153,6 +168,27 @@ const http=createServer(async(request,response)=>{
       if(!adminAllowed(request))return respond(response,403,{error:'Kontroly jsou soukromé.'});
       const item=await reportStore.get(searchParams.get('id'));
       return respond(response,item?200:404,item||{error:'Záznam už neexistuje.'});
+    }
+    if(pathname==='/api/feedback'&&request.method==='POST'){
+      if(!issueReporter.configured)
+        return respond(response,503,{error:'Hlášení problémů ještě není na serveru zapnuté.'});
+      if(feedbackLimited(request.socket.remoteAddress||'unknown'))
+        return respond(response,429,{error:'Příliš mnoho hlášení. Zkus to později.'});
+      const data=await body(request,260*1024);
+      const {description,mode}=validateFeedback(data);
+      if(data.report&&data.matchId)throw new Error('Nelze přiložit dvě různé partie.');
+      let reportId=null;
+      if(data.report){
+        if(!['bot','local'].includes(mode)||data.report.mode!==mode)
+          throw new Error('Historie neodpovídá hernímu režimu.');
+        reportId=(await reportStore.submit(data.report)).id;
+      }else if(data.matchId){
+        if(mode!=='online')throw new Error('Historie neodpovídá hernímu režimu.');
+        const uid=await identity(request);
+        reportId=(await reportStore.submit(engine.reportFor(uid,data.matchId))).id;
+      }
+      const issue=await issueReporter.create({description,mode,reportId});
+      return respond(response,201,{...issue,reportId});
     }
     // Exchange an already verified Google ID token for a revocable session.
     // Google is required for initial sign-in, not for each later page load.

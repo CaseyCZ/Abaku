@@ -110,6 +110,10 @@ html,body{height:100%;overflow-x:hidden}
 .report-game-options{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:9px 0;border-top:1px solid #b8863877;border-bottom:1px solid #b8863877}
 .report-game-options p{margin:0}
 .report-game-options .gold-button{max-width:100%;white-space:normal;text-align:center}
+.feedback-form{font:13px/1.5 Verdana,sans-serif}
+.feedback-form textarea{box-sizing:border-box;width:100%;min-height:115px;resize:vertical;padding:10px;border:1px solid #b88638;border-radius:6px;background:#fff9e7;color:#49200e;font:14px/1.5 Verdana,sans-serif}
+.feedback-form label{justify-content:flex-start}
+.feedback-form .check-line input{width:auto}
 [hidden],#hintButton[hidden]{display:none!important}
 .control-bar{min-height:56px;padding:6px 18px}
 .game-app .mascot{width:min(100%,120px);margin-bottom:-12px}

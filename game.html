@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="ABAKU">
-  <link rel="stylesheet" href="./style.css?v=0.1.9-logo1" />
+  <link rel="stylesheet" href="./style.css?v=0.1.10-logo1" />
   <link rel="stylesheet" href="./score-recap.css?v=0.2.15" />
   <link rel="stylesheet" href="./result-dialog.css?v=1" />
   <link rel="stylesheet" href="./analytics.css?v=1" />
@@ -176,9 +176,23 @@
         <button type="button" id="reportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
         <p class="dialog-note">Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
         <p id="reportGameStatus" class="dialog-note" role="status" aria-live="polite"></p>
+        <button type="button" id="reportProblemButton" class="gold-button">Nahlásit problém</button>
       </div>
       <p class="dialog-note">Změna herního režimu začne novou partii. Ostatní nastavení se použije ihned.</p>
       <menu><button value="cancel" class="gold-button">Zrušit</button><button value="save" class="gold-button primary">Uložit</button></menu>
+    </form>
+  </dialog>
+
+  <dialog id="feedbackDialog" aria-labelledby="feedbackTitle">
+    <form class="dialog-body feedback-form" id="feedbackForm">
+      <h2 id="feedbackTitle">Nahlásit problém</h2>
+      <label for="feedbackDescription">Co nefungovalo?</label>
+      <textarea id="feedbackDescription" rows="5" minlength="10" maxlength="1500" required placeholder="Např. po otevření menu nejde kliknout na Uložit…"></textarea>
+      <label class="check-line"><input type="checkbox" id="feedbackAttach"> Přiložit historii partie</label>
+      <p class="dialog-note">Popis problému se zveřejní na GitHubu. Neuváděj v něm osobní údaje. Přiložená historie zůstane soukromá a smaže se po 24 hodinách.</p>
+      <label class="check-line"><input type="checkbox" id="feedbackConsent" required> Souhlasím se zveřejněním popisu.</label>
+      <p id="feedbackStatus" class="dialog-note" role="status" aria-live="polite"></p>
+      <menu><button type="button" id="feedbackCancel" class="gold-button">Zrušit</button><button type="submit" id="feedbackSubmit" class="gold-button primary">Odeslat hlášení</button></menu>
     </form>
   </dialog>
 

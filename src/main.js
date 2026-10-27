@@ -5,13 +5,14 @@ import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2
 import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
   from './player-identity.js?v=1';
-import {ensureAudit,recordAudit,sendLocalReport} from './report-client.js?v=3';
+import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=3';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=1';
 import {reportEligibility,addReportReceipt} from './report-policy.js?v=1';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
 const saveKey = 'retro-abaku-game-v1';
-const VERSION = '0.1.18';
+const VERSION = '0.1.19';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
@@ -543,6 +544,12 @@ async function reportCurrentGame(button,statusElement){
 }
 byId('reportGameButton').addEventListener('click',()=>reportCurrentGame(
   byId('reportGameButton'),byId('reportGameStatus')));
+bindFeedback({buttonId:'reportProblemButton',send:({description,attach})=>{
+  if(attach&&!game.audit?.events?.length)
+    throw new Error('Pro přiložení historie nejdříve odehraj tah, nebo přílohu vypni.');
+  return sendAnonymousFeedback({description,mode:settings.mode,
+    ...(attach?{report:localReport(game,settings.mode)}:{})});
+}});
 byId('offlineReportResultButton').addEventListener('click',()=>reportCurrentGame(
   byId('offlineReportResultButton'),byId('onlineRematchStatus')));
 byId('settingsForm').addEventListener('submit',event=>{

@@ -29,7 +29,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
   assert.match(js,/setAttribute\('aria-expanded',String\(expanded\)\)/);
 });
 test('mobile assets use cache-busted current version',()=>{
-  assert.match(html,/style\.css\?v=0\.1\.9/);
+  assert.match(html,/style\.css\?v=0\.1\.10/);
   assert.match(html,/main\.js\?v=0\.1\.19/);
 });
 

@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="ABAKU">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.22-logo1">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.23-logo1">
   <link rel="stylesheet" href="./online-game.css?v=0.2.18">
   <link rel="stylesheet" href="./result-dialog.css?v=1">
   <link rel="stylesheet" href="./score-recap.css?v=0.2.15">
@@ -329,11 +329,24 @@
       <button type="button" id="onlineReportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
       <p>Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
       <p id="onlineReportGameStatus" role="status" aria-live="polite"></p>
+      <button type="button" id="onlineReportProblemButton" class="gold-button">Nahlásit problém</button>
       <div class="online-game-settings-actions">
         <button type="button" id="onlineSettingsCancel" class="gold-button">Zrušit</button>
         <button type="button" id="onlineSettingsSave" class="gold-button primary">Uložit</button>
       </div>
     </div>
+  </dialog>
+  <dialog id="feedbackDialog" aria-labelledby="feedbackTitle">
+    <form class="dialog-body feedback-form" id="feedbackForm">
+      <h2 id="feedbackTitle">Nahlásit problém</h2>
+      <label for="feedbackDescription">Co nefungovalo?</label>
+      <textarea id="feedbackDescription" rows="5" minlength="10" maxlength="1500" required placeholder="Např. rozložení menu se na telefonu nevejde…"></textarea>
+      <label class="feedback-check-line"><input type="checkbox" id="feedbackAttach"> Přiložit historii partie</label>
+      <p>Popis problému se zveřejní na GitHubu. Neuváděj v něm osobní údaje. Přiložená historie zůstane soukromá a smaže se po 24 hodinách.</p>
+      <label class="feedback-check-line"><input type="checkbox" id="feedbackConsent" required> Souhlasím se zveřejněním popisu.</label>
+      <p id="feedbackStatus" role="status" aria-live="polite"></p>
+      <div class="dialog-actions"><button type="button" id="feedbackCancel" class="gold-button">Zrušit</button><button type="submit" id="feedbackSubmit" class="gold-button primary">Odeslat hlášení</button></div>
+    </form>
   </dialog>
   <dialog id="onlineResultDialog" class="online-result-dialog abaku-result-dialog" aria-labelledby="onlineResultTitle">
     <div class="online-result-inner">

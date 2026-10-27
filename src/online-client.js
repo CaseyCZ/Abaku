@@ -3,6 +3,7 @@ import { describeMovePreview } from './preview.js?v=0.2.24';
 import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.24';
 import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.24';
 import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=1';
+import {bindFeedback} from './feedback-client.js?v=1';
 
 const $=id=>document.getElementById(id);
 const onlineScoreRecap=new ScoreRecap($('onlineDialog'));
@@ -918,6 +919,12 @@ function initializeActions(){
   const inGameSettings=$('onlineGameSettingsDialog');
   $('onlineReportGameButton').addEventListener('click',()=>reportOnlineGame(
     $('onlineReportGameButton'),$('onlineReportGameStatus')));
+  bindFeedback({buttonId:'onlineReportProblemButton',send:({description,attach})=>{
+    if(attach&&!gameState?.matchId)throw new Error('Pro přiložení historie nejdříve zahraj partii.');
+    return api('/api/feedback','POST',{
+      description,mode:'online',...(attach?{matchId:gameState.matchId}:{})
+    });
+  }});
   $('onlineReportResultButton').addEventListener('click',()=>reportOnlineGame(
     $('onlineReportResultButton'),$('onlineReportResultStatus')));
   $('onlineSettingsButton').addEventListener('click',()=>{

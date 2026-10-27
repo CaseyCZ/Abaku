@@ -327,3 +327,29 @@ html[data-arena-layout="stack"] #onlineDialog .online-right .online-panel{max-he
   #onlineDialog .online-header-actions .gold-button{font-size:11px;padding:6px}
   #onlineDialog .online-match-info{display:none}
 }
+
+/* Multipliers should be readable without memorising four shades of blue/gold. */
+.board .cell.bonus-hint:is(.dd,.td,.de,.te),
+#onlineDialog .online-cell.bonus-hint:is(.dd,.td,.de,.te){
+  font-size:clamp(9px,1vw,16px);font-weight:800;letter-spacing:-.04em;
+  text-shadow:none;opacity:1;
+}
+.bonus-guide{
+  width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px;padding:7px 0;border-top:1px solid #345477;
+}
+.bonus-guide span{display:flex;align-items:center;gap:6px;min-width:0;color:#bdcfe4;font-size:11px;line-height:1.25}
+.bonus-key{
+  display:grid;place-items:center;flex:0 0 29px;height:27px;
+  border:1px solid #5c84ad;border-radius:6px;color:#eff7ff;
+  font:800 11px/1 ui-sans-serif,system-ui,sans-serif;
+}
+.bonus-key.dd{background:#275c8d}
+.bonus-key.td{background:#9d762f;border-color:#cbac61;color:#fff2cb}
+.bonus-key.de{background:#244876}
+.bonus-key.te{background:#bd9038;border-color:#d9b45c;color:#142843}
+@media (max-width:1100px) and (orientation:portrait),(max-width:740px){
+  .board .cell.bonus-hint:is(.dd,.td,.de,.te),
+  #onlineDialog .online-cell.bonus-hint:is(.dd,.td,.de,.te){font-size:clamp(9px,2.45vw,17px)}
+  .bonus-guide{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

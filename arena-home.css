@@ -101,3 +101,35 @@
 
 /* Disabled online choices are clearly unavailable while the API is offline. */
 .arena-home .mode-card:disabled{opacity:.5;filter:grayscale(.4);cursor:not-allowed}
+
+/* One visual language for all regular home cards and mobile navigation.
+   Only the saved-match card uses a subtly brighter variant. */
+.arena-home{
+  --home-card-background:linear-gradient(150deg,#1b365c 0%,#0d2342 100%);
+  --home-card-border:#3a5a7e;
+  --home-card-shadow:0 8px 24px rgba(2,10,25,.36);
+}
+.arena-home :is(.mode-card,.side-card,.quick-rules){
+  background:var(--home-card-background);
+  border-color:var(--home-card-border);
+  box-shadow:var(--home-card-shadow);
+}
+.arena-home :is(.site-navigation .header-link,.site-navigation .gold-button,.menu-toggle){
+  background:var(--home-card-background);
+  border-color:var(--home-card-border);
+  box-shadow:var(--home-card-shadow);
+}
+.arena-home .lobby-intro .hero-resume{
+  background:linear-gradient(150deg,#234263 0%,#163153 100%);
+  border-color:#607c9e;
+  box-shadow:var(--home-card-shadow);
+}
+/* Keep interactive affordances and online availability distinct. */
+.arena-home .mode-card:hover{
+  border-color:var(--arena-gold);
+  box-shadow:0 10px 24px #020915,0 0 0 1px #e7bb644a;
+}
+.arena-home :is(.site-navigation .header-link,.site-navigation .gold-button,.menu-toggle):hover:not(:disabled){
+  border-color:var(--arena-gold);
+  background:#264570;
+}

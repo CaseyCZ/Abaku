@@ -30,8 +30,8 @@
 .game-app .top-bar .game-navigation .gold-button{min-height:42px}
 .game-app .top-bar .game-header-score{
   grid-column:1/-1;grid-row:2;
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,max-content) minmax(0,1fr);
-  align-items:center;column-gap:clamp(12px,2vw,24px);
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:center;column-gap:clamp(4px,1vw,12px);
   width:100%;min-width:0;
 }
 .game-app .top-bar .game-header-score .bag-count{
@@ -42,15 +42,15 @@
 }
 .game-app .top-bar .game-header-score .bag-count strong{font-size:18px;color:#fbd477}
 .game-app .top-bar .game-header-score .match-scoreboard{
-  grid-column:2;grid-row:1;justify-self:center;
-  width:max-content;max-width:min(66vw,700px);min-width:0;
+  grid-column:2/4;grid-row:1;justify-self:stretch;
+  width:100%;max-width:100%;min-width:0;
   margin:0;padding:0;
-  display:flex;flex-wrap:nowrap;justify-content:center;
-  align-items:center;gap:clamp(4px,.7vw,10px);
+  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;gap:clamp(2px,.7vw,8px);
 }
 .game-app .top-bar .game-header-score .match-scoreboard .player-card{
-  min-width:0;max-width:100%;width:auto!important;
-  margin:0!important;flex:1 1 0;gap:clamp(3px,.5vw,9px)!important;
+  min-width:0;max-width:100%;width:100%!important;
+  margin:0!important;gap:clamp(3px,.5vw,9px)!important;
 }
 .game-app .top-bar .game-header-score .match-scoreboard .player-name{
   flex:0 1 auto;min-width:0;max-width:clamp(64px,11vw,180px);
@@ -62,7 +62,7 @@
 .game-app .top-bar .game-header-score .match-scoreboard .score strong{
   font-size:clamp(20px,2.2vw,34px);font-variant-numeric:tabular-nums;white-space:nowrap;
 }
-.game-app .top-bar .game-header-score .score-divider{flex:0 0 auto}
+.game-app .top-bar .game-header-score .score-divider{grid-column:2;justify-self:center;flex:0 0 auto}
 
 /* The rack is now the entire control bar; timer and bag count live above the board. */
 .game-app .control-bar .rack-frame{min-width:0}
@@ -74,15 +74,16 @@
   .game-app .top-bar{gap:6px 9px;padding-inline:12px}
   .game-app .top-bar .game-navigation{gap:5px}
   .game-app .top-bar .game-navigation .gold-button{font-size:11px;padding:7px 8px;white-space:nowrap}
-  /* Keep the sack count to the left and the match exactly centered, independently. */
+  /* All three blocks remain on one row: sack | player one | player two. */
   .game-app .top-bar .game-header-score{
-    grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;
-    justify-items:center;row-gap:4px;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:auto;
+    align-items:center;row-gap:0;
   }
   .game-app .top-bar .game-header-score .bag-count{grid-column:1;grid-row:1;justify-self:start}
   .game-app .top-bar .game-header-score .match-scoreboard{
-    grid-column:1;grid-row:2;justify-self:center;
-    width:min(100%,610px);max-width:100%;
+    grid-column:2/4;grid-row:1;justify-self:stretch;
+    width:100%;max-width:100%;
   }
 }
 
@@ -125,13 +126,17 @@
     width:100%;min-height:44px;text-align:left;
     font-size:13px;padding:9px 12px;
   }
-  .game-app .top-bar .game-header-score{grid-column:1/-1;grid-row:2;row-gap:3px;justify-items:center}
+  .game-app .top-bar .game-header-score{
+    grid-column:1/-1;grid-row:2;grid-template-columns:repeat(3,minmax(0,1fr));
+    grid-template-rows:auto;align-items:center;row-gap:0
+  }
   .game-app .top-bar:has(.game-navigation.is-open) .game-header-score{grid-row:3}
   .game-app .top-bar .game-header-score .bag-count{font-size:11px;gap:3px}
   .game-app .top-bar .game-header-score .bag-count strong{font-size:15px}
   /* Always one row: name score : score name. Long names truncate, scores stay whole. */
   .game-app .top-bar .game-header-score .match-scoreboard{
-    display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;
+    display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+    align-items:center;justify-content:stretch;
     min-width:0;gap:clamp(2px,.7vw,6px);
   }
   .game-app .top-bar .game-header-score .match-scoreboard #player0Card{
@@ -158,7 +163,7 @@
   .game-app .control-bar{grid-template-columns:minmax(0,1fr)}
 }
 @media(max-width:370px){
-  .game-app .top-bar .game-header-score{row-gap:4px}
+  .game-app .top-bar .game-header-score{column-gap:3px}
   .game-app .top-bar .game-header-score .bag-count{font-size:10px}
   .game-app .top-bar .game-header-score .match-scoreboard .player-card{padding:4px 3px!important}
   .game-app .top-bar .game-header-score .match-scoreboard .score strong{font-size:clamp(17px,5.1vw,23px)}

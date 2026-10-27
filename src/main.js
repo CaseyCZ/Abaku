@@ -98,19 +98,15 @@ function notify(message, type = '') {
 function clearRecentMove(){
   if(recentMoveTimer!==null)clearTimeout(recentMoveTimer);
   recentMoveTimer=null;recentMove=null;
-  const banner=byId('lastMoveReview');
-  if(banner)banner.hidden=true;
 }
 function showRecentMove(checked,placements,who,onDone=()=>{}){
   clearRecentMove();
   recentMove={
     placed:new Set(placements.map(p=>p.row+':'+p.col)),
     cells:new Set((checked.equationCells||[]).map(p=>p.row+':'+p.col)),
-    label:who+': '+formatEquations(checked.equations)+' · +'+checked.points+' bodů',
     until:Date.now()+3000
   };
   renderBoard();
-  renderRecentMove();
   recentMoveTimer=setTimeout(()=>{
     recentMove=null;recentMoveTimer=null;
     render();
@@ -119,12 +115,6 @@ function showRecentMove(checked,placements,who,onDone=()=>{}){
     // before opening the modal above the board.
     if(game?.finished)setTimeout(showOfflineResult,0);
   },3000);
-}
-function renderRecentMove(){
-  const banner=byId('lastMoveReview');
-  if(!banner)return;
-  banner.hidden=!recentMove||Date.now()>=recentMove.until;
-  if(!banner.hidden)banner.textContent=recentMove.label;
 }
 function save() { try { localStorage.setItem(saveKey, JSON.stringify(game)); } catch {} }
 function freshGame() {
@@ -305,7 +295,7 @@ function render() {
     byId(`player${i}Card`).classList.toggle('active',game.turn===i && !game.finished);
     byId(`player${i}Status`).textContent=game.finished ? 'Konec' : game.turn===i ? 'Na tahu' : 'Čeká';
   }
-  renderSidebar();renderChat();renderMovePreview();renderRecentMove();
+  renderSidebar();renderChat();renderMovePreview();
   byId('hintButton').hidden = settings.mode !== 'bot';
   byId('bagCount').textContent=game.bag.length;
   byId('modeLabel').textContent=settings.mode==='bot' ? `Počítač: ${ {easy:'začátečník',medium:'pokročilý',hard:'expert'}[settings.difficulty] }`:'Dva hráči';

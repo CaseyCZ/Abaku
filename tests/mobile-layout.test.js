@@ -49,8 +49,10 @@ test('local offline games default to 60 seconds, including old 90-second default
   assert.match(js,/Number\(settings\.time\)===90\)settings\.time=60/);
 });
 
-test('accepted offline move shows full equation and highlighted board tiles for three seconds',()=>{
-  assert.match(html,/id="lastMoveReview"/);
+test('accepted offline move shows one message and highlights board tiles for three seconds',()=>{
+  assert.doesNotMatch(html,/id="lastMoveReview"/);
+  assert.match(html,/id="mobileGameMessage"/);
+  assert.match(js,/mobileMessage\.textContent = message/);
   assert.match(js,/formatEquations\(last\.examples,10\)/);
   assert.match(js,/formatEquations\(entry\.examples,2\)/);
   assert.match(js,/showRecentMove\(checked,placements,who,\(\)=>\{/);

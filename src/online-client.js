@@ -347,6 +347,9 @@ function refreshUnreadChat(){
   }
 }
 function revealOnlineChat(){
+  // In maximum-board mode, reveal the overlay before scrolling to messages.
+  $('onlineDialog').classList.add('panel-open');
+  $('onlineInfoToggle').setAttribute('aria-expanded','true');
   const panel=$('onlinePanelChat').closest('.online-panel');
   panel.classList.add('mobile-expanded');
   const toggle=panel.querySelector('.online-panel-toggle');
@@ -736,6 +739,7 @@ function renderOnlineProgress(s){
   track.replaceChildren(fragment);
 }
 function renderOnlineStatus(s){
+  $('onlineMatchScoreboard').hidden=false;
   const label=side=>onlinePlayerName(side);
   $('onlineTurnName').textContent=s.finished?'Partie skončila':label(s.turn);
   for(let side=0;side<2;side++){
@@ -819,8 +823,15 @@ function renderOnline(){
     rack.append(tile);
   }
   const preview=describeMovePreview(s.board,pending,s.finished);
+  $('onlinePreview').dataset.state=preview.state;
+  $('onlineBoard').dataset.moveState=preview.state;
+  const confirm=$('onlineConfirm');
+  confirm.dataset.state=preview.state;
+  confirm.title=preview.state==='valid'?'Potvrdit tah za '+preview.points+' bodů':preview.state==='invalid'?preview.detail:'Nejprve polož kameny';
+  confirm.setAttribute('aria-label',confirm.title);
+  $('onlineUndo').dataset.hasPending=String(pending.length>0||exchanging||selectedExchange.size>0);
   $('onlinePreview').textContent=preview.state==='valid'?('+'+preview.points+' bodů · '+preview.detail):preview.detail;
-  $('onlineConfirm').disabled=!canPlay||preview.state!=='valid';
+  confirm.disabled=!canPlay||preview.state!=='valid';
   $('onlineUndo').disabled=!canPlay||(!pending.length&&!exchanging);
   $('onlinePass').disabled=!canPlay;
   $('onlineExchange').disabled=!canPlay;

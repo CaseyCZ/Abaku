@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { emptyBoard, makeBag, drawTiles, validateMove } from '../src/rules.js';
+import {reportEligibility,addReportReceipt} from '../src/report-policy.js';
 
 const RACK_SIZE = 5;
 const MAX_CHAT = 160;
@@ -85,7 +86,8 @@ export class MatchEngine {
         mySide:me,rack:match.players[me].rack,turn:match.turn,turns:match.turns,
         bagCount:match.bag.length,seconds:match.seconds,deadline:match.deadline,
         lastMove:match.lastMove||null,history:(match.history||[]).slice(-6),finished:match.finished,
-        winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason:match.reason});
+        winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason:match.reason,
+        auditRevision:match.auditRevision||0,reportStatus:this.reportStatus(uid,match)});
     } else this.sendTo(uid,{type:'lobby',queued:this.queue.some(q=>q.uid===uid)});
   }
   joinRandom(uid, seconds=60) {
@@ -138,7 +140,7 @@ export class MatchEngine {
     const match={id:'m'+(++this.nextId),players,board:emptyBoard(),bag,
       turn:0,turns:0,passStreak:0,seconds:legalTime(seconds),
       deadline:this.clock()+legalTime(seconds)*1000,finished:false,winner:null,reason:null,endedAt:null,
-      auditEvents:[]};
+      auditEvents:[],auditRevision:0,reportReceipts:new Map(),reportPending:new Map()};
     this.matches.set(match.id,match);
     this.byPlayer.set(uidA,match);this.byPlayer.set(uidB,match);
     for(const uid of [uidA,uidB]) {this.sendTo(uid,{type:'match-start',matchId:match.id});this.sync(uid);}
@@ -283,12 +285,39 @@ export class MatchEngine {
       match.auditEvents.splice(index,1);
     }
     match.auditEvents.push(event);
+    match.auditRevision++;
+  }
+  reportStatus(uid,match=this.matchOf(uid)){
+    if(!match)return {kind:'ready'};
+    return reportEligibility(match.reportReceipts?.get(uid),match.auditRevision||0,
+      match.finished,this.clock());
+  }
+  async submitReport(uid,matchId,save){
+    const match=this.matchOf(uid);
+    if(!match||match.id!==matchId||!match.players.some(p=>p.uid===uid))
+      throw new Error('Partie není dostupná.');
+    if(match.reportPending.has(uid))return match.reportPending.get(uid);
+    const state=this.reportStatus(uid,match);
+    if(state.kind==='sent')return {id:state.id,alreadySent:true};
+    if(state.kind==='limit')throw new Error('Byl dosažen limit průběžných kontrol této partie. Závěrečnou kontrolu lze stále odeslat.');
+    if(state.kind==='cooldown')throw new Error('Další průběžnou kontrolu můžeš odeslat za dvě minuty.');
+    const snapshot=structuredClone(this.reportFor(uid,matchId));
+    const revision=match.auditRevision||0,finished=match.finished;
+    const pending=Promise.resolve().then(()=>save(snapshot)).then(result=>{
+      match.reportReceipts.set(uid,addReportReceipt(
+        match.reportReceipts.get(uid),result.id,revision,finished,this.clock()));
+      this.sync(uid);
+      return {...result,reportRevision:revision,reportFinished:finished};
+    }).finally(()=>match.reportPending.delete(uid));
+    match.reportPending.set(uid,pending);
+    return pending;
   }
   reportFor(uid,matchId){
     const match=this.matchOf(uid);
     if(!match||match.id!==matchId||!match.players.some(p=>p.uid===uid))
       throw new Error('Partie není dostupná.');
     return {mode:'online',ruleset:'classic-powers-roots',partial:Boolean(match.auditPartial),
+      finished:Boolean(match.finished),
       initialBoard:emptyBoard(),initialScores:[0,0],events:match.auditEvents,
       finalBoard:match.board,finalScores:match.players.map(p=>p.score)};
   }

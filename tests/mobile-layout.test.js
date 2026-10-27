@@ -30,7 +30,7 @@ test('status and chat panels expand on demand but keep desktop elements',()=>{
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.9/);
-  assert.match(html,/main\.js\?v=0\.1\.18/);
+  assert.match(html,/main\.js\?v=0\.1\.19/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{

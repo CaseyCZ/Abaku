@@ -92,6 +92,8 @@ test('records are private JSON with 24-hour expiry and no arbitrary client field
   const report=gameReport();
   report.email='never save this';
   const saved=await store.submit(report);
+  const duplicates=await Promise.all([store.submit(report),store.submit(report)]);
+  assert.ok(duplicates.every(item=>item.id===saved.id));
   const path=join(dir,saved.id+'.json');
   const raw=await readFile(path,'utf8');
   assert.ok(!raw.includes('never save this'));
@@ -99,9 +101,14 @@ test('records are private JSON with 24-hour expiry and no arbitrary client field
   assert.equal((await store.list()).length,1);
   assert.equal((await store.get(saved.id)).result.ok,true);
   assert.equal(saved.expiresAt,now+REPORT_TTL_MS);
+  const finals=await Promise.all(Array.from({length:3},()=>store.submit({...report,finished:true})));
+  const final=finals[0];
+  assert.ok(finals.every(item=>item.id===final.id),'concurrent duplicates share one stored record');
+  assert.notEqual(final.id,saved.id,'the full end-of-game report is distinct from an earlier snapshot');
   await utimes(path,new Date(now),new Date(now));
+  await utimes(join(dir,final.id+'.json'),new Date(now),new Date(now));
   now+=REPORT_TTL_MS+1000;
-  assert.equal(await store.cleanup(),1);
+  assert.equal(await store.cleanup(),2);
   assert.equal((await store.list()).length,0);
   await assert.rejects(()=>store.get('../escape'),/Neplatné/);
 });

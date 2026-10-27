@@ -1,27 +1,33 @@
-import {randomUUID} from 'node:crypto';
+import {createHash} from 'node:crypto';
 import {chmod,mkdir,readdir,readFile,stat,unlink,writeFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import {auditReport} from './report-audit.js';
 
 export const REPORT_TTL_MS=24*60*60*1000;
 const ID_PATTERN=/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i;
+function idFor(report){
+  // Same anonymized board, events and scores => same private file for 24 hours.
+  const hash=createHash('sha256').update(JSON.stringify(report)).digest('hex');
+  const variant=((parseInt(hash[16],16)&3)|8).toString(16);
+  return `${hash.slice(0,8)}-${hash.slice(8,12)}-5${hash.slice(13,16)}-${variant}${hash.slice(17,20)}-${hash.slice(20,32)}`;
+}
+function confirmation(item){
+  return {id:item.id,expiresAt:item.expiresAt,...item.summary};
+}
 
 export class ReportStore{
   constructor({directory,clock=()=>Date.now()}={}){
     if(!directory)throw new Error('Chybí soukromá složka pro kontrolu partií.');
     this.directory=directory;
     this.clock=clock;
+    this.pending=new Map();
   }
   async prepare(){await mkdir(this.directory,{recursive:true,mode:0o700});await chmod(this.directory,0o700);}
   async submit(report){
     const result=auditReport(report);
-    await this.prepare();
-    await this.cleanup();
-    if((await readdir(this.directory)).filter(name=>name.endsWith('.json')).length>=500)
-      throw new Error('Úložiště kontrol je dočasně plné. Zkus to později.');
-    const id=randomUUID(),createdAt=this.clock();
     // Do not persist arbitrary client keys, account data or chat.
     const safe={mode:report.mode,ruleset:report.ruleset,partial:report.partial,
+      finished:report.finished===true,
       initialBoard:report.initialBoard,initialScores:report.initialScores,
       events:report.events.map(event=>event.type==='move'?{
         type:'move',player:event.player,accepted:event.accepted,
@@ -32,11 +38,35 @@ export class ReportStore{
           })):[]}:{}),
       }:{type:event.type,player:event.player}),
       finalBoard:report.finalBoard,finalScores:report.finalScores};
+    const id=idFor(safe);
+    if(this.pending.has(id))return this.pending.get(id);
+    const pending=this.persist(id,safe,result);
+    this.pending.set(id,pending);
+    try{return await pending;}
+    finally{this.pending.delete(id);}
+  }
+  async persist(id,safe,result){
+    await this.prepare();
+    await this.cleanup();
+    const path=join(this.directory,id+'.json');
+    try{return confirmation(JSON.parse(await readFile(path,'utf8')));}
+    catch(error){if(error.code!=='ENOENT')throw error;}
+    if((await readdir(this.directory)).filter(name=>name.endsWith('.json')).length>=500)
+      throw new Error('Úložiště kontrol je dočasně plné. Zkus to později.');
+    const createdAt=this.clock();
     const record={id,createdAt,expiresAt:createdAt+REPORT_TTL_MS,
       summary:{mode:safe.mode,checkedMoves:result.checkedMoves,events:result.events,
         issues:result.issues.length,ok:result.ok},result,report:safe};
-    await writeFile(join(this.directory,id+'.json'),JSON.stringify(record),{encoding:'utf8',flag:'wx',mode:0o600});
-    return {id,expiresAt:record.expiresAt,...record.summary};
+    try{await writeFile(path,JSON.stringify(record),{encoding:'utf8',flag:'wx',mode:0o600});}
+    catch(error){
+      if(error.code!=='EEXIST')throw error;
+      // A simultaneous submission may still be finishing its first write.
+      for(let attempt=0;attempt<5;attempt++){
+        try{return confirmation(JSON.parse(await readFile(path,'utf8')));}
+        catch(readError){if(attempt===4)throw readError;await new Promise(resolve=>setTimeout(resolve,25));}
+      }
+    }
+    return confirmation(record);
   }
   async cleanup(){
     await this.prepare();

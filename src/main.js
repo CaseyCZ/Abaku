@@ -5,7 +5,8 @@ import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2
 import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
   from './player-identity.js?v=1';
-import {ensureAudit,recordAudit,sendLocalReport} from './report-client.js?v=2';
+import {ensureAudit,recordAudit,sendLocalReport} from './report-client.js?v=3';
+import {reportEligibility,addReportReceipt} from './report-policy.js?v=1';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-abaku-settings-v1';
@@ -33,6 +34,8 @@ let exchangeMode = false;
 let exchangeIndices = new Set();
 let deadline = null;
 let botBusy = false;
+let reportSubmitting = false;
+let reportRefreshTimer = null;
 let messageType = '';
 let recentMove = null;
 let recentMoveTimer = null;
@@ -288,6 +291,7 @@ function render() {
   for(const id of ['hintButton','exchangeButton','passButton','confirmButton','undoButton']) byId(id).disabled=busy;
   byId('confirmButton').disabled=busy||!pending.length;
   byId('exchangeButton').textContent=exchangeMode ? `Potvrdit výměnu (${exchangeIndices.size})`:'Vyměnit';
+  updateReportButtons();
 }
 
 boardElement.addEventListener('click',event=>{
@@ -336,7 +340,9 @@ function showOfflineResult(){
   byId('onlineResultScore0').textContent=String(first);
   byId('onlineResultScore1').textContent=String(second);
   byId('onlineResultReason').textContent=game.finishReason||'Partie skončila podle pravidel.';
-  byId('onlineRematchStatus').textContent='Můžeš rovnou začít další partii.';
+  byId('onlineRematchStatus').textContent=reportEligibility(
+    game.reportReceipts,game.audit.revision,game.finished).kind==='sent'
+    ?'Partie již byla odeslána ke kontrole.':'Můžeš rovnou začít další partii.';
   byId('onlineRematch').hidden=false;
   byId('onlineRematch').disabled=false;
   dialog.showModal();
@@ -488,17 +494,52 @@ byId('settingsButton').addEventListener('click',()=>{
   byId('modeSetting').value=settings.mode;byId('difficultySetting').value=settings.difficulty;
   byId('timeSetting').value=String(settings.time);byId('soundSetting').checked=settings.sound;
   byId('scoreRecapSecondsSetting').value=String(getRecapSeconds());
+  updateReportButtons();
   byId('settingsDialog').showModal();
 });
+function updateReportButtons(){
+  if(!game)return;
+  const state=reportEligibility(game.reportReceipts,game.audit?.revision||0,game.finished);
+  const label=state.kind==='sent'?'Již bylo odesláno'
+    :state.kind==='limit'?'Limit kontrol dosažen'
+    :state.kind==='cooldown'?`Znovu za ${Math.max(1,Math.ceil((state.retryAt-Date.now())/1000))} s`
+    :'Odeslat partii ke kontrole';
+  for(const id of ['reportGameButton','offlineReportResultButton']){
+    const button=byId(id);
+    button.disabled=reportSubmitting||state.kind!=='ready';
+    button.textContent=label;
+  }
+  if(state.kind==='cooldown'&&!reportRefreshTimer){
+    reportRefreshTimer=setTimeout(()=>{
+      reportRefreshTimer=null;
+      updateReportButtons();
+    },Math.max(0,state.retryAt-Date.now())+100);
+  }
+}
 async function reportCurrentGame(button,statusElement){
-  if(button.disabled)return;
-  button.disabled=true;
+  if(reportSubmitting)return;
+  const state=reportEligibility(game.reportReceipts,game.audit?.revision||0,game.finished);
+  if(state.kind!=='ready'){
+    statusElement.textContent=state.kind==='sent'?'Partie v tomto stavu již byla odeslána.'
+      :'Další kontrola bude dostupná později.';
+    updateReportButtons();
+    return;
+  }
+  const reportedGame=game;
+  const reportedMode=settings.mode;
+  const revision=game.audit?.revision||0;
+  const finished=game.finished;
+  reportSubmitting=true;
+  updateReportButtons();
   statusElement.textContent='Odesílám partii…';
   try{
-    const result=await sendLocalReport(game,settings.mode);
+    const result=await sendLocalReport(reportedGame,reportedMode);
+    reportedGame.reportReceipts=addReportReceipt(
+      reportedGame.reportReceipts,result.id,revision,finished);
+    if(game===reportedGame)save();
     statusElement.textContent=`Partie odeslána ke kontrole (č. ${result.id.slice(0,8)}).`;
   }catch(error){statusElement.textContent=error.message||'Odeslání se nezdařilo.';}
-  finally{button.disabled=false;}
+  finally{reportSubmitting=false;updateReportButtons();}
 }
 byId('reportGameButton').addEventListener('click',()=>reportCurrentGame(
   byId('reportGameButton'),byId('reportGameStatus')));

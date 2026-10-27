@@ -51,6 +51,7 @@ function clearSavedCredential(){
   clearVerifiedOnlineProfile();
 }
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
+let reportSubmitting=false,reportRefreshTimer=null;
 let onlineName='Hráč';
 let recentOnlineMove=null;
 let recentOnlineMoveId=null;
@@ -165,16 +166,47 @@ async function api(path,method='GET',data){
   }
   return json;
 }
+function updateOnlineReportButtons(){
+  const status=gameState?.reportStatus||{kind:'ready'};
+  const kind=status.kind==='cooldown'&&Date.now()>=status.retryAt?'ready':status.kind;
+  const label=kind==='sent'?'Již bylo odesláno'
+    :kind==='limit'?'Limit kontrol dosažen'
+    :kind==='cooldown'?`Znovu za ${Math.max(1,Math.ceil((status.retryAt-Date.now())/1000))} s`
+    :'Odeslat partii ke kontrole';
+  for(const id of ['onlineReportGameButton','onlineReportResultButton']){
+    const button=$(id);
+    button.disabled=reportSubmitting||kind!=='ready';
+    button.textContent=label;
+  }
+  if(kind==='cooldown'&&!reportRefreshTimer){
+    reportRefreshTimer=setTimeout(()=>{
+      reportRefreshTimer=null;
+      updateOnlineReportButtons();
+    },Math.max(0,status.retryAt-Date.now())+100);
+  }
+}
 async function reportOnlineGame(button,statusElement){
-  if(button.disabled)return;
+  if(reportSubmitting)return;
   if(!gameState?.matchId){statusElement.textContent='Nejdříve zahraj partii.';return;}
-  button.disabled=true;
+  const status=gameState.reportStatus;
+  if(status?.kind==='sent'){
+    statusElement.textContent='Partie v tomto stavu již byla odeslána.';
+    updateOnlineReportButtons();
+    return;
+  }
+  const matchId=gameState.matchId;
+  reportSubmitting=true;
+  updateOnlineReportButtons();
   statusElement.textContent='Odesílám partii…';
   try{
-    const result=await api('/api/reports/online','POST',{matchId:gameState.matchId});
+    const result=await api('/api/reports/online','POST',{matchId});
+    if(gameState?.matchId===matchId&&gameState.auditRevision===result.reportRevision&&
+       gameState.finished===result.reportFinished&&
+       (!gameState.reportStatus||gameState.reportStatus.kind==='ready'))
+      gameState.reportStatus={kind:'sent',id:result.id};
     statusElement.textContent=`Partie odeslána ke kontrole (č. ${result.id.slice(0,8)}).`;
   }catch(error){statusElement.textContent=error.message||'Odeslání se nezdařilo.';}
-  finally{button.disabled=false;}
+  finally{reportSubmitting=false;updateOnlineReportButtons();}
 }
 function googleSdk(){
   return new Promise((resolve,reject)=>{
@@ -730,6 +762,7 @@ function renderOnlineStatus(s){
 }
 function renderOnline(){
   if(!gameState)return;
+  updateOnlineReportButtons();
   const s=gameState;
   const info=$('onlineScore');
   info.textContent='Hráč 1: '+s.players[0].score+' · Hráč 2: '+s.players[1].score+' · V sáčku: '+s.bagCount+' · Čas na tah: '+(s.seconds||60)+' s';
@@ -889,6 +922,7 @@ function initializeActions(){
     $('onlineReportResultButton'),$('onlineReportResultStatus')));
   $('onlineSettingsButton').addEventListener('click',()=>{
     $('onlineGameRecapSeconds').value=String(getRecapSeconds());
+    updateOnlineReportButtons();
     if(!inGameSettings.open)inGameSettings.showModal();
   });
   $('onlineSettingsCancel').addEventListener('click',()=>{

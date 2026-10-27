@@ -168,7 +168,8 @@ const http=createServer(async(request,response)=>{
       if(reportLimited(request.socket.remoteAddress||'unknown'))
         return respond(response,429,{error:'Příliš mnoho odeslaných partií. Zkus to později.'});
       const data=await body(request);
-      return respond(response,201,await reportStore.submit(engine.reportFor(uid,data?.matchId)));
+      return respond(response,201,await engine.submitReport(uid,data?.matchId,
+        report=>reportStore.submit(report)));
     }
     if(request.method==='DELETE'&&pathname==='/api/session'){
       const bearer=request.headers.authorization||'';

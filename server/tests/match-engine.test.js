@@ -40,6 +40,37 @@ test('six consecutive passes finish and update statistics exactly once',()=>{
   game.tick();
   assert.equal(results.length,1);
 });
+test('online reports accept a few partial snapshots and exactly one final report',async()=>{
+  const {game,setTime,out}=rig();
+  game.connect('a');game.connect('b');
+  const match=game.createMatch('a','b');
+  let saved=0;
+  const save=async()=>({id:'audit-'+(++saved)});
+  game.pass('a');
+  const first=await game.submitReport('a',match.id,save);
+  const repeated=await game.submitReport('a',match.id,save);
+  assert.equal(repeated.id,first.id);
+  assert.equal(saved,1);
+  assert.equal(game.reportStatus('a').kind,'sent');
+  setTime(100000+120000);
+  match.deadline=100000+120000+60000;
+  game.pass('b');
+  await game.submitReport('a',match.id,save);
+  setTime(100000+240000);
+  match.deadline=100000+240000+60000;
+  game.pass('a');
+  await game.submitReport('a',match.id,save);
+  game.pass('b');
+  assert.equal(game.reportStatus('a').kind,'limit');
+  game.pass('a');game.pass('b');
+  assert.equal(match.finished,true);
+  assert.equal(game.reportStatus('a').kind,'ready');
+  const final=await game.submitReport('a',match.id,save);
+  assert.equal((await game.submitReport('a',match.id,save)).id,final.id);
+  assert.equal(saved,4);
+  assert.equal(game.reportStatus('a').kind,'sent');
+  assert.ok(out.some(event=>event.uid==='a'&&event.type==='match-state'&&event.reportStatus?.kind==='sent'));
+});
 test('invite codes are time-limited and never permit self play',()=>{
   const {game,setTime}=rig();
   game.connect('a');game.connect('b');

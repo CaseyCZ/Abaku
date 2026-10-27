@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.15';
+export const APP_VERSION = '0.2.16';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.16',
+    date: '27. 10. 2026',
+    description: 'Jména a skóre hráčů na jednom řádku i na telefonu; dlouhá jména se podle místa zkrátí.'
+  },
   {
     version: '0.2.15',
     date: '27. 10. 2026',

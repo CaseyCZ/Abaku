@@ -45,11 +45,11 @@
   grid-column:2;grid-row:1;justify-self:center;
   width:max-content;max-width:min(66vw,700px);min-width:0;
   margin:0;padding:0;
-  display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  display:flex;flex-wrap:nowrap;justify-content:center;
   align-items:center;gap:clamp(4px,.7vw,10px);
 }
 .game-app .top-bar .game-header-score .match-scoreboard .player-card{
-  min-width:0;max-width:100%;width:100%!important;
+  min-width:0;max-width:100%;width:auto!important;
   margin:0!important;flex:1 1 0;gap:clamp(3px,.5vw,9px)!important;
 }
 .game-app .top-bar .game-header-score .match-scoreboard .player-name{
@@ -62,7 +62,7 @@
 .game-app .top-bar .game-header-score .match-scoreboard .score strong{
   font-size:clamp(20px,2.2vw,34px);font-variant-numeric:tabular-nums;white-space:nowrap;
 }
-.game-app .top-bar .game-header-score .score-divider{grid-column:2;flex:none}
+.game-app .top-bar .game-header-score .score-divider{flex:0 0 auto}
 
 /* The rack is now the entire control bar; timer and bag count live above the board. */
 .game-app .control-bar .rack-frame{min-width:0}
@@ -129,33 +129,39 @@
   .game-app .top-bar:has(.game-navigation.is-open) .game-header-score{grid-row:3}
   .game-app .top-bar .game-header-score .bag-count{font-size:11px;gap:3px}
   .game-app .top-bar .game-header-score .bag-count strong{font-size:15px}
-  .game-app .top-bar .game-header-score .match-scoreboard{gap:6px}
-  .game-app .top-bar .game-header-score .match-scoreboard .player-card,
+  /* Always one row: name score : score name. Long names truncate, scores stay whole. */
+  .game-app .top-bar .game-header-score .match-scoreboard{
+    display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;
+    min-width:0;gap:clamp(2px,.7vw,6px);
+  }
+  .game-app .top-bar .game-header-score .match-scoreboard #player0Card{
+    flex-direction:row;justify-content:flex-end;min-width:0;
+    min-height:42px;padding:4px 5px!important;gap:clamp(2px,.7vw,5px)!important;
+  }
   .game-app .top-bar .game-header-score .match-scoreboard #player1Card{
-    flex-direction:column;justify-content:center;min-width:0;
-    min-height:54px;padding:5px 7px!important;gap:3px!important;
+    flex-direction:row-reverse;justify-content:flex-start;min-width:0;
+    min-height:42px;padding:4px 5px!important;gap:clamp(2px,.7vw,5px)!important;
   }
   .game-app .top-bar .game-header-score .match-scoreboard .player-name{
-    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
-    width:100%;max-width:100%;min-width:0;
-    white-space:normal;overflow:hidden;overflow-wrap:anywhere;text-overflow:clip;
+    display:block;flex:0 1 auto;max-width:none;min-width:0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     font-size:clamp(10px,2.65vw,13px)!important;line-height:1.2;
     text-align:center!important;
   }
   .game-app .top-bar .game-header-score .match-scoreboard .score{
-    justify-content:center;max-width:100%;
+    flex:0 0 auto;justify-content:center;min-width:0;max-width:100%;
   }
   .game-app .top-bar .game-header-score .match-scoreboard .score strong{
-    font-size:clamp(20px,5vw,30px);
+    font-size:clamp(19px,5vw,28px);white-space:nowrap;
   }
-  .game-app .top-bar .game-header-score .score-divider{font-size:19px}
+  .game-app .top-bar .game-header-score .score-divider{font-size:19px;line-height:1}
   .game-app .control-bar{grid-template-columns:minmax(0,1fr)}
 }
 @media(max-width:370px){
   .game-app .top-bar .game-header-score{row-gap:4px}
   .game-app .top-bar .game-header-score .bag-count{font-size:10px}
   .game-app .top-bar .game-header-score .match-scoreboard .player-card{padding:4px 3px!important}
-  .game-app .top-bar .game-header-score .match-scoreboard .score strong{font-size:clamp(18px,5.6vw,24px)}
+  .game-app .top-bar .game-header-score .match-scoreboard .score strong{font-size:clamp(17px,5.1vw,23px)}
   .game-app .top-bar .game-menu-toggle{min-width:74px;padding:7px}
 }
 

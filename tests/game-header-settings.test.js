@@ -62,7 +62,8 @@ test('local match settings mirror the compact homepage without changing setting 
   assert.match(main,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
   assert.match(css,/#settingsDialog \.game-settings-fields\{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css,/#settingsDialog \.game-settings-toggles\{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(game,/src\/version-ui\.js\?v=0\.2\.13/);
+  const currentVersion=JSON.parse(read('../package.json')).version;
+  assert.ok(game.includes('src/version-ui.js?v='+currentVersion));
 });
 
 test('bag count sits on the left, with breathing room before the scoreboard',()=>{

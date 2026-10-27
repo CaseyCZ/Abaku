@@ -5,7 +5,7 @@ export const RELEASE_HISTORY = Object.freeze([
   {
     version: '0.2.10',
     date: '27. 10. 2026',
-    description: 'Sjednocení herních textů: namísto kamenů používáme čísla na hlavní stránce, ve hře i v návodu.'
+    description: 'Sjednocení názvosloví: na hlavní stránce, ve hře i v návodu používáme označení čísla.'
   },
   {
     version: '0.2.9',

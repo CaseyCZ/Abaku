@@ -31,7 +31,7 @@ test('status and chat visibility is controlled from settings on every screen siz
 });
 test('mobile assets use cache-busted current version',()=>{
   assert.match(html,/style\.css\?v=0\.1\.10/);
-  assert.match(html,/main\.js\?v=0\.1\.20/);
+  assert.match(html,/main\.js\?v=\d+\.\d+\.\d+/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{

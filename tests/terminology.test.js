@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const pages=['index.html','game.html','how-to-play.html','privacy.html','README.md'];
-const messaging=['src/main.js','src/online-client.js','src/rules.js','src/tutorial.js','src/preview.js','server/match-engine.js'];
+const messaging=['src/main.js','src/online-client.js','src/rules.js','src/tutorial.js','src/preview.js','server/match-engine.js','src/version-data.js'];
 const oldTerms=/kámen|kamen(?:y|ů|e|em|i|ů|ům|ech|y)?/iu;
 
 test('game screens, tutorial and player-facing errors consistently call pieces numbers',()=>{

@@ -60,9 +60,23 @@ test('rulesets are kept separate so future powers do not mislabel the old game',
   assert.equal(auditReport(report).ok,true);
 });
 
+test('strict rules reject 9724 as a whole while historical checks keep their original scoring',()=>{
+  const placed=placements('9724');
+  const board=emptyBoard();
+  for(const p of placed)board[p.row][p.col]=p.digit;
+  const report={mode:'bot',ruleset:'classic-powers-roots-strict',partial:false,
+    initialBoard:emptyBoard(),initialScores:[0,0],
+    events:[{type:'move',player:0,accepted:true,placements:placed,
+      points:60,equations:['972','24']}],
+    finalBoard:board,finalScores:[60,0]};
+  assert.ok(auditReport(report).issues.some(i=>i.type==='accepted-invalid'));
+  report.ruleset='classic-powers-roots';
+  assert.equal(auditReport(report).ok,true,'the old stored game was valid under its own version');
+});
+
 test('independent checker agrees with actual powers and roots and their bonus scores',()=>{
-  for(const digits of ['24','42','273','749','8512']){
-    const report=gameReport(digits,'classic-powers-roots');
+  for(const digits of ['24','42','273','749','8512','1248']){
+    const report=gameReport(digits,'classic-powers-roots-strict');
     assert.equal(auditReport(report).ok,true,`${digits}: ${JSON.stringify(auditReport(report).issues)}`);
   }
 });

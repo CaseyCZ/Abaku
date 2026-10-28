@@ -20,7 +20,7 @@ function operation(digits,ruleset){
       }
     }
   }
-  if(ruleset!=='classic-powers-roots')return null;
+  if(!['classic-powers-roots','classic-powers-roots-strict'].includes(ruleset))return null;
   for(let i=1;i<digits.length;i++){
     const left=digits.slice(0,i),right=digits.slice(i);
     if((left.length>1&&left[0]==='0')||(right.length>1&&right[0]==='0'))continue;
@@ -71,10 +71,16 @@ function inspect(board,placed,ruleset){
     board[p.row+dr]?.[p.col+dc]!==undefined&&board[p.row+dr][p.col+dc]!==null)))return {valid:false};
   const expressions=[];
   const allRows=new Set(placed.map(p=>p.row)),allCols=new Set(placed.map(p=>p.col));
+  const strict=ruleset==='classic-powers-roots-strict';
   for(const [axis,indices] of [['row',allRows],['col',allCols]]){
     for(const index of indices){
       let run=[];
       const collect=()=>{
+        if(strict){
+          if(run.length<2||!run.some(p=>keys.has(cellId(p.row,p.col))))return true;
+          const sequence=run.map(p=>p.digit).join('');
+          if(!operation(sequence,ruleset))return false;
+        }
         for(let start=0;start<run.length;start++)for(let end=start+2;end<=Math.min(run.length,start+9);end++){
           const cells=run.slice(start,end);
           if(!cells.some(p=>keys.has(cellId(p.row,p.col))))continue;
@@ -82,12 +88,13 @@ function inspect(board,placed,ruleset){
           const equation=operation(sequence,ruleset);
           if(equation)expressions.push({cells,sequence,equation});
         }
+        return true;
       };
       for(let i=0;i<=SIZE;i++){
         const row=axis==='row'?index:i,col=axis==='row'?i:index;
         const value=i<SIZE?after[row][col]:null;
         if(value!==null)run.push({row,col,digit:value});
-        else if(run.length){collect();run=[];}
+        else if(run.length){if(!collect())return {valid:false};run=[];}
       }
     }
   }
@@ -119,7 +126,7 @@ function inspect(board,placed,ruleset){
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 export function auditReport(input){
   if(!input||!['bot','local','online'].includes(input.mode)||
-    !['legacy-0.2','classic-powers-roots'].includes(input.ruleset)||
+    !['legacy-0.2','classic-powers-roots','classic-powers-roots-strict'].includes(input.ruleset)||
     !isBoard(input.initialBoard)||!isBoard(input.finalBoard)||
     !isScores(input.initialScores)||!isScores(input.finalScores)||
     !Array.isArray(input.events)||input.events.length<1||input.events.length>MAX_EVENTS||

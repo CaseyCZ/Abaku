@@ -1,6 +1,6 @@
 import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
 
-export const REPORT_RULESET='classic-powers-roots';
+export const REPORT_RULESET='classic-powers-roots-strict';
 export function ensureAudit(game){
   if(game.audit?.ruleset===REPORT_RULESET&&Array.isArray(game.audit.events)){
     if(!Number.isSafeInteger(game.audit.revision))game.audit.revision=game.audit.events.length;

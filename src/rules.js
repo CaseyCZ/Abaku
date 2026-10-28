@@ -103,25 +103,6 @@ function getRuns(board, axis, index) {
   return runs;
 }
 
-// An existing completed example can lend its final result to the next example.
-// E.g. 5611 (5 + 6 = 11) followed by 29 creates 1129 (11 - 2 = 9).
-// A continuation can also be a two-digit power/root: a new turn appending 4
-// to an older 112 creates 24 (2² = 4). Placing 1124 all at once is invalid.
-function isValidLinkedRun(run, newIds) {
-  const firstNew = run.findIndex(p => newIds.has(id(p.row, p.col)));
-  if (firstNew < 2 || !run.slice(firstNew).every(p => newIds.has(id(p.row, p.col)))) return false;
-  const old = run.slice(0, firstNew).map(p => p.digit).join('');
-  const added = run.slice(firstNew).map(p => p.digit).join('');
-  for (let start = 0; start < old.length - 1; start++) {
-    const ending = old.slice(start);
-    const equation = formatEquation(ending);
-    if (!equation) continue;
-    const result = equation.match(/= (\d+)$/)?.[1];
-    if (result && ending.endsWith(result) && readsAsEquation(result + added)) return true;
-  }
-  return false;
-}
-
 function findNewEquations(board, newIds) {
   const rows = new Set();
   const cols = new Set();
@@ -134,10 +115,8 @@ function findNewEquations(board, newIds) {
     for (const index of indices) {
       for (const run of getRuns(board, axis, index)) {
         if (run.length < 2 || !run.some(p => newIds.has(id(p.row,p.col)))) continue;
-        // The entire line must work, or the new digits must continue an
-        // existing example from its final result (without re-scoring it).
-        const text = run.map(p => p.digit).join('');
-        if (!readsAsEquation(text) && !isValidLinkedRun(run, newIds)) return null;
+        // Older digits can extend beyond the new example. Scan every
+        // contiguous subrange, but score only examples using a new tile.
         for (let start = 0; start < run.length; start++) {
           for (let end = start + 2; end <= Math.min(run.length, start + 9); end++) {
             const cells = run.slice(start, end);
@@ -182,12 +161,13 @@ export function validateMove(board, placements) {
   }))) return {valid: false, reason: 'Nový tah musí navazovat na položená čísla.'};
 
   const equations = findNewEquations(next, keys);
-  if (equations === null)
-    return {valid: false, reason: 'Celá souvislá řada musí tvořit platný příklad nebo navazovat novým příkladem na poslední výsledek.'};
   if (!equations.length) return {valid: false, reason: 'Nevznikl žádný platný početní příklad.'};
-  const covered = new Set(equations.flatMap(eq => eq.cells.map(p => id(p.row,p.col))));
-  if (placements.some(p => !covered.has(id(p.row,p.col))))
-    return {valid: false, reason: 'Každé nové číslo musí být součástí příkladu.'};
+  // The entire *new placement*, not the entire historical board run, must
+  // participate in one common equation. For a single tile either axis works.
+  const mainAxis = horizontal ? 'row' : 'col';
+  if (!equations.some(eq => (placements.length === 1 || eq.axis === mainAxis) &&
+    placements.every(p => eq.cells.some(cell => cell.row === p.row && cell.col === p.col))))
+    return {valid: false, reason: 'Všechna nová čísla musí být součástí jednoho společného příkladu.'};
 
   // Newly adjacent tiles must belong to a common recognised example.
   for (const p of placements) {

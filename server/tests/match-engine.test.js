@@ -214,6 +214,22 @@ test('online server accepts a square root and reports it under the updated rules
   assert.equal(game.reportFor('a',match.id).ruleset,'classic-powers-roots-linked-powers');
 });
 
+test('online server accepts dad photo 2 with linked examples inside older rows',()=>{
+  const {game}=rig();
+  game.connect('a');game.connect('b');
+  const match=game.createMatch('a','b',60);
+  for(const [i,digit] of [...'1569'].entries()) match.board[8][4+i]=Number(digit);
+  match.board[9][8]=3;
+  match.board[10][8]=9;
+  match.players[0].rack=[6,3,1,2,4];
+  game.place('a',[{row:7,col:8,rackIndex:0},{row:8,col:8,rackIndex:1}]);
+  assert.equal(match.board[7][8],6);
+  assert.equal(match.board[8][8],3);
+  assert.ok(match.lastMove.equations.includes('633'));
+  assert.ok(match.lastMove.equations.includes('339'));
+  assert.ok(match.lastMove.equations.includes('93'));
+});
+
 test('online scorecards receive safe nicknames and recent move history after reconnect',()=>{
   const events=[];
   const game=new MatchEngine({send:(uid,msg)=>events.push({uid,...msg}),

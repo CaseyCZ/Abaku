@@ -68,7 +68,7 @@ test('accepted offline move shows one message and highlights board tiles for thr
 test('offline accepted move starts an automatic one-equation-at-a-time score scroll',()=>{
   const scoreStyle=file('../score-recap.css');
   assert.match(html,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(js,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.36'/);
+  assert.match(js,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.37'/);
   assert.match(js,/const scoreRecap = new ScoreRecap\(document\.body\)/);
   assert.match(js,/scoreRecap\.play\(\{player:who,breakdown:checked\.equationBreakdown/);
   assert.match(js,/equations:checked\.equations,total:checked\.points/);

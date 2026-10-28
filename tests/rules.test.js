@@ -76,24 +76,76 @@ test('one placement can yield overlapping power, multiplication, and subtraction
   assert.equal(result.equationBreakdown.reduce((sum,x)=>sum+x.points,0),result.points);
 });
 
-test('the entire unbroken line must be valid before overlapping examples count',()=>{
-  for(const digits of ['9724','5327']){
+test('opening tiles must share an equation, not merely overlap unrelated snippets',()=>{
+  for(const digits of ['9724','5327','1124']){
     const result=validateMove(emptyBoard(),tiles(digits,7,6));
-    assert.equal(result.valid,false,`${digits} must not pass using shorter equations`);
-    assert.match(result.reason,/Celá souvislá řada/);
+    assert.equal(result.valid,false,`${digits} must not pass as a first move`);
+    assert.match(result.reason,/společného příkladu/);
   }
   const valid=validateMove(emptyBoard(),tiles('1248',7,6));
   assert.equal(valid.valid,true);
   assert.deepEqual(valid.equations,['1248','24','248']);
 });
 
-test('extending a formerly valid line must leave the whole new line valid',()=>{
+test('an extension needs a new equation, but the older entire line need not be one',()=>{
   const first=validateMove(emptyBoard(),tiles('532',7,6));
   assert.equal(first.valid,true);
-  const wrong=validateMove(first.board,[{row:7,col:9,digit:7}]);
-  assert.equal(wrong.valid,false,'5327 is invalid even though 532 and 327 work');
+  const wrong=validateMove(first.board,[{row:7,col:9,digit:3}]);
+  assert.equal(wrong.valid,false,'no new equation includes the appended 3');
+  const cube=validateMove(first.board,[{row:7,col:9,digit:7}]);
+  assert.equal(cube.valid,true,cube.reason);
+  assert.ok(cube.equations.includes('327'),'3³ = 27 works within 5327');
   const correct=validateMove(first.board,[{row:7,col:9,digit:1}]);
-  assert.equal(correct.valid,false,'5321 has no full arithmetic meaning either');
+  assert.equal(correct.valid,true,correct.reason);
+  assert.ok(correct.equations.includes('321'),'3 − 2 = 1 works within 5321');
+});
+
+test('dad photo 1: appending 6 to 5142 makes 4 + 2 = 6',()=>{
+  const board=emptyBoard();
+  for(const [i,digit] of [...'5142'].entries()) board[7][4+i]=Number(digit);
+  const result=validateMove(board,[{row:7,col:8,digit:6}]);
+  assert.equal(result.valid,true,result.reason);
+  assert.ok(result.equations.includes('426'));
+  assert.ok(!result.equations.includes('51426'));
+});
+
+test('dad photo 2: 633, 339 and the perpendicular square root 93',()=>{
+  const board=emptyBoard();
+  for(const [i,digit] of [...'1569'].entries()) board[8][4+i]=Number(digit);
+  board[9][8]=3;
+  board[10][8]=9;
+  const result=validateMove(board,[{row:7,col:8,digit:6},{row:8,col:8,digit:3}]);
+  assert.equal(result.valid,true,result.reason);
+  assert.ok(result.equations.includes('339'),'3 × 3 = 9');
+  assert.ok(result.equations.includes('93'),'√9 = 3');
+  assert.ok(result.equations.includes('633'),'6 − 3 = 3');
+  assert.ok(!result.equations.includes('6339'),'6339 is not a single equation');
+});
+
+test('dad photo 3: appending 43 to 851376 makes 37 + 6 = 43',()=>{
+  const board=emptyBoard();
+  for(const [i,digit] of [...'851376'].entries()) board[3+i][7]=Number(digit);
+  const result=validateMove(board,[{row:9,col:7,digit:4},{row:10,col:7,digit:3}]);
+  assert.equal(result.valid,true,result.reason);
+  assert.ok(result.equations.includes('37643'));
+});
+
+test('different new tiles cannot be justified only by separate equations',()=>{
+  const board=emptyBoard();
+  for(const [col,digit] of [[6,4],[7,2],[9,9],[10,3]]) board[7][col]=digit;
+  const result=validateMove(board,[{row:7,col:8,digit:6},{row:7,col:11,digit:6}]);
+  assert.equal(result.valid,false);
+  assert.match(result.reason,/společného příkladu/);
+});
+
+test('invalid perpendicular neighbors still reject an otherwise valid extension',()=>{
+  const board=emptyBoard();
+  board[7][4]=4;
+  board[7][5]=2;
+  board[8][6]=8;
+  const result=validateMove(board,[{row:7,col:6,digit:6}]);
+  assert.equal(result.valid,false);
+  assert.match(result.reason,/Sousední čísla/);
 });
 
 test('a new calculation may start from the result at the end of an older calculation',()=>{

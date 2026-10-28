@@ -240,7 +240,7 @@ const http=createServer(async(request,response)=>{
       const active=presence.active();
       for(const connected of engine.connections)active.add(connected);
       const friends=store.friends(uid).map(friend=>({...friend,online:active.has(store.resolveFriend(uid,friend.id).uid)}));
-      return respond(response,200,{friends,requests:store.incoming(uid),canRemoveFriends:true});
+      return respond(response,200,{friends,requests:store.incoming(uid),sentRequests:store.outgoing(uid),canRemoveFriends:true});
     }
     if(request.method==='POST'&&pathname==='/api/friends/remove'){
       const data=await body(request);

@@ -30,6 +30,12 @@ body.arena-home { min-width:0; }
 #onlineDialog .online-waiting { padding:28px 18px 48px;text-align:center;color:#d5e2f4; }
 #onlineDialog .online-waiting p { margin:7px 0; }
 
+/* A read-only board must be just as bright as the local game. The generic
+   button:disabled opacity would otherwise dim every cell on opponent turns. */
+#onlineDialog #onlineBoard .cell:disabled {
+  opacity:1;filter:none;cursor:default;
+}
+
 /* Scorecards occupy the same header positions as the local player's cards. */
 #onlineDialog .game-header-score .match-scoreboard #onlinePlayer0Card { grid-column:1;grid-row:1; }
 #onlineDialog .game-header-score .match-scoreboard #onlinePlayer1Card { grid-column:2;grid-row:1; }

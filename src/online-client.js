@@ -997,7 +997,7 @@ function initializeActions(){
     if(credential){$('manageFriends').click();return;}
     $('friendsDialog').showModal();
     $('friendSearchForm').hidden=true;document.querySelector('.friend-invite-options').hidden=true;
-    $('friendRequests').textContent='';$('friendList').textContent='';
+    $('friendRequests').textContent='';$('friendSentRequests').textContent='';$('friendList').textContent='';
     $('friendSearchResults').replaceChildren();
     $('friendMessage').textContent='Pro seznam přátel se přihlas přes Google v kartě Můj profil.';
   });
@@ -1092,13 +1092,32 @@ function appendFriend(container,player,buttonText,handler){
 async function refreshFriends(){
   try{
     const data=await api('/api/friends');
-    const incoming=$('friendRequests'),friends=$('friendList');
-    incoming.replaceChildren();friends.replaceChildren();
+    const incoming=$('friendRequests'),sent=$('friendSentRequests'),friends=$('friendList');
+    incoming.replaceChildren();sent.replaceChildren();friends.replaceChildren();
     for(const player of data.requests||[]){
-      appendFriend(incoming,player,'Přijmout',async()=>{
+      const row=appendFriend(incoming,player,'Přijmout',async()=>{
         await api('/api/friends/respond','POST',{id:player.id,accept:true});
         $('friendMessage').textContent='Přátelství potvrzeno.';
       });
+      const decline=document.createElement('button');
+      decline.type='button';decline.className='gold-button';decline.textContent='Odmítnout';
+      decline.setAttribute('aria-label','Odmítnout žádost od '+player.nickname);
+      decline.addEventListener('click',async()=>{
+        decline.disabled=true;friendsBusy=true;
+        try{
+          await api('/api/friends/respond','POST',{id:player.id,accept:false});
+          $('friendMessage').textContent='Žádost byla odmítnuta.';
+          await refreshFriends();
+        }catch(error){$('friendMessage').textContent=error.message;}
+        finally{decline.disabled=false;friendsBusy=false;}
+      });
+      row.append(decline);
+    }
+    for(const player of data.sentRequests||[]){
+      const row=appendFriend(sent,player);
+      const label=document.createElement('span');
+      label.className='friend-request-pending';label.textContent='Čeká na přijetí';
+      row.append(label);
     }
     for(const player of data.friends||[]){
       appendFriend(friends,player,'⚔ Vyzvat',async()=>{
@@ -1132,6 +1151,7 @@ async function refreshFriends(){
       row.append(remove);
     }
     if(!data.requests?.length)incoming.textContent='Žádné nové žádosti.';
+    if(!data.sentRequests?.length)sent.textContent='Nemáš žádné odeslané žádosti.';
     if(!data.friends?.length)friends.textContent='Zatím nemáš přidané přátele.';
   }catch(error){$('friendMessage').textContent=error.message;}
 }

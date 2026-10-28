@@ -265,15 +265,21 @@
     --arena-board-size:min(1100px,calc(100dvh - 104px),calc(100vw - var(--arena-sidebar-width) - var(--arena-sidebar-width) - 40px));
   }
   .game-app .top-bar{
-    grid-template-columns:minmax(90px,1fr) minmax(110px,170px) minmax(120px,145px) minmax(110px,170px) minmax(260px,1.7fr)!important;
-    grid-template-rows:38px 17px;column-gap:clamp(4px,.8vw,12px);row-gap:1px;
+    /* Equal outer tracks put the clock at the viewport center, not halfway
+       between the logo and a much wider navigation area. */
+    grid-template-columns:minmax(0,1fr) clamp(118px,12vw,170px) clamp(138px,13vw,165px) clamp(118px,12vw,170px) minmax(0,1fr)!important;
+    grid-template-rows:42px 13px;column-gap:clamp(4px,.8vw,12px);row-gap:1px;
     min-height:0;padding:4px clamp(8px,1.2vw,16px);
   }
   .game-app .top-bar .brand{grid-column:1;grid-row:1 / span 2;align-self:center}
   .game-app .top-bar .brand img.brand-mark{width:36px;height:36px}
   .game-app .top-bar .timer-wrap{
-    grid-column:3;grid-row:1;align-self:center;padding:3px 8px;
+    grid-column:3;grid-row:1;align-self:center;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    gap:0;min-width:112px;padding:2px 8px;
   }
+  .game-app .top-bar .timer-wrap span{font-size:9px;line-height:1}
+  .game-app .top-bar .timer-wrap strong{line-height:1}
   .game-app .top-bar > .bag-count{
     grid-column:3;grid-row:2;justify-self:center;
     font-size:10px;line-height:1.1;
@@ -310,8 +316,8 @@
     width:min(var(--arena-board-size),calc(100% - 24px));margin:2px auto;
   }
   .game-app .main-stage{
-    grid-template-columns:minmax(0,var(--arena-sidebar-width)) minmax(0,var(--arena-board-size)) minmax(0,var(--arena-sidebar-width))!important;
-    column-gap:10px;justify-content:center;padding:2px 10px 0;
+    grid-template-columns:minmax(0,1fr) minmax(0,var(--arena-board-size)) minmax(0,1fr)!important;
+    column-gap:10px;justify-content:stretch;padding:2px 10px 0;
   }
   .game-app .center-area{grid-column:2;grid-row:1}
   .game-app .right-side{
@@ -321,9 +327,9 @@
   .game-app .right-side .side-panel{max-height:var(--arena-board-size)}
   /* The former footer is a small, centered card in the left grid track. */
   .game-app .control-bar{
-    grid-column:1;grid-row:1;justify-self:center;align-self:center;
+    grid-column:1;grid-row:1;justify-self:stretch;align-self:center;
     display:flex;flex-direction:column;align-items:stretch;
-    width:min(100%,210px);max-width:210px;min-height:0;height:auto;
+    width:100%;max-width:none;min-height:0;height:auto;
     gap:8px;margin:0;padding:10px;border-radius:12px;
   }
   .game-app .control-bar .rack-frame{
@@ -332,11 +338,12 @@
   }
   .game-app .control-bar .rack{
     grid-column:1 / -1;grid-row:1;
-    display:flex;justify-content:space-between;align-items:center;
-    width:100%;min-width:0;max-width:none;height:48px;padding:3px;gap:2px;
+    display:flex;justify-content:center;align-items:center;
+    width:100%;min-width:0;max-width:none;height:48px;padding:3px;gap:clamp(2px,.5vw,8px);
   }
   .game-app .control-bar .tile{
-    flex:1 1 0;width:0;min-width:0;height:40px;font-size:24px;
+    flex:0 1 clamp(36px,3vw,54px);width:clamp(36px,3vw,54px);
+    min-width:0;height:40px;font-size:24px;
   }
   .game-app .control-bar #undoButton,
   .game-app .control-bar #confirmButton{
@@ -353,6 +360,9 @@
     font-size:12px;white-space:normal;
   }
   .game-app .control-bar .game-mode{display:none!important}
+}
+@media (min-width:900px) and (max-width:1050px) and (orientation:landscape) and (min-height:601px){
+  .game-app .top-bar .game-navigation .gold-button{padding-inline:3px;font-size:9px}
 }
 
 

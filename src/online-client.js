@@ -97,7 +97,7 @@ async function heartbeat(){
 }
 function paintPresence(data){
   lastPresence=data;
-  $('onlineCount').textContent=String(data.online);
+  $('onlineCount').textContent=Number.isSafeInteger(data.limit)?data.online+' / '+data.limit:String(data.online);
   $('waitingCount').textContent=String(data.waiting);
   const msg=data.waiting===0
     ? 'Nikdo právě nečeká. Můžeš zahájit hledání.'
@@ -685,6 +685,11 @@ function connectOnline(action,{reconnecting=false}={}){
     if(gameState)renderOnline();
     if(event.code===1000&&event.reason==='Nové připojení'){
       status('Partie byla otevřena v jiné kartě nebo zařízení.',true);
+      return;
+    }
+    if(event.code===1013){
+      clearReconnect();
+      status('Server je plný (700/700 hráčů). Zkus to později.',true);
       return;
     }
     if(gameState?.finished)return;

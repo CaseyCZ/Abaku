@@ -16,7 +16,7 @@ test('landscape phone board follows viewport width, not available height',()=>{
   assert.match(landscape,/\.game-app \.board-rim\{[^}]*aspect-ratio:1 \/ 1/);
   assert.match(landscape,/\.game-app \.board\{[^}]*width:100%;height:100%!important;/);
   assert.match(landscape,/\.game-app \.right-side\{[^}]*grid-column:1;grid-row:2/);
-  assert.match(html,/game-chrome\.css\?v=0\.2\.25/);
+  assert.match(html,/game-chrome\.css\?v=0\.2\.26/);
 });
 
 test('landscape score recap is compact and cannot exceed viewport height',()=>{
@@ -66,5 +66,21 @@ test('landscape page scroll exists before game tiles are populated',()=>{
   assert.match(landscape,/\.game-app\{\s*height:auto!important;min-height:100dvh;overflow:visible!important/);
   assert.match(landscape,/\.game-app \.board-rim\{\s*box-sizing:border-box;display:flex;[\s\S]*?aspect-ratio:1 \/ 1/);
   assert.match(landscape,/\.game-app \.board\{[\s\S]*?width:100%;height:100%!important/);
-  assert.match(html,/game-chrome\.css\?v=0\.2\.25/);
+  assert.match(html,/game-chrome\.css\?v=0\.2\.26/);
+});
+
+test('landscape phone shows the same accessible toggle menu as portrait',()=>{
+  const nav=read('../src/site-navigation.js');
+  assert.match(landscape,/\.game-app \.top-bar \.game-menu-toggle\{[\s\S]*?grid-column:3;grid-row:1;justify-self:end;[\s\S]*?display:inline-flex/);
+  assert.match(landscape,/\.game-app \.top-bar \.game-navigation\{[\s\S]*?grid-column:1\/-1;grid-row:2;justify-self:stretch;[\s\S]*?display:none;flex-direction:column/);
+  assert.match(landscape,/\.game-app \.top-bar \.game-navigation\.is-open\{display:flex\}/);
+  assert.match(landscape,/\.game-app \.top-bar:has\(\.game-navigation\.is-open\) > \.bag-count\{grid-row:3\}/);
+  assert.match(landscape,/\.game-app \.top-bar:has\(\.game-navigation\.is-open\) \.game-header-score\{grid-row:4\}/);
+  assert.match(html,/id="menuToggle"[^>]*aria-expanded="false"[^>]*aria-controls="siteNavigation"/);
+  for(const id of ['lobbyButton','rulesButton','settingsButton','newButton']){
+    assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
+  }
+  assert.match(nav,/navigation\.classList\.toggle\('is-open'\)/);
+  assert.match(nav,/matchMedia\('\(max-width:760px\), \(orientation:landscape\) and \(max-width:1100px\) and \(max-height:600px\) and \(pointer:coarse\)'\)/);
+  assert.match(html,/site-navigation\.js\?v=2/);
 });

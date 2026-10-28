@@ -25,14 +25,14 @@ test('timer stays live in the top center and the bag count precedes the scoreboa
   assert.match(css,/\.game-app \.top-bar \.timer-wrap\.warning strong\{color:#ff8066\}/);
   assert.match(css,/@media\(max-width:370px\)\{[\s\S]*?\.game-app \.top-bar > \.bag-count\{font-size:11px\}/);
   assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:3/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.25/);
+  assert.match(game,/game-chrome\.css\?v=0\.2\.26/);
 });
 
 test('game menu reuses the homepage mobile navigation and keeps actions functional',()=>{
   assert.match(game,/id="menuToggle"[^>]*aria-expanded="false"[^>]*aria-controls="siteNavigation"/);
   assert.match(game,/id="siteNavigation" aria-label="Menu hry"/);
-  assert.match(game,/src\/site-navigation\.js\?v=1/);
-  assert.match(home,/src\/site-navigation\.js\?v=1/);
+  assert.match(game,/src\/site-navigation\.js\?v=2/);
+  assert.match(home,/src\/site-navigation\.js\?v=2/);
   for(const id of ['lobbyButton','rulesButton','settingsButton','newButton']){
     assert.equal(game.split('id="'+id+'"').length-1,1,id);
     assert.match(main,new RegExp(id+"'\\)\\.addEventListener\\('click'"));

@@ -21,7 +21,7 @@ if(toggle&&navigation){
   document.addEventListener('click',event=>{
     if(!navigation.contains(event.target)&&!toggle.contains(event.target))close();
   });
-  matchMedia('(max-width:760px)').addEventListener('change',()=>close());
+  matchMedia('(max-width:760px), (orientation:landscape) and (max-width:1100px) and (max-height:600px) and (pointer:coarse)').addEventListener('change',()=>close());
   // Dialogs opened from the mobile menu must return focus to a visible control.
   document.addEventListener('close',()=>{
     if(getComputedStyle(toggle).display!=='none'&&navigation.contains(document.activeElement))toggle.focus();

@@ -324,11 +324,13 @@ function chatActuallyVisible(){
 function refreshUnreadChat(){
   const toast=$('onlineChatToast');
   const badge=$('onlineUnreadBadge');
-  if(unreadOnlineChat>0&&chatActuallyVisible()){
-    unreadOnlineChat=0;
-    latestUnreadChat='';
+  const hasUnread=unreadOnlineChat>0&&!!gameState&&!gameState.finished&&!$('onlineBoardWrapper').hidden;
+  for(const id of ['menuMessageBadge','friendsMessageBadge','onlineMenuMessageBadge']){
+    const counter=$(id);
+    if(!counter)continue;
+    counter.hidden=!hasUnread;
+    counter.textContent=unreadOnlineChat>99?'99+':String(unreadOnlineChat);
   }
-  const hasUnread=unreadOnlineChat>0;
   toast.hidden=!hasUnread;
   badge.hidden=!hasUnread;
   if(hasUnread){
@@ -338,11 +340,17 @@ function refreshUnreadChat(){
     toast.setAttribute('aria-label','Otevřít chat: '+unreadOnlineChat+' nepřečtených zpráv');
   }
 }
+function markOnlineChatRead(){
+  if(!unreadOnlineChat)return;
+  unreadOnlineChat=0;
+  latestUnreadChat='';
+  refreshUnreadChat();
+}
 function revealOnlineChat(){
   revealArenaChat();
   $('onlineChat').scrollIntoView({behavior:'smooth',block:'center'});
-  // Unread status clears once the chat really comes into view.
-  setTimeout(refreshUnreadChat,450);
+  // The user explicitly opened the message notification.
+  markOnlineChatRead();
 }
 function resetOnlineChat(){
   unreadOnlineChat=0;latestUnreadChat='';
@@ -696,7 +704,7 @@ function addChat(uid,text){
   const own=gameState?.mySide===uid;
   line.textContent=(own?'Já: ':'Soupeř: ')+String(text||'');
   const chat=$('onlineChat');chat.append(line);chat.scrollTop=chat.scrollHeight;
-  if(!own&&!chatActuallyVisible()){
+  if(!own&&gameState&&!gameState.finished){
     unreadOnlineChat++;
     latestUnreadChat=String(text||'').slice(0,80);
   }
@@ -919,6 +927,7 @@ function initializeActions(){
     $('onlineRematchStatus').textContent='Odesílám návrh odvety…';
   });
   $('onlineChatToast').addEventListener('click',revealOnlineChat);
+  $('onlineChat').addEventListener('click',markOnlineChatRead);
   $('onlineDialog').addEventListener('scroll',refreshUnreadChat,{passive:true});
   window.addEventListener('resize',refreshUnreadChat,{passive:true});
   $('onlineResultDialog').addEventListener('cancel',event=>event.preventDefault());

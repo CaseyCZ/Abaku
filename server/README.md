@@ -68,12 +68,24 @@ location /abaku-api/ {
     proxy_set_header Upgrade $http_upgrade;
     proxy_set_header Connection "upgrade";
     proxy_set_header Host $host;
+    # Required only when TRUST_PROXY_REAL_IP=1 is enabled in the Node process.
+    # Always overwrite the inbound header so browsers cannot spoof another IP.
+    proxy_set_header X-Real-IP $remote_addr;
     proxy_read_timeout 120s;
     proxy_buffering off;
 }
 ```
 
 For this example, REST `/abaku-api/api/me` is mapped to Node `/api/me`; WebSocket `/abaku-api/ws` maps to `/ws`. Set the frontend API base to your actual HTTPS host plus `/abaku-api`.
+
+The HTTP rate limit uses the direct TCP peer address by default. Behind a local
+NGINX reverse proxy this is `127.0.0.1` for *all* players. To count client
+addresses separately, configure `proxy_set_header X-Real-IP $remote_addr;`
+inside that proxy location, then set `TRUST_PROXY_REAL_IP=1` in the private PM2
+environment and restart the API when no matches are running. The server reads
+the header only from a loopback peer and only with this explicit opt-in.
+Never enable it unless NGINX overwrites the header; an unsanitized incoming
+`X-Real-IP` can be forged by a client.
 
 ## Online player presence (RAM only)
 

@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { timingSafeEqual } from 'node:crypto';
+import { isIP } from 'node:net';
 import { URL } from 'node:url';
 import { OAuth2Client } from 'google-auth-library';
 import { WebSocketServer } from 'ws';
@@ -18,6 +19,9 @@ if(!clientId||!origins.length){
 }
 const port=Number(process.env.PORT||8790);
 const host=process.env.HOST||'127.0.0.1';
+// Enable only after NGINX overwrites X-Real-IP with $remote_addr.
+// Never trust a client-supplied forwarding header on a public connection.
+const trustProxyRealIp=process.env.TRUST_PROXY_REAL_IP==='1';
 const store=openStore(process.env.DB_PATH||'./data/abaku.sqlite');
 const authClient=new OAuth2Client(clientId);
 const tokenCache=new Map();
@@ -59,6 +63,12 @@ function limited(ip,limit=180){
   const row=rate.get(ip);
   if(!row||now-row.start>=60_000) {rate.set(ip,{start:now,count:1});return false;}
   return ++row.count>limit;
+}
+function clientIp(request){
+  const peer=request.socket.remoteAddress||'unknown';
+  if(!trustProxyRealIp||!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(peer))return peer;
+  const forwarded=request.headers['x-real-ip'];
+  return typeof forwarded==='string'&&isIP(forwarded)?forwarded:peer;
 }
 function allowedOrigin(request){
   const origin=request.headers.origin;
@@ -146,7 +156,8 @@ const http=createServer(async(request,response)=>{
   cors(request,response);
   if(!allowedOrigin(request)){respond(response,403,{error:'Nepovolený původ požadavku.'});return;}
   if(request.method==='OPTIONS'){response.writeHead(204);response.end();return;}
-  if(limited(request.socket.remoteAddress||'unknown')){respond(response,429,{error:'Příliš mnoho požadavků.'});return;}
+  const requester=clientIp(request);
+  if(limited(requester)){respond(response,429,{error:'Příliš mnoho požadavků.'});return;}
   const {pathname,searchParams}=new URL(request.url||'/', 'http://localhost');
   try {
     if(request.method==='GET'&&pathname==='/health')return respond(response,200,{status:'ok',service:'abaku-api'});
@@ -160,7 +171,7 @@ const http=createServer(async(request,response)=>{
       online:presence.count(engine.connections),waiting:engine.waitingCount(),refreshSeconds:20,limit:MAX_ONLINE_PLAYERS
     });
     if(pathname==='/api/reports'&&request.method==='POST'){
-      if(reportLimited(request.socket.remoteAddress||'unknown'))
+      if(reportLimited(requester))
         return respond(response,429,{error:'Příliš mnoho odeslaných partií. Zkus to později.'});
       const data=await body(request,256*1024);
       if(data?.mode==='online')throw new Error('Online partie se odesílá přímo ze serveru.');
@@ -178,7 +189,7 @@ const http=createServer(async(request,response)=>{
     if(pathname==='/api/feedback'&&request.method==='POST'){
       if(!issueReporter.configured)
         return respond(response,503,{error:'Hlášení problémů ještě není na serveru zapnuté.'});
-      if(feedbackLimited(request.socket.remoteAddress||'unknown'))
+      if(feedbackLimited(requester))
         return respond(response,429,{error:'Příliš mnoho hlášení. Zkus to později.'});
       const data=await body(request,260*1024);
       const {description,mode}=validateFeedback(data);
@@ -207,7 +218,7 @@ const http=createServer(async(request,response)=>{
     const uid=await identity(request);
     store.ensure(uid);
     if(request.method==='POST'&&pathname==='/api/reports/online'){
-      if(reportLimited(request.socket.remoteAddress||'unknown'))
+      if(reportLimited(requester))
         return respond(response,429,{error:'Příliš mnoho odeslaných partií. Zkus to později.'});
       const data=await body(request);
       return respond(response,201,await engine.submitReport(uid,data?.matchId,

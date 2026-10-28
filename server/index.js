@@ -22,6 +22,8 @@ const store=openStore(process.env.DB_PATH||'./data/abaku.sqlite');
 const authClient=new OAuth2Client(clientId);
 const tokenCache=new Map();
 const sockets=new Map();
+const MAX_ONLINE_PLAYERS=700;
+const fullServerMessage='Server je plný (700/700 hráčů). Zkus to později.';
 const rate=new Map();
 const reportRate=new Map();
 const feedbackRate=new Map();
@@ -155,7 +157,7 @@ const http=createServer(async(request,response)=>{
     }
     // Counts are public and contain no profile data; expired heartbeats are excluded.
     if(request.method==='GET'&&pathname==='/api/presence')return respond(response,200,{
-      online:presence.count(engine.connections),waiting:engine.waitingCount(),refreshSeconds:20
+      online:presence.count(engine.connections),waiting:engine.waitingCount(),refreshSeconds:20,limit:MAX_ONLINE_PLAYERS
     });
     if(pathname==='/api/reports'&&request.method==='POST'){
       if(reportLimited(request.socket.remoteAddress||'unknown'))
@@ -218,6 +220,8 @@ const http=createServer(async(request,response)=>{
       return respond(response,200,{ok:true});
     }
     if(request.method==='POST'&&pathname==='/api/presence'){
+      if(!presence.canAdmit(uid,engine.connections,MAX_ONLINE_PLAYERS))
+        return respond(response,503,{error:fullServerMessage,limit:MAX_ONLINE_PLAYERS});
       presence.touch(uid);
       return respond(response,200,{ok:true});
     }
@@ -290,6 +294,10 @@ wss.on('connection',(ws)=>{
       if(!authed){
         if(msg?.type!=='auth')throw new Error('Nejdříve se přihlas.');
         uid=await verify(msg.idToken);
+        if(!presence.canAdmit(uid,engine.connections,MAX_ONLINE_PLAYERS)){
+          ws.close(1013,fullServerMessage);
+          return;
+        }
         // One live socket per authenticated player.
         const old=sockets.get(uid);
         if(old&&old!==ws)old.close(1000,'Nové připojení');

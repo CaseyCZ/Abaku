@@ -73,6 +73,8 @@ CREATE INDEX IF NOT EXISTS idx_match_results_period ON match_results(played_at,u
       ) ORDER BY p.nickname`),
     pending:db.prepare(`SELECT p.public_id AS id,p.nickname,p.avatar FROM players p
       JOIN friend_requests f ON f.sender=p.uid WHERE f.recipient=? AND f.status='pending'`),
+    outgoing:db.prepare(`SELECT p.public_id AS id,p.nickname,p.avatar FROM players p
+      JOIN friend_requests f ON f.recipient=p.uid WHERE f.sender=? AND f.status='pending' ORDER BY p.nickname COLLATE NOCASE`),
     exists:db.prepare('SELECT status FROM friend_requests WHERE sender=? AND recipient=?'),
     incoming:db.prepare('SELECT status FROM friend_requests WHERE sender=? AND recipient=?'),
     acceptedFriend:db.prepare("SELECT 1 AS is_friend FROM friend_requests WHERE status='accepted' AND ((sender=? AND recipient=?) OR (sender=? AND recipient=?)) LIMIT 1"),
@@ -201,6 +203,7 @@ CREATE INDEX IF NOT EXISTS idx_match_results_period ON match_results(played_at,u
     findPlayers:query=>statements.search.all('%'+String(query||'').slice(0,20).replace(/[%_]/g,'')+'%'),
     friends:uid=>statements.friendList.all(uid,uid),
     incoming:uid=>statements.pending.all(uid),
+    outgoing:uid=>statements.outgoing.all(uid),
     removeFriend:(uid,publicId)=>{
       if(typeof publicId!=='string'||!/^[a-f0-9]{16}$/.test(publicId))throw new Error('Neplatný hráč.');
       const target=statements.lookupId.get(publicId)?.uid;

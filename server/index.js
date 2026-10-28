@@ -38,7 +38,7 @@ let feedbackDay='',feedbackDayCount=0;
 const reportStore=new ReportStore({directory:process.env.ABAKU_REPORT_DIR||'/home/ubuntu/abaku-reports'});
 const issueReporter=new GitHubIssueReporter({
   token:process.env.ABAKU_GITHUB_ISSUES_TOKEN,
-  repository:process.env.ABAKU_GITHUB_REPO||'CaseyCZ/Abaku'
+  repository:process.env.ABAKU_GITHUB_REPO||'CaseyCZ/Ciselna-Arena'
 });
 const adminToken=process.env.ABAKU_REPORT_ADMIN_TOKEN||'';
 

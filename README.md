@@ -4,7 +4,7 @@
 
 Zahraj si číselnou deskovou hru, ve které skládáš matematické příklady, využíváš bonusová políčka a soupeříš o co nejvyšší skóre. S počítačem, s kamarádem na jednom zařízení nebo online.
 
-### [▶ HRÁT ČÍSELNOU ARÉNU](https://caseycz.github.io/Abaku/)
+### [▶ HRÁT ČÍSELNOU ARÉNU](https://caseycz.github.io/Ciselna-Arena/)
 
 **Zdarma · Bez instalace · Na počítači, tabletu i telefonu**
 
@@ -58,20 +58,20 @@ Podrobnosti najdeš přímo ve hře pod tlačítkem **Pravidla**.
 
 ## 📱 Kde si zahrát?
 
-[Otevřít Číselnou arénu](https://caseycz.github.io/Abaku/)
+[Otevřít Číselnou arénu](https://caseycz.github.io/Ciselna-Arena/)
 
 Hra se spouští přímo v internetovém prohlížeči. **Nic nemusíš stahovat ani instalovat.**
 
 ## 💬 Máš nápad nebo jsi našel chybu?
 
-Budu rád za zpětnou vazbu. Napiš ji na [GitHubu v sekci Issues](https://github.com/CaseyCZ/Abaku/issues).
+Budu rád za zpětnou vazbu. Napiš ji na [GitHubu v sekci Issues](https://github.com/CaseyCZ/Ciselna-Arena/issues).
 
 ## O projektu a právech
 
 Číselná aréna je nezávislý fanouškovský projekt. Není propojena s autory ani provozovateli původní hry. Práva k původní hře, názvu a případným původním grafickým prvkům patří jejich vlastníkům.
 
-Nastavení najdeš pod jedním tlačítkem **Nastavení** v hlavní nabídce i během hry. Zobrazení průběhu a chatu se zapíná jednotlivě; na PC jsou panely vedle desky, na mobilu pod ní. [Žebříček](https://caseycz.github.io/Abaku/leaderboard.html) má vlastní stránku; na telefonu je navigace v menu ☰.
+Nastavení najdeš pod jedním tlačítkem **Nastavení** v hlavní nabídce i během hry. Zobrazení průběhu a chatu se zapíná jednotlivě; na PC jsou panely vedle desky, na mobilu pod ní. [Žebříček](https://caseycz.github.io/Ciselna-Arena/leaderboard.html) má vlastní stránku; na telefonu je navigace v menu ☰.
 
 ---
 
-### [▶ SPUSTIT HRU](https://caseycz.github.io/Abaku/)
+### [▶ SPUSTIT HRU](https://caseycz.github.io/Ciselna-Arena/)

@@ -1,16 +1,16 @@
 # Přechod na Číselnou arénu – kontrolovaný postup
 
-Plánovaná adresa: `https://caseycz.github.io/Ciselna-Arena/`.
-Současná adresa: `https://caseycz.github.io/Abaku/`.
+Nová adresa: `https://caseycz.github.io/Ciselna-Arena/` (ověřena jako dostupná po přejmenování).
+Původní adresa: `https://caseycz.github.io/Abaku/` (nespoléhej na automatické přesměrování).
 
 ## Připraveno před přejmenováním
 
-- `server/github-issues.js` podporuje oba názvy repozitáře. Výchozí zůstává `CaseyCZ/Abaku`, dokud vlastník nepřejmenuje repozitář.
+- `server/github-issues.js` podporuje oba názvy repozitáře. Výchozím cílem je nyní `CaseyCZ/Ciselna-Arena`.
 - Analytika při odvolání souhlasu čistí cookies na staré i nové cestě.
 - Google Client ID, `CORS_ORIGIN`, interní `/abaku-api`, databáze, PM2 služba a existující přihlašovací relace se nemění.
-- Hlavní odkazy v `README.md` zatím zůstávají na funkční staré adrese, aby se web před přepnutím nerozbil.
+- Hlavní odkazy v `README.md` byly po zveřejnění nové adresy přepnuty na `/Ciselna-Arena/`.
 
-## Krok 1 – vlastník repozitáře (ručně na GitHubu)
+## Krok 1 – vlastník repozitáře (dokončeno na GitHubu)
 
 1. Ověř dostupnou zálohu a zkontroluj, že nikdo nemá rozehranou online partii.
 2. Na GitHubu otevři **Settings → General → Repository name** a přejmenuj `CaseyCZ/Abaku` na `CaseyCZ/Ciselna-Arena`.
@@ -41,7 +41,7 @@ Neměň `DB_PATH`, neobnovuj starou databázi přes novější a nerestartuj ost
 
 ## Krok 3 – webové odkazy a Google
 
-- Teprve po dostupnosti nové GitHub Pages adresy změň všechny odkazy v `README.md` z `/Abaku/` na `/Ciselna-Arena/`. Podle potřeby aktualizuj dokumentaci a případné externí odkazy/bookmarky.
+- Nová GitHub Pages adresa již odpovídá, odkazy v `README.md` jsou přepnuté. Podle potřeby aktualizuj další externí odkazy a staré záložky/bookmarky.
 - V Google Cloud Console otevři **Google Auth Platform → Branding** a uprav název aplikace na **Číselná aréna**. Google může u ověřené aplikace vyžadovat novou kontrolu značky.
 - Autorizovaný JavaScriptový origin zůstává `https://caseycz.github.io`; pouhá změna cesty za doménou nevyžaduje nový OAuth Client ID ani úpravu `CORS_ORIGIN`.
 - Jestli byla hra přidaná na plochu zařízení, původní zástupce směřující na `/Abaku/` může být potřeba nahradit novým. Manifest používá relativní `id`, `start_url` a `scope`.
@@ -52,4 +52,4 @@ Neměň `DB_PATH`, neobnovuj starou databázi přes novější a nerestartuj ost
 - `abaku_` prefix autentizačních tokenů a stávající klíče localStorage (chrání přihlášení a uložené lokální partie).
 - Stávající Oracle API URL `https://130.61.49.108/abaku-api` a PM2 službu `abaku-api`. Jde o interní kompatibilní cestu; případnou veřejnou změnu udělej odděleně.
 
-Poznámka: Tento dokument připravuje migraci. Samotné přejmenování GitHubu, Google branding ani Oracle konfigurace se aplikováním kódových změn automaticky neprovedou.
+Poznámka: GitHub repozitář už byl přejmenován. Google branding a Oracle konfigurace se aplikováním kódových změn automaticky nezmění.

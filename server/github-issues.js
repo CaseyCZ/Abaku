@@ -1,5 +1,5 @@
-const DEFAULT_REPOSITORY='CaseyCZ/Abaku';
-const ALLOWED_REPOSITORIES=new Set([DEFAULT_REPOSITORY,'CaseyCZ/Ciselna-Arena']);
+const DEFAULT_REPOSITORY='CaseyCZ/Ciselna-Arena';
+const ALLOWED_REPOSITORIES=new Set(['CaseyCZ/Abaku',DEFAULT_REPOSITORY]);
 const MODES={bot:'Hra proti počítači',local:'Dva hráči na jednom zařízení',online:'Online hra'};
 
 export function validateFeedback(input){
@@ -16,7 +16,7 @@ function escapeForHtmlPre(text){
 
 export class GitHubIssueReporter{
   constructor({token,fetchImpl=fetch,repository=DEFAULT_REPOSITORY}={}){
-    // Keep the current repository working until the owner renames it.
+    // Support the previous repository for a temporary rollback if needed.
     // Never interpolate an arbitrary environment-provided URL into a request.
     if(!ALLOWED_REPOSITORIES.has(repository))throw new Error('Neplatný GitHub repozitář pro hlášení.');
     this.token=token||'';

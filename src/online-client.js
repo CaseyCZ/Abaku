@@ -292,7 +292,7 @@ async function googleCredential(value){
     }else saveCredential(value);
     showProfile(profile);
     if(!lastingSession){
-      $('onlineInfoText').textContent='Jsi přihlášený. Po zavření prohlížeče se může být potřeba přihlásit znovu.';
+      $('onlineInfoText').textContent='Jsi přihlášený. Po zavření prohlížeče může být potřeba přihlásit se znovu.';
     }
     await heartbeat().catch(()=>{});
     await refreshPresence();
@@ -822,7 +822,8 @@ function renderOnline(){
     }
     cell.textContent=digit===null?(bonus?'×'+(bonus==='dd'||bonus==='de'?2:3):''):String(digit);
     cell.disabled=!canPlay||(!p&&digit!==null);
-    cell.setAttribute('aria-label','Řádek '+(row+1)+', sloupec '+(col+1)+(bonus?', '+ONLINE_BONUS_LABELS[bonus]:''));
+    const cellLabel=digit===null?'prázdné políčko':(p?'nově položená číslice ':'číslice ')+digit;
+    cell.setAttribute('aria-label','Řádek '+(row+1)+', sloupec '+(col+1)+', '+cellLabel+(bonus?', '+ONLINE_BONUS_LABELS[bonus]:''));
     cell.title=cell.getAttribute('aria-label');
     cell.addEventListener('click',()=>{
       const old=pending.findIndex(p=>p.row===row&&p.col===col);

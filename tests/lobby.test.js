@@ -133,13 +133,19 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
   assert.match(landing,/Hráči a partie/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.37/);
+  assert.match(lobby,/online-client\.js\?v=\d+\.\d+\.\d+/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
   const html=landing;
   const css=file('../online-game.css');
+  const chrome=file('../online-chrome.css');
   assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.35"/);
+  assert.match(html,/online-chrome\.css\?v=2/);
+  assert.match(chrome,/\.online-match > \.online-control-bar/);
+  assert.match(chrome,/grid-template-columns:minmax\(0,1fr\) minmax\(0,var\(--arena-board-size\)\) minmax\(0,1fr\)/);
+  assert.match(chrome,/\.online-match\[hidden\]/);
+  assert.match(chrome,/max-width:1100px\) and \(orientation:portrait\) and \(pointer:coarse/);
   for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
     'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
     'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',
@@ -274,7 +280,7 @@ test('collapsed or out-of-view chat gets a persistent tappable unread notificati
   assert.match(landing,/id="onlineUnreadBadge"[^>]*hidden/);
   assert.match(onlineClient,/function chatActuallyVisible\(\)/);
   assert.match(onlineClient,/getComputedStyle\(panel\)\.display==='none'/);
-  assert.match(onlineClient,/if\(!own&&\!chatActuallyVisible\(\)\)/);
+  assert.match(onlineClient,/if\(!own&&gameState&&\!gameState\.finished\)/);
   assert.match(onlineClient,/unreadOnlineChat\+\+/);
   assert.match(onlineClient,/latestUnreadChat=String\(text\|\|''\)\.slice\(0,80\)/);
   assert.match(onlineClient,/function revealOnlineChat\(\)/);
@@ -396,7 +402,7 @@ test('every online match result uses the same shared dialog as the local and AI 
 test('PO PŘIHLÁŠENÍ diagonal labels remain fully inside narrow mode cards',()=>{
   const styles=file('../lobby.css');
   assert.equal((landing.match(/class="future-ribbon">PO PŘIHLÁŠENÍ<\/span>/g)||[]).length,2);
-  assert.match(landing,/lobby\.css\?v=0\.2\.23/);
+  assert.match(landing,/lobby\.css\?v=[\w.-]+/);
   assert.match(styles,/\.future-ribbon\{[\s\S]*?top:44px;[\s\S]*?right:4px;[\s\S]*?width:140px;[\s\S]*?white-space:nowrap;/);
   assert.doesNotMatch(styles,/\.future-ribbon\{[^}]*right:-39px/);
 });

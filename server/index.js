@@ -148,7 +148,11 @@ const http=createServer(async(request,response)=>{
   const {pathname,searchParams}=new URL(request.url||'/', 'http://localhost');
   try {
     if(request.method==='GET'&&pathname==='/health')return respond(response,200,{status:'ok',service:'abaku-api'});
-    if(request.method==='GET'&&pathname==='/api/leaderboard')return respond(response,200,{players:store.leaderboard()});
+    if(request.method==='GET'&&pathname==='/api/leaderboard'){
+      const period=searchParams.get('period')||'all';
+      if(!['all','week','month'].includes(period))return respond(response,400,{error:'Neplatné období žebříčku.'});
+      return respond(response,200,{period,players:store.leaderboard(30,period)});
+    }
     // Counts are public and contain no profile data; expired heartbeats are excluded.
     if(request.method==='GET'&&pathname==='/api/presence')return respond(response,200,{
       online:presence.count(engine.connections),waiting:engine.waitingCount(),refreshSeconds:20

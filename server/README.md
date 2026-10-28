@@ -78,14 +78,21 @@ location /abaku-api/ {
 
 For this example, REST `/abaku-api/api/me` is mapped to Node `/api/me`; WebSocket `/abaku-api/ws` maps to `/ws`. Set the frontend API base to your actual HTTPS host plus `/abaku-api`.
 
-The HTTP rate limit uses the direct TCP peer address by default. Behind a local
-NGINX reverse proxy this is `127.0.0.1` for *all* players. To count client
-addresses separately, configure `proxy_set_header X-Real-IP $remote_addr;`
-inside that proxy location, then set `TRUST_PROXY_REAL_IP=1` in the private PM2
-environment and restart the API when no matches are running. The server reads
-the header only from a loopback peer and only with this explicit opt-in.
-Never enable it unless NGINX overwrites the header; an unsanitized incoming
-`X-Real-IP` can be forged by a client.
+Authenticated HTTP actions are limited to 180 requests per minute **per
+verified player**, so people sharing a school/home NAT IP do not exhaust one
+another's quota. Public `/health`, `/api/presence` and leaderboard reads share
+a larger per-IP allowance (5000/minute); session exchange and other public
+write/report endpoints use a separate 1200/minute per-IP envelope and their
+existing stricter report/feedback quotas. WebSocket upgrades have a 3000/minute
+per-IP limit and at most 300 concurrent pending authentications; the existing
+700-unique-player admission limit still applies after authentication.
+
+For public/guest request limits and WebSocket upgrade limits, configure
+`proxy_set_header X-Real-IP $remote_addr;` in the local NGINX proxy location,
+then set `TRUST_PROXY_REAL_IP=1` in the private PM2 environment. The server
+reads this header only from a loopback peer with explicit opt-in. Never enable
+it unless NGINX overwrites the header; an unsanitized incoming `X-Real-IP`
+can be forged by a client.
 
 ## Online player presence (RAM only)
 

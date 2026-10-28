@@ -266,8 +266,9 @@ export class MatchEngine {
       points:validated.points,equations:validated.equations});
     if(match.history.length>30)match.history.shift();
     match.passStreak=0;
-    this.sendTo(uid,{type:'move-accepted',points:validated.points,equations:validated.equations});
-    this.nextTurn(match);
+    this.nextTurn(match,()=>this.sendTo(uid,{
+      type:'move-accepted',points:validated.points,equations:validated.equations
+    }));
   }
   exchange(uid,indices) {
     const match=this.requireTurn(uid);
@@ -290,18 +291,19 @@ export class MatchEngine {
   passTurn(match,reason) {
     this.recordAudit(match,{type:'pass',player:match.turn});
     match.passStreak++;
-    this.toAll(match,{type:'turn-passed',by:match.turn,reason});
-    this.nextTurn(match);
+    const by=match.turn;
+    this.nextTurn(match,()=>this.toAll(match,{type:'turn-passed',by,reason}));
   }
-  nextTurn(match) {
+  nextTurn(match,afterSave=()=>{}) {
     match.turns++;
     if(match.passStreak>=6||(!match.bag.length&&match.players.some(p=>!p.rack.length))) {
-      this.finish(match,'completed');
+      this.finish(match,'completed',null,afterSave);
       return;
     }
     match.turn=1-match.turn;
     match.deadline=this.clock()+match.seconds*1000;
     this.persist(match);
+    afterSave();
     for(const p of match.players)this.sync(p.uid);
   }
   toAll(match,payload){for(const p of match.players)this.sendTo(p.uid,payload);}
@@ -339,7 +341,7 @@ export class MatchEngine {
     }
     this.toAll(match,{type:'rematch-status',status:'requested',by:match.players.findIndex(p=>p.uid===uid)});
   }
-  finish(match,reason,winnerOverride=null) {
+  finish(match,reason,winnerOverride=null,afterSave=()=>{}) {
     if(match.finished)return;
     match.finished=true;
     match.reason=reason;
@@ -348,6 +350,7 @@ export class MatchEngine {
     match.winner=winnerOverride ?? (a.score===b.score ? null : (a.score>b.score?a.uid:b.uid));
     this.onResult({matchId:match.id,ids:[a.uid,b.uid],winner:match.winner,reason});
     this.persist(match);
+    afterSave();
     this.toAll(match,{type:'match-end',winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason});
     for(const p of match.players)this.sync(p.uid);
   }
@@ -413,7 +416,11 @@ export class MatchEngine {
           this.onDelete(match.id);
           this.restoredAwaiting.delete(match.id);
           this.matches.delete(match.id);
-          for(const p of match.players)if(this.byPlayer.get(p.uid)===match)this.byPlayer.delete(p.uid);
+          for(const p of match.players)if(this.byPlayer.get(p.uid)===match){
+            this.byPlayer.delete(p.uid);
+            this.disconnected.delete(p.uid);
+            this.chatAt.delete(p.uid);
+          }
         }
         continue;
       }

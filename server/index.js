@@ -27,8 +27,10 @@ const authClient=new OAuth2Client(clientId);
 const tokenCache=new Map();
 const sockets=new Map();
 const MAX_ONLINE_PLAYERS=700;
+const MAX_PENDING_WS_AUTH=300;
 const fullServerMessage='Server je plný (700/700 hráčů). Zkus to později.';
 const rate=new Map();
+const pendingWsAuth=new Set();
 const reportRate=new Map();
 const feedbackRate=new Map();
 let feedbackDay='',feedbackDayCount=0;
@@ -162,8 +164,22 @@ const http=createServer(async(request,response)=>{
   if(!allowedOrigin(request)){respond(response,403,{error:'Nepovolený původ požadavku.'});return;}
   if(request.method==='OPTIONS'){response.writeHead(204);response.end();return;}
   const requester=clientIp(request);
-  if(limited(requester)){respond(response,429,{error:'Příliš mnoho požadavků.'});return;}
   const {pathname,searchParams}=new URL(request.url||'/', 'http://localhost');
+  // Authenticated operations are rate-limited by verified account, not by
+  // shared school/home NAT IP. Public reads and sign-in still need IP limits.
+  const publicRead=request.method==='GET'&&['/health','/api/presence','/api/leaderboard'].includes(pathname);
+  const guestRoute=(pathname==='/api/session'&&request.method==='POST')||
+    (pathname==='/api/reports'&&['GET','POST'].includes(request.method))||
+    (pathname==='/api/reports/detail'&&request.method==='GET')||
+    (pathname==='/api/feedback'&&request.method==='POST');
+  const authHeader=request.headers.authorization||'';
+  const limitKey=publicRead?'public:'+requester:guestRoute?'guest:'+requester:
+    !authHeader.startsWith('Bearer ')?'missing:'+requester:
+    !authHeader.startsWith('Bearer abaku_')?'google:'+requester:null;
+  const ipCap=publicRead?5000:guestRoute?1200:!authHeader.startsWith('Bearer ')?60:5000;
+  if(limitKey&&limited(limitKey,ipCap)){
+    respond(response,429,{error:'Příliš mnoho požadavků.'});return;
+  }
   try {
     if(request.method==='GET'&&pathname==='/health')return respond(response,200,{status:'ok',service:'abaku-api'});
     if(request.method==='GET'&&pathname==='/api/leaderboard'){
@@ -218,9 +234,11 @@ const http=createServer(async(request,response)=>{
       const bearer=request.headers.authorization||'';
       if(!bearer.startsWith('Bearer '))throw new Error('Přihlášení je vyžadováno.');
       const uid=await verifyGoogle(bearer.slice(7));
+      if(limited('player:'+uid))return respond(response,429,{error:'Příliš mnoho požadavků.'});
       return respond(response,200,store.createSession(uid));
     }
     const uid=await identity(request);
+    if(limited('player:'+uid))return respond(response,429,{error:'Příliš mnoho požadavků.'});
     store.ensure(uid);
     if(request.method==='POST'&&pathname==='/api/reports/online'){
       if(reportLimited(requester))
@@ -296,10 +314,16 @@ http.on('upgrade',(request,socket,head)=>{
   if(!allowedOrigin(request)||new URL(request.url||'/', 'http://localhost').pathname!=='/ws'){
     socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');socket.destroy();return;
   }
+  // WebSocket upgrades previously bypassed all HTTP limits. Bound handshakes
+  // before authentication without blocking a legitimate 700-player school NAT.
+  if(limited('ws-upgrade:'+clientIp(request),3000)||pendingWsAuth.size>=MAX_PENDING_WS_AUTH){
+    socket.end('HTTP/1.1 503 Service Unavailable\r\nConnection: close\r\n\r\n');return;
+  }
   wss.handleUpgrade(request,socket,head,ws=>wss.emit('connection',ws,request));
 });
 wss.on('connection',(ws)=>{
-  let uid=null,authed=false,messages=0,rateWindow=Date.now();
+  let uid=null,authed=false,authInProgress=false,messages=0,rateWindow=Date.now();
+  pendingWsAuth.add(ws);
   const authTimeout=setTimeout(()=>{if(!authed)ws.close(1008,'Přihlášení vypršelo.');},10000);
   ws.on('message',async(data)=>{
     const now=Date.now();
@@ -309,17 +333,26 @@ wss.on('connection',(ws)=>{
       const msg=JSON.parse(data.toString());
       if(!authed){
         if(msg?.type!=='auth')throw new Error('Nejdříve se přihlas.');
-        uid=await verify(msg.idToken);
+        if(authInProgress){ws.close(1008,'Přihlášení již probíhá.');return;}
+        authInProgress=true;
+        let verifiedUid;
+        try{verifiedUid=await verify(msg.idToken);}
+        finally{authInProgress=false;}
+        // An async Google verification can finish after the socket has closed.
+        // Never register a dead socket as a connected player.
+        if(ws.readyState!==1)return;
+        uid=verifiedUid;
         if(!presence.canAdmit(uid,engine.connections,MAX_ONLINE_PLAYERS)){
           ws.close(1013,fullServerMessage);
           return;
         }
+        store.ensure(uid);
         // One live socket per authenticated player.
         const old=sockets.get(uid);
         if(old&&old!==ws)old.close(1000,'Nové připojení');
         sockets.set(uid,ws);
         authed=true;clearTimeout(authTimeout);
-        store.ensure(uid);
+        pendingWsAuth.delete(ws);
         presence.touch(uid);
         push(uid,{type:'authenticated',profile:store.get(uid)});
         engine.connect(uid);
@@ -343,10 +376,15 @@ wss.on('connection',(ws)=>{
       }
     }catch(error){
       if(ws.readyState===1)ws.send(JSON.stringify({type:'error',message:String(error?.message||'Chyba').slice(0,180)}));
+      // Never let a single unauthenticated socket retry expensive Google
+      // verification indefinitely within its ten-second handshake window.
+      if(!authed)ws.close(1008,'Přihlášení se nezdařilo.');
     }
   });
+  ws.on('error',()=>{ /* The close handler releases all per-socket state. */ });
   ws.on('close',()=>{
     clearTimeout(authTimeout);
+    pendingWsAuth.delete(ws);
     if(uid&&sockets.get(uid)===ws){sockets.delete(uid);engine.disconnect(uid);}
   });
 });

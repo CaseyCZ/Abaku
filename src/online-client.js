@@ -1,12 +1,12 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.43';
-import {syncResumeCard} from './resume-card.js?v=0.2.43';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.43';
-import { describeMovePreview } from './preview.js?v=0.2.43';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.43';
-import {ScoreRecap} from './score-recap.js?v=0.2.43';
-import {createGameAudio} from './game-audio.js?v=0.2.43';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.43';
-import {bindFeedback} from './feedback-client.js?v=0.2.43';
+import {revealArenaChat} from './arena-ui.js?v=0.2.44';
+import {syncResumeCard} from './resume-card.js?v=0.2.44';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.44';
+import { describeMovePreview } from './preview.js?v=0.2.44';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.44';
+import {ScoreRecap} from './score-recap.js?v=0.2.44';
+import {createGameAudio} from './game-audio.js?v=0.2.44';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.44';
+import {bindFeedback} from './feedback-client.js?v=0.2.44';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -179,7 +179,7 @@ function updateOnlineReportButtons(){
   const label=kind==='sent'?'Již bylo odesláno'
     :kind==='limit'?'Limit kontrol dosažen'
     :kind==='cooldown'?`Znovu za ${Math.max(1,Math.ceil((status.retryAt-Date.now())/1000))} s`
-    :'Odeslat partii ke kontrole';
+    :'Prověřit partii';
   for(const id of ['onlineReportGameButton','onlineReportResultButton']){
     const button=$(id);
     button.disabled=reportSubmitting||kind!=='ready';

@@ -27,7 +27,7 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 
 ## Dobrovolná kontrola partií
 
-- V nastavení místní i online hry a na výsledkové obrazovce je tlačítko **Odeslat partii ke kontrole**. Nikdy neodesílá nic samo.
+- V nastavení místní i online hry a na výsledkové obrazovce je tlačítko **Prověřit partii**. Nikdy neodesílá nic samo.
 - Offline hra si vede soukromou historii umístění kamenů, zamítnutých pokusů, příkladů, skóre a bonusů v uložené partii v prohlížeči. Online server ukládá historii v soukromé SQLite databázi kvůli obnově po restartu; do dobrovolně odeslaného kontrolního reportu se nedávají UID, přezdívky, chat ani přihlašovací tokeny.
 - `POST /api/reports` přijímá dobrovolný anonymní offline záznam (max. 256 KiB); `POST /api/reports/online` vyžaduje přihlášení a ID vlastní online partie a vytváří záznam ze serverové historie.
 - Samostatný modul `report-audit.js` **nepoužívá** herní validátor: přehrává desku, samostatně vyhodnotí matematiku i sousednost kamenů a přepočítá body/bonusy. Hlásí rozdíly ve vyhodnocení přijatých/zamítnutých tahů.

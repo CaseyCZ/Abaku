@@ -1,4 +1,4 @@
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.43';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.44';
 
 export const REPORT_RULESET='classic-powers-roots-linked-powers';
 export function ensureAudit(game){

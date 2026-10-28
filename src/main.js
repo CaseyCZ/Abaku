@@ -1,15 +1,15 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.43';
-import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.43';
-import {chooseMove} from './ai.js?v=0.2.43';
-import {describeMovePreview} from './preview.js?v=0.2.43';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.43';
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.43';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.44';
+import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.44';
+import {chooseMove} from './ai.js?v=0.2.44';
+import {describeMovePreview} from './preview.js?v=0.2.44';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.44';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.44';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
-  from './player-identity.js?v=0.2.43';
-import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.43';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.43';
-import {reportEligibility,addReportReceipt} from './report-policy.js?v=0.2.43';
-import {createGameAudio} from './game-audio.js?v=0.2.43';
+  from './player-identity.js?v=0.2.44';
+import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.44';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.44';
+import {reportEligibility,addReportReceipt} from './report-policy.js?v=0.2.44';
+import {createGameAudio} from './game-audio.js?v=0.2.44';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-arena-settings-v1';
@@ -522,7 +522,7 @@ function updateReportButtons(){
   const label=state.kind==='sent'?'Již bylo odesláno'
     :state.kind==='limit'?'Limit kontrol dosažen'
     :state.kind==='cooldown'?`Znovu za ${Math.max(1,Math.ceil((state.retryAt-Date.now())/1000))} s`
-    :'Odeslat partii ke kontrole';
+    :'Prověřit partii';
   for(const id of ['reportGameButton','offlineReportResultButton']){
     const button=byId(id);
     button.disabled=reportSubmitting||state.kind!=='ready';

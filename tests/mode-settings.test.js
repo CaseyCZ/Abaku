@@ -79,6 +79,18 @@ test('identical shared settings paragraphs and labels come from one copy table',
   assert.match(ui,/node\.textContent=value/);
 });
 
+test('private match review is labeled consistently and stays separate from public feedback',()=>{
+  assert.match(ui,/reportTitle:'Prověřit partii'/);
+  assert.match(ui,/Nesedí ti uznaný tah nebo body\?/);
+  for(const page of [local,online]){
+    assert.match(page,/data-arena-settings-copy="reportTitle">Prověřit partii/);
+    assert.match(page,/Nahlásit problém/);
+    assert.doesNotMatch(page,/Odeslat partii ke kontrole/);
+  }
+  assert.match(main,/:\s*'Prověřit partii';/);
+  assert.match(client,/:\s*'Prověřit partii';/);
+});
+
 test('sound synthesis is shared but obeys each mode enablement',()=>{
   const oldWindow=globalThis.window;
   const frequencies=[];

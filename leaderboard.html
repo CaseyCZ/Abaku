@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="./analytics.css?v=1">
   <link rel="stylesheet" href="./arena-modern.css?v=1">
   <link rel="stylesheet" href="./arena-home.css?v=2">
+  <link rel="stylesheet" href="./leaderboard-periods.css?v=1">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
 <body class="arena-public">
@@ -33,10 +34,16 @@
         <div><h1>Žebříček</h1><p>Výsledky online hráčů. Pořadí podle úspěšnosti, potom počtu výher a partií.</p></div>
         <button type="button" id="leaderboardRefresh" class="gold-button">Obnovit výsledky</button>
       </div>
+      <div class="leaderboard-periods" role="group" aria-label="Období žebříčku">
+        <button type="button" class="gold-button" data-leaderboard-period="week" aria-pressed="false">Tento týden</button>
+        <button type="button" class="gold-button" data-leaderboard-period="month" aria-pressed="false">Tento měsíc</button>
+        <button type="button" class="gold-button" data-leaderboard-period="all" aria-pressed="true">Celkově</button>
+      </div>
+      <p id="leaderboardPeriodInfo" class="leaderboard-period-info">Týdenní a měsíční statistiky se počítají od spuštění nové evidence výsledků.</p>
       <p id="leaderboardStatus" class="leaderboard-status" role="status" aria-live="polite">Načítám žebříček…</p>
       <div id="leaderboardPanel" class="leaderboard-wrap" hidden>
         <table class="leaderboard-table">
-          <caption>Nejlepší hráči · nejvýše 30 výsledků</caption>
+          <caption>Nejlepší hráči za zvolené období · nejvýše 30 výsledků</caption>
           <thead><tr><th scope="col">#</th><th scope="col">Hráč</th><th scope="col">Partie</th><th scope="col">Výhry</th><th scope="col">Úspěšnost</th></tr></thead>
           <tbody id="leaderboard"></tbody>
         </table>
@@ -49,6 +56,6 @@
     </footer>
   </div>
   <script type="module" src="./src/site-navigation.js?v=1"></script>
-  <script type="module" src="./src/leaderboard.js?v=1"></script>
+  <script type="module" src="./src/leaderboard.js?v=2"></script>
 </body>
 </html>

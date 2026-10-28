@@ -1,0 +1,177 @@
+/* Online match chrome aligned with game.html / game-chrome.css.
+   Layout only: keep the existing online controls, IDs and match protocol. */
+#onlineDialog.online-dialog {
+  width: min(100%, calc(100vw - 12px));
+  max-width: calc(100vw - 12px);
+}
+#onlineDialog .online-dialog-header {
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) !important;
+  grid-template-rows: auto auto auto;
+  gap: 7px 12px;
+  align-items: center;
+  min-height: 0;
+  padding: 8px clamp(12px,2.5vw,32px);
+}
+#onlineDialog .online-dialog-header .online-game-brand {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
+  min-width: 0;
+}
+#onlineDialog .online-dialog-header .online-header-actions {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin: 0;
+  flex-wrap: nowrap;
+}
+#onlineDialog .online-dialog-header .online-header-actions .gold-button {
+  min-height: 42px;
+}
+#onlineDialog .online-dialog-header .online-game-title {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+}
+#onlineDialog .online-dialog-header .online-timer-wrap,
+#onlineDialog .online-dialog-header .online-bag-count { display: none; }
+#onlineDialog:has(#onlineBoardWrapper:not([hidden])) .online-dialog-header .online-game-title {
+  display: none;
+}
+#onlineDialog:has(#onlineBoardWrapper:not([hidden])) .online-dialog-header .online-timer-wrap {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 6px 12px;
+  min-width: 0;
+}
+#onlineDialog .online-dialog-header .online-timer-wrap span {
+  font-size: 10px;
+  letter-spacing: .06em;
+}
+#onlineDialog .online-dialog-header .online-timer-wrap strong {
+  font-size: clamp(19px,2.2vw,26px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+#onlineDialog:has(#onlineBoardWrapper:not([hidden])) .online-dialog-header .online-bag-count {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 0;
+  min-width: 0;
+  white-space: nowrap;
+  font-size: 13px;
+}
+#onlineDialog .online-dialog-header .online-bag-count strong { font-size: 18px; }
+#onlineDialog .online-dialog-header .online-match-scoreboard {
+  grid-column: 1 / -1 !important;
+  grid-row: 3 !important;
+  justify-self: center;
+  display: grid !important;
+  grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+  align-items: stretch;
+  width: min(100%,700px) !important;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 0;
+  gap: clamp(10px,2vw,20px);
+}
+#onlineDialog .online-dialog-header .online-match-scoreboard[hidden] { display: none !important; }
+#onlineDialog .online-dialog-header .online-match-scoreboard .score-divider { display: none; }
+#onlineDialog .online-dialog-header .online-match-scoreboard .online-player-card,
+#onlineDialog .online-dialog-header .online-match-scoreboard #onlinePlayer1Card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center;
+  justify-content: center;
+  grid-row: 1;
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 70px;
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  gap: 4px !important;
+  box-sizing: border-box;
+}
+#onlineDialog .online-dialog-header #onlinePlayer0Card { grid-column: 1; }
+#onlineDialog .online-dialog-header #onlinePlayer1Card { grid-column: 2; }
+#onlineDialog .online-dialog-header .online-match-scoreboard .online-player-name {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center !important;
+  font-size: clamp(12px,1.3vw,16px) !important;
+  line-height: 1.2;
+}
+#onlineDialog .online-dialog-header .online-match-scoreboard .online-player-score {
+  display: flex;
+  flex-direction: column !important;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 !important;
+  gap: 2px;
+}
+#onlineDialog .online-dialog-header .online-player-score strong {
+  font-size: clamp(25px,3vw,40px);
+  font-variant-numeric: tabular-nums;
+}
+#onlineDialog .online-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#onlineDialog .online-control-bar .online-rack-frame { flex: 0 1 auto; min-width: 0; }
+#onlineDialog .online-control-bar .online-match-actions { flex: 0 1 auto; }
+#onlineDialog .online-control-bar .online-game-mode { margin-left: auto; }
+#onlineDialog .online-match-info #onlineScore { display: none; }
+
+@media (max-width: 700px) {
+  #onlineDialog .online-dialog-header {
+    grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) !important;
+    gap: 6px 8px;
+    padding: 8px;
+  }
+  #onlineDialog .online-dialog-header .online-game-brand { font-size: 10px; }
+  #onlineDialog .online-dialog-header .online-brand-mark { width: 35px; height: 35px; font-size: 23px; }
+  #onlineDialog .online-dialog-header .online-header-actions { gap: 4px; }
+  #onlineDialog .online-dialog-header .online-header-actions .gold-button {
+    font-size: 11px;
+    padding: 7px 8px;
+    white-space: nowrap;
+  }
+  #onlineDialog .online-dialog-header .online-game-title { font-size: clamp(12px,3vw,20px); }
+  #onlineDialog .online-dialog-header .online-game-title small { font-size: 8px; letter-spacing: 0; }
+  #onlineDialog .online-dialog-header .online-match-scoreboard { width: 100% !important; gap: 8px; }
+  #onlineDialog .online-dialog-header .online-match-scoreboard .online-player-card,
+  #onlineDialog .online-dialog-header .online-match-scoreboard #onlinePlayer1Card {
+    min-height: 55px;
+    padding: 6px 8px !important;
+  }
+  #onlineDialog .online-dialog-header .online-match-scoreboard .online-player-name {
+    font-size: clamp(11px,2.7vw,15px) !important;
+  }
+  #onlineDialog .online-control-bar { gap: 5px; }
+  #onlineDialog .online-control-bar .online-game-mode { display: none; }
+}

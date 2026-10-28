@@ -6,6 +6,7 @@ const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const game=read('../game.html');
 const home=read('../index.html');
 const css=read('../game-chrome.css');
+const sharedSettings=read('../shared-game-settings.css');
 const main=read('../src/main.js');
 const nav=read('../src/site-navigation.js');
 
@@ -60,8 +61,9 @@ test('local match settings mirror the compact homepage without changing setting 
   assert.match(main,/byId\('settingsForm'\)\.addEventListener\('submit'/);
   assert.match(main,/modeChanged && !confirm/);
   assert.match(main,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
-  assert.match(css,/#settingsDialog \.game-settings-fields\{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(css,/#settingsDialog \.game-settings-toggles\{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-fields \{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-toggles \{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+  assert.match(game,/shared-game-settings\.css\?v=1/);
   const currentVersion=JSON.parse(read('../package.json')).version;
   assert.ok(game.includes('src/version-ui.js?v='+currentVersion));
 });

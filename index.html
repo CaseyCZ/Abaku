@@ -19,7 +19,8 @@
   <link rel="stylesheet" href="./arena-modern.css?v=1">
   <link rel="stylesheet" href="./arena-layout.css?v=0.2.14">
   <link rel="stylesheet" href="./arena-home.css?v=0.2.11">
-  <link rel="stylesheet" href="./online-chrome.css?v=2">
+  <link rel="stylesheet" href="./online-chrome.css?v=3">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=1">
   <link rel="stylesheet" href="./message-badges.css?v=1">
   <link rel="stylesheet" href="./version-history.css?v=0.2.3">
   <script src="./src/analytics.js?v=1" defer></script>
@@ -194,7 +195,7 @@
   <dialog id="onlineDialog" aria-labelledby="onlineDialogTitle" class="online-dialog">
     <div class="online-dialog-inner">
       <header class="online-dialog-header">
-        <div class="online-game-brand"><span class="online-brand-mark">A</span><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
+        <div class="online-game-brand"><img class="online-brand-mark" src="./assets/arena-icon.png" alt="" aria-hidden="true" width="47" height="47"><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
         <div class="online-timer-wrap"><span>ČAS</span><strong id="onlineTimer">01:00</strong></div>
         <div class="online-bag-count">V sáčku <strong id="onlineBagCount">100</strong> čísel</div>
         <div class="online-game-title" id="onlineDialogTitle"><span>✦ ČÍSELNÁ ARÉNA ✦</span><small>Matematický souboj · ONLINE</small></div>
@@ -210,8 +211,9 @@
             </div>
         </div>
         <div class="online-header-actions">
-          <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
           <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka<span id="onlineMenuMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
+          <a href="./how-to-play.html" class="gold-button" target="_blank" rel="noopener">Pravidla</a>
+          <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
         </div>
       </header>
       <p id="onlineStatus" role="status" aria-live="polite">Připojuji se k serveru…</p>
@@ -243,6 +245,7 @@
             <div class="online-board-rim">
               <div id="onlineBoard" class="online-board" role="grid" aria-label="Online deska 15 krát 15"></div>
             </div>
+            <div class="mobile-game-message online-game-message" id="onlineBoardMessage" role="status" aria-live="polite">První tah: sestav příklad přes prostřední pole.</div>
             <div id="onlineLastMoveReview" class="online-last-move-review" role="status" aria-live="polite" hidden></div>
           </section>
 
@@ -295,17 +298,19 @@
     </button>
   </dialog>
   <dialog id="onlineGameSettingsDialog" class="online-game-settings-dialog" aria-labelledby="onlineGameSettingsTitle">
-    <div class="online-game-settings-body">
-      <h2 id="onlineGameSettingsTitle">Nastavení</h2>
-      <section class="settings-main" aria-labelledby="onlineGameDisplayTitle">
-        <h3 id="onlineGameDisplayTitle">Herní obrazovka</h3>
-        <div class="settings-toggle-grid" role="group" aria-label="Zobrazení panelů">
-          <label class="check-line"><input type="checkbox" id="onlineHistorySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
-          <label class="check-line"><input type="checkbox" id="onlineChatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
-        </div>
-        <div class="settings-select-grid">
-          <div class="settings-field">
-            <label for="onlineRecapSeconds">Zobrazení příkladu</label>
+    <div class="online-game-settings-body game-settings-body">
+      <h2 id="onlineGameSettingsTitle">Nastavení partie</h2>
+      <section class="game-settings-section" aria-labelledby="onlineGameSettingsMatchTitle">
+        <h3 id="onlineGameSettingsMatchTitle">Partie</h3>
+        <div class="game-settings-fields">
+          <label class="game-settings-field">Čas na tah
+            <select id="onlineTurnSeconds" aria-describedby="onlineTimeHelp">
+              <option value="30">30 sekund</option>
+              <option value="60" selected>60 sekund</option>
+              <option value="90">90 sekund</option>
+            </select>
+          </label>
+          <label class="game-settings-field">Zobrazení příkladu
             <select id="onlineRecapSeconds" aria-label="Doba zobrazení každého příkladu">
               <option value="0">Vypnuto</option>
               <option value="2">2 sekundy</option>
@@ -314,38 +319,44 @@
               <option value="8">8 sekund</option>
               <option value="10">10 sekund</option>
             </select>
-          </div>
-          <div class="settings-field">
-            <label for="onlineTurnSeconds">Čas na tah (online)</label>
-            <select id="onlineTurnSeconds" aria-describedby="onlineTimeHelp">
-              <option value="30">30 sekund</option>
-              <option value="60" selected>60 sekund</option>
-              <option value="90">90 sekund</option>
-            </select>
-          </div>
+          </label>
         </div>
         <p class="settings-inline-note" id="onlineTimeHelp">Čas na tah platí pouze pro nové online partie.</p>
-        <details class="settings-help-details">
-          <summary>Vysvětlení nastavení</summary>
-          <p>Průběh a chat jsou vedle desky, na telefonu pod ní. Proti počítači se chat nezobrazuje.</p>
-          <p>Vypnuto přeskočí svitek se sčítáním. Položená čísla se i tak na 3 sekundy zvýrazní. Doba zobrazení příkladu platí také proti počítači.</p>
-          <p>Čas na tah se nemění u rozehrané partie; při připojení přes kód jej určuje zakladatel.</p>
-        </details>
       </section>
-      <details class="settings-report-details">
+      <section class="game-settings-section" aria-labelledby="onlineGameDisplayTitle">
+        <h3 id="onlineGameDisplayTitle">Herní obrazovka</h3>
+        <div class="game-settings-toggles" role="group" aria-label="Zobrazení panelů">
+          <label class="check-line"><input type="checkbox" id="onlineHistorySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
+          <label class="check-line"><input type="checkbox" id="onlineChatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
+        </div>
+      </section>
+      <details class="game-settings-details">
+        <summary>Vysvětlení nastavení</summary>
+        <p>Průběh a chat jsou vedle desky, na telefonu pod ní. Proti počítači se chat nezobrazuje.</p>
+        <p>„Vypnuto“ přeskočí vyhodnocení bodů, ale nová čísla se na desce ještě 3 sekundy zvýrazní. Zobrazení příkladu je společné i pro online hru.</p>
+        <p>Čas na tah platí až pro nové online partie. Při připojení přes kód jej určuje zakladatel.</p>
+      </details>
+      <details class="game-settings-details game-settings-report">
         <summary>Odeslat partii ke kontrole</summary>
-        <div class="settings-report-body">
+        <div class="game-settings-report-body">
           <p>Dobrovolně odešle historii tahů, příklady a body. Bez jmen a chatu. Záznam se smaže po 24 hodinách.</p>
           <button type="button" id="onlineReportGameButton" class="gold-button">Odeslat partii ke kontrole</button>
-          <p id="onlineReportGameStatus" role="status" aria-live="polite"></p>
+          <p id="onlineReportGameStatus" class="dialog-note" role="status" aria-live="polite"></p>
+        </div>
+      </details>
+      <details class="game-settings-details game-settings-privacy">
+        <summary>Soukromí a cookies</summary>
+        <div class="game-settings-privacy-actions">
+          <a href="./privacy.html">Zásady soukromí</a>
+          <button type="button" data-cookie-settings>Nastavení cookies</button>
         </div>
       </details>
       <details class="version-history" data-version-history><summary>Historie změn</summary></details>
-      <div class="online-game-settings-actions">
+      <menu class="online-game-settings-actions">
         <button type="button" id="onlineSettingsCancel" class="gold-button">Zrušit</button>
         <button type="button" id="onlineSettingsSave" class="gold-button primary">Uložit</button>
-      </div>
-      <button type="button" id="onlineReportProblemButton" class="gold-button settings-report-problem">Nahlásit problém</button>
+      </menu>
+      <button type="button" id="onlineReportProblemButton" class="gold-button game-settings-report-problem">Nahlásit problém</button>
     </div>
   </dialog> <dialog id="feedbackDialog" aria-labelledby="feedbackTitle">
     <form class="dialog-body feedback-form" id="feedbackForm">

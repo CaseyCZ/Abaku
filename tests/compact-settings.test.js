@@ -5,35 +5,40 @@ import {readFileSync} from 'node:fs';
 const file=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const page=file('../index.html');
 const css=file('../arena-home.css');
+const shared=file('../shared-game-settings.css');
 const start=page.indexOf('<dialog id="onlineGameSettingsDialog"');
 const end=page.indexOf('</dialog>',start);
 const html=page.slice(start,end);
 
-test('both panel toggles and both time selects are compact side-by-side groups',()=>{
+test('both game modes use the same compact settings components',()=>{
   assert.ok(start>=0&&end>start);
-  assert.match(html,/<div class="settings-toggle-grid" role="group" aria-label="Zobrazení panelů">/);
-  assert.match(html,/<div class="settings-select-grid">/);
+  assert.match(html,/<div class="game-settings-toggles" role="group" aria-label="Zobrazení panelů">/);
+  assert.match(html,/<div class="game-settings-fields">/);
+  assert.match(html,/<div class="online-game-settings-body game-settings-body">/);
+  assert.match(html,/<h2 id="onlineGameSettingsTitle">Nastavení partie<\/h2>/);
+  assert.match(page,/href="\.\/shared-game-settings\.css\?v=1"/);
   for(const id of ['onlineHistorySetting','onlineChatSetting','onlineRecapSeconds','onlineTurnSeconds']){
     assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id+' must remain present once');
   }
-  assert.match(css,/#onlineGameSettingsDialog \.settings-toggle-grid\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(css,/#onlineGameSettingsDialog \.settings-select-grid\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(css,/#onlineGameSettingsDialog \.settings-field select\{[^}]*min-width:0/);
+  assert.match(shared,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-toggles/);
+  assert.match(shared,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-fields/);
+  assert.match(shared,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-fields \.game-settings-field select/);
 });
 
 test('help, game reporting and version history are collapsed; issue reporting is last',()=>{
-  assert.match(html,/<details class="settings-help-details">/);
-  assert.match(html,/<details class="settings-report-details">/);
+  assert.match(html,/<details class="game-settings-details">/);
+  assert.match(html,/<details class="game-settings-details game-settings-report">/);
+  assert.match(html,/<details class="game-settings-details game-settings-privacy">/);
   assert.match(html,/<details class="version-history" data-version-history>/);
   assert.doesNotMatch(html,/<details[^>]*\bopen(?:=|>)/);
-  assert.doesNotMatch(html,/href="\.\/privacy\.html"/);
+  assert.match(html,/href="\.\/privacy\.html"/);
   assert.match(page,/<footer class="lobby-footer">[\s\S]*?href="\.\/privacy\.html"/);
   const report=html.indexOf('id="onlineReportGameButton"');
   const status=html.indexOf('id="onlineReportGameStatus"');
   const save=html.indexOf('id="onlineSettingsSave"');
   const issue=html.indexOf('id="onlineReportProblemButton"');
   assert.ok(report>0&&status>report&&save>status&&issue>save);
-  assert.match(html,/id="onlineReportGameStatus" role="status" aria-live="polite"/);
+  assert.match(html,/id="onlineReportGameStatus" class="dialog-note" role="status" aria-live="polite"/);
   assert.match(html,/id="onlineTimeHelp"/);
   assert.match(html,/aria-describedby="onlineTimeHelp"/);
   assert.match(css,/#onlineGameSettingsDialog \.online-game-settings-body\{padding:16px 18px;gap:9px;text-align:left\}/);

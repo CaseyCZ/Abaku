@@ -141,7 +141,7 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
   const css=file('../online-game.css');
   const chrome=file('../online-chrome.css');
   assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.35"/);
-  assert.match(html,/online-chrome\.css\?v=2/);
+  assert.match(html,/online-chrome\.css\?v=3/);
   assert.match(chrome,/\.online-match > \.online-control-bar/);
   assert.match(chrome,/grid-template-columns:minmax\(0,1fr\) minmax\(0,var\(--arena-board-size\)\) minmax\(0,1fr\)/);
   assert.match(chrome,/\.online-match\[hidden\]/);

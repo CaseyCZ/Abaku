@@ -6,6 +6,7 @@ const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const game=read('../game.html');
 const home=read('../index.html');
 const css=read('../game-chrome.css');
+const sharedSettings=read('../shared-game-settings.css');
 const analytics=read('../src/analytics.js');
 
 test('score digits have no independent tinted background while the active card retains its highlight',()=>{
@@ -37,5 +38,5 @@ test('privacy and consent settings are reachable from the game settings dialog',
   assert.match(analytics,/if \(dialog\?\.open\) dialog\.close\(\);/);
   assert.match(analytics,/showBanner\(true\);/);
   assert.match(game,/src\/analytics\.js\?v=2/);
-  assert.match(css,/#settingsDialog \.game-settings-privacy-actions\{/);
+  assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-privacy-actions/);
 });

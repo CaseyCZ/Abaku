@@ -161,6 +161,11 @@ export async function updateOnlineProfile(nickname,avatar){
 function status(text,error=false){
   const target=$('onlineStatus');
   if(target){target.textContent=text;target.dataset.error=error?'true':'false';}
+  // The local game displays move feedback directly below the board on tablets.
+  // Keep the online waiting status above the board but mirror in-game feedback
+  // into the same location as the shared local layout.
+  const boardMessage=$('onlineBoardMessage');
+  if(boardMessage){boardMessage.textContent=text;boardMessage.dataset.error=error?'true':'false';}
 }
 async function api(path,method='GET',data){
   if(!credential)throw new Error('Nejdříve se přihlas přes Google.');

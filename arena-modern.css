@@ -548,8 +548,8 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
   #onlineDialog .online-progress{grid-column:1/-1;grid-row:1;width:calc(100% - 24px);height:16px;margin:7px auto 10px}
   #onlineDialog .online-match{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:max-content}
   #onlineDialog .online-match-layout,#onlineDialog .online-player-side{display:contents}
-  #onlineDialog #onlinePlayer0Card{grid-column:1;grid-row:2}
-  #onlineDialog #onlinePlayer1Card{grid-column:2;grid-row:2}
+  /* Online scores now live in the shared header, not in the match-stage grid.
+     Their placement is owned by online-chrome.css like the local scoreboard. */
   #onlineDialog .online-player-card{width:auto;max-width:none;min-width:0;align-self:stretch;margin:0 5px 9px}
   #onlineDialog .online-player-name{font-size:12px;padding:9px 10px 3px}
   #onlineDialog .online-player-score{padding:0 10px 10px}

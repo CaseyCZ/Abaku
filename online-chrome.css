@@ -147,6 +147,14 @@
 #onlineDialog .online-control-bar .online-game-mode { margin-left: auto; }
 #onlineDialog .online-match-info #onlineScore { display: none; }
 
+/* The offline game uses the same branding image, not a letter placeholder. */
+#onlineDialog .online-dialog-header .online-brand-mark {
+  display:block;flex:none;object-fit:contain;
+  width:47px;height:47px;padding:0;
+  background:none;border:0;border-radius:10px;box-shadow:none;text-shadow:none;
+}
+#onlineDialog .online-game-message {display:none}
+
 @media (max-width: 700px) {
   #onlineDialog .online-dialog-header {
     grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) !important;
@@ -174,6 +182,33 @@
   }
   #onlineDialog .online-control-bar { gap: 5px; }
   #onlineDialog .online-control-bar .online-game-mode { display: none; }
+}
+
+/* Match the local game's score row on every portrait tablet/phone.
+   Older arena-modern.css has #onlineDialog #onlinePlayer*Card {grid-row:2}.
+   Those two-ID selectors out-ranked the general card rules and introduced
+   the empty first row seen in the tablet screenshot. */
+@media (max-width:1100px) and (orientation:portrait), (max-width:740px) {
+  #onlineDialog .online-dialog-header .online-match-scoreboard {
+    grid-row:3!important;
+    grid-template-rows:auto!important;
+    align-content:start;
+  }
+  #onlineDialog .online-dialog-header .online-match-scoreboard #onlinePlayer0Card,
+  #onlineDialog .online-dialog-header .online-match-scoreboard #onlinePlayer1Card {
+    grid-row:1!important;
+    align-self:stretch!important;
+  }
+  #onlineDialog:has(#onlineBoardWrapper:not([hidden])) #onlineStatus {display:none!important}
+  #onlineDialog .online-game-board .online-game-message {
+    display:block;min-height:29px;margin:5px 0;padding:7px 10px;
+    border:1px solid #b7934f;border-radius:9px;
+    background:#0b2240;color:#d7e5f7;
+    font:12px/1.4 Verdana,sans-serif;
+  }
+  #onlineDialog .online-game-board .online-game-message[data-error="true"] {
+    color:#ffc5b3;border-color:#f4937d;
+  }
 }
 
 

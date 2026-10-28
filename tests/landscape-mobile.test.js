@@ -13,7 +13,8 @@ test('landscape phone board follows viewport width, not available height',()=>{
   assert.match(landscape,/--arena-board-size:calc\(100vw - 16px - env\(safe-area-inset-left\) - env\(safe-area-inset-right\)\)/);
   assert.match(landscape,/\.game-app \.main-stage\{[^}]*grid-template-columns:minmax\(0,1fr\)!important/);
   assert.match(landscape,/\.game-app \.center-area\{[^}]*width:100%;max-width:none/);
-  assert.match(landscape,/\.game-app \.board\{[^}]*width:100%;height:auto!important;aspect-ratio:1/);
+  assert.match(landscape,/\.game-app \.board-rim\{[^}]*aspect-ratio:1 \/ 1/);
+  assert.match(landscape,/\.game-app \.board\{[^}]*width:100%;height:100%!important;/);
   assert.match(landscape,/\.game-app \.right-side\{[^}]*grid-column:1;grid-row:2/);
   assert.match(html,/game-chrome\.css\?v=0\.2\.25/);
 });

@@ -1,7 +1,17 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.27';
+export const APP_VERSION = '0.2.29';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.29',
+    date: '28. 10. 2026',
+    description: 'Na PC a tabletech na šířku je skóre s časem nahoře, deska je co největší uprostřed, kompaktní čísla a tlačítka vlevo a průběh partie s chatem vpravo.'
+  },
+  {
+    version: '0.2.28',
+    date: '28. 10. 2026',
+    description: 'Na tabletech na výšku jsou všechna tři akční tlačítka v jedné nižší řadě s čísly, s menšími rámečky a místem pro desku bez posouvání ovládání.'
+  },
   {
     version: '0.2.27',
     date: '28. 10. 2026',

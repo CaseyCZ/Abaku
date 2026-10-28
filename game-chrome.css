@@ -256,6 +256,105 @@
   #settingsDialog .game-settings-toggles .check-line{padding:6px;font-size:11px}
 }
 
+/* Landscape tablet/desktop: five compact header slots, a centered square board,
+   small controls alongside it on the left, and history/chat on its right.
+   No footer below the board: at 100% zoom the board takes the available height. */
+@media (min-width:1101px), (min-width:900px) and (orientation:landscape) and (min-height:601px){
+  :root{
+    --arena-sidebar-width:clamp(200px,18vw,260px);
+    --arena-board-size:min(1100px,calc(100dvh - 104px),calc(100vw - var(--arena-sidebar-width) - var(--arena-sidebar-width) - 40px));
+  }
+  .game-app .top-bar{
+    grid-template-columns:minmax(90px,1fr) minmax(110px,170px) minmax(120px,145px) minmax(110px,170px) minmax(260px,1.7fr)!important;
+    grid-template-rows:38px 17px;column-gap:clamp(4px,.8vw,12px);row-gap:1px;
+    min-height:0;padding:4px clamp(8px,1.2vw,16px);
+  }
+  .game-app .top-bar .brand{grid-column:1;grid-row:1 / span 2;align-self:center}
+  .game-app .top-bar .brand img.brand-mark{width:36px;height:36px}
+  .game-app .top-bar .timer-wrap{
+    grid-column:3;grid-row:1;align-self:center;padding:3px 8px;
+  }
+  .game-app .top-bar > .bag-count{
+    grid-column:3;grid-row:2;justify-self:center;
+    font-size:10px;line-height:1.1;
+  }
+  .game-app .top-bar > .bag-count strong{font-size:13px}
+  .game-app .top-bar .game-navigation{
+    grid-column:5;grid-row:1 / span 2;align-self:center;gap:4px;
+  }
+  .game-app .top-bar .game-navigation .gold-button{
+    min-height:34px;padding:5px 6px;font-size:10px;
+  }
+  /* The existing score elements become header grid items, with IDs unchanged. */
+  .game-app .top-bar .game-header-score,
+  .game-app .top-bar .game-header-score .match-scoreboard{display:contents!important}
+  .game-app .top-bar .game-header-score .match-scoreboard #player0Card{
+    grid-column:2;grid-row:1 / span 2;align-self:center;
+  }
+  .game-app .top-bar .game-header-score .match-scoreboard #player1Card{
+    grid-column:4;grid-row:1 / span 2;align-self:center;
+  }
+  .game-app .top-bar .game-header-score .match-scoreboard .player-card,
+  .game-app .top-bar .game-header-score .match-scoreboard #player1Card{
+    flex-direction:row!important;min-height:42px;
+    padding:4px 6px!important;gap:5px!important;
+  }
+  .game-app .top-bar .game-header-score .match-scoreboard .player-name{
+    width:auto;max-width:63%;flex:0 1 auto;
+    font-size:clamp(11px,1vw,14px)!important;
+  }
+  .game-app .top-bar .game-header-score .match-scoreboard .score strong{
+    font-size:clamp(23px,2.3vw,30px);
+  }
+  .game-app .progress-track{
+    width:min(var(--arena-board-size),calc(100% - 24px));margin:2px auto;
+  }
+  .game-app .main-stage{
+    grid-template-columns:minmax(0,var(--arena-sidebar-width)) minmax(0,var(--arena-board-size)) minmax(0,var(--arena-sidebar-width))!important;
+    column-gap:10px;justify-content:center;padding:2px 10px 0;
+  }
+  .game-app .center-area{grid-column:2;grid-row:1}
+  .game-app .right-side{
+    grid-column:3;grid-row:1;max-height:var(--arena-board-size);
+    margin:0;align-self:start;
+  }
+  .game-app .right-side .side-panel{max-height:var(--arena-board-size)}
+  /* The former footer is a small, centered card in the left grid track. */
+  .game-app .control-bar{
+    grid-column:1;grid-row:1;justify-self:center;align-self:center;
+    display:flex;flex-direction:column;align-items:stretch;
+    width:min(100%,210px);max-width:210px;min-height:0;height:auto;
+    gap:8px;margin:0;padding:10px;border-radius:12px;
+  }
+  .game-app .control-bar .rack-frame{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:auto 40px;gap:6px;width:100%;min-height:0;padding:0;
+  }
+  .game-app .control-bar .rack{
+    grid-column:1 / -1;grid-row:1;
+    display:flex;justify-content:space-between;align-items:center;
+    width:100%;min-width:0;max-width:none;height:48px;padding:3px;gap:2px;
+  }
+  .game-app .control-bar .tile{
+    flex:1 1 0;width:0;min-width:0;height:40px;font-size:24px;
+  }
+  .game-app .control-bar #undoButton,
+  .game-app .control-bar #confirmButton{
+    width:100%;height:40px;min-width:0;border-radius:9px;
+  }
+  .game-app .control-bar #undoButton{grid-column:1;grid-row:2}
+  .game-app .control-bar #confirmButton{grid-column:2;grid-row:2}
+  .game-app .control-bar .game-controls{
+    display:flex;flex-direction:column;align-items:stretch;
+    width:100%;gap:5px;
+  }
+  .game-app .control-bar .game-controls .gold-button{
+    width:100%;min-width:0;min-height:38px;padding:5px 7px;
+    font-size:12px;white-space:normal;
+  }
+  .game-app .control-bar .game-mode{display:none!important}
+}
+
 
 /* Tablet portrait: fit the digit rack and every action in one compact row.
    Keep the square board within the remaining height so the actions are visible

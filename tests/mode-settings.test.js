@@ -48,6 +48,13 @@ test('home settings explain both game modes, while in-match settings remain onli
   assert.match(client,/onlineSettingsButton'\)\.addEventListener\('click',\(\)=>openSettings\(false\)\)/);
 });
 
+test('privacy links stay on the home page and in live game settings without duplicating home dialog links',()=>{
+  assert.match(online,/<footer class="lobby-footer">[\s\S]*?href="\.\/privacy\.html"[\s\S]*?data-cookie-settings[\s\S]*?<\/footer>/);
+  assert.match(online,/id="onlineSettingsPrivacy"/);
+  assert.match(local,/class="game-settings-details game-settings-privacy"/);
+  assert.match(client,/\$\('onlineSettingsPrivacy'\)\.hidden=fromHome/);
+});
+
 test('display preferences are independent, with legacy preference as fallback',()=>{
   assert.match(ui,/arena-local-panels-v1/);
   assert.match(ui,/arena-online-panels-v1/);

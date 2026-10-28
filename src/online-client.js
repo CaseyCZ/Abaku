@@ -1,12 +1,12 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.42';
-import {syncResumeCard} from './resume-card.js?v=0.2.42';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.42';
-import { describeMovePreview } from './preview.js?v=0.2.42';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.42';
-import {ScoreRecap} from './score-recap.js?v=0.2.42';
-import {createGameAudio} from './game-audio.js?v=0.2.42';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.42';
-import {bindFeedback} from './feedback-client.js?v=0.2.42';
+import {revealArenaChat} from './arena-ui.js?v=0.2.43';
+import {syncResumeCard} from './resume-card.js?v=0.2.43';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.43';
+import { describeMovePreview } from './preview.js?v=0.2.43';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.43';
+import {ScoreRecap} from './score-recap.js?v=0.2.43';
+import {createGameAudio} from './game-audio.js?v=0.2.43';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.43';
+import {bindFeedback} from './feedback-client.js?v=0.2.43';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -1043,6 +1043,7 @@ function initializeActions(){
     $('onlineSoundSetting').checked=onlineSoundEnabled;
     $('homeLocalTimeHelp').hidden=!fromHome;
     $('homeLocalSettingsExplanation').hidden=!fromHome;
+    $('onlineSettingsPrivacy').hidden=fromHome;
     updateOnlineReportButtons();
     if(!inGameSettings.open)inGameSettings.showModal();
   };

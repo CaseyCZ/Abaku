@@ -28,7 +28,7 @@ test('online uses shared compact styling with its own visibility and sound switc
 test('help, game reporting and version history are collapsed; issue reporting is last',()=>{
   assert.match(html,/<details class="game-settings-details">/);
   assert.match(html,/<details class="game-settings-details game-settings-report">/);
-  assert.match(html,/<details class="game-settings-details game-settings-privacy">/);
+  assert.match(html,/<details id="onlineSettingsPrivacy" class="game-settings-details game-settings-privacy">/);
   assert.match(html,/<details class="version-history" data-version-history>/);
   assert.doesNotMatch(html,/<details[^>]*\bopen(?:=|>)/);
   assert.match(html,/href="\.\/privacy\.html"/);

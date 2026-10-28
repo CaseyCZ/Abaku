@@ -35,6 +35,23 @@ test('friend requests require recipient approval',()=>{
     assert.equal(s.friends('playerA').length,1);
   }finally{s.close();}
 });
+test('outgoing requests list only pending invites and decline removes them',()=>{
+  const s=openStore(':memory:');
+  try {
+    s.ensure('alice');s.ensure('bob');
+    const alice=s.get('alice').id,bob=s.get('bob').id;
+    s.request('alice',bob);
+    assert.deepEqual(s.outgoing('alice').map(p=>p.id),[bob]);
+    assert.deepEqual(s.incoming('bob').map(p=>p.id),[alice]);
+    s.respond('bob',alice,false);
+    assert.equal(s.outgoing('alice').length,0);
+    assert.equal(s.incoming('bob').length,0);
+    s.request('alice',bob);
+    s.respond('bob',alice,true);
+    assert.equal(s.outgoing('alice').length,0);
+    assert.equal(s.friends('alice').length,1);
+  } finally {s.close();}
+});
 test('nickname validation and uniqueness',()=>{
   const s=openStore(':memory:');
   try {

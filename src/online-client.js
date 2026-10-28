@@ -43,7 +43,7 @@ function saveCredential(token){
       localStorage.setItem(durableSessionKey,token);
       sessionStorage.removeItem(authSessionKey);
     }else{
-      // Legacy fallback when the online API is still awaiting deployment.
+      // If session exchange fails, keep the short-lived Google token in this tab only.
       sessionStorage.setItem(authSessionKey,token);
     }
   }catch{}
@@ -104,7 +104,9 @@ function paintPresence(data){
   const msg=data.waiting===0
     ? 'Nikdo právě nečeká. Můžeš zahájit hledání.'
     : data.waiting===1 ? '1 hráč právě hledá soupeře.'
-    : data.waiting+' hráči právě hledají soupeře.';
+    : data.waiting>=2&&data.waiting<=4
+      ? data.waiting+' hráči právě hledají soupeře.'
+      : data.waiting+' hráčů právě hledá soupeře.';
   $('queueActivity').textContent=msg;
   $('onlineWaitingCount').textContent='Nyní čeká na náhodného soupeře: '+data.waiting+'.';
 }
@@ -278,8 +280,8 @@ async function googleCredential(value){
     let lastingSession=isAppSession(value);
     if(!lastingSession){
       // Convert the short-lived Google ID token to a reusable, server-revocable
-      // session. If Oracle is not upgraded yet, retain the old tab session
-      // rather than logging the player out on an unrelated API error.
+      // session. If exchange fails temporarily, retain the tab-scoped token
+      // rather than interrupting the player's current login.
       try{
         const {sessionToken}=await api('/api/session','POST');
         if(!isAppSession(sessionToken))throw new Error('Server nevrátil platnou relaci.');
@@ -320,16 +322,6 @@ async function googleCredential(value){
 }
 // Chat can be collapsed or far below the visible game board on a phone.
 // Keep a compact, tappable notification at the viewport edge until read.
-function chatActuallyVisible(){
-  const panel=$('onlinePanelChat');
-  const chat=$('onlineChat');
-  if(!$('onlineDialog').open||!panel||!chat)return false;
-  if(getComputedStyle(panel).display==='none')return false;
-  const box=chat.getBoundingClientRect();
-  const dialog=$('onlineDialog').getBoundingClientRect();
-  const top=Math.max(0,dialog.top),bottom=Math.min(window.innerHeight,dialog.bottom);
-  return box.width>0&&box.height>0&&box.top<bottom-40&&box.bottom>top+40;
-}
 function refreshUnreadChat(){
   const toast=$('onlineChatToast');
   const badge=$('onlineUnreadBadge');
@@ -1325,9 +1317,9 @@ export async function initOnline(){
   $('onlineLoginNotice').textContent='Obnovuji přihlášení…';
   $('onlineInfoText').textContent='Hraj s náhodným soupeřem nebo pozvi přítele.';
 
-  // Restore a server-verified device session from any browser tab; fallback to
-  // the old single-tab Google ID token during the server upgrade. A session
-  // expired or explicitly revoked on Oracle cannot restore login.
+  // Restore a server-verified device session from any browser tab, or a
+  // tab-scoped Google ID token when session exchange previously failed.
+  // Expired or revoked device sessions cannot restore login.
   const saved=readSavedCredential();
   if(saved&&await googleCredential(saved))return;
 

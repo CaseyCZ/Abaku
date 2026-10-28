@@ -45,8 +45,8 @@ export function replenishPlayerRack(bag, player) {
 
 // Eight arithmetic operations without symbols on stones. Powers and roots
 // use an implicit exponent/radical; two stones can be a complete example.
-export function formatEquation(sequence) {
-  if (!/^\d{2,9}$/.test(sequence)) return null;
+function formatBinaryEquation(sequence) {
+  if (!/^\d{3,9}$/.test(sequence)) return null;
   if (sequence.length >= 3) {
     for (let aEnd = 1; aEnd <= Math.min(3, sequence.length - 2); aEnd++) {
       for (let bEnd = aEnd + 1; bEnd <= Math.min(aEnd + 3, sequence.length - 1); bEnd++) {
@@ -61,6 +61,13 @@ export function formatEquation(sequence) {
       }
     }
   }
+  return null;
+}
+
+export function formatEquation(sequence) {
+  if (!/^\d{2,9}$/.test(sequence)) return null;
+  const binary = formatBinaryEquation(sequence);
+  if (binary) return binary;
   for (let split = 1; split < sequence.length; split++) {
     const left = sequence.slice(0, split), right = sequence.slice(split);
     if ((left.length > 1 && left[0] === '0') || (right.length > 1 && right[0] === '0')) continue;
@@ -95,6 +102,25 @@ function getRuns(board, axis, index) {
   return runs;
 }
 
+// An existing completed example can lend its final result to the next example.
+// E.g. 5611 (5 + 6 = 11) followed by 29 creates 1129 (11 - 2 = 9).
+// A lone power/root inside an invalid extension such as 9724 -> 24 is not
+// enough: the continuation must itself be a complete three-term calculation.
+function isValidLinkedRun(run, newIds) {
+  const firstNew = run.findIndex(p => newIds.has(id(p.row, p.col)));
+  if (firstNew < 2 || !run.slice(firstNew).every(p => newIds.has(id(p.row, p.col)))) return false;
+  const old = run.slice(0, firstNew).map(p => p.digit).join('');
+  const added = run.slice(firstNew).map(p => p.digit).join('');
+  for (let start = 0; start < old.length - 1; start++) {
+    const ending = old.slice(start);
+    const equation = formatEquation(ending);
+    if (!equation) continue;
+    const result = equation.match(/= (\d+)$/)?.[1];
+    if (result && ending.endsWith(result) && formatBinaryEquation(result + added)) return true;
+  }
+  return false;
+}
+
 function findNewEquations(board, newIds) {
   const rows = new Set();
   const cols = new Set();
@@ -107,10 +133,10 @@ function findNewEquations(board, newIds) {
     for (const index of indices) {
       for (const run of getRuns(board, axis, index)) {
         if (run.length < 2 || !run.some(p => newIds.has(id(p.row,p.col)))) continue;
-        // The entire uninterrupted row/column must be an equation first.
-        // Only then may shorter overlapping equations within it also score.
+        // The entire line must work, or the new digits must continue an
+        // existing example from its final result (without re-scoring it).
         const text = run.map(p => p.digit).join('');
-        if (!readsAsEquation(text)) return null;
+        if (!readsAsEquation(text) && !isValidLinkedRun(run, newIds)) return null;
         for (let start = 0; start < run.length; start++) {
           for (let end = start + 2; end <= Math.min(run.length, start + 9); end++) {
             const cells = run.slice(start, end);
@@ -156,7 +182,7 @@ export function validateMove(board, placements) {
 
   const equations = findNewEquations(next, keys);
   if (equations === null)
-    return {valid: false, reason: 'Celá souvislá řada čísel musí tvořit platný příklad.'};
+    return {valid: false, reason: 'Celá souvislá řada musí tvořit platný příklad nebo navazovat novým příkladem na poslední výsledek.'};
   if (!equations.length) return {valid: false, reason: 'Nevznikl žádný platný početní příklad.'};
   const covered = new Set(equations.flatMap(eq => eq.cells.map(p => id(p.row,p.col))));
   if (placements.some(p => !covered.has(id(p.row,p.col))))

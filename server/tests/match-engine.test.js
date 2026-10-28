@@ -209,7 +209,7 @@ test('online server accepts a square root and reports it under the updated rules
   assert.equal(match.lastMove.equationBreakdown[0].equation,'√4 = 2');
   assert.deepEqual(match.lastMove.cells,[{row:7,col:7},{row:7,col:8}]);
   assert.ok(out.filter(x=>x.type==='match-state'&&x.turns===1).every(x=>x.lastMove.points===match.lastMove.points));
-  assert.equal(game.reportFor('a',match.id).ruleset,'classic-powers-roots-strict');
+  assert.equal(game.reportFor('a',match.id).ruleset,'classic-powers-roots-linked');
 });
 
 test('online scorecards receive safe nicknames and recent move history after reconnect',()=>{

@@ -18,7 +18,7 @@ Například z čísel **2, 6 a 8** může vzniknout příklad **2 + 6 = 8**. Vyu
 
 Za vytvořené příklady získáváš body. Bonusová políčka a chytré napojení na již položená čísla ti pomohou dosáhnout vyššího skóre.
 
-Každá nepřerušená řada čísel ovlivněná tahem musí **jako celek** tvořit platný příklad. Teprve potom hra započítá i případné kratší příklady uvnitř. Například `9724` nelze uznat pouze jako kombinaci `972` a `24`.
+Nový tah musí vytvořit **platný hlavní příklad** s přidanými čísly. Může přitom navázat na výsledek již položeného příkladu: za `5611` (5 + 6 = 11) lze přidat `29` a vytvořit `1129` (11 − 2 = 9). Po uznání hlavního příkladu se bodují i další nově vzniklé kratší příklady. Samotné `9724` zůstává neplatné — nelze jej uznat jen díky dvojici `24` (2² = 4) uvnitř neplatného prodloužení.
 
 ## ⚔️ Jak chceš hrát?
 

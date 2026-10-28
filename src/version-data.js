@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.31';
+export const APP_VERSION = '0.2.32';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.32',
+    date: '28. 10. 2026',
+    description: 'Nový tah smí navázat na výsledek předchozího příkladu: k 5 + 6 = 11 lze přidat 2 a 9, čímž vznikne 11 − 2 = 9. Další nové platné příklady se také bodují. Chybné 9724 nadále neprojde; aktualizována kontrola partií.'
+  },
   {
     version: '0.2.31',
     date: '28. 10. 2026',

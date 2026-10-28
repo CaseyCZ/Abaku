@@ -74,6 +74,31 @@ test('strict rules reject 9724 as a whole while historical checks keep their ori
   assert.equal(auditReport(report).ok,true,'the old stored game was valid under its own version');
 });
 
+test('linked reports score a new equation from the old result without changing strict history',()=>{
+  const first=[...('5611')].map((digit,i)=>({row:7,col:5+i,digit:Number(digit)}));
+  const second=[{row:7,col:9,digit:2},{row:7,col:10,digit:9}];
+  const opening=validateMove(emptyBoard(),first);
+  const continuation=validateMove(opening.board,second);
+  assert.equal(opening.valid,true);
+  assert.equal(continuation.valid,true);
+  const report={mode:'bot',ruleset:'classic-powers-roots-linked',partial:false,
+    initialBoard:emptyBoard(),initialScores:[0,0],
+    events:[{type:'move',player:0,accepted:true,placements:first,
+      points:opening.points,equations:opening.equations,breakdown:opening.equationBreakdown},
+    {type:'move',player:1,accepted:true,placements:second,
+      points:continuation.points,equations:continuation.equations,breakdown:continuation.equationBreakdown}],
+    finalBoard:continuation.board,finalScores:[opening.points,continuation.points]};
+  assert.equal(auditReport(report).ok,true,JSON.stringify(auditReport(report).issues));
+  report.ruleset='classic-powers-roots-strict';
+  assert.ok(auditReport(report).issues.some(i=>i.type==='accepted-invalid'));
+  const invalid=gameReport('972','classic-powers-roots-linked');
+  invalid.events.push({type:'move',player:1,accepted:true,
+    placements:[{row:7,col:10,digit:4}],points:10,equations:['24']});
+  invalid.finalBoard[7][10]=4;
+  invalid.finalScores=[invalid.finalScores[0],10];
+  assert.ok(auditReport(invalid).issues.some(i=>i.type==='accepted-invalid'));
+});
+
 test('independent checker agrees with actual powers and roots and their bonus scores',()=>{
   for(const digits of ['24','42','273','749','8512','1248']){
     const report=gameReport(digits,'classic-powers-roots-strict');

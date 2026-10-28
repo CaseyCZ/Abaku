@@ -96,6 +96,28 @@ test('extending a formerly valid line must leave the whole new line valid',()=>{
   assert.equal(correct.valid,false,'5321 has no full arithmetic meaning either');
 });
 
+test('a new calculation may start from the result at the end of an older calculation',()=>{
+  const old=validateMove(emptyBoard(),tiles('5611',7,5));
+  assert.equal(old.valid,true,old.reason);
+  const linked=validateMove(old.board,[{row:7,col:9,digit:2},{row:7,col:10,digit:9}]);
+  assert.equal(linked.valid,true,linked.reason);
+  assert.ok(linked.equations.includes('1129'),'11 - 2 = 9 must score');
+  assert.ok(linked.equations.includes('112'),'other new valid examples also score');
+  assert.ok(!linked.equations.includes('5611'),'old example must not score again');
+  assert.ok(!linked.equations.includes('561129'),'invalid concatenation is not scored');
+  const another=validateMove(linked.board,[{row:7,col:11,digit:2},{row:7,col:12,digit:7}]);
+  assert.equal(another.valid,true,another.reason);
+  assert.ok(another.equations.includes('927'),'9 - 2 = 7 starts from the next result');
+});
+
+test('an invalid extension cannot be saved solely by a short power inside it',()=>{
+  const old=validateMove(emptyBoard(),tiles('972'));
+  assert.equal(old.valid,true,old.reason);
+  const result=validateMove(old.board,[{row:7,col:9,digit:4}]);
+  assert.equal(result.valid,false,'9724 is not valid merely because 2² = 4');
+  assert.match(result.reason,/Celá souvislá řada/);
+});
+
 test('extending a board can yield new examples',()=>{
   const initial=validateMove(emptyBoard(),tiles('279'));
   const extension=validateMove(initial.board,[{row:7,col:9,digit:3}]);

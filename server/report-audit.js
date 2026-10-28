@@ -3,8 +3,8 @@
 const SIZE=15;
 const MAX_EVENTS=600;
 
-function operation(digits,ruleset){
-  if(!/^\d{2,9}$/.test(digits))return null;
+function binaryOperation(digits,ruleset){
+  if(!/^\d{3,9}$/.test(digits))return null;
   if(digits.length>=3){
     for(let i=1;i<=Math.min(3,digits.length-2);i++){
       for(let j=i+1;j<=Math.min(i+3,digits.length-1);j++){
@@ -20,7 +20,14 @@ function operation(digits,ruleset){
       }
     }
   }
-  if(!['classic-powers-roots','classic-powers-roots-strict'].includes(ruleset))return null;
+  return null;
+}
+
+function operation(digits,ruleset){
+  if(!/^\d{2,9}$/.test(digits))return null;
+  const binary=binaryOperation(digits,ruleset);
+  if(binary)return binary;
+  if(!['classic-powers-roots','classic-powers-roots-strict','classic-powers-roots-linked'].includes(ruleset))return null;
   for(let i=1;i<digits.length;i++){
     const left=digits.slice(0,i),right=digits.slice(i);
     if((left.length>1&&left[0]==='0')||(right.length>1&&right[0]==='0'))continue;
@@ -47,6 +54,21 @@ const isBoard=board=>Array.isArray(board)&&board.length===SIZE&&board.every(row=
   Array.isArray(row)&&row.length===SIZE&&row.every(n=>n===null||(Number.isInteger(n)&&n>=0&&n<=9)));
 const isScores=scores=>Array.isArray(scores)&&scores.length===2&&scores.every(n=>Number.isSafeInteger(n)&&n>=0);
 
+function validLinkedContinuation(run,keys,ruleset){
+  const firstNew=run.findIndex(p=>keys.has(cellId(p.row,p.col)));
+  if(firstNew<2||!run.slice(firstNew).every(p=>keys.has(cellId(p.row,p.col))))return false;
+  const prefix=run.slice(0,firstNew).map(p=>p.digit).join('');
+  const added=run.slice(firstNew).map(p=>p.digit).join('');
+  for(let start=0;start<prefix.length-1;start++){
+    const end=prefix.slice(start);
+    const old=operation(end,ruleset);
+    if(!old)continue;
+    const result=old.match(/= (\d+)$/)?.[1];
+    if(result&&end.endsWith(result)&&binaryOperation(result+added,ruleset))return true;
+  }
+  return false;
+}
+
 function inspect(board,placed,ruleset){
   if(!Array.isArray(placed)||placed.length<1||placed.length>5)return {valid:false};
   const keys=new Set();
@@ -71,7 +93,7 @@ function inspect(board,placed,ruleset){
     board[p.row+dr]?.[p.col+dc]!==undefined&&board[p.row+dr][p.col+dc]!==null)))return {valid:false};
   const expressions=[];
   const allRows=new Set(placed.map(p=>p.row)),allCols=new Set(placed.map(p=>p.col));
-  const strict=ruleset==='classic-powers-roots-strict';
+  const strict=['classic-powers-roots-strict','classic-powers-roots-linked'].includes(ruleset);
   for(const [axis,indices] of [['row',allRows],['col',allCols]]){
     for(const index of indices){
       let run=[];
@@ -79,7 +101,8 @@ function inspect(board,placed,ruleset){
         if(strict){
           if(run.length<2||!run.some(p=>keys.has(cellId(p.row,p.col))))return true;
           const sequence=run.map(p=>p.digit).join('');
-          if(!operation(sequence,ruleset))return false;
+          if(!operation(sequence,ruleset)&&
+            !(ruleset==='classic-powers-roots-linked'&&validLinkedContinuation(run,keys,ruleset)))return false;
         }
         for(let start=0;start<run.length;start++)for(let end=start+2;end<=Math.min(run.length,start+9);end++){
           const cells=run.slice(start,end);
@@ -126,7 +149,7 @@ function inspect(board,placed,ruleset){
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 export function auditReport(input){
   if(!input||!['bot','local','online'].includes(input.mode)||
-    !['legacy-0.2','classic-powers-roots','classic-powers-roots-strict'].includes(input.ruleset)||
+    !['legacy-0.2','classic-powers-roots','classic-powers-roots-strict','classic-powers-roots-linked'].includes(input.ruleset)||
     !isBoard(input.initialBoard)||!isBoard(input.finalBoard)||
     !isScores(input.initialScores)||!isScores(input.finalScores)||
     !Array.isArray(input.events)||input.events.length<1||input.events.length>MAX_EVENTS||

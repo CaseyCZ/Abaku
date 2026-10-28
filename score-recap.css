@@ -12,7 +12,6 @@
   display:grid;grid-template-columns:21px minmax(0,1fr) 21px;
   border-radius:14px;
   filter:drop-shadow(0 9px 17px #030811b3);
-  font-family:Georgia,serif;
 }
 .arena-score-cap{
   border-radius:13px;

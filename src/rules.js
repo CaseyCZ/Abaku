@@ -106,13 +106,17 @@ function findNewEquations(board, newIds) {
   for (const [axis, indices] of [['row', rows], ['col', cols]]) {
     for (const index of indices) {
       for (const run of getRuns(board, axis, index)) {
+        if (run.length < 2 || !run.some(p => newIds.has(id(p.row,p.col)))) continue;
+        // The entire uninterrupted row/column must be an equation first.
+        // Only then may shorter overlapping equations within it also score.
+        const text = run.map(p => p.digit).join('');
+        if (!readsAsEquation(text)) return null;
         for (let start = 0; start < run.length; start++) {
           for (let end = start + 2; end <= Math.min(run.length, start + 9); end++) {
             const cells = run.slice(start, end);
-            if (!cells.some(p => newIds.has(id(p.row, p.col)))) continue;
-            if (readsAsEquation(cells.map(p => p.digit).join(''))) {
-              equations.push({axis, cells, text: cells.map(p => p.digit).join('')});
-            }
+            if (!cells.some(p => newIds.has(id(p.row,p.col)))) continue;
+            const sequence = cells.map(p => p.digit).join('');
+            if (readsAsEquation(sequence)) equations.push({axis,cells,text:sequence});
           }
         }
       }
@@ -151,6 +155,8 @@ export function validateMove(board, placements) {
   }))) return {valid: false, reason: 'Nový tah musí navazovat na položená čísla.'};
 
   const equations = findNewEquations(next, keys);
+  if (equations === null)
+    return {valid: false, reason: 'Celá souvislá řada čísel musí tvořit platný příklad.'};
   if (!equations.length) return {valid: false, reason: 'Nevznikl žádný platný početní příklad.'};
   const covered = new Set(equations.flatMap(eq => eq.cells.map(p => id(p.row,p.col))));
   if (placements.some(p => !covered.has(id(p.row,p.col))))

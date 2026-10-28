@@ -23,7 +23,7 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - Run it behind HTTPS/WSS with strict allowed origins and client request limits.
 - A server restart reloads ongoing matches and gives disconnected players a recovery window; matchmaking/chat and unsent invitations are cleared. Match settlement is idempotent via `settled_matches` and commits the final snapshot together with the result. Failed snapshot writes restore the last committed in-memory board instead of silently accepting an unsaved move.
 - Six invalid board moves may be recorded per five-second window for a player; further attempts temporarily return an error without another SQLite write.
-- Changing to any public domain requires updating Google authorized JavaScript origins and `CORS_ORIGIN`.
+- Changing the public **origin** requires updating Google authorized JavaScript origins and `CORS_ORIGIN`. Renaming only the GitHub Pages project path from `/Abaku/` to `/Ciselna-Arena/` leaves the origin `https://caseycz.github.io` unchanged.
 
 ## Dobrovolná kontrola partií
 
@@ -35,6 +35,7 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - Soubory ukládej **mimo repozitář a mimo webový adresář**. Výchozí soukromá cesta je `/home/ubuntu/abaku-reports`, změnitelná pomocí `ABAKU_REPORT_DIR`; práva složky `0700`, souborů `0600`. Počet uchovávaných reportů je omezen na 500.
 - Server soubory maže při spuštění, při každém seznamu a jednou za hodinu, jakmile jsou starší než 24 hodin. Oprávněný správce může soukromě používat `GET /api/reports` a `GET /api/reports/detail?id=<uuid>` s HTTP hlavičkou `Authorization: Bearer <ABAKU_REPORT_ADMIN_TOKEN>`; token musí mít alespoň 32 znaků. Bez tohoto nastavení jsou čtecí cesty uzamčené.
 - Přístup do existujícího dashboardu lze připojit pouze ze serverové části dashboardu; **nikdy** nevkládej admin token do veřejné stránky nebo JavaScriptu.
+- GitHub Issues repozitář lze pro bezpečné přejmenování vybrat privátní proměnnou `ABAKU_GITHUB_REPO` (`CaseyCZ/Abaku` nebo `CaseyCZ/Ciselna-Arena`). Před přejmenováním se používá původní repozitář, po přejmenování nastav novou hodnotu v PM2 a restartuj pouze `abaku-api`, až nehrají žádní hráči. Ostatní identifikátory relací, databázové cesty a veřejná API adresa se kvůli změně GitHub Pages nemění.
 - Běžné vývojové ověření je `npm test` z kořene repozitáře; před produkčním restartem zkontroluj aktivní hráče a stav zálohy. Nasazení nové perzistence poprvé obnovu starých, dosud neuložených RAM partií nezajistí.
 
 ## Local smoke tests

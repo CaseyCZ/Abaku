@@ -36,7 +36,10 @@ const reportRate=new Map();
 const feedbackRate=new Map();
 let feedbackDay='',feedbackDayCount=0;
 const reportStore=new ReportStore({directory:process.env.ABAKU_REPORT_DIR||'/home/ubuntu/abaku-reports'});
-const issueReporter=new GitHubIssueReporter({token:process.env.ABAKU_GITHUB_ISSUES_TOKEN});
+const issueReporter=new GitHubIssueReporter({
+  token:process.env.ABAKU_GITHUB_ISSUES_TOKEN,
+  repository:process.env.ABAKU_GITHUB_REPO||'CaseyCZ/Abaku'
+});
 const adminToken=process.env.ABAKU_REPORT_ADMIN_TOKEN||'';
 
 function reportLimited(ip){

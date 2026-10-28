@@ -1,4 +1,5 @@
-const GITHUB_ISSUES_URL='https://api.github.com/repos/CaseyCZ/Abaku/issues';
+const DEFAULT_REPOSITORY='CaseyCZ/Abaku';
+const ALLOWED_REPOSITORIES=new Set([DEFAULT_REPOSITORY,'CaseyCZ/Ciselna-Arena']);
 const MODES={bot:'Hra proti počítači',local:'Dva hráči na jednom zařízení',online:'Online hra'};
 
 export function validateFeedback(input){
@@ -14,9 +15,13 @@ function escapeForHtmlPre(text){
 }
 
 export class GitHubIssueReporter{
-  constructor({token,fetchImpl=fetch}={}){
+  constructor({token,fetchImpl=fetch,repository=DEFAULT_REPOSITORY}={}){
+    // Keep the current repository working until the owner renames it.
+    // Never interpolate an arbitrary environment-provided URL into a request.
+    if(!ALLOWED_REPOSITORIES.has(repository))throw new Error('Neplatný GitHub repozitář pro hlášení.');
     this.token=token||'';
     this.fetchImpl=fetchImpl;
+    this.repository=repository;
   }
   get configured(){return this.token.length>=20;}
   async create({description,mode,reportId=null}){
@@ -33,7 +38,7 @@ export class GitHubIssueReporter{
     ].join('\n\n');
     let response;
     try{
-      response=await this.fetchImpl(GITHUB_ISSUES_URL,{
+      response=await this.fetchImpl(`https://api.github.com/repos/${this.repository}/issues`,{
         method:'POST',
         headers:{
           Accept:'application/vnd.github+json',
@@ -52,7 +57,7 @@ export class GitHubIssueReporter{
     }
     const issue=await response.json();
     if(!Number.isInteger(issue.number)||
-       !/^https:\/\/github\.com\/CaseyCZ\/Abaku\/issues\/\d+$/.test(issue.html_url||''))
+       issue.html_url!==`https://github.com/${this.repository}/issues/${issue.number}`)
       throw new Error('GitHub nepotvrdil vytvoření hlášení.');
     return {issueNumber:issue.number,issueUrl:issue.html_url};
   }

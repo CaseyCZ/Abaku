@@ -5,7 +5,7 @@
   const MEASUREMENT_ID = 'G-SZTERTRTCE';
   const CONSENT_KEY = 'abaku-analytics-consent-v1';
   const TITLE = String(document.querySelector('meta[name="analytics-page-title"]')?.content || document.title || 'Číselná aréna').trim();
-  // Stable page paths distinguish /Abaku/ from other sites in the same GA4
+  // Stable page paths distinguish project sites on the same GitHub Pages origin
   // property without sending potentially sensitive URL query parameters.
   const LOCATION = window.location.origin + window.location.pathname;
   let loaded = false;
@@ -54,9 +54,10 @@
       });
     }
     // Removing a previous GA cookie makes a withdrawn consent effective.
-    // Both root and /Abaku/ are cleared; local Google login is untouched.
+    // Clear both the current and future project path during the repository
+    // rename; never touch local Google login credentials.
     for (const name of ['_ga', '_ga_SZTERTRTCE']) {
-      for (const path of ['/', '/Abaku/']) {
+      for (const path of ['/', '/Abaku/', '/Ciselna-Arena/']) {
         document.cookie = name + '=; Max-Age=0; path=' + path + '; SameSite=Lax';
       }
     }

@@ -12,8 +12,9 @@
  *   node abaku-production-loadtest.mjs --tokens-file /private/test-sessions.json --mode matches --stages 2 --execute
  *
  * The default `lobby` mode only connects authenticated players and sends `sync`.
- * The `matches` mode pairs test accounts, plays at most TWO passes per match,
- * disconnects BOTH players, and expects abandoned games without statistics.
+ * The `matches` mode pairs test accounts, makes one tile exchange and one
+ * pass per match, disconnects BOTH players, and expects abandoned games.
+ * For an odd number of users, one stays waiting for a random opponent.
  * A failure/disconnect may still cause a forfeit in production: use dedicated
  * test accounts, never real users' credentials.
  */
@@ -53,13 +54,15 @@ if (!Number.isInteger(rampSeconds) || rampSeconds < 10 || rampSeconds > 120)
   throw new Error('Rozběh fáze musí být 10–120 sekund.');
 if (!Number.isInteger(holdSeconds) || holdSeconds < 10 || holdSeconds > 120)
   throw new Error('Doba fáze musí být 10–120 sekund.');
-if (mode === 'matches' && (stages.length !== 1 || stages[0] % 2 || rampSeconds > 20 || holdSeconds > 30))
-  throw new Error('Test zápasů povoluje jednu sudou fázi, rozběh max. 20 s a výdrž max. 30 s.');
+if (mode === 'matches' && (stages.length !== 1 || rampSeconds > 20 || holdSeconds > 30))
+  throw new Error('Test zápasů povoluje jednu fázi, rozběh max. 20 s a výdrž max. 30 s.');
 
 console.log(JSON.stringify({
   state: execute ? 'APPROVED_BY_CLI' : 'DRY_RUN_NO_TRAFFIC',
   target, mode, stages, rampSeconds, holdSeconds,
-  protocol: 'authenticated WebSocket /ws, sync every 15 s',
+  protocol: mode === 'matches'
+    ? 'authenticated WebSocket /ws; matchmaking; 1 exchange + 1 pass per match'
+    : 'authenticated WebSocket /ws; sync every 15 s',
   constraints: 'unique test identities; 1 socket/account; no unauthenticated load',
 }, null, 2));
 
@@ -85,6 +88,7 @@ let socketErrors = 0;
 let unexpectedClosures = 0;
 let authFailures = 0;
 const startedMatches = new Set();
+const progressedMatches = new Set();
 let passEvents = 0;
 let matchTrafficStarted = false;
 let probes = 0;
@@ -149,11 +153,13 @@ function openClient(token, id) {
       } else if (mode === 'matches' && data.type === 'match-state' && !matchTrafficStarted) {
         abort('Testovací účet má již rozehranou/starou partii. Zápasový test nelze bezpečně spustit.');
       } else if (mode === 'matches' && data.type === 'match-state' && !data.finished) {
-        // Exactly two total accepted turns per match, then idle. Never trigger game completion intentionally.
+        if (data.turns >= 2) progressedMatches.add(data.matchId);
+        // One exchange, one pass, then idle. Never trigger game completion intentionally.
         const key = `${data.matchId}:${data.turns}`;
         if (data.turns < 2 && data.mySide === data.turn && !client.sentPasses.has(key)) {
           client.sentPasses.add(key);
-          setTimeout(() => send(client, {type:'pass'}), 150 + (id % 10) * 80);
+          const action = data.turns === 0 ? {type:'exchange',indices:[0]} : {type:'pass'};
+          setTimeout(() => send(client, action), 150 + (id % 10) * 80);
         }
       } else if (data.type === 'turn-passed' && data.reason === 'pass') {
         passEvents++;
@@ -173,7 +179,8 @@ function snapshot(stage) {
   const result = {
     elapsedSeconds: Math.round((Date.now() - startedAt) / 1000), stage, active,
     authAttempts: clients.length, authFailures, socketErrors, unexpectedClosures,
-    matchesStarted: startedMatches.size, passEvents, healthProbes: probes,
+    matchesStarted: startedMatches.size, matchesWithTwoTurns: progressedMatches.size,
+    passEvents, healthProbes: probes,
     healthFailures: probeFailures, authP95Ms: percentile(authMs, 95),
     healthP95Ms: percentile(probeMs, 95),
   };
@@ -221,6 +228,13 @@ let syncTimer;
 try {
   await healthProbe();
   if (abortReason) throw new Error(abortReason);
+  if (mode === 'matches') {
+    const presenceResponse = await fetch(`${target}/api/presence`);
+    if (!presenceResponse.ok) throw new Error('Kontrola obsazenosti serveru selhala.');
+    const livePresence = await presenceResponse.json();
+    if (livePresence.online !== 0 || livePresence.waiting !== 0)
+      throw new Error('Na serveru jsou přítomni další hráči. Test zápasů odložen.');
+  }
   probeTimer = setInterval(() => void healthProbe(), PROBE_INTERVAL_MS);
   syncTimer = setInterval(() => {
     if (mode === 'matches') return;
@@ -260,6 +274,11 @@ try {
       }
     }
     snapshot(stage);
+    if (mode === 'matches' && !abortReason) {
+      const expected = Math.floor(stage / 2);
+      if (startedMatches.size !== expected || progressedMatches.size !== expected)
+        abort(`Matchmaking/tahy nedokončeny: očekáváno ${expected} partií, založeno ${startedMatches.size}, odehrané dva tahy ${progressedMatches.size}.`);
+    }
   }
 } catch (error) {
   abort(error?.message || 'Neznámá chyba');

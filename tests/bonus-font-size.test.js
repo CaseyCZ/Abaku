@@ -12,7 +12,7 @@ test('only unoccupied bonus ×2/×3 hints use smaller typography',()=>{
   assert.match(css,/\.board \.cell\.bonus-hint:is\(\.dd,\.td,\.de,\.te\),\s*#onlineDialog \.online-cell\.bonus-hint:is\(\.dd,\.td,\.de,\.te\)\{\s*font-size:clamp\(8px,\.8vw,13px\)/);
   assert.match(css,/#onlineDialog \.online-cell\.bonus-hint:is\(\.dd,\.td,\.de,\.te\)\{font-size:clamp\(8px,1\.9vw,12px\)\}/);
   assert.match(main,/digit !== null \? 'occupied' : 'bonus-hint'/);
-  assert.match(online,/digit!==null\?' fixed':' bonus-hint'/);
+  assert.match(online,/digit!==null\?' occupied':' bonus-hint'/);
 });
 test('both game and online views fetch new stylesheet while tile sizes stay untouched',()=>{
   for(const page of [game,home]) assert.match(page,/arena-layout\.css\?v=0\.2\.14/);

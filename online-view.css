@@ -71,7 +71,7 @@ body.arena-home { min-width:0; }
   flex:0 1 auto;min-height:0;min-width:0;
   max-height:min(400px,50dvh);
   overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
-  scrollbar-width:thin;
+  scrollbar-width:thin;padding-right:0;
 }
 #onlineDialog .chat-messages .online-chat-line {
   box-sizing:border-box;flex:0 0 auto;min-height:33px;
@@ -82,9 +82,16 @@ body.arena-home { min-width:0; }
   display:flex;flex:0 0 auto;flex-wrap:nowrap;
   gap:6px;min-width:0;width:100%;box-sizing:border-box;
 }
-#onlineDialog #onlineChatInput { flex:1 1 auto;width:0;min-width:0; }
+#onlineDialog #onlineChatInput {
+  box-sizing:border-box;flex:1 1 auto;width:0;min-width:0;
+  border:1px solid #49668a!important;
+  outline:none!important;box-shadow:none!important;
+}
+#onlineDialog #onlineChatInput:focus,
 #onlineDialog #onlineChatInput:focus-visible {
-  outline:2px solid #8ad5ff!important;outline-offset:0;
+  border:2px solid #8ad5ff!important;
+  outline:none!important;outline-offset:0;
+  box-shadow:none!important;
 }
 #onlineDialog #onlineChatForm .gold-button {
   flex:0 0 auto;min-width:0;min-height:44px;

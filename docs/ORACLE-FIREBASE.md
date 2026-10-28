@@ -1,6 +1,6 @@
 # Archivní návrh: Firebase – nepoužívá se
 
-Tento dokument původně popisoval složitější Firebase variantu. **Aktuální řešení Abaku Online Firebase nepotřebuje.**
+Tento dokument původně popisoval složitější Firebase variantu. **Aktuální řešení Arena Online Firebase nepotřebuje.**
 
 Platná implementace využívá:
 - přihlášení Google Identity Services přímo na statickém webu,

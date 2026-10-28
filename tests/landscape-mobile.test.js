@@ -20,10 +20,10 @@ test('landscape phone board follows viewport width, not available height',()=>{
 });
 
 test('landscape score recap is compact and cannot exceed viewport height',()=>{
-  assert.match(landscape,/\.abaku-score-recap \.abaku-score-scroll\{[^}]*width:min\(410px,calc\(100vw - 24px\)\)/);
+  assert.match(landscape,/\.arena-score-recap \.arena-score-scroll\{[^}]*width:min\(410px,calc\(100vw - 24px\)\)/);
   assert.match(landscape,/max-height:calc\(100dvh - 14px\)/);
-  assert.match(landscape,/\.abaku-score-recap \.abaku-score-face\{[^}]*padding:8px 14px 10px/);
-  assert.match(landscape,/\.abaku-score-recap \.abaku-score-counter\{[^}]*width:52px;height:52px/);
+  assert.match(landscape,/\.arena-score-recap \.arena-score-face\{[^}]*padding:8px 14px 10px/);
+  assert.match(landscape,/\.arena-score-recap \.arena-score-counter\{[^}]*width:52px;height:52px/);
   assert.match(js,/scoreRecap\.play\(\{player:who,breakdown:checked\.equationBreakdown/);
   assert.match(html,/score-recap\.css\?v=0\.2\.15/);
 });

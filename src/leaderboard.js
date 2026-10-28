@@ -1,4 +1,4 @@
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.9';
+import {ONLINE_CONFIG} from './online-config.js?v=arena-20261028a';
 
 const board=document.getElementById('leaderboard');
 const panel=document.getElementById('leaderboardPanel');

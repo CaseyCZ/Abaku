@@ -69,7 +69,7 @@ test('new Google sign-in gets a random revocable session; only hashes live in SQ
     s.ensure('google-user-A');
     const first=s.createSession('google-user-A');
     const second=s.createSession('google-user-A');
-    assert.match(first.sessionToken,/^abaku_[A-Za-z0-9_-]{43}$/);
+    assert.match(first.sessionToken,/^arena_[A-Za-z0-9_-]{43}$/);
     assert.notEqual(first.sessionToken,second.sessionToken);
     assert.ok(first.expiresAt>Date.now()+29*86400_000);
     assert.equal(s.sessionUid(first.sessionToken),'google-user-A');
@@ -82,12 +82,12 @@ test('new Google sign-in gets a random revocable session; only hashes live in SQ
     assert.equal(s.sessionUid(first.sessionToken),null);
     assert.equal(s.sessionUid(second.sessionToken),'google-user-A');
     assert.equal(s.revokeSession(first.sessionToken),false);
-    assert.equal(s.sessionUid('abaku_'+('a'.repeat(43))),null);
+    assert.equal(s.sessionUid('arena_'+('a'.repeat(43))),null);
   }finally{s.close();}
 });
 
 test('device session survives SQLite reopen and cannot be used after expiry',()=>{
-  const dir=mkdtempSync(join(tmpdir(),'abaku-device-session-'));
+  const dir=mkdtempSync(join(tmpdir(),'arena-device-session-'));
   const filename=join(dir,'profiles.sqlite');
   try{
     let s=openStore(filename);

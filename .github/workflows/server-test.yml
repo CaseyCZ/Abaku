@@ -1,4 +1,4 @@
-name: Test Abaku Online server
+name: Test Arena Online server
 on:
   push:
     paths:

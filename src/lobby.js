@@ -1,7 +1,7 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.46';
-import {syncResumeCard} from './resume-card.js?v=0.2.4';
-const PROFILE_KEY = 'abaku-local-profile-v1';
-const GAME_KEY = 'retro-abaku-game-v1';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=arena-20261028a';
+import {syncResumeCard} from './resume-card.js?v=arena-20261028a';
+const PROFILE_KEY = 'arena-local-profile-v1';
+const GAME_KEY = 'retro-arena-game-v1';
 const byId = id => document.getElementById(id);
 
 function getSaved(key) {

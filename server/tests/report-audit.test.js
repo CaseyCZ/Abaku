@@ -151,7 +151,7 @@ test('the online server retains the whole game without private profiles or chat'
 });
 
 test('records are private JSON with 24-hour expiry and no arbitrary client fields',async t=>{
-  const dir=await mkdtemp(join(tmpdir(),'abaku-report-test-'));
+  const dir=await mkdtemp(join(tmpdir(),'arena-report-test-'));
   // Only test-specific disposable temporary files are removed.
   t.after(async()=>{const {rm}=await import('node:fs/promises');await rm(dir,{recursive:true,force:true});});
   let now=Date.now();

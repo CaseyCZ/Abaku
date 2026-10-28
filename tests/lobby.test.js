@@ -33,7 +33,7 @@ test('Guest mode keeps online auth optional until the Oracle API becomes availab
 });
 
 test('Google OAuth client is configured and only exposed after Oracle API health confirms readiness',()=>{
- assert.match(onlineConfig,/130\.61\.49\.108\/abaku-api/);
+ assert.match(onlineConfig,/130\.61\.49\.108\/arena-api/);
  assert.match(onlineConfig,/googleClientId:\s*'[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com'/);
  assert.match(onlineClient,/fetch\(apiBase\+'\/health'/);
  assert.match(onlineClient,/data\?\.status!==['"]ok['"]/);
@@ -75,7 +75,7 @@ test('only online turn time is selectable; default is 60 seconds',()=>{
   assert.doesNotMatch(landing,/<option value="90" selected>/);
   assert.match(onlineClient,/Number\(\$\(\x27onlineTurnSeconds\x27\)\.value\) : 60/);
   assert.match(onlineClient,/selectedTurnSeconds/);
-  assert.match(onlineClient,/abaku-online-default-60-migrated-v1/);
+  assert.match(onlineClient,/arena-online-default-60-migrated-v1/);
   assert.match(onlineClient,/send\('matchmake',\{seconds:action\.seconds\}\)/);
   assert.match(onlineClient,/send\('invite',\{seconds:action\.seconds\}\)/);
   assert.match(onlineClient,/connectOnline\(\{type:'random',seconds:selectedTurnSeconds\(\)\}\)/);
@@ -117,8 +117,8 @@ test('online players see complete previous equation and its highlighted squares'
 test('Google auth is restored from Oracle device sessions across refresh and tabs',()=>{
   // Google ID tokens are short lived and only used to create revocable Oracle
   // sessions. A verified Oracle session lasts 30 days and is shared by tabs.
-  assert.match(onlineClient,/const authSessionKey='abaku-online-google-session-v1'/);
-  assert.match(onlineClient,/const durableSessionKey='abaku-online-device-session-v1'/);
+  assert.match(onlineClient,/const authSessionKey='arena-online-google-session-v1'/);
+  assert.match(onlineClient,/const durableSessionKey='arena-online-device-session-v1'/);
   assert.match(onlineClient,/localStorage\.setItem\(durableSessionKey,token\)/);
   assert.match(onlineClient,/localStorage\.getItem\(durableSessionKey\)/);
   assert.match(onlineClient,/localStorage\.removeItem\(durableSessionKey\)/);
@@ -266,8 +266,8 @@ test('match end displays winner and scores in a dedicated result dialog on all d
   assert.match(onlineClient,/send\('rematch',\{accept:true\}\)/);
   assert.match(onlineClient,/send\('rematch',\{accept:false\}\)/);
   assert.match(onlineClient,/msg\.type==='rematch-status'/);
-  assert.match(css,/\.abaku-result-dialog\.online-result-dialog/);
-  assert.match(css,/\.abaku-result-dialog::backdrop/);
+  assert.match(css,/\.arena-result-dialog\.online-result-dialog/);
+  assert.match(css,/\.arena-result-dialog::backdrop/);
 });
 
 test('collapsed or out-of-view chat gets a persistent tappable unread notification',()=>{
@@ -312,7 +312,7 @@ test('online scoring is a hands-free animation of each server-verified equation 
   assert.match(recap,/steps\.forEach\(\(item,index\)=>/);
   assert.match(recap,/animateCount\(before,cumulative\)/);
   assert.match(recap,/steps\.length\*stepDuration\+completedDuration/);
-  assert.match(styles,/\.abaku-score-scroll/);
+  assert.match(styles,/\.arena-score-scroll/);
   assert.doesNotMatch(recap,/<button|addEventListener\('click'/);
 });
 
@@ -390,9 +390,9 @@ test('server creates and verifies hashed revocable device sessions on REST and W
 test('every online match result uses the same shared dialog as the local and AI game',()=>{
   const offline=file('../game.html');
   const css=file('../result-dialog.css');
-  assert.match(landing,/id="onlineResultDialog" class="online-result-dialog abaku-result-dialog"/);
-  assert.match(offline,/id="onlineResultDialog" class="online-result-dialog abaku-result-dialog"/);
-  assert.match(css,/\.abaku-result-dialog \.online-result-scores/);
+  assert.match(landing,/id="onlineResultDialog" class="online-result-dialog arena-result-dialog"/);
+  assert.match(offline,/id="onlineResultDialog" class="online-result-dialog arena-result-dialog"/);
+  assert.match(css,/\.arena-result-dialog \.online-result-scores/);
   assert.match(onlineClient,/renderOnlineResult\(msg\)/);
 });
 
@@ -411,7 +411,7 @@ test('online authenticated profile updates offline nickname cache and clears it 
   assert.match(onlineClient,/cacheVerifiedOnlineProfile\(profile\)/);
   assert.match(onlineClient,/clearVerifiedOnlineProfile\(\)/);
   assert.match(onlineClient,/function clearSavedCredential\(\)/);
-  assert.match(identity,/const ONLINE_PROFILE_KEY='abaku-online-display-profile-v1'/);
+  assert.match(identity,/const ONLINE_PROFILE_KEY='arena-online-display-profile-v1'/);
   assert.match(identity,/function validName\(value\)/);
 });
 

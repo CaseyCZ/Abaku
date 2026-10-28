@@ -23,7 +23,7 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - Run it behind HTTPS/WSS with strict allowed origins and client request limits.
 - A server restart reloads ongoing matches and gives disconnected players a recovery window; matchmaking/chat and unsent invitations are cleared. Match settlement is idempotent via `settled_matches` and commits the final snapshot together with the result. Failed snapshot writes restore the last committed in-memory board instead of silently accepting an unsaved move.
 - Six invalid board moves may be recorded per five-second window for a player; further attempts temporarily return an error without another SQLite write.
-- Changing the public **origin** requires updating Google authorized JavaScript origins and `CORS_ORIGIN`. Renaming only the GitHub Pages project path from `/Abaku/` to `/Ciselna-Arena/` leaves the origin `https://caseycz.github.io` unchanged.
+- Changing the public **origin** requires updating Google authorized JavaScript origins and `CORS_ORIGIN`. Changing a GitHub Pages project path to `/Ciselna-Arena/` leaves the origin `https://caseycz.github.io` unchanged.
 
 ## Dobrovolná kontrola partií
 
@@ -32,10 +32,10 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - `POST /api/reports` přijímá dobrovolný anonymní offline záznam (max. 256 KiB); `POST /api/reports/online` vyžaduje přihlášení a ID vlastní online partie a vytváří záznam ze serverové historie.
 - Samostatný modul `report-audit.js` **nepoužívá** herní validátor: přehrává desku, samostatně vyhodnotí matematiku i sousednost kamenů a přepočítá body/bonusy. Hlásí rozdíly ve vyhodnocení přijatých/zamítnutých tahů.
 - Nové partie používají pravidla `classic-powers-roots-linked-powers`: v dalším tahu lze navázat na koncový výsledek staršího příkladu, i mocninou či odmocninou (`112` + `4` → `24`, `5611` + `29` → `1129`). Položení celé neplatné řady `9724` v jednom tahu je nadále zakázané. Starší záznamy `classic-powers-roots-linked`, `classic-powers-roots-strict` a `classic-powers-roots` se přehrávají podle historických pravidel své verze.
-- Soubory ukládej **mimo repozitář a mimo webový adresář**. Výchozí soukromá cesta je `/home/ubuntu/abaku-reports`, změnitelná pomocí `ABAKU_REPORT_DIR`; práva složky `0700`, souborů `0600`. Počet uchovávaných reportů je omezen na 500.
-- Server soubory maže při spuštění, při každém seznamu a jednou za hodinu, jakmile jsou starší než 24 hodin. Oprávněný správce může soukromě používat `GET /api/reports` a `GET /api/reports/detail?id=<uuid>` s HTTP hlavičkou `Authorization: Bearer <ABAKU_REPORT_ADMIN_TOKEN>`; token musí mít alespoň 32 znaků. Bez tohoto nastavení jsou čtecí cesty uzamčené.
+- Soubory ukládej **mimo repozitář a mimo webový adresář**. Výchozí soukromá cesta je `/home/ubuntu/arena-reports`, změnitelná pomocí `ARENA_REPORT_DIR`; práva složky `0700`, souborů `0600`. Počet uchovávaných reportů je omezen na 500.
+- Server soubory maže při spuštění, při každém seznamu a jednou za hodinu, jakmile jsou starší než 24 hodin. Oprávněný správce může soukromě používat `GET /api/reports` a `GET /api/reports/detail?id=<uuid>` s HTTP hlavičkou `Authorization: Bearer <ARENA_REPORT_ADMIN_TOKEN>`; token musí mít alespoň 32 znaků. Bez tohoto nastavení jsou čtecí cesty uzamčené.
 - Přístup do existujícího dashboardu lze připojit pouze ze serverové části dashboardu; **nikdy** nevkládej admin token do veřejné stránky nebo JavaScriptu.
-- Hlášení se odesílají výhradně do `CaseyCZ/Ciselna-Arena`. Privátní proměnná `ABAKU_GITHUB_REPO` zatím zachovává původní název, aby se nemusely měnit produkční tajné konfigurace. Veřejná API adresa je `/arena-api/`, PM2 služba `arena-api`. Stará cesta `/abaku-api/` může být po ověření nového webu odstraněna z NGINX. Databázové cesty a přihlašovací relace se nemění.
+- Hlášení se odesílají výhradně do `CaseyCZ/Ciselna-Arena`. Produkční proměnné používají prefix `ARENA_`. Veřejná API adresa je `/arena-api/`, PM2 služba `arena-api`. Nová instalace používá čistou databázi `/home/ubuntu/arena-data/arena.sqlite`; předchozí data patří pouze do soukromé zálohy. Nové přihlašovací relace mají prefix `arena_` a vyžadují nové přihlášení.
 - Běžné vývojové ověření je `npm test` z kořene repozitáře; před produkčním restartem zkontroluj aktivní hráče a stav zálohy. Nasazení nové perzistence poprvé obnovu starých, dosud neuložených RAM partií nezajistí.
 
 ## Local smoke tests
@@ -49,11 +49,11 @@ npm test
 To run on the Oracle host **after** you have configured HTTPS and the Google Web Client ID:
 
 ```sh
-cd /home/ubuntu/abaku-online/server
+cd /home/ubuntu/ciselna-arena/server
 npm install --omit=dev --no-audit
 export GOOGLE_CLIENT_ID='ACTUAL-WEB-CLIENT-ID'
 export CORS_ORIGIN='https://caseycz.github.io'
-export DB_PATH='/home/ubuntu/abaku-data/abaku.sqlite'
+export DB_PATH='/home/ubuntu/arena-data/arena.sqlite'
 export HOST='127.0.0.1'
 export PORT='8790'
 node index.js
@@ -110,7 +110,7 @@ can be forged by a client.
 Google ID tokens themselves are short-lived (roughly an hour). After the first
 verified Google sign-in, `POST /api/session` (authenticated with a **Google ID
 token**, never another app session) exchanges it for a random
-`abaku_<43 base64url chars>` opaque bearer token. The browser stores only
+`arena_<43 base64url chars>` opaque bearer token. The browser stores only
 this device token in `localStorage`, so normal page reloads, closing the
 browser and opening a different tab no longer cause re-login. Other devices
 require their own initial Google sign-in.

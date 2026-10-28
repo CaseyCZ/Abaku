@@ -1,25 +1,25 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.37';
-import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.18';
-import {chooseMove} from './ai.js?v=0.2.37';
-import {describeMovePreview} from './preview.js?v=0.2.37';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.37';
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.9';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=arena-20261028a';
+import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=arena-20261028a';
+import {chooseMove} from './ai.js?v=arena-20261028a';
+import {describeMovePreview} from './preview.js?v=arena-20261028a';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=arena-20261028a';
+import {ONLINE_CONFIG} from './online-config.js?v=arena-20261028a';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
-  from './player-identity.js?v=1';
-import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.38';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=3';
-import {reportEligibility,addReportReceipt} from './report-policy.js?v=1';
+  from './player-identity.js?v=arena-20261028a';
+import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=arena-20261028a';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=arena-20261028a';
+import {reportEligibility,addReportReceipt} from './report-policy.js?v=arena-20261028a';
 
 const byId = id => document.getElementById(id);
-const settingsKey = 'retro-abaku-settings-v1';
-const saveKey = 'retro-abaku-game-v1';
+const settingsKey = 'retro-arena-settings-v1';
+const saveKey = 'retro-arena-game-v1';
 const defaults = {mode:'bot', difficulty:'medium', time:60, sound:true};
 function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } }
 let settings = {...defaults, ...load(settingsKey, {})};
 // One-time migration from the old 90-second default for existing local games.
 // The user can still choose and keep 90 seconds after the migration.
 try {
-  const key='retro-abaku-default-60-migrated-v1';
+  const key='retro-arena-default-60-migrated-v1';
   if(localStorage.getItem(key)!=='yes'){
     if(Number(settings.time)===90)settings.time=60;
     localStorage.setItem(settingsKey,JSON.stringify(settings));
@@ -605,10 +605,10 @@ if (startRequest.get('start') === 'new' && (startMode === 'bot' || startMode ===
 }
 // A profile edit or logout in a different browser tab updates Player 1.
 window.addEventListener('storage',event=>{
-  if(['abaku-online-display-profile-v1','abaku-online-device-session-v1',
-    'abaku-local-profile-v1'].includes(event.key)&&game){
+  if(['arena-online-display-profile-v1','arena-online-device-session-v1',
+    'arena-local-profile-v1'].includes(event.key)&&game){
     render();
-    if(event.key==='abaku-online-device-session-v1')refreshLocalPlayerName();
+    if(event.key==='arena-online-device-session-v1')refreshLocalPlayerName();
   }
 });
 window.addEventListener('pageshow',()=>{if(game){render();refreshLocalPlayerName();}});

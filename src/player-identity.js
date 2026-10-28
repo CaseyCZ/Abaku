@@ -1,9 +1,9 @@
 // Display-only player identity shared by the online lobby and local game.
 // Never use this browser cache to authorize requests or award online points.
-const ONLINE_PROFILE_KEY='abaku-online-display-profile-v1';
-const LOCAL_PROFILE_KEY='abaku-local-profile-v1';
-const DEVICE_SESSION_KEY='abaku-online-device-session-v1';
-const LEGACY_GOOGLE_KEY='abaku-online-google-session-v1';
+const ONLINE_PROFILE_KEY='arena-online-display-profile-v1';
+const LOCAL_PROFILE_KEY='arena-local-profile-v1';
+const DEVICE_SESSION_KEY='arena-online-device-session-v1';
+const LEGACY_GOOGLE_KEY='arena-online-google-session-v1';
 
 function validName(value){
   return typeof value==='string'&&value.trim().length>=2&&value.trim().length<=20
@@ -16,7 +16,7 @@ function readJson(key){
 export function savedOnlineToken(){
   try{
     const session=localStorage.getItem(DEVICE_SESSION_KEY);
-    if(typeof session==='string'&&/^abaku_[A-Za-z0-9_-]{43}$/.test(session))
+    if(typeof session==='string'&&/^arena_[A-Za-z0-9_-]{43}$/.test(session))
       return session;
   }catch{}
   try{

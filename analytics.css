@@ -1,6 +1,6 @@
-/* Consent UI shared by Abaku lobby, game and privacy page.
+/* Consent UI shared by Arena lobby, game and privacy page.
    Analytics is never requested until visitors opt in. */
-.abaku-consent {
+.arena-consent {
   position:fixed;
   z-index:9999;
   bottom:max(12px,env(safe-area-inset-bottom));
@@ -21,10 +21,10 @@
   box-shadow:0 9px 30px #030811cb, inset 0 0 0 1px #f5a86940;
   font:13px/1.5 Verdana,sans-serif;
 }
-.abaku-consent-copy{display:flex;flex:1 1 260px;flex-direction:column;gap:5px;min-width:0}
-.abaku-consent-copy strong{font:700 20px Georgia,serif;color:#ffbc87}
-.abaku-consent-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
-.abaku-consent-actions button,.abaku-consent-actions a{
+.arena-consent-copy{display:flex;flex:1 1 260px;flex-direction:column;gap:5px;min-width:0}
+.arena-consent-copy strong{font:700 20px Georgia,serif;color:#ffbc87}
+.arena-consent-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.arena-consent-actions button,.arena-consent-actions a{
   box-sizing:border-box;min-height:42px;display:inline-flex;
   align-items:center;justify-content:center;
   border:1px solid #df9158;border-radius:8px;
@@ -32,31 +32,31 @@
   font:700 12px Verdana,sans-serif;
   cursor:pointer;
 }
-.abaku-consent-accept{background:linear-gradient(#ffd2ad,#da8a50);color:#502410}
-.abaku-consent-reject{background:#141e2f;color:#ffcaa3}
-.abaku-consent-actions a{background:transparent;color:#ffcfac}
-.abaku-consent-actions button:focus-visible,.abaku-consent-actions a:focus-visible,
-.abaku-cookie-settings:focus-visible{
+.arena-consent-accept{background:linear-gradient(#ffd2ad,#da8a50);color:#502410}
+.arena-consent-reject{background:#141e2f;color:#ffcaa3}
+.arena-consent-actions a{background:transparent;color:#ffcfac}
+.arena-consent-actions button:focus-visible,.arena-consent-actions a:focus-visible,
+.arena-cookie-settings:focus-visible{
   outline:3px solid #9fe9ff;outline-offset:2px
 }
-.abaku-cookie-settings,.abaku-privacy-link {
+.arena-cookie-settings,.arena-privacy-link {
   border:0;background:none;color:#efbe9a;text-decoration:underline;
   cursor:pointer;font:inherit;padding:2px 4px
 }
-.abaku-privacy-link:visited{color:#efbe9a}
-.abaku-consent[hidden]{display:none!important}
+.arena-privacy-link:visited{color:#efbe9a}
+.arena-consent[hidden]{display:none!important}
 @media(max-width:600px){
-  .abaku-consent{width:calc(100vw - 18px);bottom:max(6px,env(safe-area-inset-bottom));padding:12px;gap:9px}
-  .abaku-consent-copy strong{font-size:17px}
-  .abaku-consent-copy{font-size:11px;flex-basis:100%}
-  .abaku-consent-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-  .abaku-consent-actions a{grid-column:1/-1;min-height:29px}
-  .abaku-consent-actions button{font-size:11px;padding:8px 4px;min-width:0}
+  .arena-consent{width:calc(100vw - 18px);bottom:max(6px,env(safe-area-inset-bottom));padding:12px;gap:9px}
+  .arena-consent-copy strong{font-size:17px}
+  .arena-consent-copy{font-size:11px;flex-basis:100%}
+  .arena-consent-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .arena-consent-actions a{grid-column:1/-1;min-height:29px}
+  .arena-consent-actions button{font-size:11px;padding:8px 4px;min-width:0}
 }
 
 
 /* Privacy page uses the same restrained retro visual language as the lobby. */
-.abaku-privacy-page {
+.arena-privacy-page {
   width:min(100% - 32px,860px);
   flex:1;
   margin:28px auto 40px;
@@ -68,16 +68,16 @@
   box-shadow:0 5px 16px #040a1577;
   font:15px/1.7 Verdana,sans-serif;
 }
-.abaku-privacy-page h1,
-.abaku-privacy-page h2 {
+.arena-privacy-page h1,
+.arena-privacy-page h2 {
   color:#f5a86f;
   font-family:Georgia,serif;
   line-height:1.3;
 }
-.abaku-privacy-page h1{font-size:clamp(23px,5vw,36px)}
-.abaku-privacy-page h2{margin-top:28px;font-size:23px}
-.abaku-privacy-page code{overflow-wrap:anywhere;color:#ffe1c6}
-.abaku-privacy-page .gold-button {
+.arena-privacy-page h1{font-size:clamp(23px,5vw,36px)}
+.arena-privacy-page h2{margin-top:28px;font-size:23px}
+.arena-privacy-page code{overflow-wrap:anywhere;color:#ffe1c6}
+.arena-privacy-page .gold-button {
   display:inline-flex;
   justify-content:center;
   min-height:44px;
@@ -89,6 +89,6 @@
   background:linear-gradient(#ffcba2,#db8c54);
 }
 @media(max-width:600px){
-  .abaku-privacy-page{width:calc(100% - 18px);margin:12px auto 28px;padding:17px;font-size:13px}
-  .abaku-privacy-page h2{font-size:19px}
+  .arena-privacy-page{width:calc(100% - 18px);margin:12px auto 28px;padding:17px;font-size:13px}
+  .arena-privacy-page h2{font-size:19px}
 }

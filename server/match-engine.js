@@ -117,7 +117,7 @@ export class MatchEngine {
           this.restoredAwaiting.set(match.id,now);
         }
       }catch(error){
-        console.error('Abaku recovery skipped match',String(state?.id||'?').slice(0,80),error.message);
+        console.error('Arena recovery skipped match',String(state?.id||'?').slice(0,80),error.message);
       }
     }
   }

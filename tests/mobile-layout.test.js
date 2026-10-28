@@ -45,7 +45,7 @@ test('local offline games default to 60 seconds, including old 90-second default
   assert.match(html,/id="timer">01:00/);
   assert.match(html,/<option value="60" selected>60 sekund<\/option>/);
   assert.match(js,/time:60, sound:true/);
-  assert.match(js,/retro-abaku-default-60-migrated-v1/);
+  assert.match(js,/retro-arena-default-60-migrated-v1/);
   assert.match(js,/Number\(settings\.time\)===90\)settings\.time=60/);
 });
 
@@ -73,8 +73,8 @@ test('offline accepted move starts an automatic one-equation-at-a-time score scr
   assert.match(js,/scoreRecap\.play\(\{player:who,breakdown:checked\.equationBreakdown/);
   assert.match(js,/equations:checked\.equations,total:checked\.points/);
   assert.match(js,/scoreRecap\.cancel\(\)/);
-  assert.match(scoreStyle,/\.abaku-score-scroll/);
-  assert.match(scoreStyle,/\.abaku-score-counter/);
+  assert.match(scoreStyle,/\.arena-score-scroll/);
+  assert.match(scoreStyle,/\.arena-score-counter/);
 });
 
 
@@ -119,9 +119,9 @@ test('offline completed game reuses the existing online results dialog and styli
     'onlineResultScore1','onlineResultReason','onlineRematchStatus',
     'onlineRematch','onlineResultExit'
   ])assert.match(html,new RegExp('id="'+id+'"'));
-  assert.match(html,/id="onlineResultDialog" class="online-result-dialog abaku-result-dialog"/);
-  assert.match(sharedCss,/\.abaku-result-dialog\.online-result-dialog/);
-  assert.match(sharedCss,/\.abaku-result-dialog::backdrop/);
+  assert.match(html,/id="onlineResultDialog" class="online-result-dialog arena-result-dialog"/);
+  assert.match(sharedCss,/\.arena-result-dialog\.online-result-dialog/);
+  assert.match(sharedCss,/\.arena-result-dialog::backdrop/);
   assert.match(js,/function showOfflineResult\(\)/);
   assert.match(js,/dialog\.showModal\(\)/);
 });

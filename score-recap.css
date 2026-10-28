@@ -1,27 +1,27 @@
-/* Sequential animated equation tally, inspired by the classic Abaku scroll.
+/* Sequential animated equation tally, inspired by the classic Arena scroll.
    Informational only: it auto-plays and closes without user interaction. */
-.abaku-score-recap{
+.arena-score-recap{
   position:fixed;z-index:110;inset:0;
   display:grid;place-items:center;
   pointer-events:none;
   padding:14px;box-sizing:border-box;
 }
-.abaku-score-recap[hidden]{display:none!important}
-.abaku-score-scroll{
+.arena-score-recap[hidden]{display:none!important}
+.arena-score-scroll{
   width:min(480px,94vw);min-height:270px;
   display:grid;grid-template-columns:21px minmax(0,1fr) 21px;
   border-radius:14px;
   filter:drop-shadow(0 9px 17px #030811b3);
   font-family:Georgia,serif;
 }
-.abaku-score-cap{
+.arena-score-cap{
   border-radius:13px;
   background:linear-gradient(90deg,#aa4c12,#ffae68 31%,#ffddbd 50%,#df7a2d 72%,#903f0c);
   border:2px solid #bb5819;
   box-shadow:inset 0 0 5px #ffd5ad;
   position:relative;z-index:2
 }
-.abaku-score-cap::after{
+.arena-score-cap::after{
   content:'';
   position:absolute;top:50%;left:50%;
   width:13px;height:13px;
@@ -29,7 +29,7 @@
   border-radius:50%;border:2px solid #50210b;
   background:radial-gradient(circle at 35% 25%,#ffa668,#1c4284 75%);
 }
-.abaku-score-face{
+.arena-score-face{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   min-width:0;padding:13px 14px 18px;
   color:#6a351e;
@@ -37,49 +37,49 @@
   border-top:3px solid #c57c4c;border-bottom:3px solid #b56835;
   text-align:center;
 }
-.abaku-score-player{
+.arena-score-player{
   display:block;width:100%;margin:-13px 0 12px;
   padding:4px 7px;box-sizing:border-box;
   background:#665f5e;color:#fff;
   font:16px/1.25 Verdana,sans-serif;
   text-overflow:ellipsis;white-space:nowrap;overflow:hidden
 }
-.abaku-score-equation{
+.arena-score-equation{
   font:bold clamp(25px,6vw,41px)/1.15 Georgia,serif;
   color:#603522;overflow-wrap:anywhere;min-height:47px;
 }
-.abaku-score-addition{margin:9px auto 1px;color:#7e472a;font:bold 20px Georgia,serif}
-.abaku-score-bonus{min-height:20px;color:#9f5b33;font:12px/1.5 Verdana,sans-serif}
-.abaku-score-separator{
+.arena-score-addition{margin:9px auto 1px;color:#7e472a;font:bold 20px Georgia,serif}
+.arena-score-bonus{min-height:20px;color:#9f5b33;font:12px/1.5 Verdana,sans-serif}
+.arena-score-separator{
   width:96%;height:2px;margin:12px 0 8px;
   background:linear-gradient(90deg,transparent,#b87c54,transparent)
 }
-.abaku-score-total-label{color:#744a31;font:12px Verdana,sans-serif;margin:0 0 7px}
-.abaku-score-counter{
+.arena-score-total-label{color:#744a31;font:12px Verdana,sans-serif;margin:0 0 7px}
+.arena-score-counter{
   width:89px;height:89px;display:grid;place-items:center;
   color:#ffede0;font:bold 37px Georgia,serif;
   background:radial-gradient(circle at 35% 20%,#626363,#16151a 70%);
   border:8px ridge #ea8c40;border-radius:50%;
   box-shadow:0 3px 0 #7c411d,inset 0 3px 11px #020204
 }
-.abaku-score-progress{
+.arena-score-progress{
   margin-top:12px;color:#9b5c39;font:11px Verdana,sans-serif
 }
-@keyframes abaku-recap-in{
+@keyframes arena-recap-in{
   from{opacity:.68;transform:scale(.97) translateY(8px)}
   to{opacity:1;transform:scale(1) translateY(0)}
 }
 @media(prefers-reduced-motion:no-preference){
-  .abaku-score-recap.abaku-score-change .abaku-score-face{
-    animation:abaku-recap-in .3s ease both
+  .arena-score-recap.arena-score-change .arena-score-face{
+    animation:arena-recap-in .3s ease both
   }
 }
 @media(max-width:600px){
-  .abaku-score-scroll{width:min(95vw,440px);min-height:240px;grid-template-columns:17px minmax(0,1fr) 17px}
-  .abaku-score-face{padding:11px 9px 12px}
-  .abaku-score-player{margin-top:-11px;font-size:12px}
-  .abaku-score-equation{font-size:clamp(23px,7vw,34px)}
-  .abaku-score-counter{width:74px;height:74px;font-size:31px;border-width:6px}
-  .abaku-score-addition{font-size:18px}
-  .abaku-score-bonus{font-size:11px}
+  .arena-score-scroll{width:min(95vw,440px);min-height:240px;grid-template-columns:17px minmax(0,1fr) 17px}
+  .arena-score-face{padding:11px 9px 12px}
+  .arena-score-player{margin-top:-11px;font-size:12px}
+  .arena-score-equation{font-size:clamp(23px,7vw,34px)}
+  .arena-score-counter{width:74px;height:74px;font-size:31px;border-width:6px}
+  .arena-score-addition{font-size:18px}
+  .arena-score-bonus{font-size:11px}
 }

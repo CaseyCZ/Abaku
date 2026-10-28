@@ -22,7 +22,7 @@ const host=process.env.HOST||'127.0.0.1';
 // Enable only after NGINX overwrites X-Real-IP with $remote_addr.
 // Never trust a client-supplied forwarding header on a public connection.
 const trustProxyRealIp=process.env.TRUST_PROXY_REAL_IP==='1';
-const store=openStore(process.env.DB_PATH||'./data/abaku.sqlite');
+const store=openStore(process.env.DB_PATH||'./data/arena.sqlite');
 const authClient=new OAuth2Client(clientId);
 const tokenCache=new Map();
 const sockets=new Map();
@@ -35,12 +35,12 @@ const pendingWsAuth=new Set();
 const reportRate=new Map();
 const feedbackRate=new Map();
 let feedbackDay='',feedbackDayCount=0;
-const reportStore=new ReportStore({directory:process.env.ABAKU_REPORT_DIR||'/home/ubuntu/abaku-reports'});
+const reportStore=new ReportStore({directory:process.env.ARENA_REPORT_DIR||'/home/ubuntu/arena-reports'});
 const issueReporter=new GitHubIssueReporter({
-  token:process.env.ABAKU_GITHUB_ISSUES_TOKEN,
-  repository:process.env.ABAKU_GITHUB_REPO||'CaseyCZ/Ciselna-Arena'
+  token:process.env.ARENA_GITHUB_ISSUES_TOKEN,
+  repository:process.env.ARENA_GITHUB_REPO||'CaseyCZ/Ciselna-Arena'
 });
-const adminToken=process.env.ABAKU_REPORT_ADMIN_TOKEN||'';
+const adminToken=process.env.ARENA_REPORT_ADMIN_TOKEN||'';
 
 function reportLimited(ip){
   const now=Date.now(),current=reportRate.get(ip);
@@ -123,7 +123,7 @@ async function verifyGoogle(idToken){
   return payload.sub;
 }
 async function verify(token){
-  if(typeof token==='string'&&token.startsWith('abaku_')){
+  if(typeof token==='string'&&token.startsWith('arena_')){
     const uid=store.sessionUid(token);
     if(!uid)throw new Error('Přihlášení vypršelo nebo bylo odhlášeno.');
     return uid;
@@ -204,7 +204,7 @@ const http=createServer(async(request,response)=>{
   const authHeader=request.headers.authorization||'';
   const limitKey=publicRead?'public:'+requester:guestRoute?'guest:'+requester:
     !authHeader.startsWith('Bearer ')?'missing:'+requester:
-    !authHeader.startsWith('Bearer abaku_')?'google:'+requester:null;
+    !authHeader.startsWith('Bearer arena_')?'google:'+requester:null;
   const ipCap=publicRead?5000:guestRoute?1200:!authHeader.startsWith('Bearer ')?60:5000;
   if(limitKey&&limited(limitKey,ipCap)){
     respond(response,429,{error:'Příliš mnoho požadavků.'});return;
@@ -386,7 +386,7 @@ wss.on('connection',(ws)=>{
         const old=sockets.get(uid);
         if(old&&old!==ws)old.close(1000,'Nové připojení');
         sockets.set(uid,ws);
-        if(typeof msg.idToken==='string'&&msg.idToken.startsWith('abaku_'))
+        if(typeof msg.idToken==='string'&&msg.idToken.startsWith('arena_'))
           socketSessionTokens.set(ws,msg.idToken);
         authed=true;clearTimeout(authTimeout);
         pendingWsAuth.delete(ws);

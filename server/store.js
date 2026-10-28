@@ -6,9 +6,9 @@ import { randomBytes, createHash } from 'node:crypto';
 const SESSION_TTL=30*24*60*60*1000;
 const SESSION_RENEW_BELOW=20*24*60*60*1000;
 const sessionDigest=token=>createHash('sha256').update(token).digest('hex');
-const validSessionToken=token=>typeof token==='string'&&/^abaku_[A-Za-z0-9_-]{43}$/.test(token);
+const validSessionToken=token=>typeof token==='string'&&/^arena_[A-Za-z0-9_-]{43}$/.test(token);
 
-export function openStore(filename = './data/abaku.sqlite') {
+export function openStore(filename = './data/arena.sqlite') {
   if(filename !== ':memory:') mkdirSync(dirname(resolve(filename)),{recursive:true,mode:0o700});
   const db=new DatabaseSync(filename,{timeout:5000});
   db.exec(`PRAGMA journal_mode = WAL;
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS settled_matches (
     const now=Date.now(),expiresAt=now+SESSION_TTL;
     statements.sessionDeleteOld.run(now);
     // Only a SHA-256 hash is held on Oracle's disk.
-    const token='abaku_'+randomBytes(32).toString('base64url');
+    const token='arena_'+randomBytes(32).toString('base64url');
     statements.sessionInsert.run(sessionDigest(token),uid,expiresAt,now);
     statements.sessionDeleteOverflow.run(uid,uid);
     return {sessionToken:token,expiresAt};

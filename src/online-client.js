@@ -1,11 +1,11 @@
-import {revealArenaChat} from './arena-ui.js?v=2';
-import {syncResumeCard} from './resume-card.js?v=0.2.4';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.9';
-import { describeMovePreview } from './preview.js?v=0.2.37';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.37';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.37';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=1';
-import {bindFeedback} from './feedback-client.js?v=3';
+import {revealArenaChat} from './arena-ui.js?v=arena-20261028a';
+import {syncResumeCard} from './resume-card.js?v=arena-20261028a';
+import { ONLINE_CONFIG } from './online-config.js?v=arena-20261028a';
+import { describeMovePreview } from './preview.js?v=arena-20261028a';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=arena-20261028a';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=arena-20261028a';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=arena-20261028a';
+import {bindFeedback} from './feedback-client.js?v=arena-20261028a';
 
 const $=id=>document.getElementById(id);
 const onlineScoreRecap=new ScoreRecap($('onlineDialog'));
@@ -21,11 +21,11 @@ const configured=Boolean(apiBase&&ONLINE_CONFIG.googleClientId);
 
 // A Google ID token lives about one hour. Use it only once to obtain a
 // server-issued, revocable 30-day session, shared across this browser's tabs.
-// Keep the old tab-scoped Google ID token ONLY for backwards-compatible
-// migration if Oracle has not yet been upgraded. Never save Google IDs locally.
-const authSessionKey='abaku-online-google-session-v1';
-const durableSessionKey='abaku-online-device-session-v1';
-const isAppSession=token=>typeof token==='string'&&/^abaku_[A-Za-z0-9_-]{43}$/.test(token);
+// Tab-scoped Google ID tokens are used only to obtain a server session.
+// Never save Google IDs in localStorage.
+const authSessionKey='arena-online-google-session-v1';
+const durableSessionKey='arena-online-device-session-v1';
+const isAppSession=token=>typeof token==='string'&&/^arena_[A-Za-z0-9_-]{43}$/.test(token);
 function readSavedCredential(){
   try{
     const session=localStorage.getItem(durableSessionKey);
@@ -72,7 +72,7 @@ let pendingFriendChallenge=null, promptedFriendChallengeId=null;
 let lastHandledChallengeId=null;
 let friendChallengeTimer=null;
 const validTurnSeconds=[30,60,90];
-const timeStorageKey='abaku-online-turn-seconds';
+const timeStorageKey='arena-online-turn-seconds';
 const selectedTurnSeconds=()=>validTurnSeconds.includes(Number($('onlineTurnSeconds').value))
   ? Number($('onlineTurnSeconds').value) : 60;
 function initOnlineTimeSetting(){
@@ -80,7 +80,7 @@ function initOnlineTimeSetting(){
   recapSelect.value=String(getRecapSeconds());
   const select=$('onlineTurnSeconds');
   try{
-    const migrationKey='abaku-online-default-60-migrated-v1';
+    const migrationKey='arena-online-default-60-migrated-v1';
     const alreadyMigrated=localStorage.getItem(migrationKey)==='yes';
     const saved=Number(localStorage.getItem(timeStorageKey));
     // Replace only the old 90-second default once. Later user-selected 90s remains saved.

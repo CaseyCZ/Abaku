@@ -1,11 +1,11 @@
-// Original-Abaku-inspired sequential scoring display.
+// Sequential scoring display shared by local and online matches.
 // It only visualises points already calculated by validateMove on the client
 // or the authoritative server. It never changes the saved/player score.
-import {formatEquations} from './rules.js?v=0.2.37';
+import {formatEquations} from './rules.js?v=arena-20261028a';
 
 // Shared between offline and online screens in the same browser.
 export const RECAP_SECONDS_OPTIONS=Object.freeze([0,2,3,5,8,10]);
-export const RECAP_STORAGE_KEY='abaku-score-recap-seconds-v1';
+export const RECAP_STORAGE_KEY='arena-score-recap-seconds-v1';
 export function getRecapSeconds(){
   try{
     const stored=localStorage.getItem(RECAP_STORAGE_KEY);
@@ -48,32 +48,32 @@ export function scoringSteps(breakdown,total,equations=[]){
 export class ScoreRecap {
   constructor(container=document.body){
     this.root=document.createElement('div');
-    this.root.className='abaku-score-recap';
+    this.root.className='arena-score-recap';
     this.root.hidden=true;
     this.root.setAttribute('aria-label','Automatické vyhodnocení tahu');
     this.root.innerHTML=
-      '<div class="abaku-score-scroll" aria-hidden="true">'+
-        '<div class="abaku-score-cap"></div>'+
-        '<div class="abaku-score-face">'+
-          '<div class="abaku-score-player"></div>'+
-          '<div class="abaku-score-equation"></div>'+
-          '<div class="abaku-score-addition"></div>'+
-          '<div class="abaku-score-bonus"></div>'+
-          '<div class="abaku-score-separator"></div>'+
-          '<div class="abaku-score-total-label">Průběžný součet</div>'+
-          '<div class="abaku-score-counter">0</div>'+
-          '<div class="abaku-score-progress"></div>'+
+      '<div class="arena-score-scroll" aria-hidden="true">'+
+        '<div class="arena-score-cap"></div>'+
+        '<div class="arena-score-face">'+
+          '<div class="arena-score-player"></div>'+
+          '<div class="arena-score-equation"></div>'+
+          '<div class="arena-score-addition"></div>'+
+          '<div class="arena-score-bonus"></div>'+
+          '<div class="arena-score-separator"></div>'+
+          '<div class="arena-score-total-label">Průběžný součet</div>'+
+          '<div class="arena-score-counter">0</div>'+
+          '<div class="arena-score-progress"></div>'+
         '</div>'+
-        '<div class="abaku-score-cap"></div>'+
+        '<div class="arena-score-cap"></div>'+
       '</div>';
     container.append(this.root);
-    this.player=this.root.querySelector('.abaku-score-player');
-    this.equation=this.root.querySelector('.abaku-score-equation');
-    this.addition=this.root.querySelector('.abaku-score-addition');
-    this.bonus=this.root.querySelector('.abaku-score-bonus');
-    this.totalLabel=this.root.querySelector('.abaku-score-total-label');
-    this.counter=this.root.querySelector('.abaku-score-counter');
-    this.progress=this.root.querySelector('.abaku-score-progress');
+    this.player=this.root.querySelector('.arena-score-player');
+    this.equation=this.root.querySelector('.arena-score-equation');
+    this.addition=this.root.querySelector('.arena-score-addition');
+    this.bonus=this.root.querySelector('.arena-score-bonus');
+    this.totalLabel=this.root.querySelector('.arena-score-total-label');
+    this.counter=this.root.querySelector('.arena-score-counter');
+    this.progress=this.root.querySelector('.arena-score-progress');
     this.timeouts=[];
     this.counterInterval=null;
     this.onDone=null;
@@ -139,9 +139,9 @@ export class ScoreRecap {
       this.later(()=>{
         const before=cumulative;
         cumulative+=item.points;
-        this.root.classList.remove('abaku-score-change');
+        this.root.classList.remove('arena-score-change');
         void this.root.offsetWidth;
-        this.root.classList.add('abaku-score-change');
+        this.root.classList.add('arena-score-change');
         this.equation.textContent=item.equation;
         this.addition.textContent='+'+item.points+' bodů';
         this.bonus.textContent=item.multiplier>1
@@ -155,7 +155,7 @@ export class ScoreRecap {
     this.later(()=>{
       if(this.counterInterval!==null)clearInterval(this.counterInterval);
       this.counterInterval=null;
-      this.root.classList.remove('abaku-score-change');
+      this.root.classList.remove('arena-score-change');
       this.equation.textContent='Celkem za tah';
       this.addition.textContent='';
       this.bonus.textContent='';

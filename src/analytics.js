@@ -1,9 +1,9 @@
-/* Abaku GA4: opt-in only, using the same GA4 property as iOS Hub.
+/* Arena GA4: opt-in only, using the same GA4 property as iOS Hub.
    No Google Analytics request is made before explicit consent. */
 (() => {
   'use strict';
   const MEASUREMENT_ID = 'G-SZTERTRTCE';
-  const CONSENT_KEY = 'abaku-analytics-consent-v1';
+  const CONSENT_KEY = 'arena-analytics-consent-v1';
   const TITLE = String(document.querySelector('meta[name="analytics-page-title"]')?.content || document.title || 'Číselná aréna').trim();
   // Stable page paths distinguish project sites on the same GitHub Pages origin
   // property without sending potentially sensitive URL query parameters.
@@ -22,7 +22,7 @@
     window.dataLayer.push(arguments);
   }
   function enableAnalytics() {
-    if (loaded || document.querySelector('script[data-abaku-analytics]')) return;
+    if (loaded || document.querySelector('script[data-arena-analytics]')) return;
     loaded = true;
     window.gtag = gtag;
     gtag('consent', 'default', {
@@ -40,7 +40,7 @@
     });
     const script = document.createElement('script');
     script.async = true;
-    script.dataset.abakuAnalytics = 'true';
+    script.dataset.arenaAnalytics = 'true';
     script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(MEASUREMENT_ID);
     document.head.append(script);
   }
@@ -53,11 +53,10 @@
         ad_personalization: 'denied'
       });
     }
-    // Removing a previous GA cookie makes a withdrawn consent effective.
-    // Clear both the current and future project path during the repository
-    // rename; never touch local Google login credentials.
+    // Removing a previous GA cookie makes withdrawn consent effective.
+    // Never touch local Google login credentials.
     for (const name of ['_ga', '_ga_SZTERTRTCE']) {
-      for (const path of ['/', '/Abaku/', '/Ciselna-Arena/']) {
+      for (const path of ['/', '/Ciselna-Arena/']) {
         document.cookie = name + '=; Max-Age=0; path=' + path + '; SameSite=Lax';
       }
     }
@@ -74,28 +73,28 @@
   function showBanner(force = false) {
     if (banner || (!force && readConsent() !== null)) return;
     banner = document.createElement('section');
-    banner.className = 'abaku-consent';
+    banner.className = 'arena-consent';
     banner.setAttribute('role', 'region');
     banner.setAttribute('aria-label', 'Nastavení analytických cookies');
 
     const copy = document.createElement('div');
-    copy.className = 'abaku-consent-copy';
+    copy.className = 'arena-consent-copy';
     const heading = document.createElement('strong');
     heading.textContent = 'Analytické cookies';
     const description = document.createElement('span');
     description.textContent = 'Číselná aréna používá Google Analytics jen s tvým souhlasem. Bez souhlasu se analytika nenačítá.';
     copy.append(heading, description);
     const actions = document.createElement('div');
-    actions.className = 'abaku-consent-actions';
+    actions.className = 'arena-consent-actions';
     const accept = document.createElement('button');
     accept.type = 'button';
     accept.textContent = 'Přijmout analytiku';
-    accept.className = 'abaku-consent-accept';
+    accept.className = 'arena-consent-accept';
     accept.addEventListener('click', () => choose('granted'));
     const reject = document.createElement('button');
     reject.type = 'button';
     reject.textContent = 'Odmítnout';
-    reject.className = 'abaku-consent-reject';
+    reject.className = 'arena-consent-reject';
     reject.addEventListener('click', () => choose('denied'));
     const details = document.createElement('a');
     details.textContent = 'Soukromí a cookies';
@@ -121,7 +120,7 @@
   }
   // Only on-site consent is stored. Never log Google ID tokens, nicknames,
   // friend IDs, game boards, chat text or account statistics to GA4.
-  window.abakuAnalytics = Object.freeze({
+  window.arenaAnalytics = Object.freeze({
     consent: readConsent,
     showSettings: () => showBanner(true)
   });

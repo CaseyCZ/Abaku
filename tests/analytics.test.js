@@ -7,7 +7,7 @@ const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const js=read('../src/analytics.js');
 const pages=['../index.html','../game.html','../privacy.html'];
 const createEnv=(choice=null)=>{
-  const storage=new Map(choice===null?[]:[['abaku-analytics-consent-v1',choice]]);
+  const storage=new Map(choice===null?[]:[['arena-analytics-consent-v1',choice]]);
   const scripts=[],tags=[],page=[];
   function element(name){
     return {name,children:[],dataset:{},listeners:{},textContent:'',style:{},
@@ -18,11 +18,11 @@ const createEnv=(choice=null)=>{
     };
   }
   const doc={
-    title:'Abaku | Test',
+    title:'Arena | Test',
     readyState:'complete',
     querySelector(selector){
-      if(selector==='meta[name="analytics-page-title"]')return {content:'Abaku — Herní deska'};
-      if(selector==='script[data-abaku-analytics]')return tags.find(tag=>tag.dataset.abakuAnalytics);
+      if(selector==='meta[name="analytics-page-title"]')return {content:'Arena — Herní deska'};
+      if(selector==='script[data-arena-analytics]')return tags.find(tag=>tag.dataset.arenaAnalytics);
       return null;
     },
     querySelectorAll(){return [];},
@@ -30,7 +30,7 @@ const createEnv=(choice=null)=>{
     head:{append(tag){tags.push(tag);if(tag.src)scripts.push(tag.src);}},
     body:{append(node){page.push(node);}}
   };
-  const window={location:{origin:'https://caseycz.github.io',pathname:'/Abaku/game.html'}};
+  const window={location:{origin:'https://caseycz.github.io',pathname:'/Ciselna-Arena/game.html'}};
   const localStorage={
     getItem:key=>storage.get(key)??null,
     setItem:(key,value)=>storage.set(key,String(value))
@@ -39,7 +39,7 @@ const createEnv=(choice=null)=>{
   return {window,storage,scripts,page};
 };
 
-test('all Abaku pages load the same consent-managed analytics, with distinct GA4 titles',()=>{
+test('all Arena pages load the same consent-managed analytics, with distinct GA4 titles',()=>{
   const titles=[];
   for(const path of pages){
     const html=read(path);
@@ -66,13 +66,13 @@ test('no analytics request happens before opt-in; acceptance loads GA4 exactly o
   accept.listeners.click();
   assert.equal(env.scripts.length,1);
   assert.equal(env.scripts[0],'https://www.googletagmanager.com/gtag/js?id=G-SZTERTRTCE');
-  assert.equal(env.storage.get('abaku-analytics-consent-v1'),'granted');
+  assert.equal(env.storage.get('arena-analytics-consent-v1'),'granted');
   const config=[...env.window.dataLayer].find(args=>args[0]==='config');
   assert.equal(config[1],'G-SZTERTRTCE');
-  assert.equal(config[2].page_title,'Abaku — Herní deska');
-  assert.equal(config[2].page_location,'https://caseycz.github.io/Abaku/game.html');
+  assert.equal(config[2].page_title,'Arena — Herní deska');
+  assert.equal(config[2].page_location,'https://caseycz.github.io/Ciselna-Arena/game.html');
   assert.equal(config[2].allow_google_signals,false);
-  env.window.abakuAnalytics.showSettings();
+  env.window.arenaAnalytics.showSettings();
   assert.equal(env.scripts.length,1,'Settings dialog must not send duplicate page views');
 });
 
@@ -81,14 +81,14 @@ test('rejecting analytics never loads Google tags, and visitor can change choice
   const reject=env.page[0].children[1].children.find(x=>x.textContent==='Odmítnout');
   reject.listeners.click();
   assert.equal(env.scripts.length,0);
-  assert.equal(env.storage.get('abaku-analytics-consent-v1'),'denied');
+  assert.equal(env.storage.get('arena-analytics-consent-v1'),'denied');
   assert.equal(createEnv('denied').scripts.length,0);
   const approved=createEnv('granted');
   assert.equal(approved.scripts.length,1);
 });
 
-test('cookie choice is specific to Abaku, never uses auth tokens or iOS Hub consent',()=>{
-  assert.match(js,/const CONSENT_KEY = 'abaku-analytics-consent-v1'/);
+test('cookie choice is specific to Arena, never uses auth tokens or iOS Hub consent',()=>{
+  assert.match(js,/const CONSENT_KEY = 'arena-analytics-consent-v1'/);
   assert.doesNotMatch(js,/ioshub-analytics-consent-v1/);
   assert.doesNotMatch(js,/sessionStorage|googleCredential|idToken|\/api\/me/);
   assert.match(js,/ad_storage: 'denied'/);

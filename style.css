@@ -370,8 +370,8 @@ html,body{height:100%;overflow-x:hidden}
   #lastExample{overflow-wrap:anywhere;white-space:normal}
 }
 @media(prefers-reduced-motion:no-preference){
-  .board .cell.recent-tile.occupied{animation:abaku-accepted-pulse 1.2s ease-in-out infinite alternate}
-  @keyframes abaku-accepted-pulse{
+  .board .cell.recent-tile.occupied{animation:arena-accepted-pulse 1.2s ease-in-out infinite alternate}
+  @keyframes arena-accepted-pulse{
     from{filter:brightness(1)}
     to{filter:brightness(1.15)}
   }

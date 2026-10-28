@@ -426,38 +426,38 @@
 
   /* Score animation: a short, fully visible card instead of a portrait-sized
      overlay on the narrow landscape viewport. No changes to animation timing. */
-  .abaku-score-recap{padding:7px}
-  .abaku-score-recap .abaku-score-scroll{
+  .arena-score-recap{padding:7px}
+  .arena-score-recap .arena-score-scroll{
     box-sizing:border-box;width:min(410px,calc(100vw - 24px));
     min-height:0;max-height:calc(100dvh - 14px);
     grid-template-columns:minmax(0,1fr);overflow-y:auto;
   }
-  .abaku-score-recap .abaku-score-face{
+  .arena-score-recap .arena-score-face{
     min-height:0;padding:8px 14px 10px;gap:1px;
   }
-  .abaku-score-recap .abaku-score-player{
+  .arena-score-recap .arena-score-player{
     margin:0 0 4px;padding:5px 9px;
     font-size:12px;line-height:1.1;
   }
-  .abaku-score-recap .abaku-score-equation{
+  .arena-score-recap .arena-score-equation{
     min-height:0;font-size:clamp(17px,4vh,24px);line-height:1.15;
   }
-  .abaku-score-recap .abaku-score-addition{
+  .arena-score-recap .arena-score-addition{
     margin:4px auto 0;font-size:16px;
   }
-  .abaku-score-recap .abaku-score-bonus{
+  .arena-score-recap .arena-score-bonus{
     min-height:0;font-size:10px;line-height:1.2;
   }
-  .abaku-score-recap .abaku-score-separator{
+  .arena-score-recap .arena-score-separator{
     margin:5px 0 3px;height:1px;
   }
-  .abaku-score-recap .abaku-score-total-label{
+  .arena-score-recap .arena-score-total-label{
     margin:0 0 3px;font-size:10px;
   }
-  .abaku-score-recap .abaku-score-counter{
+  .arena-score-recap .arena-score-counter{
     width:52px;height:52px;font-size:25px;border-radius:10px;
   }
-  .abaku-score-recap .abaku-score-progress{
+  .arena-score-recap .arena-score-progress{
     margin-top:4px;font-size:10px;
   }
 }

@@ -214,8 +214,8 @@ dialog::backdrop{background:#060c16d6}
   .online-cell.recent-tile.fixed{box-shadow:inset 0 0 0 2px #e86510,0 0 5px #ffc28e}
 }
 @media(prefers-reduced-motion:no-preference){
-  .online-cell.recent-tile.fixed{animation:abaku-online-accepted 1.2s ease-in-out infinite alternate}
-  @keyframes abaku-online-accepted{from{filter:brightness(1)}to{filter:brightness(1.15)}}
+  .online-cell.recent-tile.fixed{animation:arena-online-accepted 1.2s ease-in-out infinite alternate}
+  @keyframes arena-online-accepted{from{filter:brightness(1)}to{filter:brightness(1.15)}}
 }
 
 

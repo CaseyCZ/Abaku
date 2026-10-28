@@ -77,7 +77,7 @@ test('each example duration is configurable and stored for offline and online',(
     assert.equal(setRecapSeconds(11),false);
     assert.equal(getRecapSeconds(),0);
     assert.equal(setRecapSeconds(10),true);
-    assert.equal(data.get('abaku-score-recap-seconds-v1'),'10');
+    assert.equal(data.get('arena-score-recap-seconds-v1'),'10');
   }finally{
     if(oldStorage===undefined)delete globalThis.localStorage;
     else globalThis.localStorage=oldStorage;

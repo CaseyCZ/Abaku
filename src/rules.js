@@ -104,8 +104,8 @@ function getRuns(board, axis, index) {
 
 // An existing completed example can lend its final result to the next example.
 // E.g. 5611 (5 + 6 = 11) followed by 29 creates 1129 (11 - 2 = 9).
-// A lone power/root inside an invalid extension such as 9724 -> 24 is not
-// enough: the continuation must itself be a complete three-term calculation.
+// A continuation can also be a two-digit power/root: a new turn appending 4
+// to an older 112 creates 24 (2² = 4). Placing 1124 all at once is invalid.
 function isValidLinkedRun(run, newIds) {
   const firstNew = run.findIndex(p => newIds.has(id(p.row, p.col)));
   if (firstNew < 2 || !run.slice(firstNew).every(p => newIds.has(id(p.row, p.col)))) return false;
@@ -116,7 +116,7 @@ function isValidLinkedRun(run, newIds) {
     const equation = formatEquation(ending);
     if (!equation) continue;
     const result = equation.match(/= (\d+)$/)?.[1];
-    if (result && ending.endsWith(result) && formatBinaryEquation(result + added)) return true;
+    if (result && ending.endsWith(result) && readsAsEquation(result + added)) return true;
   }
   return false;
 }

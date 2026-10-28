@@ -99,6 +99,34 @@ test('linked reports score a new equation from the old result without changing s
   assert.ok(auditReport(invalid).issues.some(i=>i.type==='accepted-invalid'));
 });
 
+test('a later-turn power is valid in the new ruleset, unlike an invalid one-turn row',()=>{
+  const first=placements('112');
+  const extra=[{row:7,col:10,digit:4}];
+  const opening=validateMove(emptyBoard(),first);
+  const continuation=validateMove(opening.board,extra);
+  assert.equal(continuation.valid,true);
+  const report={mode:'local',ruleset:'classic-powers-roots-linked-powers',partial:false,
+    initialBoard:emptyBoard(),initialScores:[0,0],
+    events:[{type:'move',player:0,accepted:true,placements:first,
+      points:opening.points,equations:opening.equations,breakdown:opening.equationBreakdown},
+    {type:'move',player:1,accepted:true,placements:extra,
+      points:continuation.points,equations:continuation.equations,breakdown:continuation.equationBreakdown}],
+    finalBoard:continuation.board,finalScores:[opening.points,continuation.points]};
+  assert.equal(auditReport(report).ok,true,JSON.stringify(auditReport(report).issues));
+  report.ruleset='classic-powers-roots-linked';
+  assert.ok(auditReport(report).issues.some(i=>i.type==='accepted-invalid'),
+    'older linked reports keep their historical stricter interpretation');
+  const allTiles=placements('9724');
+  const invalidBoard=emptyBoard();
+  for(const p of allTiles)invalidBoard[p.row][p.col]=p.digit;
+  const allAtOnce={mode:'bot',ruleset:'classic-powers-roots-linked-powers',partial:false,
+    initialBoard:emptyBoard(),initialScores:[0,0],
+    events:[{type:'move',player:0,accepted:true,placements:allTiles,
+      points:60,equations:['972','24']}],
+    finalBoard:invalidBoard,finalScores:[60,0]};
+  assert.ok(auditReport(allAtOnce).issues.some(i=>i.type==='accepted-invalid'));
+});
+
 test('independent checker agrees with actual powers and roots and their bonus scores',()=>{
   for(const digits of ['24','42','273','749','8512','1248']){
     const report=gameReport(digits,'classic-powers-roots-strict');

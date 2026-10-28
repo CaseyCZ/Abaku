@@ -110,12 +110,23 @@ test('a new calculation may start from the result at the end of an older calcula
   assert.ok(another.equations.includes('927'),'9 - 2 = 7 starts from the next result');
 });
 
-test('an invalid extension cannot be saved solely by a short power inside it',()=>{
-  const old=validateMove(emptyBoard(),tiles('972'));
-  assert.equal(old.valid,true,old.reason);
-  const result=validateMove(old.board,[{row:7,col:9,digit:4}]);
-  assert.equal(result.valid,false,'9724 is not valid merely because 2² = 4');
-  assert.match(result.reason,/Celá souvislá řada/);
+test('a power can link to an older result, but not rescue an invalid single-turn row',()=>{
+  for(const digits of ['112','972']){
+    const opening=validateMove(emptyBoard(),tiles(digits));
+    assert.equal(opening.valid,true,opening.reason);
+    const linked=validateMove(opening.board,[{row:7,col:9,digit:4}]);
+    assert.equal(linked.valid,true,`${digits} + 4 in a later turn: ${linked.reason}`);
+    assert.ok(linked.equations.includes('24'),'2² = 4 must count as the new example');
+    assert.ok(!linked.equations.includes(digits),'the old example must not score again');
+  }
+  const rootOpening=validateMove(emptyBoard(),tiles('224'));
+  const root=validateMove(rootOpening.board,[{row:7,col:9,digit:2}]);
+  assert.equal(root.valid,true,root.reason);
+  assert.ok(root.equations.includes('42'),'√4 = 2 may also link in a later turn');
+  for(const digits of ['1124','9724']){
+    const oneTurn=validateMove(emptyBoard(),tiles(digits));
+    assert.equal(oneTurn.valid,false,`${digits} cannot be laid all at once`);
+  }
 });
 
 test('extending a board can yield new examples',()=>{

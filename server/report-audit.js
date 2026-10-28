@@ -27,7 +27,7 @@ function operation(digits,ruleset){
   if(!/^\d{2,9}$/.test(digits))return null;
   const binary=binaryOperation(digits,ruleset);
   if(binary)return binary;
-  if(!['classic-powers-roots','classic-powers-roots-strict','classic-powers-roots-linked'].includes(ruleset))return null;
+  if(!['classic-powers-roots','classic-powers-roots-strict','classic-powers-roots-linked','classic-powers-roots-linked-powers'].includes(ruleset))return null;
   for(let i=1;i<digits.length;i++){
     const left=digits.slice(0,i),right=digits.slice(i);
     if((left.length>1&&left[0]==='0')||(right.length>1&&right[0]==='0'))continue;
@@ -64,7 +64,9 @@ function validLinkedContinuation(run,keys,ruleset){
     const old=operation(end,ruleset);
     if(!old)continue;
     const result=old.match(/= (\d+)$/)?.[1];
-    if(result&&end.endsWith(result)&&binaryOperation(result+added,ruleset))return true;
+    if(result&&end.endsWith(result)&&
+      (ruleset==='classic-powers-roots-linked-powers'?
+        operation(result+added,ruleset):binaryOperation(result+added,ruleset)))return true;
   }
   return false;
 }
@@ -93,7 +95,7 @@ function inspect(board,placed,ruleset){
     board[p.row+dr]?.[p.col+dc]!==undefined&&board[p.row+dr][p.col+dc]!==null)))return {valid:false};
   const expressions=[];
   const allRows=new Set(placed.map(p=>p.row)),allCols=new Set(placed.map(p=>p.col));
-  const strict=['classic-powers-roots-strict','classic-powers-roots-linked'].includes(ruleset);
+  const strict=['classic-powers-roots-strict','classic-powers-roots-linked','classic-powers-roots-linked-powers'].includes(ruleset);
   for(const [axis,indices] of [['row',allRows],['col',allCols]]){
     for(const index of indices){
       let run=[];
@@ -102,7 +104,8 @@ function inspect(board,placed,ruleset){
           if(run.length<2||!run.some(p=>keys.has(cellId(p.row,p.col))))return true;
           const sequence=run.map(p=>p.digit).join('');
           if(!operation(sequence,ruleset)&&
-            !(ruleset==='classic-powers-roots-linked'&&validLinkedContinuation(run,keys,ruleset)))return false;
+            !(['classic-powers-roots-linked','classic-powers-roots-linked-powers'].includes(ruleset)&&
+              validLinkedContinuation(run,keys,ruleset)))return false;
         }
         for(let start=0;start<run.length;start++)for(let end=start+2;end<=Math.min(run.length,start+9);end++){
           const cells=run.slice(start,end);
@@ -149,7 +152,7 @@ function inspect(board,placed,ruleset){
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 export function auditReport(input){
   if(!input||!['bot','local','online'].includes(input.mode)||
-    !['legacy-0.2','classic-powers-roots','classic-powers-roots-strict','classic-powers-roots-linked'].includes(input.ruleset)||
+    !['legacy-0.2','classic-powers-roots','classic-powers-roots-strict','classic-powers-roots-linked','classic-powers-roots-linked-powers'].includes(input.ruleset)||
     !isBoard(input.initialBoard)||!isBoard(input.finalBoard)||
     !isScores(input.initialScores)||!isScores(input.finalScores)||
     !Array.isArray(input.events)||input.events.length<1||input.events.length>MAX_EVENTS||

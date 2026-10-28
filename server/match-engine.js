@@ -316,7 +316,7 @@ export class MatchEngine {
     const match=this.matchOf(uid);
     if(!match||match.id!==matchId||!match.players.some(p=>p.uid===uid))
       throw new Error('Partie není dostupná.');
-    return {mode:'online',ruleset:'classic-powers-roots-linked',partial:Boolean(match.auditPartial),
+    return {mode:'online',ruleset:'classic-powers-roots-linked-powers',partial:Boolean(match.auditPartial),
       finished:Boolean(match.finished),
       initialBoard:emptyBoard(),initialScores:[0,0],events:match.auditEvents,
       finalBoard:match.board,finalScores:match.players.map(p=>p.score)};

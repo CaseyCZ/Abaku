@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="./arena-modern.css?v=1">
   <link rel="stylesheet" href="./arena-layout.css?v=0.2.14">
   <link rel="stylesheet" href="./arena-home.css?v=0.2.11">
+  <link rel="stylesheet" href="./online-chrome.css?v=1">
   <link rel="stylesheet" href="./version-history.css?v=0.2.3">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
@@ -192,6 +193,8 @@
     <div class="online-dialog-inner">
       <header class="online-dialog-header">
         <div class="online-game-brand"><span class="online-brand-mark">A</span><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
+        <div class="online-timer-wrap"><span>ČAS</span><strong id="onlineTimer">01:00</strong></div>
+        <div class="online-bag-count">V sáčku <strong id="onlineBagCount">100</strong> čísel</div>
         <div class="online-game-title" id="onlineDialogTitle"><span>✦ ČÍSELNÁ ARÉNA ✦</span><small>Matematický souboj · ONLINE</small></div>
         <div class="online-match-scoreboard" id="onlineMatchScoreboard" role="group" aria-label="Skóre online partie" hidden>
             <div class="online-player-card" id="onlinePlayer0Card">
@@ -274,7 +277,7 @@
           </aside>
         </div>
         <div class="online-control-bar">
-          <div class="online-bag-count">V sáčku <strong id="onlineBagCount">100</strong> čísel</div>
+          
             <div class="online-rack-frame">
               <button id="onlineUndo" class="online-round-button" type="button" aria-label="Vrátit rozložená čísla" title="Vrátit">↶</button>
               <div id="onlineRack" class="online-rack" aria-label="Tvoje čísla"></div>
@@ -284,7 +287,7 @@
             <button class="gold-button" type="button" id="onlineExchange">Vyměnit</button>
             <button class="gold-button" type="button" id="onlinePass">Vynechat tah</button>
           </div>
-              <div class="online-timer-wrap"><span>ČAS</span><strong id="onlineTimer">01:00</strong></div>
+              
           <div class="online-game-mode">Online · 2 hráči</div>
         </div>
       </div>

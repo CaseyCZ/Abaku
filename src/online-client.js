@@ -68,6 +68,8 @@ let unreadOnlineChat=0, latestUnreadChat='';
 let resultShownFor=null, rematchRequestedByMe=false, rematchOfferFromOpponent=false;
 let disconnectedOpponent=false;
 let currentFriendChallenge=null;
+let pendingFriendChallenge=null, promptedFriendChallengeId=null;
+let lastHandledChallengeId=null;
 let friendChallengeTimer=null;
 const validTurnSeconds=[30,60,90];
 const timeStorageKey='abaku-online-turn-seconds';
@@ -332,11 +334,17 @@ function refreshUnreadChat(){
   const toast=$('onlineChatToast');
   const badge=$('onlineUnreadBadge');
   const hasUnread=unreadOnlineChat>0&&!!gameState&&!gameState.finished&&!$('onlineBoardWrapper').hidden;
+  const messageCount=hasUnread?unreadOnlineChat:0;
+  const notificationCount=messageCount+(pendingFriendChallenge?1:0);
   for(const id of ['menuMessageBadge','friendsMessageBadge','onlineFriendsMessageBadge']){
     const counter=$(id);
     if(!counter)continue;
-    counter.hidden=!hasUnread;
-    counter.textContent=unreadOnlineChat>99?'99+':String(unreadOnlineChat);
+    counter.hidden=notificationCount===0;
+    counter.textContent=notificationCount>99?'99+':String(notificationCount);
+  }
+  for(const [id,name] of [['menuToggle','Otevřít menu'],['friendsOpen','Přátelé'],['onlineFriendsOpen','Přátelé']]){
+    const button=$(id);
+    if(button)button.setAttribute('aria-label',name+(notificationCount?' · '+notificationCount+' upozornění':''));
   }
   toast.hidden=!hasUnread;
   badge.hidden=!hasUnread;
@@ -1025,6 +1033,9 @@ function initializeActions(){
     if(text){send('chat',{text:text.slice(0,160)});input.value='';}
   });
   const openFriends=()=>{
+    if(pendingFriendChallenge&&!(gameState&&!gameState.finished)){
+      showFriendChallenge(pendingFriendChallenge,true);return;
+    }
     if(credential){$('manageFriends').click();return;}
     $('friendsDialog').showModal();
     $('friendSearchForm').hidden=true;document.querySelector('.friend-invite-options').hidden=true;
@@ -1061,6 +1072,7 @@ function initializeActions(){
   });
   $('friendChallengeAccept').addEventListener('click',()=>respondToFriendChallenge(true));
   $('friendChallengeDecline').addEventListener('click',()=>respondToFriendChallenge(false));
+  $('friendChallengeLater').addEventListener('click',()=>$('friendChallengeDialog').close());
   $('friendChallengeDialog').addEventListener('close',()=>{
     currentFriendChallenge=null;
   });
@@ -1190,17 +1202,31 @@ async function refreshFriends(){
 }
 // Invitations are delivered even if the invited friend's lobby has no open
 // WebSocket: authenticated clients poll their own pending invitation only.
+function showFriendChallenge(challenge,force=false){
+  if(!challenge||!credential||$('friendChallengeDialog').open)return;
+  if(!force&&promptedFriendChallengeId===challenge.id)return;
+  // Keep an already-running match uninterrupted; the badge remains available.
+  if(gameState&&!gameState.finished)return;
+  promptedFriendChallengeId=challenge.id;
+  currentFriendChallenge=challenge;
+  $('friendChallengeFrom').textContent=(challenge.from.avatar||'✦')+' '+challenge.from.nickname;
+  $('friendChallengeTime').textContent='Čas na tah: '+challenge.seconds+' sekund · pozvánka vyprší za '+Math.ceil(challenge.expiresInSeconds/60)+' min.';
+  $('friendChallengeStatus').textContent='';
+  $('friendChallengeDialog').showModal();
+}
 async function refreshFriendChallenges(){
   if(!credential||document.visibilityState==='hidden')return;
-  if(document.querySelector('dialog[open]'))return;
+  const requestedWith=credential;
   try{
     const {challenge}=await api('/api/challenges');
-    if(!challenge||!credential||document.querySelector('dialog[open]'))return;
-    currentFriendChallenge=challenge;
-    $('friendChallengeFrom').textContent=(challenge.from.avatar||'✦')+' '+challenge.from.nickname;
-    $('friendChallengeTime').textContent='Čas na tah: '+challenge.seconds+' sekund · pozvánka vyprší za '+Math.ceil(challenge.expiresInSeconds/60)+' min.';
-    $('friendChallengeStatus').textContent='';
-    $('friendChallengeDialog').showModal();
+    if(!credential||credential!==requestedWith)return;
+    // An older in-flight poll must not resurrect an invite already answered.
+    if(challenge?.id===lastHandledChallengeId)return;
+    if(!challenge)lastHandledChallengeId=null;
+    if(pendingFriendChallenge?.id!==challenge?.id)promptedFriendChallengeId=null;
+    pendingFriendChallenge=challenge||null;
+    refreshUnreadChat();
+    if(challenge)showFriendChallenge(challenge);
   }catch{ /* The lobby stays playable even if invitation polling is unavailable. */ }
 }
 function startFriendChallengeUpdates(){
@@ -1218,9 +1244,17 @@ async function respondToFriendChallenge(accept){
   $('friendChallengeDecline').disabled=true;
   try{
     const data=await api('/api/challenges/respond','POST',{id,accept});
+    lastHandledChallengeId=id;
     $('friendChallengeDialog').close();
     currentFriendChallenge=null;
-    if(accept&&data.code)connectOnline({type:'join',code:data.code});
+    pendingFriendChallenge=null;
+    refreshUnreadChat();
+    if(accept&&data.code){
+      for(const dialog of document.querySelectorAll('dialog[open]')){
+        if(dialog!==$('onlineDialog'))dialog.close();
+      }
+      connectOnline({type:'join',code:data.code});
+    }
   }catch(error){
     $('friendChallengeStatus').textContent=error.message;
   }finally{

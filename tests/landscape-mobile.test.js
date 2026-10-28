@@ -15,7 +15,7 @@ test('landscape phone board follows viewport width, not available height',()=>{
   assert.match(landscape,/\.game-app \.center-area\{[^}]*width:100%;max-width:none/);
   assert.match(landscape,/\.game-app \.board\{[^}]*width:100%;height:auto!important;aspect-ratio:1/);
   assert.match(landscape,/\.game-app \.right-side\{[^}]*grid-column:1;grid-row:2/);
-  assert.match(html,/game-chrome\.css\?v=0\.2\.24/);
+  assert.match(html,/game-chrome\.css\?v=0\.2\.25/);
 });
 
 test('landscape score recap is compact and cannot exceed viewport height',()=>{
@@ -50,4 +50,20 @@ test('Android and iPhone landscape rack stays centered with controls on either s
     assert.equal((bar.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id+' remains present');
   }
   assert.match(landscape,/@media \(orientation:landscape\)[^{]*\(pointer:coarse\)/);
+});
+
+test('landscape mobile board letters are large enough to read at wide board sizes',()=>{
+  assert.match(landscape,/\.game-app \.board \.cell\.occupied,[\s\S]*?\.game-app \.board \.cell\.pending\{\s*font-size:clamp\(19px,2\.5vw,32px\)/);
+  assert.match(landscape,/\.game-app \.board \.cell\.bonus-hint:is\(\.dd,\.td,\.de,\.te\)\{\s*font-size:clamp\(11px,1\.55vw,18px\)/);
+  // New font rules are restricted to landscape coarse-pointer media.
+  assert.match(landscape,/@media \(orientation:landscape\) and \(max-width:1100px\) and \(max-height:600px\) and \(pointer:coarse\)/);
+});
+
+test('landscape page scroll exists before game tiles are populated',()=>{
+  assert.match(landscape,/html\{\s*height:auto!important;min-height:100%;\s*overflow-x:clip;overflow-y:auto!important/);
+  assert.match(landscape,/body\{\s*height:auto!important;min-height:100dvh;\s*overflow-x:clip;overflow-y:visible!important/);
+  assert.match(landscape,/\.game-app\{\s*height:auto!important;min-height:100dvh;overflow:visible!important/);
+  assert.match(landscape,/\.game-app \.board-rim\{\s*box-sizing:border-box;display:flex;[\s\S]*?aspect-ratio:1 \/ 1/);
+  assert.match(landscape,/\.game-app \.board\{[\s\S]*?width:100%;height:100%!important/);
+  assert.match(html,/game-chrome\.css\?v=0\.2\.25/);
 });

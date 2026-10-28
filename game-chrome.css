@@ -274,11 +274,40 @@
     grid-column:1;grid-row:1;justify-self:stretch;
     width:100%;max-width:none;min-width:0;margin:0;padding:0;
   }
+  /* Reserve the entire 15x15 square on the first paint, before game JS
+     fills it. Safari can then scroll all the way down immediately. */
+  html{
+    height:auto!important;min-height:100%;
+    overflow-x:clip;overflow-y:auto!important;
+    scroll-behavior:auto;
+  }
+  body{
+    height:auto!important;min-height:100dvh;
+    overflow-x:clip;overflow-y:visible!important;
+  }
+  .game-app{
+    height:auto!important;min-height:100dvh;overflow:visible!important;
+  }
   .game-app .board-rim{
-    box-sizing:border-box;width:100%;max-width:none;margin:0;
+    box-sizing:border-box;display:flex;
+    width:100%;max-width:none;margin:0;
+    aspect-ratio:1 / 1;
   }
   .game-app .board{
-    box-sizing:border-box;width:100%;height:auto!important;aspect-ratio:1;
+    box-sizing:border-box;flex:1 1 auto;min-width:0;min-height:0;
+    width:100%;height:100%!important;
+    aspect-ratio:1 / 1;
+  }
+  /* Letter sizes now follow the rendered board width, rather than
+     --board-side, which stays height-limited in the older desktop theme. */
+  .game-app .board .cell.occupied,
+  .game-app .board .cell.pending{
+    font-size:clamp(19px,2.5vw,32px);
+    line-height:1;
+  }
+  .game-app .board .cell.bonus-hint:is(.dd,.td,.de,.te){
+    font-size:clamp(11px,1.55vw,18px);
+    line-height:1;
   }
   .game-app .right-side{
     grid-column:1;grid-row:2;width:100%;max-height:none;

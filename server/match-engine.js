@@ -177,13 +177,16 @@ export class MatchEngine {
     for(const index of [...used].sort((a,b)=>b-a))player.rack.splice(index,1);
     player.rack=drawTiles(match.bag,player.rack);
     player.score+=validated.points;
+    const addedNumbers=auditPlacements.slice().sort((a,b)=>a.row-b.row||a.col-b.col).map(p=>p.digit);
     // Both players receive the same last accepted move and full equation cells.
     // Data contains only public board coordinates, never another player's rack.
     match.lastMove={player:match.turn,points:validated.points,equations:validated.equations,
+      turnNumber:match.turns+1,addedNumbers,
       equationBreakdown:validated.equationBreakdown,
       placed:safe.map(p=>({row:p.row,col:p.col})),cells:validated.equationCells,at:this.clock()};
     match.history ||= [];
-    match.history.push({player:match.turn,points:validated.points,equations:validated.equations});
+    match.history.push({player:match.turn,turnNumber:match.turns+1,addedNumbers,
+      points:validated.points,equations:validated.equations});
     if(match.history.length>30)match.history.shift();
     match.passStreak=0;
     this.sendTo(uid,{type:'move-accepted',points:validated.points,equations:validated.equations});

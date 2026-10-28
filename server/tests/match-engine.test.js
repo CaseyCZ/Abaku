@@ -186,6 +186,8 @@ test('accepted online move syncs complete previous equation squares to both play
     {row:7,col:8,rackIndex:2}
   ]);
   assert.deepEqual(match.lastMove.equations,['268']);
+  assert.equal(match.lastMove.turnNumber,1);
+  assert.deepEqual(match.lastMove.addedNumbers,[2,6,8]);
   assert.deepEqual(match.lastMove.placed,[
     {row:7,col:6},{row:7,col:7},{row:7,col:8}
   ]);
@@ -229,6 +231,8 @@ test('online scorecards receive safe nicknames and recent move history after rec
     assert.deepEqual(state.players.map(player=>player.nickname),['Alice','Bob']);
     assert.equal(state.history.length,1);
     assert.deepEqual(state.history[0].equations,['268']);
+    assert.equal(state.history[0].turnNumber,1);
+    assert.deepEqual(state.history[0].addedNumbers,[2,6,8]);
     assert.ok(!state.players.some(player=>'uid' in player||'rack' in player));
     assert.equal(state.deadline,160_000);
   }
@@ -236,6 +240,25 @@ test('online scorecards receive safe nicknames and recent move history after rec
   game.sync('alice');
   assert.equal(events[0].history.length,1);
   assert.deepEqual(events[0].lastMove.equations,['268']);
+});
+
+test('online history orders added digits by board position and counts skipped turns',()=>{
+  const {game}=rig();
+  game.connect('a');game.connect('b');
+  const match=game.createMatch('a','b',60);
+  match.players[0].rack=[2,6,8,4,1];
+  game.place('a',[
+    {row:7,col:8,rackIndex:2},
+    {row:7,col:6,rackIndex:0},
+    {row:7,col:7,rackIndex:1}
+  ]);
+  assert.deepEqual(match.history[0].addedNumbers,[2,6,8]);
+  assert.equal(match.history[0].turnNumber,1);
+  game.pass('b');
+  match.players[0].rack=[2,9,3,4,1];
+  game.place('a',[{row:7,col:9,rackIndex:0}]);
+  assert.deepEqual(match.history[1].addedNumbers,[2]);
+  assert.equal(match.history[1].turnNumber,3);
 });
 
 

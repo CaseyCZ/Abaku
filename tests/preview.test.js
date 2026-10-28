@@ -21,7 +21,7 @@ test('score preview matches the actual committed score with board bonuses', () =
   const commit=validateMove(board,placements);
   assert.equal(preview.state,'valid');
   assert.equal(preview.points,commit.points);
-  assert.equal(preview.detail,'2 + 7 = 9');
+  assert.equal(preview.detail,'(2+7=9)');
   assert.equal(board[7][7],null,'preview must not change the board');
 });
 
@@ -40,9 +40,9 @@ test('live score changes and clears as tiles are placed and returned', () => {
 
 test('tentative equations show readable operation, not concatenated digits',()=>{
   const board=emptyBoard();
-  assert.equal(describeMovePreview(board,move('268')).detail,'2 + 6 = 8');
-  assert.equal(describeMovePreview(board,move('236')).detail,'2 × 3 = 6');
-  assert.equal(describeMovePreview(board,move('1243',7,5)).detail,'12 ÷ 4 = 3\u00a0\u00a02² = 4');
+  assert.equal(describeMovePreview(board,move('268')).detail,'(2+6=8)');
+  assert.equal(describeMovePreview(board,move('236')).detail,'(2×3=6)');
+  assert.equal(describeMovePreview(board,move('1243',7,5)).detail,'(12÷4=3),(2²=4)');
 });
 
 test('powers and roots appear correctly in the live score preview',()=>{
@@ -54,7 +54,7 @@ test('powers and roots appear correctly in the live score preview',()=>{
     const preview=describeMovePreview(board,placement);
     const actual=validateMove(board,placement);
     assert.equal(preview.state,'valid',expected);
-    assert.equal(preview.detail,expected);
+    assert.equal(preview.detail,`(${expected.replaceAll(' ','')})`);
     assert.equal(preview.points,actual.points);
   }
 });

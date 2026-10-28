@@ -119,7 +119,7 @@
 #onlineDialog .online-status-details>div span{color:#d99f79;flex:none}
 #onlineDialog .online-status-details>div strong{text-align:right;overflow-wrap:anywhere;min-width:0}
 #onlineDialog .online-move-history{
-  margin:2px 0 0;padding-left:20px;overflow:auto;min-height:0;
+  margin:2px 0 0;padding-left:0;list-style:none;overflow:auto;min-height:0;
   font:11px/1.5 Verdana,sans-serif;color:#f5cdb1;
 }
 #onlineDialog .online-move-history li{overflow-wrap:anywhere;margin-bottom:5px}

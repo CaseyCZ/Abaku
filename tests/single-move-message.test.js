@@ -16,7 +16,7 @@ test('one visible status row below the local board, no duplicated golden summary
   assert.doesNotMatch(script,/byId\('lastMoveReview'\)|renderRecentMove\(|recentMove\.label/);
   assert.match(script,/notify\(`\$\{who\}: \+\$\{checked\.points\} bodů/);
   assert.match(script,/mobileMessage\.textContent = message/);
-  assert.match(game,/src\/main\.js\?v=0\.2\.34/);
+  assert.match(game,/src\/main\.js\?v=0\.2\.35/);
 });
 
 test('score animation, three-second tile highlights and turn continuation are retained',()=>{

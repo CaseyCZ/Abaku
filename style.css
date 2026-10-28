@@ -90,7 +90,7 @@ html,body{height:100%;overflow-x:hidden}
 .status-details span{color:#e0a67c}
 .status-details strong{color:#ffdcbf;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .status-panel .game-message{min-height:0;max-height:62px;overflow:auto;flex:none;text-align:left;border-radius:4px;background:#0c121baa;border-left:3px solid #c58454;padding:6px 7px;font:11px/1.35 Verdana,sans-serif}
-.move-history{flex:1;overflow-y:auto;min-height:0;margin:0;padding-left:24px;font:11px/1.55 Verdana,sans-serif;color:#f6ceaf}
+.move-history{flex:1;overflow-y:auto;min-height:0;margin:0;padding-left:0;list-style:none;font:11px/1.55 Verdana,sans-serif;color:#f6ceaf}
 .move-history li{margin:0 0 4px;overflow-wrap:anywhere}
 .move-history .move-points{color:#9efaac}
 .chat-panel{gap:7px}

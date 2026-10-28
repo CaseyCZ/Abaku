@@ -22,12 +22,12 @@ test('updated client modules are requested with fresh versioned URLs',()=>{
   const index=read('../index.html'),game=read('../game.html'),tutorial=read('../how-to-play.html');
   const lobby=read('../src/lobby.js'),main=read('../src/main.js'),online=read('../src/online-client.js');
   const preview=read('../src/preview.js');
-  assert.match(index,/src\/lobby\.js\?v=0\.2\.34/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.34/);
+  assert.match(index,/src\/lobby\.js\?v=0\.2\.35/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.35/);
   // Game logic has its own cache token; visual-only releases should not bump it.
   assert.match(game,/src\/main\.js\?v=\d+\.\d+\.\d+/);
   assert.match(tutorial,/src\/tutorial\.js\?v=0\.2\.10/);
-  assert.match(main,/\.\/rules\.js\?v=0\.2\.34/);
-  assert.match(online,/\.\/rules\.js\?v=0\.2\.34/);
-  assert.match(preview,/\.\/rules\.js\?v=0\.2\.34/);
+  assert.match(main,/\.\/rules\.js\?v=0\.2\.35/);
+  assert.match(online,/\.\/rules\.js\?v=0\.2\.35/);
+  assert.match(preview,/\.\/rules\.js\?v=0\.2\.35/);
 });

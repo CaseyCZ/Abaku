@@ -1,9 +1,9 @@
 import {revealArenaChat} from './arena-ui.js?v=2';
 import {syncResumeCard} from './resume-card.js?v=0.2.4';
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
-import { describeMovePreview } from './preview.js?v=0.2.34';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.34';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.34';
+import { describeMovePreview } from './preview.js?v=0.2.35';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.35';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.35';
 import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=1';
 import {bindFeedback} from './feedback-client.js?v=1';
 
@@ -749,9 +749,13 @@ function renderOnlineStatus(s){
   for(const entry of moves){
     const item=document.createElement('li');
     const points=document.createElement('strong');
-    points.textContent='+'+entry.points;
-    item.append(document.createTextNode(label(entry.player)+' · '),points,
-      document.createTextNode(' · '+formatEquations(entry.equations,2)));
+    points.textContent='+'+entry.points+'b';
+    const turnLabel=Number.isInteger(entry.turnNumber)&&entry.turnNumber>0
+      ?entry.turnNumber+'. tah ':'';
+    const added=Array.isArray(entry.addedNumbers)&&entry.addedNumbers.length
+      ?' ('+entry.addedNumbers.join(',')+')':'';
+    item.append(document.createTextNode(turnLabel+label(entry.player)+added+' '),points,
+      document.createTextNode(' '+formatEquations(entry.equations,2)));
     history.append(item);
   }
 }

@@ -187,8 +187,8 @@ test('recognized arithmetic examples are shown as readable complete equations',(
   assert.equal(formatEquation('1255'),'∛125 = 5');
   assert.equal(formatEquation('238'),null);
   assert.equal(formatEquation('09'),null);
-  assert.equal(formatEquations(['268','936','1243']), '2 + 6 = 8\u00a0\u00a09 − 3 = 6\u00a0\u00a012 ÷ 4 = 3');
-  assert.equal(formatEquations(['268']), '2 + 6 = 8');
+  assert.equal(formatEquations(['268','936','1243']), '(2+6=8),(9−3=6),(12÷4=3)');
+  assert.equal(formatEquations(['268']), '(2+6=8)');
 });
 
 test('a valid move returns all accepted equation squares without changing score',()=>{

@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.34';
+export const APP_VERSION = '0.2.35';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.35',
+    date: '28. 10. 2026',
+    description: 'Historie tahů ukazuje číslo tahu, hráče, přidaná čísla a body bez oddělovacích teček, například 2. tah Počítač (2,6) +34b (4+2=6). Příklady jsou kompaktní ve vlastních závorkách a při více příkladech oddělené jedinou čárkou: (6+3=9),(3²=9).'
+  },
   {
     version: '0.2.34',
     date: '28. 10. 2026',

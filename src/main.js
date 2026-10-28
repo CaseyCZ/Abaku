@@ -1,12 +1,12 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.34';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.35';
 import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.18';
-import {chooseMove} from './ai.js?v=0.2.34';
-import {describeMovePreview} from './preview.js?v=0.2.34';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.34';
+import {chooseMove} from './ai.js?v=0.2.35';
+import {describeMovePreview} from './preview.js?v=0.2.35';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.35';
 import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
   from './player-identity.js?v=1';
-import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.34';
+import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.35';
 import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=1';
 import {reportEligibility,addReportReceipt} from './report-policy.js?v=1';
 
@@ -231,12 +231,16 @@ function renderSidebar() {
   for (const entry of (game.history || []).slice(-6).reverse()) {
     const li = document.createElement('li');
     const who = document.createElement('span');
-    who.textContent = playerLabel(entry.player) + ' · ';
+    const turnLabel = Number.isInteger(entry.turnNumber) && entry.turnNumber > 0
+      ? `${entry.turnNumber}. tah ` : '';
+    const added = Array.isArray(entry.addedNumbers) && entry.addedNumbers.length
+      ? ` (${entry.addedNumbers.join(',')})` : '';
+    who.textContent = turnLabel + playerLabel(entry.player) + added + ' ';
     const points = document.createElement('strong');
     points.className = 'move-points';
-    points.textContent = '+' + entry.points;
+    points.textContent = '+' + entry.points + 'b';
     const details = document.createElement('span');
-    details.textContent = ' · ' + (formatEquations(entry.examples,2) || 'tah');
+    details.textContent = ' ' + (formatEquations(entry.examples,2) || 'tah');
     li.append(who,points,details);
     history.append(li);
   }
@@ -378,7 +382,9 @@ function commitMove(placements, fromBot=false) {
   for(const index of usedIndexes)player.rack.splice(index,1);
   replenishPlayerRack(game.bag,player);
   player.score+=checked.points;
-  game.history.push({player:game.turn,points:checked.points,examples:checked.equations,tiles:placements.length});
+  game.history.push({player:game.turn,turnNumber:game.turns+1,points:checked.points,
+    examples:checked.equations,tiles:placements.length,
+    addedNumbers:placements.slice().sort((a,b)=>a.row-b.row||a.col-b.col).map(p=>p.digit)});
   const who=fromBot?'Počítač':playerLabel(game.turn);
   notify(`${who}: +${checked.points} bodů · ${formatEquations(checked.equations)}${checked.equations.length>3?'…':''}`,'success');
   const nextTurn=1-game.turn;

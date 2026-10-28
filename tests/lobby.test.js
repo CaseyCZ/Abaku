@@ -133,13 +133,13 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
   assert.match(landing,/Hráči a partie/);
-  assert.match(lobby,/online-client\.js\?v=0\.2\.34/);
+  assert.match(lobby,/online-client\.js\?v=0\.2\.35/);
 });
 
 test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
   const html=landing;
   const css=file('../online-game.css');
-  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.18"/);
+  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.35"/);
   for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
     'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
     'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',
@@ -167,7 +167,7 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
 
 test('online blue scorecard header follows the actual active player, not always player one',()=>{
   const css=file('../online-game.css');
-  assert.match(landing,/online-game\.css\?v=0\.2\.18/);
+  assert.match(landing,/online-game\.css\?v=0\.2\.35/);
   assert.match(css,/#onlineDialog \.online-player-card\.active \.online-player-name\{/);
   assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.online-player-name\{/);
   assert.match(onlineClient,/onlinePlayer'\+side\+'Card'\)\.classList\.toggle\('active',!s\.finished&&s\.turn===side\)/);
@@ -298,7 +298,7 @@ test('online scoring is a hands-free animation of each server-verified equation 
   const recap=file('../src/score-recap.js');
   const styles=file('../score-recap.css');
   assert.match(landing,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.34'/);
+  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.35'/);
   assert.match(onlineClient,/new ScoreRecap\(\$\('onlineDialog'\)\)/);
   assert.match(onlineClient,/breakdown:move\.equationBreakdown,equations:move\.equations/);
   assert.match(onlineClient,/total:move\.points/);

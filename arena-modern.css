@@ -3,6 +3,7 @@
    Pure presentation: existing game logic and DOM IDs remain unchanged. */
 :root{
   color-scheme:dark;
+  --arena-ui-font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --arena-bg:#08152c;
   --arena-bg2:#0d2141;
   --arena-panel:#122a50;
@@ -16,7 +17,7 @@
   --arena-glow:rgba(247,187,71,.23);
   --gold:var(--arena-gold);
   --border:var(--arena-gold-deep);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:var(--arena-ui-font);
   color:var(--arena-text);
   background:var(--arena-bg);
   font-synthesis:none;
@@ -26,13 +27,7 @@ body{
   color:var(--arena-text);
   background:radial-gradient(ellipse at 18% 0%,#173766 0%,transparent 45%),
              radial-gradient(ellipse at 90% 20%,#102951 0%,transparent 42%),#08152c;
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-}
-body,button,input,select,textarea,dialog,.eyebrow,.welcome,.mode-copy,.mode-title,
-.side-card,.online-panel,.side-panel,.game-message,.chat-messages,
-.online-cell,.cell,.tile,.online-tile,.headline,.brand,.gold-button,
-.online-game-brand,.online-game-title,.online-player-card,.player-card{
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+  font-family:var(--arena-ui-font);
 }
 button,a,input,select,textarea{touch-action:manipulation}
 button,select,input,textarea{accent-color:var(--arena-gold)}
@@ -851,9 +846,6 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
 /* Shared typography for the lobby, local game and online game. Old screens
    still contain Georgia/Verdana font shorthands; only their family is unified,
    so sizes, weight, line-height and digit alignment keep their own rules. */
-:root{
-  --arena-ui-font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
 body,
 body :is(h1,h2,h3,h4,h5,h6,p,span,strong,small,b,em,i,a,button,input,
   select,textarea,label,legend,div,li,ul,ol,nav,header,footer,section,

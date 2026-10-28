@@ -1,4 +1,4 @@
-:root{font-family:Georgia,'Times New Roman',serif;color:#ffe6d0;background:#09111f;--gold:#e7833a;--deep:#162949;--cell:#fffbf7;--cell-border:#2a4575;--size:min(4.05vw,46px);font-synthesis:none}
+:root{color:#ffe6d0;background:#09111f;--gold:#e7833a;--deep:#162949;--cell:#fffbf7;--cell-border:#2a4575;--size:min(4.05vw,46px);font-synthesis:none}
 *{box-sizing:border-box}button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.svg-defs{position:absolute;width:0;height:0;overflow:hidden}
 body{margin:0;min-width:880px;min-height:100vh;background:radial-gradient(ellipse at 30% 0%,#2e5393 0%,#142646 58%,#08101e 100%)}
 .game-app{width:min(100%,1500px);min-height:100vh;margin:auto;position:relative;overflow:hidden;border-left:3px solid #8b4520;border-right:3px solid #8b4520;background:radial-gradient(ellipse at 50% 5%,#2a497f75,transparent 68%),repeating-linear-gradient(140deg,transparent 0 16px,#0a162a0a 17px 33px)}

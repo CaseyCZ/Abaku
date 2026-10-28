@@ -1,0 +1,24 @@
+/* Unread match chat messages on the top navigation controls. */
+#menuToggle, #friendsOpen, #onlineCancel { position: relative; }
+.message-count-badge {
+  position: absolute;
+  z-index: 4;
+  top: -8px;
+  right: -8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  border-radius: 999px;
+  border: 2px solid #fff1e9;
+  background: #d92639;
+  color: #fff;
+  font: 700 11px/1 system-ui, sans-serif;
+  letter-spacing: 0;
+  white-space: nowrap;
+  box-shadow: 0 2px 7px #0008;
+  pointer-events: none;
+}
+.message-count-badge[hidden] { display: none !important; }

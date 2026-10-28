@@ -16,6 +16,12 @@ export class PresenceTracker {
     for(const [uid,at] of this.lastSeen)if(now-at>=this.ttlMs)this.lastSeen.delete(uid);
     return new Set(this.lastSeen.keys());
   }
+  canAdmit(uid,extraConnected=[],limit=700){
+    if(typeof uid!=='string'||!uid)throw new Error('Neplatný hráč.');
+    const unique=this.active();
+    for(const connected of extraConnected)unique.add(connected);
+    return unique.has(uid)||unique.size<limit;
+  }
   count(extraConnected=[]){
     const unique=this.active();
     for(const uid of extraConnected)unique.add(uid);

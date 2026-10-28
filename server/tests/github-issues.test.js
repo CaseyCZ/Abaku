@@ -15,14 +15,14 @@ test('GitHub issue contains public description and only private game reference',
   let sent;
   const reporter=new GitHubIssueReporter({token:'x'.repeat(30),fetchImpl:async(url,opts)=>{
     sent={url,opts};
-    return {ok:true,json:async()=>({number:42,html_url:'https://github.com/CaseyCZ/Abaku/issues/42'})};
+    return {ok:true,json:async()=>({number:42,html_url:'https://github.com/CaseyCZ/Ciselna-Arena/issues/42'})};
   }});
   const result=await reporter.create({
     description:'Rozbilo se <menu> & zobrazení skóre.',mode:'local',
     reportId:'01234567-1111-4111-8111-111111111111'
   });
   assert.equal(result.issueNumber,42);
-  assert.equal(sent.url,'https://api.github.com/repos/CaseyCZ/Abaku/issues');
+  assert.equal(sent.url,'https://api.github.com/repos/CaseyCZ/Ciselna-Arena/issues');
   const payload=JSON.parse(sent.opts.body);
   assert.match(payload.body,/&lt;menu&gt; &amp;/);
   assert.match(payload.body,/01234567-1111-4111-8111-111111111111/);

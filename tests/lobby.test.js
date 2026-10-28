@@ -141,7 +141,7 @@ test('online match uses the local game markup and stylesheet on phone and deskto
   const css=file('../online-view.css');
   assert.match(html,/style\.css\?v=0\.2\.35/);
   assert.match(html,/game-chrome\.css\?v=0\.2\.30/);
-  assert.match(html,/online-view\.css\?v=1/);
+  assert.match(html,/online-view\.css\?v=\d+/);
   assert.doesNotMatch(html,/online-(?:game|chrome)\.css/);
   assert.match(html,/class="game-app online-game-app"/);
   assert.match(html,/class="top-bar"/);

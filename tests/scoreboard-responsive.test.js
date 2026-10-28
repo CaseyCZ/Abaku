@@ -25,5 +25,5 @@ test('long names truncate but scores and active player marking remain unchanged'
   assert.match(game,/id="player1Card"/);
   assert.match(main,/byId\('player0Name'\)\.textContent=playerLabel\(0\)/);
   assert.match(main,/byId\(`player\$\{i\}Score`\)\.textContent=game\.players\[i\]\.score/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.27/);
+  assert.match(game,/game-chrome\.css\?v=0\.2\.28/);
 });

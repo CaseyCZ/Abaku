@@ -1,18 +1,21 @@
-import { randomInt } from 'node:crypto';
-import { emptyBoard, makeBag, drawTiles, validateMove } from '../src/rules.js';
+import { randomInt, randomUUID } from 'node:crypto';
+import { SIZE, emptyBoard, makeBag, drawTiles, validateMove } from '../src/rules.js';
 import {reportEligibility,addReportReceipt} from '../src/report-policy.js';
 
 const RACK_SIZE = 5;
 const MAX_CHAT = 160;
 const INVITE_TTL = 10 * 60_000;
 const RECONNECT_GRACE = 60_000;
+const RESTART_RECOVERY_WINDOW = 24 * 60 * 60_000;
 const INVITE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const legalTime = value => [30, 60, 90].includes(Number(value)) ? Number(value) : 60;
 
 export class MatchEngine {
-  constructor({send = () => {}, onResult = () => {}, clock = () => Date.now(), rng = Math.random, getName = () => null} = {}) {
+  constructor({send = () => {}, onResult = () => {}, onChange = () => {}, onDelete = () => {}, clock = () => Date.now(), rng = Math.random, getName = () => null} = {}) {
     this.send = send;
     this.onResult = onResult;
+    this.onChange = onChange;
+    this.onDelete = onDelete;
     this.clock = clock;
     this.rng = rng;
     this.getName = getName;
@@ -23,13 +26,85 @@ export class MatchEngine {
     this.byPlayer = new Map();
     this.disconnected = new Map();
     this.chatAt = new Map();
-    this.nextId = 0;
+    this.restoredAwaiting = new Map();
+  }
+  // Only private server state is serialized. Never send this snapshot to clients:
+  // it contains both players' racks, bag order and internal account IDs.
+  persist(match) {
+    this.onChange({version:1,id:match.id,players:match.players,board:match.board,
+      bag:match.bag,turn:match.turn,turns:match.turns,passStreak:match.passStreak,
+      seconds:match.seconds,deadline:match.deadline,finished:match.finished,
+      winner:match.winner,reason:match.reason,endedAt:match.endedAt,
+      lastMove:match.lastMove||null,history:match.history||[],
+      auditEvents:match.auditEvents,auditRevision:match.auditRevision,
+      auditPartial:Boolean(match.auditPartial),
+      reportReceipts:[...match.reportReceipts],savedAt:this.clock()});
+  }
+  restore(snapshots) {
+    const now=this.clock();
+    for(const state of snapshots){
+      try {
+        if(state?.version!==1||typeof state.id!=='string'||!state.id||state.id.length>80||
+          !Array.isArray(state.players)||state.players.length!==2||
+          state.players.some(p=>typeof p?.uid!=='string'||!p.uid||p.uid.length>150||
+            !Number.isSafeInteger(p.score)||p.score<0||!Array.isArray(p.rack)||p.rack.length>RACK_SIZE||
+            p.rack.some(n=>!Number.isInteger(n)||n<0||n>9))||
+          state.players[0].uid===state.players[1].uid||
+          !Array.isArray(state.board)||state.board.length!==SIZE||
+          state.board.some(row=>!Array.isArray(row)||row.length!==SIZE||
+            row.some(n=>n!==null&&(!Number.isInteger(n)||n<0||n>9)))||
+          !Array.isArray(state.bag)||state.bag.length>110||
+          state.bag.some(n=>!Number.isInteger(n)||n<0||n>9)||
+          ![0,1].includes(state.turn)||!Number.isSafeInteger(state.turns)||state.turns<0||
+          !Number.isSafeInteger(state.passStreak)||state.passStreak<0||
+          ![30,60,90].includes(state.seconds)||!Number.isFinite(state.deadline)||
+          typeof state.finished!=='boolean'||!Number.isFinite(state.savedAt)||
+          (state.finished&&!Number.isFinite(state.endedAt))||
+          (state.winner!==null&&typeof state.winner!=='string')||
+          !Array.isArray(state.auditEvents)||state.auditEvents.length>600||
+          !Number.isSafeInteger(state.auditRevision)||state.auditRevision<0||
+          !Array.isArray(state.history)||state.history.length>30||
+          !Array.isArray(state.reportReceipts)||
+          state.reportReceipts.some(row=>!Array.isArray(row)||row.length!==2||typeof row[0]!=='string'))
+          throw new Error('Neplatný uložený stav.');
+        if(state.finished ? (now-state.endedAt>5*60_000) : (now-state.savedAt>RESTART_RECOVERY_WINDOW)){
+          this.onDelete(state.id);
+          continue;
+        }
+        if(this.matches.has(state.id)||state.players.some(p=>{
+          const previous=this.byPlayer.get(p.uid);
+          return previous&&!previous.finished;
+        }))throw new Error('Kolize uložených partií.');
+        const match={...state,reportReceipts:new Map(state.reportReceipts),
+          reportPending:new Map(),rematchVotes:new Set()};
+        this.matches.set(match.id,match);
+        for(const p of match.players){
+          const previous=this.byPlayer.get(p.uid);
+          if(!previous||previous.finished)this.byPlayer.set(p.uid,match);
+        }
+        if(!match.finished){
+          // Nobody has a socket immediately after an API restart. Pause the
+          // old deadline and give both players a chance to reconnect.
+          match.deadline=now+match.seconds*1000;
+          for(const p of match.players)this.disconnected.set(p.uid,now);
+          this.restoredAwaiting.set(match.id,now);
+        }
+      }catch(error){
+        console.error('Abaku recovery skipped match',String(state?.id||'?').slice(0,80),error.message);
+      }
+    }
   }
   connect(uid) {
     this.connections.add(uid);
     this.disconnected.delete(uid);
-    this.sync(uid);
     const match = this.matchOf(uid);
+    if(match&&!match.finished&&this.restoredAwaiting.has(match.id)){
+      this.restoredAwaiting.delete(match.id);
+      for(const p of match.players)if(p.uid!==uid)this.disconnected.set(p.uid,this.clock());
+      match.deadline=this.clock()+match.seconds*1000;
+      this.persist(match);
+    }
+    this.sync(uid);
     if (match && !match.finished) this.toOthers(match, uid, {type:'opponent',status:'connected'});
   }
   disconnect(uid) {
@@ -49,7 +124,7 @@ export class MatchEngine {
   matchOf(uid) {
     return this.byPlayer.get(uid) || null;
   }
-  // A safe resume summary for the signed-in player only. Matches live in RAM.
+  // A safe resume summary for the signed-in player only.
   // This never exposes the other player's account ID or rack.
   activeMatchSummary(uid) {
     const match=this.matchOf(uid);
@@ -137,10 +212,11 @@ export class MatchEngine {
     this.queue=this.queue.filter(q=>q.uid!==uidA&&q.uid!==uidB);
     const bag=makeBag(this.rng);
     const players=[{uid:uidA,score:0,rack:drawTiles(bag,[])},{uid:uidB,score:0,rack:drawTiles(bag,[])}];
-    const match={id:'m'+(++this.nextId),players,board:emptyBoard(),bag,
+    const match={id:'m_'+randomUUID(),players,board:emptyBoard(),bag,
       turn:0,turns:0,passStreak:0,seconds:legalTime(seconds),
       deadline:this.clock()+legalTime(seconds)*1000,finished:false,winner:null,reason:null,endedAt:null,
       auditEvents:[],auditRevision:0,reportReceipts:new Map(),reportPending:new Map()};
+    this.persist(match);
     this.matches.set(match.id,match);
     this.byPlayer.set(uidA,match);this.byPlayer.set(uidB,match);
     for(const uid of [uidA,uidB]) {this.sendTo(uid,{type:'match-start',matchId:match.id});this.sync(uid);}
@@ -168,6 +244,7 @@ export class MatchEngine {
     const auditPlacements=safe.map(p=>({row:p.row,col:p.col,digit:p.digit}));
     if(!validated.valid){
       this.recordAudit(match,{type:'move',player:match.turn,accepted:false,placements:auditPlacements});
+      this.persist(match);
       throw new Error(validated.reason);
     }
     this.recordAudit(match,{type:'move',player:match.turn,accepted:true,placements:auditPlacements,
@@ -224,6 +301,7 @@ export class MatchEngine {
     }
     match.turn=1-match.turn;
     match.deadline=this.clock()+match.seconds*1000;
+    this.persist(match);
     for(const p of match.players)this.sync(p.uid);
   }
   toAll(match,payload){for(const p of match.players)this.sendTo(p.uid,payload);}
@@ -268,7 +346,8 @@ export class MatchEngine {
     match.endedAt=this.clock();
     const [a,b]=match.players;
     match.winner=winnerOverride ?? (a.score===b.score ? null : (a.score>b.score?a.uid:b.uid));
-    this.onResult({ids:[a.uid,b.uid],winner:match.winner,reason});
+    this.onResult({matchId:match.id,ids:[a.uid,b.uid],winner:match.winner,reason});
+    this.persist(match);
     this.toAll(match,{type:'match-end',winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason});
     for(const p of match.players)this.sync(p.uid);
   }
@@ -309,6 +388,7 @@ export class MatchEngine {
     const pending=Promise.resolve().then(()=>save(snapshot)).then(result=>{
       match.reportReceipts.set(uid,addReportReceipt(
         match.reportReceipts.get(uid),result.id,revision,finished,this.clock()));
+      this.persist(match);
       this.sync(uid);
       return {...result,reportRevision:revision,reportFinished:finished};
     }).finally(()=>match.reportPending.delete(uid));
@@ -330,6 +410,8 @@ export class MatchEngine {
     for(const match of this.matches.values()) {
       if(match.finished) {
         if(now-match.endedAt>5*60_000) {
+          this.onDelete(match.id);
+          this.restoredAwaiting.delete(match.id);
           this.matches.delete(match.id);
           for(const p of match.players)if(this.byPlayer.get(p.uid)===match)this.byPlayer.delete(p.uid);
         }
@@ -337,10 +419,15 @@ export class MatchEngine {
       }
       const disconnected=match.players.filter(p=>this.disconnected.has(p.uid));
       if(disconnected.length===2){
+        if(this.restoredAwaiting.has(match.id)){
+          if(now-this.restoredAwaiting.get(match.id)<=RESTART_RECOVERY_WINDOW)continue;
+          this.restoredAwaiting.delete(match.id);
+        }
         const oldest=Math.min(...disconnected.map(p=>this.disconnected.get(p.uid)));
         if(now-oldest>RECONNECT_GRACE) {
           // No winning player: ignore abandoned game to avoid artificial draws in statistics.
           match.finished=true;match.endedAt=now;match.reason='abandoned';match.winner=null;
+          this.persist(match);
         }
         continue;
       }

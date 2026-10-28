@@ -132,8 +132,13 @@ const push=(uid,event)=>{
 const engine=new MatchEngine({
   send:push,
   onResult:outcome=>store.record(outcome),
+  onChange:snapshot=>store.saveMatch(snapshot),
+  onDelete:matchId=>store.deleteMatch(matchId),
   getName:uid=>store.get(uid)?.nickname||null
 });
+// Restore private boards, racks, scores and audit history before accepting
+// HTTP or WebSocket connections. Queue, invites and chat remain ephemeral.
+engine.restore(store.loadMatches());
 const friendChallenges=new FriendChallenges({
   engine,resolveFriend:(uid,id)=>store.resolveFriend(uid,id),
   getProfile:uid=>store.get(uid),push

@@ -17,24 +17,24 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - The server refuses to start unless `GOOGLE_CLIENT_ID` and `CORS_ORIGIN` are set.
 - All online calls require a Google ID token verified by the official Google library; the server never trusts a submitted nickname/score.
 - Google credentials are NOT stored in SQLite. Google `sub` is used only internally; other players receive random public profile IDs, never Google identifiers.
-- SQLite stores the nickname, avatar, four counters (games, wins, losses, draws), and accepted/pending friend relationships.
-- Online boards, private racks, opponent matching, invite codes and chat exist **in RAM only**.
+- SQLite stores the nickname, avatar, four counters (games, wins, losses, draws), accepted/pending friend relationships and private in-progress match snapshots.
+- Online boards, both private racks, scores, deadlines and audit events are stored in private SQLite `live_matches`. Matchmaking queues, invite codes, pending challenges and chat remain **in RAM only**.
 - Game server validates moves independently and determines scoring, countdown, winner and statistics.
 - Run it behind HTTPS/WSS with strict allowed origins and client request limits.
-- A server restart ends ongoing matches and clears matchmaking/chat; persisted profile statistics remain.
+- A server restart reloads ongoing matches and gives disconnected players a recovery window; matchmaking/chat and unsent invitations are cleared. Match settlement is idempotent via `settled_matches` so a crash cannot add the same result twice.
 - Changing to any public domain requires updating Google authorized JavaScript origins and `CORS_ORIGIN`.
 
 ## Dobrovolná kontrola partií
 
 - V nastavení místní i online hry a na výsledkové obrazovce je tlačítko **Odeslat partii ke kontrole**. Nikdy neodesílá nic samo.
-- Offline hra si vede soukromou historii umístění kamenů, zamítnutých pokusů, příkladů, skóre a bonusů v uložené partii v prohlížeči. Online hra vede tuto historii pouze v RAM serveru; při odeslání se neukládají UID, přezdívky, chat ani přihlašovací tokeny.
+- Offline hra si vede soukromou historii umístění kamenů, zamítnutých pokusů, příkladů, skóre a bonusů v uložené partii v prohlížeči. Online server ukládá historii v soukromé SQLite databázi kvůli obnově po restartu; do dobrovolně odeslaného kontrolního reportu se nedávají UID, přezdívky, chat ani přihlašovací tokeny.
 - `POST /api/reports` přijímá dobrovolný anonymní offline záznam (max. 256 KiB); `POST /api/reports/online` vyžaduje přihlášení a ID vlastní online partie a vytváří záznam ze serverové historie.
 - Samostatný modul `report-audit.js` **nepoužívá** herní validátor: přehrává desku, samostatně vyhodnotí matematiku i sousednost kamenů a přepočítá body/bonusy. Hlásí rozdíly ve vyhodnocení přijatých/zamítnutých tahů.
 - Nové partie používají pravidla `classic-powers-roots-linked-powers`: v dalším tahu lze navázat na koncový výsledek staršího příkladu, i mocninou či odmocninou (`112` + `4` → `24`, `5611` + `29` → `1129`). Položení celé neplatné řady `9724` v jednom tahu je nadále zakázané. Starší záznamy `classic-powers-roots-linked`, `classic-powers-roots-strict` a `classic-powers-roots` se přehrávají podle historických pravidel své verze.
 - Soubory ukládej **mimo repozitář a mimo webový adresář**. Výchozí soukromá cesta je `/home/ubuntu/abaku-reports`, změnitelná pomocí `ABAKU_REPORT_DIR`; práva složky `0700`, souborů `0600`. Počet uchovávaných reportů je omezen na 500.
 - Server soubory maže při spuštění, při každém seznamu a jednou za hodinu, jakmile jsou starší než 24 hodin. Oprávněný správce může soukromě používat `GET /api/reports` a `GET /api/reports/detail?id=<uuid>` s HTTP hlavičkou `Authorization: Bearer <ABAKU_REPORT_ADMIN_TOKEN>`; token musí mít alespoň 32 znaků. Bez tohoto nastavení jsou čtecí cesty uzamčené.
 - Přístup do existujícího dashboardu lze připojit pouze ze serverové části dashboardu; **nikdy** nevkládej admin token do veřejné stránky nebo JavaScriptu.
-- Před nasazením spusť `npm test` z kořene repozitáře. Pokud měníš online server, restartuj proces `abaku-api` až po skončení aktivních zápasů (rozehrané online partie jsou v RAM).
+- Běžné vývojové ověření je `npm test` z kořene repozitáře; před produkčním restartem zkontroluj aktivní hráče a stav zálohy. Nasazení nové perzistence poprvé obnovu starých, dosud neuložených RAM partií nezajistí.
 
 ## Local smoke tests
 
@@ -124,10 +124,11 @@ browser storage clearing, expired inactivity, explicit logout or a revoked
 session will still require a new Google login. Cross-device login sharing is
 not intended.
 
-**Deployment**: update the Oracle checkout, run `cd server && npm test`,
-then `pm2 restart abaku-api`. The schema is additive (`CREATE TABLE IF
-NOT EXISTS`), and no new environment variables are necessary. Restart
-only when matches are finished because active matches are held in RAM.
+**Deployment**: update the Oracle checkout, preserve the SQLite backup, then
+restart `abaku-api` only after existing RAM-only matches have ended (the first
+upgrade cannot restore matches created by the earlier version). The schema is
+additive (`CREATE TABLE IF NOT EXISTS`), and no new environment variables are
+necessary. Subsequent restarts restore saved games without changing client URLs.
 
 ## Reconnecting an ongoing online game
 
@@ -135,8 +136,8 @@ only when matches are finished because active matches are held in RAM.
 - After page refresh the lobby verifies Google login and checks this endpoint. **Pokračovat v online partii** appears only if the API confirms a still-active match.
 - The websocket `auth` action automatically sends `match-state` for an existing match. Resume only sends `sync`, never another `matchmake` or move.
 - While a match dialog is open, the client retries interrupted WebSocket connections after **5 seconds**, allows manual retry and uses regular `sync` requests to detect idle/broken connections. A temporary initial `/health` failure also retries after 5 seconds.
-- The existing **60-second disconnection grace** remains in force. If the opponent is still playing and the client cannot reconnect before this grace elapses, the server awards a forfeit. Restarting the API clears active games; those cannot be resumed.
-- These match-resume states live in server RAM, **not** in browser `localStorage`, so a refresh or tab recovery never fabricates an online match.
+- The existing **60-second disconnection grace** remains in force in normal play. After an API restart, both players get up to 24 hours to resume while neither is connected; after the first returns, the other has a fresh 60-second grace to reconnect. An expired unrecovered match is abandoned without changing statistics.
+- Game snapshots are kept on Oracle in private SQLite. They are **not** stored in browser `localStorage`, so a refresh never fabricates an online match. Completed snapshots expire after five minutes; chat, queued matchmaking and pending invite codes do not survive an API restart.
 
 ## HTTP API
 

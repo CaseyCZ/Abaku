@@ -44,6 +44,15 @@ CREATE TABLE IF NOT EXISTS match_results (
   result TEXT NOT NULL CHECK(result IN ('win','loss','draw'))
 );
 CREATE INDEX IF NOT EXISTS idx_match_results_period ON match_results(played_at,uid);
+CREATE TABLE IF NOT EXISTS live_matches (
+  match_id TEXT PRIMARY KEY,
+  state_json TEXT NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS settled_matches (
+  match_id TEXT PRIMARY KEY,
+  settled_at INTEGER NOT NULL
+);
 `);
   const statements={
     lookup:db.prepare('SELECT public_id AS id,nickname,avatar,played,wins,losses,draws FROM players WHERE uid=?'),
@@ -64,6 +73,11 @@ CREATE INDEX IF NOT EXISTS idx_match_results_period ON match_results(played_at,u
         wins DESC, played DESC, p.nickname COLLATE NOCASE
       LIMIT ?`),
     resultInsert:db.prepare('INSERT INTO match_results(uid,played_at,result) VALUES(?,?,?)'),
+    matchSave:db.prepare(`INSERT INTO live_matches(match_id,state_json,updated_at) VALUES(?,?,?)
+      ON CONFLICT(match_id) DO UPDATE SET state_json=excluded.state_json,updated_at=excluded.updated_at`),
+    matchLoad:db.prepare('SELECT match_id,state_json FROM live_matches ORDER BY updated_at,match_id'),
+    matchDelete:db.prepare('DELETE FROM live_matches WHERE match_id=?'),
+    settledInsert:db.prepare('INSERT OR IGNORE INTO settled_matches(match_id,settled_at) VALUES(?,?)'),
     search:db.prepare("SELECT public_id AS id,nickname,avatar FROM players WHERE nickname LIKE ? LIMIT 15"),
     friendList:db.prepare(`SELECT p.public_id AS id,p.nickname,p.avatar FROM players p
       WHERE p.uid IN (
@@ -152,12 +166,21 @@ CREATE INDEX IF NOT EXISTS idx_match_results_period ON match_results(played_at,u
     const result=statements.reply.run(accept?'accepted':'declined',sender,recipient);
     if(result.changes===0)throw new Error('Žádost nebyla nalezena.');
   };
-  const record=({ids,winner,reason})=>{
+  const record=({ids,winner,reason,matchId})=>{
     if(reason==='abandoned')return;
     if(!Array.isArray(ids)||ids.length!==2||ids[0]===ids[1])throw new Error('Neplatný výsledek.');
     db.exec('BEGIN IMMEDIATE');
     try {
       const playedAt=Date.now();
+      // The same match can be completed again after a crash between recording
+      // its result and saving the final snapshot. Never count it twice.
+      if(matchId!=null){
+        if(typeof matchId!=='string'||!matchId||matchId.length>80)throw new Error('Neplatná partie.');
+        if(!statements.settledInsert.run(matchId,playedAt).changes){
+          db.exec('COMMIT');
+          return;
+        }
+      }
       for(const uid of ids){
         ensure(uid);
         if(winner===null)statements.draw.run(uid);
@@ -193,6 +216,20 @@ CREATE INDEX IF NOT EXISTS idx_match_results_period ON match_results(played_at,u
   };
   return {
     db,ensure,rename,request,respond,record,createSession,sessionUid,revokeSession,
+    saveMatch:snapshot=>{
+      if(typeof snapshot?.id!=='string'||!snapshot.id||snapshot.id.length>80)
+        throw new Error('Neplatný identifikátor partie.');
+      statements.matchSave.run(snapshot.id,JSON.stringify(snapshot),Date.now());
+    },
+    loadMatches:()=>{
+      const snapshots=[];
+      for(const row of statements.matchLoad.all()){
+        try{snapshots.push(JSON.parse(row.state_json));}
+        catch{console.error('Abaku recovery unreadable match',row.match_id);}
+      }
+      return snapshots;
+    },
+    deleteMatch:matchId=>statements.matchDelete.run(matchId),
     get:uid=>expose(statements.lookup.get(uid)),
     leaderboard:(limit=30,period='all')=>{
       const capped=Math.min(50,Math.max(1,Number(limit)||30));

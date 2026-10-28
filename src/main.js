@@ -311,6 +311,7 @@ function render() {
   for(const id of ['hintButton','exchangeButton','passButton','confirmButton','undoButton']) byId(id).disabled=busy;
   byId('confirmButton').disabled=busy||!pending.length;
   byId('exchangeButton').textContent=exchangeMode ? `Potvrdit výměnu (${exchangeIndices.size})`:'Vyměnit';
+  byId('exchangeButton').dataset.exchangeConfirm=String(exchangeMode);
   updateReportButtons();
 }
 

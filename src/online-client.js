@@ -867,6 +867,7 @@ function renderOnline(){
   $('onlinePass').disabled=!canPlay;
   $('onlineExchange').disabled=!canPlay;
   $('onlineExchange').textContent=exchanging?'Potvrdit výměnu ('+selectedExchange.size+')':'Vyměnit';
+  $('onlineExchange').dataset.exchangeConfirm=String(exchanging);
 }
 function initializeActions(){
   $('onlineBoard').addEventListener('keydown',event=>{

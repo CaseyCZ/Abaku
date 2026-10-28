@@ -57,6 +57,14 @@ button:disabled{cursor:not-allowed;opacity:.5}
   background:linear-gradient(170deg,#ffedb8,#ffce71 56%,#e6ad4c);border-color:#ffefc9;
 }
 .gold-button.small{font-size:12px;padding:8px 12px;min-height:40px}
+/* Confirming a tile exchange shares the cyan color of selected exchange tiles. */
+#exchangeButton[data-exchange-confirm="true"],
+#onlineDialog #onlineExchange[data-exchange-confirm="true"]{
+  color:#103557!important;
+  background:linear-gradient(160deg,#b8efff,#7acff3)!important;
+  border-color:#c1eeff!important;
+  box-shadow:inset 0 1px 0 #f0fbff,0 0 14px #61cbf76b!important;
+}
 a{color:#f6d180}
 a:hover{color:#ffe7a4}
 dialog,#onlineGameSettingsDialog.online-game-settings-dialog{

@@ -1,12 +1,12 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.39';
-import {syncResumeCard} from './resume-card.js?v=0.2.39';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.39';
-import { describeMovePreview } from './preview.js?v=0.2.39';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.39';
-import {ScoreRecap} from './score-recap.js?v=0.2.39';
-import {createGameAudio} from './game-audio.js?v=0.2.39';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.39';
-import {bindFeedback} from './feedback-client.js?v=0.2.39';
+import {revealArenaChat} from './arena-ui.js?v=0.2.40';
+import {syncResumeCard} from './resume-card.js?v=0.2.40';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.40';
+import { describeMovePreview } from './preview.js?v=0.2.40';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.40';
+import {ScoreRecap} from './score-recap.js?v=0.2.40';
+import {createGameAudio} from './game-audio.js?v=0.2.40';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.40';
+import {bindFeedback} from './feedback-client.js?v=0.2.40';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -82,14 +82,21 @@ let lastHandledChallengeId=null;
 let friendChallengeTimer=null;
 let presenceTimer=null;
 let lastPresence=null;
+let ownQueueWaiting=false;
 async function heartbeat(){
   if(credential)await api('/api/presence','POST');
+}
+function otherWaitingCount(total){
+  return Math.max(0,total-(ownQueueWaiting?1:0));
 }
 function paintPresence(data){
   lastPresence=data;
   $('onlineCount').textContent=Number.isSafeInteger(data.limit)?data.online+' / '+data.limit:String(data.online);
-  $('waitingCount').textContent=String(data.waiting);
-  $('onlineWaitingCount').textContent='Nyní čeká na náhodného soupeře: '+data.waiting+'.';
+  const others=otherWaitingCount(data.waiting);
+  $('waitingCount').textContent=String(others);
+  $('onlineWaitingCount').textContent=others===0
+    ? 'Nikdo další právě nečeká.'
+    : 'Další hráči čekající na soupeře: '+others+'.';
 }
 function setServerOffline(offline){
   const indicator=document.querySelector('.server-state');
@@ -498,6 +505,7 @@ function connectOnline(action,{reconnecting=false}={}){
   socketAuthenticated=false;
   reconnectAction=action;
   if(!reconnecting){
+    ownQueueWaiting=false;
     pending=[];selected=null;gameState=null;exchanging=false;selectedExchange.clear();
     clearOnlineReview();
     onlineScoreRecap.cancel();
@@ -506,12 +514,14 @@ function connectOnline(action,{reconnecting=false}={}){
     $('onlineMatchScoreboard').hidden=true;
     $('onlineBoardWrapper').hidden=true;
     $('onlineWaiting').hidden=false;
+    $('onlineCancelSearch').hidden=action.type!=='random';
     $('onlineCode').textContent='';
     resetOnlineChat();
   }else if(gameState){
     pending=[];selected=null;exchanging=false;selectedExchange.clear();
     renderOnline();
   }
+  if(reconnecting&&!gameState)$('onlineCancelSearch').hidden=action.type!=='random';
   $('onlineResumeCard').hidden=true;
   syncResumeCard();
   refreshPresence();
@@ -564,7 +574,10 @@ function connectOnline(action,{reconnecting=false}={}){
       return;
     }
     if(msg.type==='queue'){
-      status(msg.waiting?'Hledám soupeře se stejným časem na tah ('+action.seconds+' s)…':'Hledání zrušeno.');
+      ownQueueWaiting=Boolean(msg.waiting);
+      $('onlineCancelSearch').hidden=!ownQueueWaiting;
+      status(msg.waiting?'Hledám online soupeře (60 sekund na tah)…':'Hledání zrušeno.');
+      if(lastPresence)paintPresence(lastPresence);
       refreshPresence();return;
     }
     if(msg.type==='invite'){
@@ -587,6 +600,8 @@ function connectOnline(action,{reconnecting=false}={}){
       return;
     }
     if(msg.type==='match-start'){
+      ownQueueWaiting=false;
+      $('onlineCancelSearch').hidden=true;
       if(gameState?.matchId!==msg.matchId){
         onlineScoreRecap.cancel();
         clearOnlineReview();
@@ -599,6 +614,8 @@ function connectOnline(action,{reconnecting=false}={}){
       return;
     }
     if(msg.type==='match-state'){
+      ownQueueWaiting=false;
+      $('onlineCancelSearch').hidden=true;
       const previous=gameState?.turn;
       const changedMatch=gameState?.matchId&&gameState.matchId!==msg.matchId;
       if(changedMatch){onlineScoreRecap.cancel();clearOnlineReview();resetOnlineResult();resetOnlineChat();}
@@ -618,6 +635,8 @@ function connectOnline(action,{reconnecting=false}={}){
       return;
     }
     if(msg.type==='lobby'){
+      ownQueueWaiting=Boolean(msg.queued);
+      $('onlineCancelSearch').hidden=!ownQueueWaiting;
       if((gameState&&!gameState.finished)||action.type==='resume'){
         gameState=null;pending=[];selected=null;
         $('onlineBoardWrapper').hidden=true;
@@ -669,6 +688,7 @@ function connectOnline(action,{reconnecting=false}={}){
     if(connection!==socket)return;
     connection=null;
     socketAuthenticated=false;
+    ownQueueWaiting=false;
     if(gameState)renderOnline();
     if(event.code===1000&&event.reason==='Nové připojení'){
       status('Partie byla otevřena v jiné kartě nebo zařízení.',true);
@@ -910,6 +930,8 @@ function initializeActions(){
   },true);
   function leaveOnlineGame(){
     clearReconnect();
+    ownQueueWaiting=false;
+    $('onlineCancelSearch').hidden=true;
     const old=connection;connection=null;socketAuthenticated=false;reconnectAction=null;
     old?.close();
     onlineScoreRecap.cancel();
@@ -946,7 +968,15 @@ function initializeActions(){
       }
       if(!window.confirm('Server teď neodpovídá. Soupeř se o odpojení dozví až po uplynutí lhůty. Odejít?'))return;
     }else if(!gameState&&connection?.readyState===WebSocket.OPEN)send('cancel-matchmake');
+    const wasWaiting=!gameState;
     leaveOnlineGame();
+    if(wasWaiting)setTimeout(refreshPresence,750);
+  });
+  $('onlineCancelSearch').addEventListener('click',()=>{
+    if(gameState||$('onlineCancelSearch').hidden)return;
+    if(socketAuthenticated&&connection?.readyState===WebSocket.OPEN)send('cancel-matchmake');
+    leaveOnlineGame();
+    setTimeout(refreshPresence,750);
   });
   $('onlineResultExit').addEventListener('click',()=>{
     if(rematchRequestedByMe||rematchOfferFromOpponent){

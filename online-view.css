@@ -29,6 +29,7 @@ body.arena-home { min-width:0; }
 #onlineDialog:has(#onlineBoardWrapper[hidden]) .bag-count { visibility:hidden; }
 #onlineDialog .online-waiting { padding:28px 18px 48px;text-align:center;color:#d5e2f4; }
 #onlineDialog .online-waiting p { margin:7px 0; }
+#onlineDialog .online-waiting .online-cancel-search { margin-top:20px;min-height:46px;padding:10px 24px;white-space:normal; }
 
 /* A read-only board must be just as bright as the local game. The generic
    button:disabled opacity would otherwise dim every cell on opponent turns. */

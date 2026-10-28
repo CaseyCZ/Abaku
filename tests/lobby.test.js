@@ -67,6 +67,49 @@ test('lobby displays real online and random matchmaking queue counts without inv
   assert.match(landing,/Hledání spojí dva hráče/);
 });
 
+test('online waiting shows other players, not the player already in the queue',()=>{
+  assert.match(landing,/id="onlineCancelSearch"[^>]*hidden>Zrušit hledání/);
+  assert.match(landing,/dalších čekajících hráčů/);
+  const start=onlineClient.indexOf('function otherWaitingCount(total){');
+  const end=onlineClient.indexOf('function setServerOffline(offline){',start);
+  assert.ok(start>=0&&end>start);
+  const state={onlineCount:{textContent:''},waitingCount:{textContent:''},onlineWaitingCount:{textContent:''}};
+  const context={ownQueueWaiting:true,lastPresence:null,$:id=>state[id]};
+  const code=onlineClient.slice(start,end);
+  new Script(code+';paintPresence({online:1,waiting:1,limit:700});').runInNewContext(context);
+  assert.equal(state.onlineCount.textContent,'1 / 700');
+  assert.equal(state.waitingCount.textContent,'0');
+  assert.equal(state.onlineWaitingCount.textContent,'Nikdo další právě nečeká.');
+  context.ownQueueWaiting=false;
+  new Script(code+';paintPresence({online:1,waiting:1,limit:700});').runInNewContext(context);
+  assert.equal(state.waitingCount.textContent,'1');
+  assert.equal(state.onlineWaitingCount.textContent,'Další hráči čekající na soupeře: 1.');
+  assert.match(onlineClient,/ownQueueWaiting=Boolean\(msg\.waiting\)/);
+  assert.match(onlineClient,/if\(socketAuthenticated&&connection\?\.readyState===WebSocket\.OPEN\)send\('cancel-matchmake'\)/);
+  assert.match(onlineClient,/\$\('onlineCancelSearch'\)\.addEventListener\('click'/);
+});
+
+test('cancel search leaves the queue without resigning from an active match',()=>{
+  const start=onlineClient.indexOf("$('onlineCancelSearch').addEventListener('click',()=>{");
+  const end=onlineClient.indexOf('\n  });',start);
+  assert.ok(start>=0&&end>start);
+  let clicked;
+  const button={hidden:false,addEventListener:(_event,handler)=>{clicked=handler;}};
+  const calls=[];
+  const context={
+    $:()=>button,gameState:null,socketAuthenticated:true,
+    connection:{readyState:1},WebSocket:{OPEN:1},
+    send:type=>calls.push(type),leaveOnlineGame:()=>calls.push('leave'),
+    setTimeout:()=>calls.push('refresh planned'),refreshPresence:()=>{}
+  };
+  new Script(onlineClient.slice(start,end+6)).runInNewContext(context);
+  clicked();
+  assert.deepEqual(calls,['cancel-matchmake','leave','refresh planned']);
+  context.gameState={matchId:'playing'};
+  clicked();
+  assert.equal(calls.length,3);
+});
+
 
 test('online turn time is fixed to 60 seconds for random and invited matches',()=>{
   assert.doesNotMatch(landing,/id="onlineTurnSeconds"/);

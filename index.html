@@ -11,20 +11,20 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.39">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.39">
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.39">
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.39">
-  <link rel="stylesheet" href="./analytics.css?v=0.2.39">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.39">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.39">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.39">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.39">
-  <link rel="stylesheet" href="./online-view.css?v=0.2.39">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.39">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.39">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.39">
-  <script src="./src/analytics.js?v=0.2.39" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.40">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.40">
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.40">
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.40">
+  <link rel="stylesheet" href="./analytics.css?v=0.2.40">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.40">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.40">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.40">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.40">
+  <link rel="stylesheet" href="./online-view.css?v=0.2.40">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.40">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.40">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.40">
+  <script src="./src/analytics.js?v=0.2.40" defer></script>
 </head>
 <body class="arena-home">
   <a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>
@@ -109,7 +109,7 @@
             <h2>✦ Hráči a partie</h2>
             <div class="online-presence" aria-label="Aktuální aktivita hráčů">
               <div><strong id="onlineCount">—</strong><span>hráčů online</span></div>
-              <div><strong id="waitingCount">—</strong><span>hledá soupeře</span></div>
+              <div><strong id="waitingCount">—</strong><span>dalších čekajících hráčů</span></div>
             </div>
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
@@ -230,6 +230,7 @@
         <p>Hledání hráče nebo čekání na připojení přítele…</p>
         <p>Kód pozvánky: <strong id="onlineCode">—</strong></p>
         <p id="onlineWaitingCount">Počet čekajících hráčů zjišťuji…</p>
+        <button type="button" id="onlineCancelSearch" class="gold-button online-cancel-search" hidden>Zrušit hledání</button>
       </div>
 
       <div id="onlineBoardWrapper" class="online-match" hidden>
@@ -367,9 +368,9 @@
       <p id="onlineReportResultStatus" role="status" aria-live="polite"></p>
     </div>
   </dialog>
-  <script type="module" src="./src/site-navigation.js?v=0.2.39"></script>
-  <script type="module" src="./src/arena-ui.js?v=0.2.39"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.39"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.39"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.40"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.40"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.40"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.40"></script>
 </body>
 </html>

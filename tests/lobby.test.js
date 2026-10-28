@@ -136,30 +136,28 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   assert.match(lobby,/online-client\.js\?v=\d+\.\d+\.\d+/);
 });
 
-test('online match mirrors the offline Abaku board layout on phone and desktop',()=>{
+test('online match uses the local game markup and stylesheet on phone and desktop',()=>{
   const html=landing;
-  const css=file('../online-game.css');
-  const chrome=file('../online-chrome.css');
-  assert.match(html,/href="\.\/online-game\.css\?v=0\.2\.35"/);
-  assert.match(html,/online-chrome\.css\?v=3/);
-  assert.match(chrome,/\.online-match > \.online-control-bar/);
-  assert.match(chrome,/grid-template-columns:minmax\(0,1fr\) minmax\(0,var\(--arena-board-size\)\) minmax\(0,1fr\)/);
-  assert.match(chrome,/\.online-match\[hidden\]/);
-  assert.match(chrome,/max-width:1100px\) and \(orientation:portrait\) and \(pointer:coarse/);
+  const css=file('../online-view.css');
+  assert.match(html,/style\.css\?v=0\.2\.35/);
+  assert.match(html,/game-chrome\.css\?v=0\.2\.30/);
+  assert.match(html,/online-view\.css\?v=1/);
+  assert.doesNotMatch(html,/online-(?:game|chrome)\.css/);
+  assert.match(html,/class="game-app online-game-app"/);
+  assert.match(html,/class="top-bar"/);
+  assert.match(html,/class="main-stage"/);
+  assert.match(html,/class="center-area"/);
+  assert.match(html,/class="board-rim"/);
+  assert.match(html,/class="control-bar"/);
+  assert.match(css,/\.online-match\[hidden\]/);
   for(const id of ['onlineProgress','onlinePlayer0Card','onlinePlayer1Card',
     'onlinePlayer0Score','onlinePlayer1Score','onlineTimer','onlineBagCount',
     'onlineBoard','onlineRack','onlineUndo','onlineConfirm','onlineExchange','onlinePass',
     'onlineLastEquation','onlineLastPlayer','onlineLastPoints','onlineMoveHistory',
     'onlineChat','onlineStatus','onlinePreview','onlineLastMoveReview'])
     assert.match(html,new RegExp('id="'+id+'"'));
-  assert.match(css,/\.online-cell\.dd\{background:#d2eab5\}/);
-  assert.match(css,/\.online-cell\.td\{background:#43a839\}/);
-  assert.match(css,/\.online-cell\.de\{background:#caf1f9\}/);
-  assert.match(css,/\.online-cell\.te\{background:#57b1e3\}/);
-  assert.match(css,/\.online-control-bar\{grid-column:1\/-1;grid-row:4\}/);
-  assert.match(css,/\.online-match-layout\{\s*display:contents;/);
-  assert.match(css,/\.online-player-card\{grid-row:2\}/);
-  assert.match(css,/\.online-game-board\{grid-column:1\/-1;grid-row:3\}/);
+  assert.match(file('../arena-modern.css'),/\.cell\.dd/);
+  assert.match(css,/\.online-match \.center-area \{ grid-column:1\/-1;grid-row:2; \}/);
   assert.match(onlineClient,/bonusAt\(row,col\)/);
   assert.match(onlineClient,/renderOnlineProgress\(s\)/);
   assert.match(onlineClient,/renderOnlineStatus\(s\)/);
@@ -172,10 +170,10 @@ test('online match mirrors the offline Abaku board layout on phone and desktop',
 
 
 test('online blue scorecard header follows the actual active player, not always player one',()=>{
-  const css=file('../online-game.css');
-  assert.match(landing,/online-game\.css\?v=0\.2\.35/);
-  assert.match(css,/#onlineDialog \.online-player-card\.active \.online-player-name\{/);
-  assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.online-player-name\{/);
+  const css=file('../arena-modern.css');
+  assert.match(landing,/game-chrome\.css\?v=0\.2\.30/);
+  assert.match(css,/\.player-card\.active/);
+  assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.player-name\{/);
   assert.match(onlineClient,/onlinePlayer'\+side\+'Card'\)\.classList\.toggle\('active',!s\.finished&&s\.turn===side\)/);
 });
 
@@ -273,7 +271,7 @@ test('match end displays winner and scores in a dedicated result dialog on all d
 });
 
 test('collapsed or out-of-view chat gets a persistent tappable unread notification',()=>{
-  const css=file('../online-game.css');
+  const css=file('../online-view.css');
   assert.match(landing,/id="onlineChatToast"[^>]*hidden/);
   assert.match(landing,/id="onlineChatToastPreview"/);
   assert.match(landing,/id="onlineChatToastCount"/);
@@ -286,9 +284,9 @@ test('collapsed or out-of-view chat gets a persistent tappable unread notificati
   assert.match(onlineClient,/function revealOnlineChat\(\)/);
   assert.match(onlineClient,/onlineChatToast'\)\.addEventListener\('click',revealOnlineChat\)/);
   assert.match(onlineClient,/onlineDialog'\)\.addEventListener\('scroll',refreshUnreadChat/);
-  assert.match(css,/#onlineDialog \.online-chat-toast\{/);
-  assert.match(css,/#onlineDialog \.online-unread-badge\{/);
-  assert.match(css,/#onlineDialog \.online-chat-toast\[hidden\]\{display:none!important\}/);
+  assert.match(css,/#onlineDialog \.online-chat-toast\s*\{/);
+  assert.match(css,/#onlineDialog \.online-unread-badge\s*\{/);
+  assert.match(css,/#onlineDialog \.online-chat-toast\[hidden\]\s*\{\s*display:none!important/);
 });
 
 test('opponent disconnection shows a prominent message and leaving voluntarily concedes',()=>{
@@ -344,7 +342,7 @@ test('online scoring highlight starts after automatic calculations, not under pa
 });
 
 test('in-match online settings are always accessible and persist for the next move',()=>{
-  const css=file('../online-game.css');
+  const css=file('../online-view.css');
   assert.match(landing,/id="onlineRecapSeconds"[\s\S]*?<option value="0">Vypnuto<\/option>/);
   assert.match(landing,/id="onlineSettingsButton"/);
   assert.match(landing,/id="onlineGameSettingsDialog"/);
@@ -360,9 +358,9 @@ test('in-match online settings are always accessible and persist for the next mo
   assert.match(onlineClient,/onlineSettingsSave'\)\.addEventListener\('click'/);
   assert.match(onlineClient,/setRecapSeconds\(choice\)/);
   assert.match(onlineClient,/localStorage\.setItem\(timeStorageKey,String\(savedTurnSeconds\)\)/);
-  assert.match(css,/#onlineDialog \.online-header-actions/);
-  assert.match(css,/#onlineDialog \.online-header-actions #onlineCancel/);
-  assert.match(css,/#onlineGameSettingsDialog\.online-game-settings-dialog/);
+  assert.match(landing,/id="onlineGameNavigation"/);
+  assert.match(onlineClient,/onlineMenuToggle\.addEventListener\('click'/);
+  assert.match(file('../shared-game-settings.css'),/:is\(#settingsDialog,#onlineGameSettingsDialog\)/);
 });
 
 

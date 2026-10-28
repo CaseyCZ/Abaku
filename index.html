@@ -11,15 +11,16 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
+  <link rel="stylesheet" href="./style.css?v=0.2.35">
   <link rel="stylesheet" href="./lobby.css?v=0.2.38-profile1">
-  <link rel="stylesheet" href="./online-game.css?v=0.2.35">
   <link rel="stylesheet" href="./result-dialog.css?v=1">
   <link rel="stylesheet" href="./score-recap.css?v=0.2.15">
   <link rel="stylesheet" href="./analytics.css?v=1">
   <link rel="stylesheet" href="./arena-modern.css?v=2">
   <link rel="stylesheet" href="./arena-layout.css?v=0.2.14">
   <link rel="stylesheet" href="./arena-home.css?v=0.2.11">
-  <link rel="stylesheet" href="./online-chrome.css?v=3">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.30">
+  <link rel="stylesheet" href="./online-view.css?v=1">
   <link rel="stylesheet" href="./shared-game-settings.css?v=1">
   <link rel="stylesheet" href="./message-badges.css?v=1">
   <link rel="stylesheet" href="./version-history.css?v=0.2.3">
@@ -192,30 +193,32 @@
       <p id="friendChallengeStatus" role="status" aria-live="polite"></p>
     </div>
   </dialog>
-  <dialog id="onlineDialog" aria-labelledby="onlineDialogTitle" class="online-dialog">
-    <div class="online-dialog-inner">
-      <header class="online-dialog-header">
-        <div class="online-game-brand"><img class="online-brand-mark" src="./assets/arena-icon.png" alt="" aria-hidden="true" width="47" height="47"><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
-        <div class="online-timer-wrap"><span>ČAS</span><strong id="onlineTimer">01:00</strong></div>
-        <div class="online-bag-count">V sáčku <strong id="onlineBagCount">100</strong> čísel</div>
-        <div class="online-game-title" id="onlineDialogTitle"><span>✦ ČÍSELNÁ ARÉNA ✦</span><small>Matematický souboj · ONLINE</small></div>
-        <div class="online-match-scoreboard" id="onlineMatchScoreboard" role="group" aria-label="Skóre online partie" hidden>
-            <div class="online-player-card" id="onlinePlayer0Card">
-              <div class="online-player-name" id="onlinePlayer0Name">Hráč 1</div>
-              <div class="online-player-score"><strong id="onlinePlayer0Score">0</strong><small id="onlinePlayer0Status">Na tahu</small></div>
-            </div>
-          <span class="score-divider" aria-hidden="true">:</span>
-            <div class="online-player-card" id="onlinePlayer1Card">
-              <div class="online-player-name" id="onlinePlayer1Name">Hráč 2</div>
-              <div class="online-player-score"><strong id="onlinePlayer1Score">0</strong><small id="onlinePlayer1Status">Čeká</small></div>
-            </div>
-        </div>
-        <div class="online-header-actions">
+  <dialog id="onlineDialog" aria-labelledby="onlineDialogTitle" class="arena-game-dialog">
+    <div class="game-app online-game-app">
+      <header class="top-bar">
+        <div class="brand"><img class="brand-mark" src="./assets/arena-icon.png" alt="" aria-hidden="true" width="47" height="47"><span>ČÍSELNÁ<br><strong>ARÉNA</strong></span></div>
+        <div class="timer-wrap" role="timer" aria-label="Čas do konce tahu"><span>ČAS</span><strong id="onlineTimer">01:00</strong></div>
+        <button type="button" id="onlineMenuToggle" class="gold-button game-menu-toggle" aria-expanded="false" aria-controls="onlineGameNavigation" aria-label="Otevřít menu">☰ Menu</button>
+        <nav class="header-actions game-navigation" id="onlineGameNavigation" aria-label="Menu online hry">
           <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka<span id="onlineMenuMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
           <a href="./how-to-play.html" class="gold-button" target="_blank" rel="noopener">Pravidla</a>
           <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
+        </nav>
+        <div class="bag-count">V sáčku <strong id="onlineBagCount">100</strong> čísel</div>
+        <div class="game-header-score">
+          <div class="match-scoreboard" id="onlineMatchScoreboard" role="group" aria-label="Skóre online partie" hidden>
+            <div class="player-card" id="onlinePlayer0Card">
+              <div class="player-name" id="onlinePlayer0Name">Hráč 1</div>
+              <div class="score"><strong id="onlinePlayer0Score">0</strong><small id="onlinePlayer0Status">Na tahu</small></div>
+            </div>
+            <div class="player-card" id="onlinePlayer1Card">
+              <div class="player-name" id="onlinePlayer1Name">Hráč 2</div>
+              <div class="score"><strong id="onlinePlayer1Score">0</strong><small id="onlinePlayer1Status">Čeká</small></div>
+            </div>
+          </div>
         </div>
       </header>
+      <h2 id="onlineDialogTitle" class="sr-only">Online partie Číselné arény</h2>
       <p id="onlineStatus" role="status" aria-live="polite">Připojuji se k serveru…</p>
       <div id="onlineOpponentNotice" class="online-opponent-notice" role="status" aria-live="polite" hidden>Soupeř se odpojil. Čekáme na jeho návrat (max. 60 sekund).</div>
       <div id="onlineReconnectNotice" class="online-reconnect-notice" role="status" aria-live="polite" hidden>
@@ -229,66 +232,58 @@
       </div>
 
       <div id="onlineBoardWrapper" class="online-match" hidden>
-        <div id="onlineProgress" class="online-progress" aria-label="Průběh partie"></div>
-        <div class="online-match-info">
-          <span id="onlineScore">V sáčku 100 čísel</span>
-          <strong id="onlineTurn">Čekám na partii.</strong>
-        </div>
-        <div class="online-match-layout">
-
-
-          <section class="online-game-board" aria-label="Online herní plocha">
-            <div class="board-heading">
-              <div class="online-board-crest">ČÍSELNÁ BITVA</div>
-              <div id="onlinePreview" class="online-preview" aria-live="polite">Polož čísla na desku</div>
+        <div id="onlineProgress" class="progress-track" aria-label="Průběh partie"></div>
+        <p id="onlineScore" class="sr-only">V sáčku 100 čísel</p>
+        <p id="onlineTurn" class="sr-only">Čekám na partii.</p>
+        <main class="main-stage">
+          <section class="center-area" aria-label="Online herní plocha">
+            <div class="board-heading" hidden><div id="onlinePreview" class="move-preview" aria-live="polite">Polož čísla na desku</div></div>
+            <div class="board-rim">
+              <div id="onlineBoard" class="board" role="grid" aria-label="Online deska 15 krát 15"></div>
             </div>
-            <div class="online-board-rim">
-              <div id="onlineBoard" class="online-board" role="grid" aria-label="Online deska 15 krát 15"></div>
-            </div>
-            <div class="mobile-game-message online-game-message" id="onlineBoardMessage" role="status" aria-live="polite">První tah: sestav příklad přes prostřední pole.</div>
+            <div class="mobile-game-message" id="onlineBoardMessage" role="status" aria-live="polite">První tah: sestav příklad přes prostřední pole.</div>
             <div id="onlineLastMoveReview" class="online-last-move-review" role="status" aria-live="polite" hidden></div>
           </section>
 
-          <aside class="online-player-side online-right" id="onlineInfoPanel">
-            <section class="online-panel online-status-panel" aria-label="Průběh online partie">
-              <div class="online-panel-content" id="onlinePanelHistory">
+          <aside class="player-side right-side" id="onlineInfoPanel">
+            <section class="side-panel status-panel" aria-label="Průběh online partie">
+              <div class="mobile-panel-content" id="onlinePanelHistory">
                 <h2>Průběh partie</h2>
-                <div class="online-status-turn"><span>Na tahu</span><strong id="onlineTurnName">Hráč 1</strong></div>
-                <div class="online-status-details">
+                <div class="status-turn"><span>Na tahu</span><strong id="onlineTurnName">Hráč 1</strong></div>
+                <div class="status-details">
                   <div><span>Poslední tah</span><strong id="onlineLastPlayer">—</strong></div>
                   <div><span>Příklad</span><strong id="onlineLastEquation">—</strong></div>
                   <div><span>Body za tah</span><strong id="onlineLastPoints">—</strong></div>
                 </div>
+                <div class="game-message" id="onlineGameMessage" role="status" aria-live="polite">Začni příkladem přes střed desky.</div>
                 <h3>Poslední tahy</h3>
-                <ol id="onlineMoveHistory" class="online-move-history"></ol>
+                <ol id="onlineMoveHistory" class="move-history"></ol>
               </div>
             </section>
-            <section class="online-panel online-match-chat" aria-label="Chat online partie">
-              <div id="onlinePanelChat" class="online-panel-content">
+            <section class="side-panel chat-panel" aria-label="Chat online partie">
+              <div id="onlinePanelChat" class="mobile-panel-content">
                 <h2>Chat <span id="onlineUnreadBadge" class="online-unread-badge" hidden>0</span></h2>
-                <div id="onlineChat" class="online-chat-scroll" role="log" aria-live="polite"></div>
-                <form id="onlineChatForm">
-                  <input id="onlineChatInput" maxlength="160" placeholder="Napsat zprávu…" aria-label="Chatová zpráva">
-                  <button class="gold-button" type="submit">Poslat</button>
+                <div id="onlineChat" class="chat-messages" role="log" aria-live="polite"></div>
+                <form id="onlineChatForm" class="chat-entry">
+                  <input id="onlineChatInput" maxlength="160" autocomplete="off" placeholder="Napsat zprávu…" aria-label="Chatová zpráva">
+                  <button class="gold-button small" type="submit">Poslat</button>
                 </form>
               </div>
             </section>
           </aside>
-        </div>
-        <div class="online-control-bar">
-          
-            <div class="online-rack-frame">
-              <button id="onlineUndo" class="online-round-button" type="button" aria-label="Vrátit rozložená čísla" title="Vrátit">↶</button>
-              <div id="onlineRack" class="online-rack" aria-label="Tvoje čísla"></div>
-              <button id="onlineConfirm" class="online-round-button online-confirm" type="button" aria-label="Potvrdit tah" title="Potvrdit tah">✓</button>
+          <footer class="control-bar">
+            <div class="rack-frame">
+              <button id="onlineUndo" class="round-button" type="button" aria-label="Vrátit rozložená čísla" title="Vrátit">↶</button>
+              <div id="onlineRack" class="rack" aria-label="Tvoje čísla"></div>
+              <button id="onlineConfirm" class="round-button play" type="button" aria-label="Potvrdit tah" title="Potvrdit tah">✓</button>
             </div>
-          <div class="online-match-actions">
-            <button class="gold-button" type="button" id="onlineExchange">Vyměnit</button>
-            <button class="gold-button" type="button" id="onlinePass">Vynechat tah</button>
-          </div>
-              
-          <div class="online-game-mode">Online · 2 hráči</div>
-        </div>
+            <div class="game-controls">
+              <button class="gold-button" type="button" id="onlineExchange">Vyměnit</button>
+              <button class="gold-button" type="button" id="onlinePass">Vynechat tah</button>
+            </div>
+            <div class="game-mode">Online · 2 hráči</div>
+          </footer>
+        </main>
       </div>
     </div>
     <button id="onlineChatToast" class="online-chat-toast" type="button" aria-label="Otevřít nové zprávy v chatu" hidden>
@@ -392,7 +387,7 @@
   </dialog>
   <script type="module" src="./src/site-navigation.js?v=2"></script>
   <script type="module" src="./src/arena-ui.js?v=2"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.41"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.42"></script>
   <script type="module" src="./src/version-ui.js?v=0.2.37"></script>
 </body>
 </html>

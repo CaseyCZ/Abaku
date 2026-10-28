@@ -29,5 +29,5 @@ test('online history uses public added digits and no bullet separators',()=>{
   assert.match(history,/entry\.turnNumber/);
   assert.match(history,/entry\.points\+'b'/);
   assert.doesNotMatch(history,/·/);
-  assert.match(read('../online-game.css'),/\.online-move-history\{[^}]*list-style:none/);
+  assert.match(read('../style.css'),/\.move-history\{[^}]*list-style:none/);
 });

@@ -166,6 +166,8 @@ function status(text,error=false){
   // into the same location as the shared local layout.
   const boardMessage=$('onlineBoardMessage');
   if(boardMessage){boardMessage.textContent=text;boardMessage.dataset.error=error?'true':'false';}
+  const matchMessage=$('onlineGameMessage');
+  if(matchMessage){matchMessage.textContent=text;matchMessage.dataset.error=error?'true':'false';}
 }
 async function api(path,method='GET',data){
   if(!credential)throw new Error('Nejdříve se přihlas přes Google.');
@@ -799,7 +801,7 @@ function renderOnline(){
     const bonus=bonusAt(row,col);
     const cell=document.createElement('button');
     cell.type='button';
-    cell.className='online-cell '+bonus+(p?' staged':digit!==null?' fixed':' bonus-hint');
+    cell.className='cell '+bonus+(p?' pending':digit!==null?' occupied':' bonus-hint');
     const key=row+':'+col;
     if(recentOnlineMove&&Date.now()<recentOnlineMove.until){
       if(recentOnlineMove.cells.has(key))cell.classList.add('recent-equation');
@@ -826,7 +828,7 @@ function renderOnline(){
   for(let i=0;i<s.rack.length;i++){
     const tile=document.createElement('button');
     tile.type='button';
-    tile.className='online-tile'+(selected===i?' chosen':'')+(selectedExchange.has(i)?' chosen':'');
+    tile.className='tile'+(selected===i||selectedExchange.has(i)?' selected':'');
     tile.textContent=String(s.rack[i]);
     tile.disabled=!canPlay||pending.some(p=>p.rackIndex===i);
     tile.setAttribute('aria-label','Číslo '+s.rack[i]);
@@ -912,6 +914,20 @@ function initializeActions(){
     gameState=null;
     refreshResumeCard();
   }
+  // Same compact Menu control used by game.html on phones/tablets.
+  const onlineMenu=$('onlineGameNavigation');
+  const onlineMenuToggle=$('onlineMenuToggle');
+  const closeOnlineMenu=()=>{
+    onlineMenu.classList.remove('is-open');
+    onlineMenuToggle.setAttribute('aria-expanded','false');
+  };
+  onlineMenuToggle.addEventListener('click',()=>{
+    const open=onlineMenu.classList.toggle('is-open');
+    onlineMenuToggle.setAttribute('aria-expanded',String(open));
+  });
+  onlineMenu.addEventListener('click',event=>{
+    if(event.target.closest('a,button'))closeOnlineMenu();
+  });
   $('onlineCancel').addEventListener('click',()=>{
     if(gameState&&!gameState.finished){
       if(!window.confirm('Opravdu vzdát online partii? Soupeři se ihned zobrazí výhra.'))return;

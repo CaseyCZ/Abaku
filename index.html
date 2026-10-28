@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="./arena-layout.css?v=0.2.14">
   <link rel="stylesheet" href="./arena-home.css?v=0.2.11">
   <link rel="stylesheet" href="./online-chrome.css?v=1">
+  <link rel="stylesheet" href="./message-badges.css?v=1">
   <link rel="stylesheet" href="./version-history.css?v=0.2.3">
   <script src="./src/analytics.js?v=1" defer></script>
 </head>
@@ -29,12 +30,12 @@
     <header class="lobby-header">
       <a class="mini-brand" href="./index.html" aria-label="Číselná aréna, hlavní nabídka"><img class="brand-logo" src="./assets/arena-logo.svg" alt="" width="640" height="220"></a>
       <span class="server-state" role="status" hidden>Server offline</span>
-      <button type="button" id="menuToggle" class="gold-button menu-toggle" aria-expanded="false" aria-controls="siteNavigation" aria-label="Otevřít menu">☰ Menu</button>
+      <button type="button" id="menuToggle" class="gold-button menu-toggle" aria-expanded="false" aria-controls="siteNavigation" aria-label="Otevřít menu">☰ Menu<span id="menuMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
       <nav class="lobby-account site-navigation" id="siteNavigation" aria-label="Hlavní navigace">
         <a class="header-link" href="./leaderboard.html">Žebříček</a>
         <a class="header-link" href="./how-to-play.html">Jak hrát</a>
         <button type="button" class="gold-button" id="lobbySettingsButton" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
-        <button type="button" class="gold-button" id="friendsOpen">Přátelé</button>
+        <button type="button" class="gold-button" id="friendsOpen">Přátelé<span id="friendsMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
       </nav>
     </header>
     <main class="lobby-main" id="mainContent" tabindex="-1">
@@ -209,7 +210,7 @@
         </div>
         <div class="online-header-actions">
           <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
-          <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka</button>
+          <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka<span id="onlineMenuMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
         </div>
       </header>
       <p id="onlineStatus" role="status" aria-live="polite">Připojuji se k serveru…</p>
@@ -385,7 +386,7 @@
   </dialog>
   <script type="module" src="./src/site-navigation.js?v=2"></script>
   <script type="module" src="./src/arena-ui.js?v=2"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.37"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.38"></script>
   <script type="module" src="./src/version-ui.js?v=0.2.37"></script>
 </body>
 </html>

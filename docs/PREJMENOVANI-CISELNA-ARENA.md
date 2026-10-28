@@ -7,7 +7,7 @@ Původní adresa: `https://caseycz.github.io/Abaku/` (nespoléhej na automatick�
 
 - `server/github-issues.js` podporuje oba názvy repozitáře. Výchozím cílem je nyní `CaseyCZ/Ciselna-Arena`.
 - Analytika při odvolání souhlasu čistí cookies na staré i nové cestě.
-- Google Client ID, `CORS_ORIGIN`, interní `/abaku-api`, databáze, PM2 služba a existující přihlašovací relace se nemění.
+- Google Client ID, `CORS_ORIGIN`, databáze a existující přihlašovací relace se nemění. API se postupně přesouvá na veřejnou cestu `/arena-api/`, původní `/abaku-api/` zůstává přechodně dostupná.
 - Hlavní odkazy v `README.md` byly po zveřejnění nové adresy přepnuty na `/Ciselna-Arena/`.
 
 ## Krok 1 – vlastník repozitáře (dokončeno na GitHubu)
@@ -17,7 +17,7 @@ Původní adresa: `https://caseycz.github.io/Abaku/` (nespoléhej na automatick�
 3. V **Settings → Pages** zkontroluj publikování z dosavadní větve a adresu nové stránky.
 4. Počítej s tím, že GitHub nepřesměruje původní GitHub Pages projektovou URL automaticky. Staré odkazy na `/Abaku/` bude potřeba přepsat při přepnutí.
 
-## Krok 2 – server Oracle (až po přejmenování)
+## Krok 2 – server Oracle (GitHub přejmenován)
 
 ```bash
 cd /home/ubuntu/abaku-online
@@ -28,7 +28,7 @@ git merge --ff-only origin/Master
 curl -fsS http://127.0.0.1:8790/api/presence
 ```
 
-Pokud je `online:0` a není rozehraný zápas, přepni cíl hlášení:
+Pokud je `online:0` a není rozehraný zápas, přepni cíl hlášení (provedeno při změně repozitáře):
 
 ```bash
 ABAKU_GITHUB_REPO=CaseyCZ/Ciselna-Arena pm2 restart abaku-api --update-env
@@ -38,6 +38,12 @@ pm2 env 8 | grep '^ABAKU_GITHUB_REPO:'
 ```
 
 Neměň `DB_PATH`, neobnovuj starou databázi přes novější a nerestartuj ostatní PM2 procesy. Příkaz `pm2 env 8` předpokládá dosavadní PM2 id 8; při změně procesu použij jeho skutečné id.
+
+## Krok 2b – veřejná adresa API
+
+- NGINX má ověřenou kompatibilní cestu `/arena-api/` přepisovanou interně na existující `/abaku-api/` proxy (se zachovaným WebSocket upgradem). Jeho konfigurace byla zálohována v `/home/ubuntu/arena-backups/abaku-api.conf.before-arena-alias`.
+- Frontend používá `https://130.61.49.108/arena-api`; zdraví API odpovídá `{"status":"ok","service":"arena-api"}`. Přechodně klient akceptuje i starý název služby.
+- Při nasazení nového serverového kódu restartuj pouze aktuální PM2 proces `abaku-api`, až není rozehraný zápas. V dalším kroku jej lze samostatně přejmenovat na `arena-api` bez změny SQLite či tokenů; nejdřív zachovej všechny soukromé PM2 proměnné a konfiguraci startovacího skriptu.
 
 ## Krok 3 – webové odkazy a Google
 
@@ -50,6 +56,6 @@ Neměň `DB_PATH`, neobnovuj starou databázi přes novější a nerestartuj ost
 
 - `/home/ubuntu/abaku-data/abaku.sqlite` a ostatní soukromá data.
 - `abaku_` prefix autentizačních tokenů a stávající klíče localStorage (chrání přihlášení a uložené lokální partie).
-- Stávající Oracle API URL `https://130.61.49.108/abaku-api` a PM2 službu `abaku-api`. Jde o interní kompatibilní cestu; případnou veřejnou změnu udělej odděleně.
+- Původní NGINX `/abaku-api/` zatím ponech jako kompatibilní cestu. Samotné jméno PM2 `abaku-api` přejmenuj až po úspěšném nasazení `/arena-api/`, při zachování soukromého prostředí procesu.
 
 Poznámka: GitHub repozitář už byl přejmenován. Google branding a Oracle konfigurace se aplikováním kódových změn automaticky nezmění.

@@ -1,6 +1,6 @@
 # Číselná aréna API – low-resource Oracle Free Tier
 
-The API runs on Oracle as a separate `abaku-api` PM2 process. The web application can still run offline AI games when the API is unavailable. Deployments should restart only this process, without modifying other PM2 services.
+The API runs on Oracle on port 8790 (the PM2 process was originally named `abaku-api`; its renaming to `arena-api` is a separate deployment step). The web application can still run offline AI games when the API is unavailable. Deployments should restart only this process, without modifying other PM2 services.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - Soubory ukládej **mimo repozitář a mimo webový adresář**. Výchozí soukromá cesta je `/home/ubuntu/abaku-reports`, změnitelná pomocí `ABAKU_REPORT_DIR`; práva složky `0700`, souborů `0600`. Počet uchovávaných reportů je omezen na 500.
 - Server soubory maže při spuštění, při každém seznamu a jednou za hodinu, jakmile jsou starší než 24 hodin. Oprávněný správce může soukromě používat `GET /api/reports` a `GET /api/reports/detail?id=<uuid>` s HTTP hlavičkou `Authorization: Bearer <ABAKU_REPORT_ADMIN_TOKEN>`; token musí mít alespoň 32 znaků. Bez tohoto nastavení jsou čtecí cesty uzamčené.
 - Přístup do existujícího dashboardu lze připojit pouze ze serverové části dashboardu; **nikdy** nevkládej admin token do veřejné stránky nebo JavaScriptu.
-- Po přejmenování GitHubu je výchozím cílem hlášení `CaseyCZ/Ciselna-Arena`. Privátní proměnná `ABAKU_GITHUB_REPO` může zvolit tento nebo historický `CaseyCZ/Abaku` (pro případné řešení návratu). Na Oracle nastav novou hodnotu v PM2 a restartuj pouze `abaku-api`, až nehrají žádní hráči. Ostatní identifikátory relací, databázové cesty a veřejná API adresa se kvůli změně GitHub Pages nemění.
+- Po přejmenování GitHubu je výchozím cílem hlášení `CaseyCZ/Ciselna-Arena`. Privátní proměnná `ABAKU_GITHUB_REPO` zachovává původní název, aby se nemusely měnit produkční tajné konfigurace. Veřejná API adresa je nově `/arena-api/`; NGINX zatím přepisuje tuto cestu na existující `/abaku-api/`. PM2 službu přejmenuj samostatně po kontrole nasazení. Databázové cesty a přihlašovací relace se nemění.
 - Běžné vývojové ověření je `npm test` z kořene repozitáře; před produkčním restartem zkontroluj aktivní hráče a stav zálohy. Nasazení nové perzistence poprvé obnovu starých, dosud neuložených RAM partií nezajistí.
 
 ## Local smoke tests
@@ -64,7 +64,7 @@ Use a private PM2 ecosystem/environment file; do not store production secrets in
 NGINX example, to be adapted to an existing HTTPS virtual host and tested before activation:
 
 ```nginx
-location /abaku-api/ {
+location ^~ /arena-api/ {
     proxy_pass http://127.0.0.1:8790/;
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;
@@ -78,7 +78,7 @@ location /abaku-api/ {
 }
 ```
 
-For this example, REST `/abaku-api/api/me` is mapped to Node `/api/me`; WebSocket `/abaku-api/ws` maps to `/ws`. Set the frontend API base to your actual HTTPS host plus `/abaku-api`.
+For this example, REST `/arena-api/api/me` is mapped to Node `/api/me`; WebSocket `/arena-api/ws` maps to `/ws`. Set the frontend API base to your actual HTTPS host plus `/arena-api`. The Oracle deployment currently uses a compatible NGINX rewrite from `/arena-api/` to the existing `/abaku-api/` proxy location; keep that proxy (including WebSocket headers) until the migration is complete.
 
 Authenticated HTTP actions are limited to 180 requests per minute **per
 verified player**, so people sharing a school/home NAT IP do not exhaust one
@@ -136,7 +136,7 @@ session will still require a new Google login. Cross-device login sharing is
 not intended.
 
 **Deployment**: update the Oracle checkout, preserve the SQLite backup, then
-restart `abaku-api` only after existing RAM-only matches have ended (the first
+restart the current game API PM2 process only after existing RAM-only matches have ended (the first
 upgrade cannot restore matches created by the earlier version). The schema is
 additive (`CREATE TABLE IF NOT EXISTS`), and no new environment variables are
 necessary. Subsequent restarts restore saved games without changing client URLs.
@@ -166,7 +166,7 @@ Use header `Authorization: Bearer <Google ID token>` on authenticated endpoints.
 
 ## WebSocket protocol
 
-Open `wss://HOST/abaku-api/ws`, send `{"type":"auth","idToken":"<Google ID token>"}` as the **first** message; never put tokens into query strings/URLs. Server responds with `authenticated` and either `lobby` or `match-state`.
+Open `wss://HOST/arena-api/ws`, send `{"type":"auth","idToken":"<Google ID token>"}` as the **first** message; never put tokens into query strings/URLs. Server responds with `authenticated` and either `lobby` or `match-state`.
 
 Supported messages: `matchmake`, `cancel-matchmake`, `invite`, `join-invite`, `move` (placements with row, col and rackIndex; digit is derived by server), `pass`, `exchange`, `chat`, `sync`.
 

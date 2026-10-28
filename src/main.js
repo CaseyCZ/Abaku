@@ -3,11 +3,11 @@ import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.
 import {chooseMove} from './ai.js?v=0.2.37';
 import {describeMovePreview} from './preview.js?v=0.2.37';
 import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.37';
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.8';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.9';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
   from './player-identity.js?v=1';
-import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.37';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=1';
+import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.38';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=2';
 import {reportEligibility,addReportReceipt} from './report-policy.js?v=1';
 
 const byId = id => document.getElementById(id);

@@ -210,7 +210,7 @@ const http=createServer(async(request,response)=>{
     respond(response,429,{error:'Příliš mnoho požadavků.'});return;
   }
   try {
-    if(request.method==='GET'&&pathname==='/health')return respond(response,200,{status:'ok',service:'abaku-api'});
+    if(request.method==='GET'&&pathname==='/health')return respond(response,200,{status:'ok',service:'arena-api'});
     if(request.method==='GET'&&pathname==='/api/leaderboard'){
       const period=searchParams.get('period')||'all';
       if(!['all','week','month'].includes(period))return respond(response,400,{error:'Neplatné období žebříčku.'});

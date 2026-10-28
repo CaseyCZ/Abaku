@@ -52,9 +52,11 @@ async function loadLeaderboard(){
     board.replaceChildren();
     for(const [index,player] of data.players.slice(0,30).entries()){
       const row=document.createElement('tr');
-      for(const value of [index+1,player.nickname,player.played,player.wins,player.winRate+' %']){
+      const place=['🥇','🥈','🥉'][index] ?? String(index+1);
+      for(const [column,value] of [place,player.nickname,player.played,player.wins,player.winRate+' %'].entries()){
         const cell=document.createElement('td');
         cell.textContent=String(value??'—');
+        if(column===0)cell.setAttribute('aria-label',(index+1)+'. místo');
         row.append(cell);
       }
       board.append(row);

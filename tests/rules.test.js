@@ -76,6 +76,26 @@ test('one placement can yield overlapping power, multiplication, and subtraction
   assert.equal(result.equationBreakdown.reduce((sum,x)=>sum+x.points,0),result.points);
 });
 
+test('the entire unbroken line must be valid before overlapping examples count',()=>{
+  for(const digits of ['9724','5327']){
+    const result=validateMove(emptyBoard(),tiles(digits,7,6));
+    assert.equal(result.valid,false,`${digits} must not pass using shorter equations`);
+    assert.match(result.reason,/Celá souvislá řada/);
+  }
+  const valid=validateMove(emptyBoard(),tiles('1248',7,6));
+  assert.equal(valid.valid,true);
+  assert.deepEqual(valid.equations,['1248','24','248']);
+});
+
+test('extending a formerly valid line must leave the whole new line valid',()=>{
+  const first=validateMove(emptyBoard(),tiles('532',7,6));
+  assert.equal(first.valid,true);
+  const wrong=validateMove(first.board,[{row:7,col:9,digit:7}]);
+  assert.equal(wrong.valid,false,'5327 is invalid even though 532 and 327 work');
+  const correct=validateMove(first.board,[{row:7,col:9,digit:1}]);
+  assert.equal(correct.valid,false,'5321 has no full arithmetic meaning either');
+});
+
 test('extending a board can yield new examples',()=>{
   const initial=validateMove(emptyBoard(),tiles('279'));
   const extension=validateMove(initial.board,[{row:7,col:9,digit:3}]);

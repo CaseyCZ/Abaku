@@ -1,37 +1,100 @@
-# Číselná aréna – produkční provoz na Oracle
+# Číselná aréna – provoz na Oracle
 
-Web: `https://caseycz.github.io/Ciselna-Arena/`  
-GitHub: `CaseyCZ/Ciselna-Arena`, větev `Master`  
-Veřejné API: `https://130.61.49.108/arena-api/`  
-PM2 služba: `arena-api` (port 8790)
+Stav po dokončení přejmenování dne 28. 10. 2026.
 
-## Čistý start účtů
+| Část | Aktuální umístění |
+| --- | --- |
+| Web (GitHub Pages) | https://caseycz.github.io/Ciselna-Arena/ |
+| Zdrojový kód | https://github.com/CaseyCZ/Ciselna-Arena, větev `Master` |
+| Checkout na Oracle | `/home/ubuntu/ciselna-arena` |
+| API | `https://130.61.49.108/arena-api/` |
+| PM2 | `arena-api`, lokální port `8790` |
+| Nginx | `/etc/nginx/snippets/arena-api.conf` |
+| Databáze | `/home/ubuntu/arena-data/arena.sqlite` |
+| Soukromá konfigurace | `/home/ubuntu/.config/arena/` |
+| Reporty | `/home/ubuntu/arena-reports/` |
+| Zálohy | `/home/ubuntu/arena-backups/` |
 
-Po dohodě s vlastníkem začíná online část s prázdnou databází:
+Původní verze byla po ověření nové databáze a Google přihlášení **archivována**, nikoliv smazána. Zálohy `legacy-source-20261028`, `legacy-data-20261028` a `legacy-config-20261028` zůstávají soukromé. Nová databáze začala od nuly; staré účty ani statistiky se nepřenášejí.
 
-- Produkční cesta: `/home/ubuntu/arena-data/arena.sqlite`.
-- Nově vydávané přihlašovací relace začínají `arena_`.
-- Prohlížeč používá nové klíče nastavení, profilu, her i souhlasu s analytikou.
-- Nové účty, přátelství a statistiky se vytvářejí od nuly. Dosavadní data musí nejdřív zůstat v soukromé záloze; nesmějí se převést ani omylem přepsat.
+## Co nasazovat
 
-## Bezpečné pořadí změn
+- **Pouze HTML, CSS, JavaScript a obrázky:** stačí změnu zveřejnit na `Master` a počkat na GitHub Pages. PM2 ani Nginx se nerestartují. Při změně stylů zkontrolovat verze URL souborů kvůli cache prohlížeče.
+- **Změna `server/`:** před nasazením zkontrolovat aktivní hráče, ověřeně zálohovat SQLite, stáhnout `Master`, restartovat **jen** `arena-api` a ověřit `/health`.
+- **Změna soukromého nastavení:** pouze na serveru, nikdy nepublikovat tokeny, klientské konfigurace s citlivými údaji, PM2 dump ani databázi do GitHubu.
+- **Nginx:** upravovat jen při skutečné změně routování; před reloadem vždy `sudo nginx -t`. Staré `/abaku-api/` je záměrně vypnuté.
 
-1. Ověřit, že nikdo není ve hře, a vytvořit novou ověřenou SQLite zálohu stávající databáze. Uchovávat ji v soukromém adresáři s právy `0700`, soubor s `0600`.
-2. Připravit nový checkout `/home/ubuntu/ciselna-arena` z `Master`, a soukromé adresáře `/home/ubuntu/arena-data`, `/home/ubuntu/arena-reports` a `/home/ubuntu/.config/arena`.
-3. Před restartem zkontrolovat současný startovací skript PM2 a všechny jeho odkazy na soukromé konfigurace. Připravit novou startovací konfiguraci, která zachová `GOOGLE_CLIENT_ID`, `CORS_ORIGIN`, `TRUST_PROXY_REAL_IP`, `HOST` a `PORT`, nastaví `DB_PATH=/home/ubuntu/arena-data/arena.sqlite` a používá `ARENA_GITHUB_REPO`, `ARENA_GITHUB_ISSUES_TOKEN`, `ARENA_REPORT_DIR`, `ARENA_REPORT_ADMIN_TOKEN` podle skutečných dřívějších oprávnění. Tajné hodnoty neposílat do chatu ani do GitHubu.
-4. Teprve poté přepnout jedinou službu PM2 `arena-api` na nový checkout a novou prázdnou databázi; ostatní PM2 služby se nemění. Zkontrolovat nové `DB_PATH`, startovací cestu a `GET /health`.
-5. V NGINX ponechat jedinou proxy `location ^~ /arena-api/` přímo na `127.0.0.1:8790/`, se zachovanými hlavičkami pro WebSocket a `X-Real-IP`. Před reloadem provést `sudo nginx -t`; po reloadu ověřit HTTPS health i spojení WSS. Nepřejmenovávat zahrnutý snippet bez kontroly skutečného `include`.
-6. Uložit stav `pm2 save` až po všech kontrolách. Staré adresáře a databázi následně pouze archivovat, nikoliv nevratně mazat.
+## Stav serveru – rychlá kontrola
 
-## Google přihlášení
+```bash
+(
+  set -euo pipefail
+  curl -fsS http://127.0.0.1:8790/health
+  echo
+  curl -fsS http://127.0.0.1:8790/api/presence
+  echo
+  pm2 status
+  sudo nginx -t
+)
+```
 
-- Google OAuth JavaScript origin zůstává `https://caseycz.github.io`, takže samotná změna cesty webu nevyžaduje nový Client ID.
-- V Google Auth Platform → Branding zkontrolovat název **Číselná aréna**, případně údaje o aplikaci.
-- Každý se po čistém startu přihlásí znovu; nová databáze vytvoří nové herní profily.
+Pro veřejné HTTPS zkontrolovat `https://130.61.49.108/arena-api/health`. Odpověď má uvádět `"service":"arena-api"`. Google OAuth používá origin `https://caseycz.github.io`; jeho branding nese název **Číselná aréna**.
 
-## Kontroly bez zátěžových testů
+## Nasazení backendu bez zátěžových testů
 
-- `pm2 status`: `arena-api` a všechny ostatní služby online.
-- `GET /health`: `{"status":"ok","service":"arena-api"}`.
-- `GET /api/presence`: prázdné počítadlo s limitem 700.
-- Nezveřejňovat obsah PM2 environmentu, tokenů ani soukromých SQLite souborů.
+Nejdříve ověřit, že nikdo aktivně nehraje (údaj `online` a `waiting` na `/api/presence` musí být 0). Před restartem vytvořit soukromou SQLite zálohu. Pro běžné nasazení použít celý blok:
+
+```bash
+(
+  set -euo pipefail
+  cd /home/ubuntu/ciselna-arena
+
+  PRESENCE_JSON=$(curl -fsS http://127.0.0.1:8790/api/presence)
+  node -e '
+    const p = JSON.parse(process.argv[1]);
+    if (p.online !== 0 || p.waiting !== 0) {
+      console.error("STOP: Jsou připojeni hráči.");
+      process.exit(1);
+    }
+  ' "$PRESENCE_JSON"
+
+  node --input-type=module -e '
+    import { DatabaseSync, backup } from "node:sqlite";
+    import { chmodSync } from "node:fs";
+    const source = "/home/ubuntu/arena-data/arena.sqlite";
+    const target = "/home/ubuntu/arena-backups/arena-" +
+      new Date().toISOString().replace(/[:.]/g, "-") + ".sqlite";
+    const db = new DatabaseSync(source, { readOnly: true });
+    try {
+      await backup(db, target);
+      chmodSync(target, 0o600);
+      const copy = new DatabaseSync(target, { readOnly: true });
+      try {
+        if (copy.prepare("PRAGMA quick_check").get().quick_check !== "ok")
+          throw new Error("Záloha je poškozená.");
+      } finally {
+        copy.close();
+      }
+      console.log("Záloha OK:", target);
+    } finally {
+      db.close();
+    }
+  '
+
+  git fetch origin Master
+  git merge --ff-only origin/Master
+  pm2 restart arena-api
+  curl --retry 8 --retry-connrefused --retry-delay 1 -fsS     http://127.0.0.1:8790/health
+  echo
+  pm2 status
+)
+```
+
+Pokud se mění závislosti v `server/package.json`, nejdřív cíleně aktualizovat balíčky v `server/`; běžný `git pull` je sám neinstaluje. Stávající provoz používá `npm install`, které na serveru může lokálně vygenerovat ignorovaný `server/package-lock.json`.
+
+## Bezpečnost a hranice
+
+- PM2 používá `/home/ubuntu/.config/arena/start.sh` a privátní `ecosystem.config.js`.
+- Nikdy nekopírovat hodnoty `GOOGLE_CLIENT_ID`, `ARENA_GITHUB_ISSUES_TOKEN`, `ARENA_REPORT_ADMIN_TOKEN`, přihlašovací relace nebo data hráčů do veřejných výpisů.
+- Zálohy a původní archiv nemaž bez samostatného rozhodnutí.
+- Limit `700` v API je konfigurační maximum, **nikoli potvrzená kapacita zátěžovým testem**.

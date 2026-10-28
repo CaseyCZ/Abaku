@@ -121,6 +121,38 @@ test('online turn time is fixed to 60 seconds for random and invited matches',()
   assert.match(onlineClient,/connectOnline\(\{type:'invite',seconds:ONLINE_TURN_SECONDS\}\)/);
 });
 
+test('random matchmaking explains an active game and never starts a second match',async()=>{
+  const start=onlineClient.indexOf('let randomMatchChecking=false;');
+  const end=onlineClient.indexOf('function clearReconnect(){',start);
+  assert.ok(start>=0&&end>start);
+  const source=onlineClient.slice(start,end);
+  async function run(match){
+    const calls=[];
+    const nodes={
+      plannedTitle:{textContent:''},plannedText:{textContent:''},
+      plannedDialog:{open:false,showModal(){this.open=true;}}
+    };
+    const context={
+      $:id=>nodes[id],ONLINE_TURN_SECONDS:60,
+      api:async path=>{calls.push(path);return {match};},
+      refreshResumeCard:async()=>{calls.push('refresh-resume');},
+      connectOnline:action=>{calls.push(action);}
+    };
+    await new Script(source+';startRandomMatch();').runInNewContext(context);
+    return {calls,nodes};
+  }
+  const blocked=await run({matchId:'existing',finished:false});
+  assert.deepEqual(blocked.calls,['/api/match/current','refresh-resume']);
+  assert.equal(blocked.nodes.plannedTitle.textContent,'Máš rozehranou online partii');
+  assert.match(blocked.nodes.plannedText.textContent,/Pokračovat v online partii/);
+  assert.equal(blocked.nodes.plannedDialog.open,true);
+  const fresh=await run(null);
+  assert.equal(fresh.calls[0],'/api/match/current');
+  assert.equal(fresh.calls[1].type,'random');
+  assert.equal(fresh.calls[1].seconds,60);
+  assert.equal(fresh.nodes.plannedDialog.open,false);
+});
+
 
 test('signed-in player may challenge a selected friend directly from accepted friends',()=>{
   assert.match(landing,/id="friendList"/);

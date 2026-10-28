@@ -1,12 +1,12 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.40';
-import {syncResumeCard} from './resume-card.js?v=0.2.40';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.40';
-import { describeMovePreview } from './preview.js?v=0.2.40';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.40';
-import {ScoreRecap} from './score-recap.js?v=0.2.40';
-import {createGameAudio} from './game-audio.js?v=0.2.40';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.40';
-import {bindFeedback} from './feedback-client.js?v=0.2.40';
+import {revealArenaChat} from './arena-ui.js?v=0.2.41';
+import {syncResumeCard} from './resume-card.js?v=0.2.41';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.41';
+import { describeMovePreview } from './preview.js?v=0.2.41';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.41';
+import {ScoreRecap} from './score-recap.js?v=0.2.41';
+import {createGameAudio} from './game-audio.js?v=0.2.41';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.41';
+import {bindFeedback} from './feedback-client.js?v=0.2.41';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -409,6 +409,33 @@ async function refreshResumeCard(){
     // If Oracle is unavailable, don't promise that an old match still exists.
     card.hidden=true;
     syncResumeCard();
+  }
+}
+let randomMatchChecking=false;
+function showRandomMatchNotice(title,message){
+  $('plannedTitle').textContent=title;
+  $('plannedText').textContent=message;
+  if(!$('plannedDialog').open)$('plannedDialog').showModal();
+}
+async function startRandomMatch(){
+  if(randomMatchChecking)return;
+  randomMatchChecking=true;
+  try{
+    // Check Oracle before creating a second match request: the active game
+    // may be on another tab or device, so local storage is not authoritative.
+    const {match}=await api('/api/match/current');
+    if(match&&!match.finished){
+      await refreshResumeCard();
+      showRandomMatchNotice('Máš rozehranou online partii',
+        'Nejdřív se vrať do rozehrané hry tlačítkem „Pokračovat v online partii“. Nového soupeře můžeš hledat až po jejím skončení.');
+      return;
+    }
+    connectOnline({type:'random',seconds:ONLINE_TURN_SECONDS});
+  }catch{
+    showRandomMatchNotice('Nepodařilo se ověřit rozehranou partii',
+      'Zkus to znovu za chvíli. Hledání zatím nespouštím, aby se nepřerušila případná rozehraná hra.');
+  }finally{
+    randomMatchChecking=false;
   }
 }
 function clearReconnect(){
@@ -921,7 +948,7 @@ function initializeActions(){
   $('playRandom').addEventListener('click',event=>{
     if(!configured||!credential)return;
     event.stopImmediatePropagation();
-    connectOnline({type:'random',seconds:ONLINE_TURN_SECONDS});
+    startRandomMatch();
   },true);
   $('playFriends').addEventListener('click',event=>{
     if(!configured||!credential)return;

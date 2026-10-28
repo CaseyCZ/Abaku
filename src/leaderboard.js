@@ -38,7 +38,16 @@ async function loadLeaderboard(){
     });
     if(!response.ok)throw new Error('Leaderboard unavailable');
     const data=await response.json();
-    if(!Array.isArray(data.players)||data.period!==currentPeriod)throw new Error('Invalid leaderboard');
+    if(!Array.isArray(data.players)|| (data.period && data.period!==currentPeriod))throw new Error('Invalid leaderboard');
+    // Keep the overall table usable until the production API is upgraded.
+    if(currentPeriod!=='all' && data.period!==currentPeriod){
+      if(activeRequest===controller){
+        board.replaceChildren();
+        panel.hidden=true;
+        status.textContent='Týdenní a měsíční žebříček bude dostupný po aktualizaci serveru.';
+      }
+      return;
+    }
     if(activeRequest!==controller)return;
     board.replaceChildren();
     for(const [index,player] of data.players.slice(0,30).entries()){

@@ -7,25 +7,28 @@ const css=read('../game-chrome.css');
 const game=read('../game.html');
 const main=read('../src/main.js');
 const tablet=css.slice(
-  css.indexOf('/* Tablet portrait: keep all local-game actions beside the digit rack.'),
+  css.indexOf('/* Tablet portrait: fit the digit rack and every action in one compact row.'),
   css.indexOf('/* Phone landscape (iPhone and Android):')
 );
 
-test('tablet-only portrait query does not change the phone or desktop controls',()=>{
+test('tablet-only portrait query keeps actions visible without changing phones or desktops',()=>{
   assert.match(tablet,/@media \(min-width:700px\) and \(max-width:1100px\) and \(orientation:portrait\) and \(pointer:coarse\)/);
+  assert.match(tablet,/--arena-board-size:min\(calc\(100vw - 12px\),calc\(100dvh - 330px\)\)/);
+  assert.match(tablet,/\.game-app \.center-area\{max-width:var\(--arena-board-size\)\}/);
   assert.match(tablet,/\.game-app \.control-bar\{\s*display:grid!important;/);
-  assert.match(tablet,/grid-template-columns:minmax\(0,1fr\) max-content minmax\(0,1fr\)!important;/);
+  assert.match(tablet,/grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\) max-content minmax\(0,2fr\)!important;/);
+  assert.match(tablet,/grid-template-rows:auto;/);
   assert.match(tablet,/\.game-app \.control-bar \.game-mode\{display:none!important\}/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.27/);
+  assert.match(game,/game-chrome\.css\?v=0\.2\.28/);
 });
 
-test('tablet rack stays in centered column with actions occupying the two sides',()=>{
-  assert.match(tablet,/\.game-app \.control-bar \.rack-frame\{\s*grid-column:2;grid-row:1 \/ span 2;\s*justify-self:center;align-self:center/);
+test('tablet rack and all three actions occupy a single row at digit height',()=>{
+  assert.match(tablet,/\.game-app \.control-bar \.rack-frame\{\s*grid-column:3;grid-row:1;\s*justify-self:center;align-self:center/);
   assert.match(tablet,/\.game-app \.control-bar \.game-controls\{display:contents!important\}/);
   assert.match(tablet,/#hintButton\{grid-column:1;grid-row:1\}/);
-  assert.match(tablet,/#exchangeButton\{grid-column:1;grid-row:2\}/);
-  assert.match(tablet,/#passButton\{\s*grid-column:3;grid-row:1 \/ span 2;align-self:stretch/);
-  assert.match(tablet,/\.game-app \.control-bar \.game-controls \.gold-button\{[^}]*min-height:32px/);
+  assert.match(tablet,/#exchangeButton\{grid-column:2;grid-row:1\}/);
+  assert.match(tablet,/#passButton\{\s*grid-column:4;grid-row:1;align-self:center/);
+  assert.match(tablet,/\.game-app \.control-bar \.game-controls \.gold-button\{[^}]*height:44px;min-height:44px/);
   const start=game.indexOf('<footer class="control-bar">');
   const bar=game.slice(start,game.indexOf('</footer>',start));
   for(const id of ['undoButton','rack','confirmButton','hintButton','exchangeButton','passButton']){

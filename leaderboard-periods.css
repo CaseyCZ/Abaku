@@ -1,0 +1,30 @@
+.leaderboard-periods {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:10px 0 12px;
+}
+.leaderboard-periods .gold-button {
+  min-height:42px;
+  padding:9px 16px;
+}
+.leaderboard-periods .gold-button[aria-pressed="true"] {
+  color:#091b32;
+  background:linear-gradient(135deg,#ffe7a3,#e8b85e);
+  border-color:#f7d483;
+  box-shadow:0 0 0 2px #f7d48355;
+}
+.leaderboard-periods .gold-button:focus-visible {
+  outline:3px solid #ffe7a3;
+  outline-offset:3px;
+}
+.leaderboard-period-info {
+  margin:4px 0 14px;
+  font-size:13px;
+  color:#bfd0e8;
+}
+@media (max-width:550px) {
+  .leaderboard-periods { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+  .leaderboard-periods .gold-button { min-width:0; padding:9px 3px; font-size:12px; white-space:normal; }
+}

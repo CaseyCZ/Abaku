@@ -147,9 +147,8 @@ dialog::backdrop{background:#060c16d6}
 .online-presence strong{font:bold 29px/1.1 Verdana,sans-serif;color:#bcf2c1;font-variant-numeric:tabular-nums}
 .online-presence span{font:11px/1.4 Verdana,sans-serif;color:#f5c4a2}
 .side-card .presence-explain{font-size:10px;line-height:1.5;color:#cea68b;margin:8px 0 12px}
-.mode-queue{display:block;min-height:15px;color:#e3b08d;font:11px/1.4 Verdana,sans-serif;letter-spacing:0}
 #onlineWaitingCount{font-size:12px;color:#c1f5c3}
-@media(max-width:380px){.online-presence{gap:6px}.online-presence strong{font-size:25px}.mode-queue{font-size:10px}}
+@media(max-width:380px){.online-presence{gap:6px}.online-presence strong{font-size:25px}}
 
 
 /* v0.2.5 – only the online turn duration selector. */

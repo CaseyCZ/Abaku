@@ -1,15 +1,15 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.38';
-import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.38';
-import {chooseMove} from './ai.js?v=0.2.38';
-import {describeMovePreview} from './preview.js?v=0.2.38';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.38';
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.38';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.39';
+import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.39';
+import {chooseMove} from './ai.js?v=0.2.39';
+import {describeMovePreview} from './preview.js?v=0.2.39';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.39';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.39';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
-  from './player-identity.js?v=0.2.38';
-import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.38';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.38';
-import {reportEligibility,addReportReceipt} from './report-policy.js?v=0.2.38';
-import {createGameAudio} from './game-audio.js?v=0.2.38';
+  from './player-identity.js?v=0.2.39';
+import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.39';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.39';
+import {reportEligibility,addReportReceipt} from './report-policy.js?v=0.2.39';
+import {createGameAudio} from './game-audio.js?v=0.2.39';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-arena-settings-v1';

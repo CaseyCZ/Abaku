@@ -59,7 +59,7 @@ test('online profile and friendship management are wired to authenticated Oracle
 test('lobby displays real online and random matchmaking queue counts without inventing availability',()=>{
   assert.match(landing,/id="onlineCount"/);
   assert.match(landing,/id="waitingCount"/);
-  assert.match(landing,/id="queueActivity"/);
+  assert.doesNotMatch(landing,/id="queueActivity"/);
   assert.match(landing,/id="onlineWaitingCount"/);
   assert.match(onlineClient,/fetch\(apiBase\+'\/api\/presence'/);
   assert.match(onlineClient,/api\('\/api\/presence','POST'\)/);
@@ -218,7 +218,6 @@ test('offline homepage clears stuck loading and disables online choices until re
   const end=onlineClient.indexOf('async function refreshPresence(){',start);
   assert.ok(start>=0&&end>start);
   const state={onlineCount:{textContent:'9'},waitingCount:{textContent:'3'},
-    queueActivity:{textContent:'Zjišťuji stav čekajících…'},
     onlineWaitingCount:{textContent:'Zjišťuji počet čekajících…'},
     retryServerButton:{hidden:true},
     playRandom:{disabled:false},playFriends:{disabled:false}};
@@ -228,7 +227,7 @@ test('offline homepage clears stuck loading and disables online choices until re
   new Script(code+';setServerOffline(true);').runInNewContext(context);
   assert.equal(indicator.hidden,false);
   assert.equal(state.retryServerButton.hidden,false);
-  assert.equal(state.queueActivity.textContent.includes('Server je offline'),true);
+  assert.equal(state.onlineWaitingCount.textContent,'Server je offline.');
   assert.equal(state.onlineCount.textContent,'—');
   assert.equal(state.waitingCount.textContent,'—');
   assert.equal(state.playRandom.disabled,true);
@@ -238,7 +237,7 @@ test('offline homepage clears stuck loading and disables online choices until re
   assert.equal(state.retryServerButton.hidden,true);
   assert.equal(state.playRandom.disabled,false);
   assert.equal(state.playFriends.disabled,false);
-  assert.equal(state.queueActivity.textContent,'Zjišťuji stav čekajících…');
+  assert.equal(state.onlineWaitingCount.textContent,'Zjišťuji počet čekajících…');
 });
 
 test('online reconnection client remains parseable JavaScript after new state handlers',()=>{
@@ -438,7 +437,7 @@ test('homepage text is centered without modifying mode card geometry or responsi
   assert.ok(css.includes(intro));
   assert.ok(css.includes(eyebrow));
   assert.ok(css.includes(cards));
-  assert.ok(css.includes('.arena-home .mode-copy,.arena-home .mode-queue{width:100%;text-align:center}'));
+  assert.ok(css.includes('.arena-home .mode-copy{width:100%;text-align:center}'));
   assert.ok(css.includes('.arena-home .game-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'));
   assert.ok(css.includes('.home-start{grid-template-columns:minmax(0,1fr);gap:18px}'));
   assert.ok(css.includes('.arena-home .lobby-intro .hero-resume{width:min(100%,430px)'));

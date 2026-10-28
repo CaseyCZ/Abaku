@@ -1,12 +1,12 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.38';
-import {syncResumeCard} from './resume-card.js?v=0.2.38';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.38';
-import { describeMovePreview } from './preview.js?v=0.2.38';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.38';
-import {ScoreRecap} from './score-recap.js?v=0.2.38';
-import {createGameAudio} from './game-audio.js?v=0.2.38';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.38';
-import {bindFeedback} from './feedback-client.js?v=0.2.38';
+import {revealArenaChat} from './arena-ui.js?v=0.2.39';
+import {syncResumeCard} from './resume-card.js?v=0.2.39';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.39';
+import { describeMovePreview } from './preview.js?v=0.2.39';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.39';
+import {ScoreRecap} from './score-recap.js?v=0.2.39';
+import {createGameAudio} from './game-audio.js?v=0.2.39';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.39';
+import {bindFeedback} from './feedback-client.js?v=0.2.39';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -89,13 +89,6 @@ function paintPresence(data){
   lastPresence=data;
   $('onlineCount').textContent=Number.isSafeInteger(data.limit)?data.online+' / '+data.limit:String(data.online);
   $('waitingCount').textContent=String(data.waiting);
-  const msg=data.waiting===0
-    ? 'Nikdo právě nečeká. Můžeš zahájit hledání.'
-    : data.waiting===1 ? '1 hráč právě hledá soupeře.'
-    : data.waiting>=2&&data.waiting<=4
-      ? data.waiting+' hráči právě hledají soupeře.'
-      : data.waiting+' hráčů právě hledá soupeře.';
-  $('queueActivity').textContent=msg;
   $('onlineWaitingCount').textContent='Nyní čeká na náhodného soupeře: '+data.waiting+'.';
 }
 function setServerOffline(offline){
@@ -108,10 +101,8 @@ function setServerOffline(offline){
     lastPresence=null;
     $('onlineCount').textContent='—';
     $('waitingCount').textContent='—';
-    $('queueActivity').textContent='Server je offline. Počet čekajících není dostupný.';
     $('onlineWaitingCount').textContent='Server je offline.';
-  }else if($('queueActivity').textContent.startsWith('Server je offline')){
-    $('queueActivity').textContent='Zjišťuji stav čekajících…';
+  }else if(!lastPresence){
     $('onlineWaitingCount').textContent='Zjišťuji počet čekajících…';
   }
 }

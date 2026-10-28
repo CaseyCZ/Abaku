@@ -26,6 +26,7 @@ const store=openStore(process.env.DB_PATH||'./data/abaku.sqlite');
 const authClient=new OAuth2Client(clientId);
 const tokenCache=new Map();
 const sockets=new Map();
+const socketSessionTokens=new WeakMap();
 const MAX_ONLINE_PLAYERS=700;
 const MAX_PENDING_WS_AUTH=300;
 const fullServerMessage='Server je plný (700/700 hráčů). Zkus to později.';
@@ -90,6 +91,20 @@ function respond(response,status,body){
   response.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
   response.end(JSON.stringify(body));
 }
+function storageFailure(error){
+  const code=String(error?.code||'');
+  const message=String(error?.message||'');
+  return /^(ERR_SQLITE|SQLITE_)/.test(code)||
+    /^(EIO|ENOSPC|EROFS|EACCES|EMFILE|ENFILE)$/.test(code)||
+    /database is locked|database or disk is full|disk I\/O error|database disk image is malformed|no such table/i.test(message);
+}
+function publicError(error){
+  if(storageFailure(error)){
+    console.error('Abaku API storage error:',error);
+    return 'Server má dočasný problém s uložením dat. Zkus to prosím znovu.';
+  }
+  return String(error?.message||'Chyba').slice(0,180);
+}
 async function verifyGoogle(idToken){
   if(typeof idToken!=='string'||idToken.length<100||idToken.length>5000)
     throw new Error('Přihlášení je neplatné.');
@@ -135,6 +150,7 @@ const engine=new MatchEngine({
   send:push,
   onResult:outcome=>store.record(outcome),
   onChange:snapshot=>store.saveMatch(snapshot),
+  onFinish:(outcome,snapshot)=>store.record({...outcome,snapshot}),
   onDelete:matchId=>store.deleteMatch(matchId),
   getName:uid=>store.get(uid)?.nickname||null
 });
@@ -147,8 +163,18 @@ const friendChallenges=new FriendChallenges({
 });
 // A tiny RAM-only presence table: unique Google UID, last heartbeat timestamp.
 const presence=new PresenceTracker();
+let lastSessionSweep=0;
 const clock=setInterval(()=>{engine.tick();friendChallenges.tick();
   const now=Date.now();
+  if(now-lastSessionSweep>=60_000){
+    lastSessionSweep=now;
+    try{
+      for(const ws of sockets.values()){
+        const token=socketSessionTokens.get(ws);
+        if(token&&!store.sessionActive(token))ws.close(1008,'Relace vypršela nebo byla odhlášena.');
+      }
+    }catch(error){console.error('Abaku session cleanup:',error.message);}
+  }
   for(const [key,item] of rate)if(now-item.start>120_000)rate.delete(key);
   for(const [key,item] of reportRate)if(now-item.start>10*60_000)reportRate.delete(key);
   for(const [key,item] of feedbackRate)if(now-item.start>60*60_000)feedbackRate.delete(key);
@@ -249,7 +275,11 @@ const http=createServer(async(request,response)=>{
     }
     if(request.method==='DELETE'&&pathname==='/api/session'){
       const bearer=request.headers.authorization||'';
-      store.revokeSession(bearer.slice(7));
+      const sessionToken=bearer.slice(7);
+      const revoked=store.revokeSession(sessionToken);
+      const ws=sockets.get(uid);
+      if(revoked&&ws&&socketSessionTokens.get(ws)===sessionToken)
+        ws.close(1008,'Relace byla odhlášena.');
       presence.remove(uid);
       return respond(response,200,{ok:true});
     }
@@ -306,7 +336,9 @@ const http=createServer(async(request,response)=>{
   }catch(error){
     const msg=String(error?.message||'Chyba');
     const unauthorized=/Přihlášení|Token|token|jwt|expired|audience|signature/.test(msg);
-    respond(response,unauthorized?401:msg.includes('UNIQUE')?409:400,{error:unauthorized?'Je potřeba platné přihlášení.':msg.slice(0,200)});
+    const serverError=storageFailure(error);
+    respond(response,serverError?500:unauthorized?401:msg.includes('UNIQUE')?409:400,
+      {error:serverError?publicError(error):unauthorized?'Je potřeba platné přihlášení.':msg.slice(0,200)});
   }
 });
 const wss=new WebSocketServer({noServer:true,maxPayload:4096,perMessageDeflate:false});
@@ -351,6 +383,8 @@ wss.on('connection',(ws)=>{
         const old=sockets.get(uid);
         if(old&&old!==ws)old.close(1000,'Nové připojení');
         sockets.set(uid,ws);
+        if(typeof msg.idToken==='string'&&msg.idToken.startsWith('abaku_'))
+          socketSessionTokens.set(ws,msg.idToken);
         authed=true;clearTimeout(authTimeout);
         pendingWsAuth.delete(ws);
         presence.touch(uid);
@@ -375,7 +409,7 @@ wss.on('connection',(ws)=>{
         default:throw new Error('Neznámá zpráva.');
       }
     }catch(error){
-      if(ws.readyState===1)ws.send(JSON.stringify({type:'error',message:String(error?.message||'Chyba').slice(0,180)}));
+      if(ws.readyState===1)ws.send(JSON.stringify({type:'error',message:publicError(error)}));
       // Never let a single unauthenticated socket retry expensive Google
       // verification indefinitely within its ten-second handshake window.
       if(!authed)ws.close(1008,'Přihlášení se nezdařilo.');

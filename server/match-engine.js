@@ -7,14 +7,17 @@ const MAX_CHAT = 160;
 const INVITE_TTL = 10 * 60_000;
 const RECONNECT_GRACE = 60_000;
 const RESTART_RECOVERY_WINDOW = 24 * 60 * 60_000;
+const INVALID_MOVE_WINDOW = 5_000;
+const MAX_INVALID_MOVES = 6;
 const INVITE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const legalTime = value => [30, 60, 90].includes(Number(value)) ? Number(value) : 60;
 
 export class MatchEngine {
-  constructor({send = () => {}, onResult = () => {}, onChange = () => {}, onDelete = () => {}, clock = () => Date.now(), rng = Math.random, getName = () => null} = {}) {
+  constructor({send = () => {}, onResult = () => {}, onChange = () => {}, onFinish = null, onDelete = () => {}, clock = () => Date.now(), rng = Math.random, getName = () => null} = {}) {
     this.send = send;
     this.onResult = onResult;
     this.onChange = onChange;
+    this.onFinish = onFinish;
     this.onDelete = onDelete;
     this.clock = clock;
     this.rng = rng;
@@ -27,18 +30,41 @@ export class MatchEngine {
     this.disconnected = new Map();
     this.chatAt = new Map();
     this.restoredAwaiting = new Map();
+    this.savedSnapshots = new Map();
+    this.invalidMoves = new Map();
   }
   // Only private server state is serialized. Never send this snapshot to clients:
   // it contains both players' racks, bag order and internal account IDs.
-  persist(match) {
-    this.onChange({version:1,id:match.id,players:match.players,board:match.board,
+  snapshot(match) {
+    return {version:1,id:match.id,players:match.players,board:match.board,
       bag:match.bag,turn:match.turn,turns:match.turns,passStreak:match.passStreak,
       seconds:match.seconds,deadline:match.deadline,finished:match.finished,
       winner:match.winner,reason:match.reason,endedAt:match.endedAt,
       lastMove:match.lastMove||null,history:match.history||[],
       auditEvents:match.auditEvents,auditRevision:match.auditRevision,
       auditPartial:Boolean(match.auditPartial),
-      reportReceipts:[...match.reportReceipts],savedAt:this.clock()});
+      reportReceipts:[...match.reportReceipts],savedAt:this.clock()};
+  }
+  rememberSnapshot(snapshot) {
+    // Keep the last committed state so a failed SQLite write cannot leave a
+    // different, unacknowledged board in server memory.
+    this.savedSnapshots.set(snapshot.id,structuredClone(snapshot));
+  }
+  rollback(match) {
+    const previous=this.savedSnapshots.get(match.id);
+    if(!previous)return;
+    const copy=structuredClone(previous);
+    for(const field of ['players','board','bag','turn','turns','passStreak','seconds',
+      'deadline','finished','winner','reason','endedAt','lastMove','history',
+      'auditEvents','auditRevision','auditPartial'])match[field]=copy[field];
+    match.reportReceipts=new Map(copy.reportReceipts);
+  }
+  persist(match) {
+    const snapshot=this.snapshot(match);
+    try{
+      this.onChange(snapshot);
+      this.rememberSnapshot(snapshot);
+    }catch(error){this.rollback(match);throw error;}
   }
   restore(snapshots) {
     const now=this.clock();
@@ -78,6 +104,7 @@ export class MatchEngine {
         const match={...state,reportReceipts:new Map(state.reportReceipts),
           reportPending:new Map(),rematchVotes:new Set()};
         this.matches.set(match.id,match);
+        this.rememberSnapshot(state);
         for(const p of match.players){
           const previous=this.byPlayer.get(p.uid);
           if(!previous||previous.finished)this.byPlayer.set(p.uid,match);
@@ -95,15 +122,16 @@ export class MatchEngine {
     }
   }
   connect(uid) {
-    this.connections.add(uid);
-    this.disconnected.delete(uid);
     const match = this.matchOf(uid);
     if(match&&!match.finished&&this.restoredAwaiting.has(match.id)){
-      this.restoredAwaiting.delete(match.id);
-      for(const p of match.players)if(p.uid!==uid)this.disconnected.set(p.uid,this.clock());
-      match.deadline=this.clock()+match.seconds*1000;
+      const now=this.clock();
+      match.deadline=now+match.seconds*1000;
       this.persist(match);
+      this.restoredAwaiting.delete(match.id);
+      for(const p of match.players)if(p.uid!==uid)this.disconnected.set(p.uid,now);
     }
+    this.connections.add(uid);
+    this.disconnected.delete(uid);
     this.sync(uid);
     if (match && !match.finished) this.toOthers(match, uid, {type:'opponent',status:'connected'});
   }
@@ -219,6 +247,7 @@ export class MatchEngine {
     this.persist(match);
     this.matches.set(match.id,match);
     this.byPlayer.set(uidA,match);this.byPlayer.set(uidB,match);
+    this.invalidMoves.delete(uidA);this.invalidMoves.delete(uidB);
     for(const uid of [uidA,uidB]) {this.sendTo(uid,{type:'match-start',matchId:match.id});this.sync(uid);}
     return match;
   }
@@ -231,6 +260,10 @@ export class MatchEngine {
   }
   place(uid,placements) {
     const match=this.requireTurn(uid);
+    const invalidWindow=this.invalidMoves.get(uid);
+    const now=this.clock();
+    if(invalidWindow&&now-invalidWindow.start<INVALID_MOVE_WINDOW&&invalidWindow.count>=MAX_INVALID_MOVES)
+      throw new Error('Příliš mnoho neplatných pokusů. Počkej několik sekund.');
     if(!Array.isArray(placements)||placements.length<1||placements.length>RACK_SIZE)throw new Error('Neplatný počet čísel.');
     const rack=match.players[match.turn].rack;
     const used=new Set();
@@ -245,6 +278,9 @@ export class MatchEngine {
     if(!validated.valid){
       this.recordAudit(match,{type:'move',player:match.turn,accepted:false,placements:auditPlacements});
       this.persist(match);
+      if(!invalidWindow||now-invalidWindow.start>=INVALID_MOVE_WINDOW)
+        this.invalidMoves.set(uid,{start:now,count:1});
+      else invalidWindow.count++;
       throw new Error(validated.reason);
     }
     this.recordAudit(match,{type:'move',player:match.turn,accepted:true,placements:auditPlacements,
@@ -269,6 +305,7 @@ export class MatchEngine {
     this.nextTurn(match,()=>this.sendTo(uid,{
       type:'move-accepted',points:validated.points,equations:validated.equations
     }));
+    this.invalidMoves.delete(uid);
   }
   exchange(uid,indices) {
     const match=this.requireTurn(uid);
@@ -348,8 +385,17 @@ export class MatchEngine {
     match.endedAt=this.clock();
     const [a,b]=match.players;
     match.winner=winnerOverride ?? (a.score===b.score ? null : (a.score>b.score?a.uid:b.uid));
-    this.onResult({matchId:match.id,ids:[a.uid,b.uid],winner:match.winner,reason});
-    this.persist(match);
+    const outcome={matchId:match.id,ids:[a.uid,b.uid],winner:match.winner,reason};
+    try{
+      if(this.onFinish){
+        const snapshot=this.snapshot(match);
+        this.onFinish(outcome,snapshot);
+        this.rememberSnapshot(snapshot);
+      }else{
+        this.onResult(outcome);
+        this.persist(match);
+      }
+    }catch(error){this.rollback(match);throw error;}
     afterSave();
     this.toAll(match,{type:'match-end',winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason});
     for(const p of match.players)this.sync(p.uid);
@@ -416,10 +462,12 @@ export class MatchEngine {
           this.onDelete(match.id);
           this.restoredAwaiting.delete(match.id);
           this.matches.delete(match.id);
+          this.savedSnapshots.delete(match.id);
           for(const p of match.players)if(this.byPlayer.get(p.uid)===match){
             this.byPlayer.delete(p.uid);
             this.disconnected.delete(p.uid);
             this.chatAt.delete(p.uid);
+            this.invalidMoves.delete(p.uid);
           }
         }
         continue;
@@ -445,5 +493,7 @@ export class MatchEngine {
       }
       if(match.deadline<=now)this.passTurn(match,'timeout');
     }
+    for(const [uid,row] of this.invalidMoves)
+      if(now-row.start>=INVALID_MOVE_WINDOW)this.invalidMoves.delete(uid);
   }
 }

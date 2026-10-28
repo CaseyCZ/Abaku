@@ -166,28 +166,40 @@ CREATE TABLE IF NOT EXISTS settled_matches (
     const result=statements.reply.run(accept?'accepted':'declined',sender,recipient);
     if(result.changes===0)throw new Error('Žádost nebyla nalezena.');
   };
-  const record=({ids,winner,reason,matchId})=>{
-    if(reason==='abandoned')return;
+  const saveMatch=snapshot=>{
+    if(typeof snapshot?.id!=='string'||!snapshot.id||snapshot.id.length>80)
+      throw new Error('Neplatný identifikátor partie.');
+    statements.matchSave.run(snapshot.id,JSON.stringify(snapshot),Date.now());
+  };
+  const record=({ids,winner,reason,matchId,snapshot=null})=>{
+    if(reason==='abandoned'){
+      if(snapshot)saveMatch(snapshot);
+      return;
+    }
     if(!Array.isArray(ids)||ids.length!==2||ids[0]===ids[1])throw new Error('Neplatný výsledek.');
+    if(snapshot&&snapshot.id!==matchId)throw new Error('Výsledek neodpovídá partii.');
     db.exec('BEGIN IMMEDIATE');
     try {
       const playedAt=Date.now();
       // The same match can be completed again after a crash between recording
       // its result and saving the final snapshot. Never count it twice.
+      let newResult=true;
       if(matchId!=null){
         if(typeof matchId!=='string'||!matchId||matchId.length>80)throw new Error('Neplatná partie.');
-        if(!statements.settledInsert.run(matchId,playedAt).changes){
-          db.exec('COMMIT');
-          return;
+        newResult=Boolean(statements.settledInsert.run(matchId,playedAt).changes);
+      }
+      if(newResult){
+        for(const uid of ids){
+          ensure(uid);
+          if(winner===null)statements.draw.run(uid);
+          else if(winner===uid)statements.win.run(uid);
+          else statements.lose.run(uid);
+          statements.resultInsert.run(uid,playedAt,winner===null?'draw':winner===uid?'win':'loss');
         }
       }
-      for(const uid of ids){
-        ensure(uid);
-        if(winner===null)statements.draw.run(uid);
-        else if(winner===uid)statements.win.run(uid);
-        else statements.lose.run(uid);
-        statements.resultInsert.run(uid,playedAt,winner===null?'draw':winner===uid?'win':'loss');
-      }
+      // Save the final private game snapshot in this same SQLite transaction.
+      // The scoreboard and persisted finished state must commit together.
+      if(snapshot)saveMatch(snapshot);
       db.exec('COMMIT');
     } catch(error){db.exec('ROLLBACK');throw error;}
   };
@@ -210,17 +222,15 @@ CREATE TABLE IF NOT EXISTS settled_matches (
     if(row.expires_at-now<SESSION_RENEW_BELOW)statements.sessionExtend.run(now+SESSION_TTL,hash,now);
     return row.uid;
   };
+  const sessionActive=token=>validSessionToken(token)&&
+    Boolean(statements.sessionGet.get(sessionDigest(token),Date.now()));
   const revokeSession=token=>{
     if(!validSessionToken(token))return false;
     return statements.sessionDelete.run(sessionDigest(token)).changes>0;
   };
   return {
-    db,ensure,rename,request,respond,record,createSession,sessionUid,revokeSession,
-    saveMatch:snapshot=>{
-      if(typeof snapshot?.id!=='string'||!snapshot.id||snapshot.id.length>80)
-        throw new Error('Neplatný identifikátor partie.');
-      statements.matchSave.run(snapshot.id,JSON.stringify(snapshot),Date.now());
-    },
+    db,ensure,rename,request,respond,record,createSession,sessionUid,sessionActive,revokeSession,
+    saveMatch,
     loadMatches:()=>{
       const snapshots=[];
       for(const row of statements.matchLoad.all()){

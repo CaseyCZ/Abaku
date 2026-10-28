@@ -1,6 +1,6 @@
 # Číselná aréna API – low-resource Oracle Free Tier
 
-Server side is **implemented but not yet deployed**. Web application on GitHub Pages may continue to run offline AI games without the API. This is an isolated process and does not modify any existing PM2 services or NGINX sites.
+The API runs on Oracle as a separate `abaku-api` PM2 process. The web application can still run offline AI games when the API is unavailable. Deployments should restart only this process, without modifying other PM2 services.
 
 ## Requirements
 
@@ -15,13 +15,14 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 ## Security
 
 - The server refuses to start unless `GOOGLE_CLIENT_ID` and `CORS_ORIGIN` are set.
-- All online calls require a Google ID token verified by the official Google library; the server never trusts a submitted nickname/score.
+- Private online calls require either a Google ID token verified by the official Google library or a valid revocable device session; public status and leaderboard reads require no login. The server never trusts a submitted nickname/score.
 - Google credentials are NOT stored in SQLite. Google `sub` is used only internally; other players receive random public profile IDs, never Google identifiers.
 - SQLite stores the nickname, avatar, four counters (games, wins, losses, draws), accepted/pending friend relationships and private in-progress match snapshots.
 - Online boards, both private racks, scores, deadlines and audit events are stored in private SQLite `live_matches`. Matchmaking queues, invite codes, pending challenges and chat remain **in RAM only**.
 - Game server validates moves independently and determines scoring, countdown, winner and statistics.
 - Run it behind HTTPS/WSS with strict allowed origins and client request limits.
-- A server restart reloads ongoing matches and gives disconnected players a recovery window; matchmaking/chat and unsent invitations are cleared. Match settlement is idempotent via `settled_matches` so a crash cannot add the same result twice.
+- A server restart reloads ongoing matches and gives disconnected players a recovery window; matchmaking/chat and unsent invitations are cleared. Match settlement is idempotent via `settled_matches` and commits the final snapshot together with the result. Failed snapshot writes restore the last committed in-memory board instead of silently accepting an unsaved move.
+- Six invalid board moves may be recorded per five-second window for a player; further attempts temporarily return an error without another SQLite write.
 - Changing to any public domain requires updating Google authorized JavaScript origins and `CORS_ORIGIN`.
 
 ## Dobrovolná kontrola partií
@@ -120,7 +121,9 @@ another 30 days on active use once fewer than 20 days remain; no more than
 official Google library at exchange; both REST `Authorization: Bearer`
 and initial WebSocket `auth.idToken` accept validated opaque sessions.
 `DELETE /api/session` revokes that browser's active device session and
-removes its presence. Login sessions survive API restarts because the
+removes its presence; a WebSocket using that exact session is closed as well.
+Active WebSockets are also checked periodically for expired or revoked device
+sessions. Login sessions survive API restarts because the
 SQLite database already persists player accounts.
 
 Do not log the bearer token, append it to URLs, share it, put it in public
@@ -182,4 +185,4 @@ The websocket authorizes by Google UID and associates the socket with the corres
 
 ## Known limits
 
-This is the foundation for a small number of concurrent matches; it has not been load-tested. Offline AI mode still requires no server. Online frontend controls and end-to-end Google login must be tested after the Google client ID and HTTPS endpoint are configured. Don't expose this unfinished API publicly before performing the deployment/security checks.
+The admission limit is 700 unique online players, but this capacity has not been verified by a successful 700-player load test. Offline AI mode still requires no server. Check existing active matches and keep a private SQLite backup before each backend deployment.

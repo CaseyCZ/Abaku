@@ -1,4 +1,4 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=arena-20261028b';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=arena-20261028c';
 import {syncResumeCard} from './resume-card.js?v=arena-20261028a';
 const PROFILE_KEY = 'arena-local-profile-v1';
 const GAME_KEY = 'retro-arena-game-v1';

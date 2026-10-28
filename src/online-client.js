@@ -796,6 +796,8 @@ function renderOnline(){
   updateOnlineTimer();
   $('onlineTurn').textContent=s.finished?'Partie skončila.':ownTurn()?'Jsi na tahu.':'Čekáš na soupeře.';
   const board=$('onlineBoard');
+  const focused=board.contains(document.activeElement)
+    ? {row:document.activeElement.dataset.row,col:document.activeElement.dataset.col} : null;
   board.replaceChildren();
   const staged=new Map(pending.map(p=>[p.row+':'+p.col,p]));
   const canPlay=ownTurn();
@@ -806,6 +808,7 @@ function renderOnline(){
     const bonus=bonusAt(row,col);
     const cell=document.createElement('button');
     cell.type='button';
+    cell.dataset.row=row;cell.dataset.col=col;
     cell.className='cell '+bonus+(p?' pending':digit!==null?' occupied':' bonus-hint');
     const key=row+':'+col;
     if(recentOnlineMove&&Date.now()<recentOnlineMove.until){
@@ -827,6 +830,10 @@ function renderOnline(){
     fragment.append(cell);
   }
   board.append(fragment);
+  if(focused){
+    const restored=board.querySelector(`.cell[data-row="${focused.row}"][data-col="${focused.col}"]`);
+    if(restored&&!restored.disabled)restored.focus({preventScroll:true});
+  }
   const review=$('onlineLastMoveReview');
   review.hidden=!recentOnlineMove||Date.now()>=recentOnlineMove.until;
   if(!review.hidden)review.textContent=recentOnlineMove.text;
@@ -861,6 +868,18 @@ function renderOnline(){
   $('onlineExchange').textContent=exchanging?'Potvrdit výměnu ('+selectedExchange.size+')':'Vyměnit';
 }
 function initializeActions(){
+  $('onlineBoard').addEventListener('keydown',event=>{
+    const delta={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[event.key];
+    const cell=event.target.closest?.('.cell');
+    if(!delta||!cell||!$('onlineBoard').contains(cell))return;
+    event.preventDefault();
+    let row=Number(cell.dataset.row)+delta[0],col=Number(cell.dataset.col)+delta[1];
+    while(row>=0&&row<15&&col>=0&&col<15){
+      const next=$('onlineBoard').querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+      if(next&&!next.disabled){next.focus();break;}
+      row+=delta[0];col+=delta[1];
+    }
+  });
   $('retryServerButton').addEventListener('click',async()=>{
     const button=$('retryServerButton');
     button.disabled=true;

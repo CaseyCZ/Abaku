@@ -85,6 +85,7 @@ function isBotTurn() { return settings.mode === 'bot' && game.turn === 1; }
 function notify(message, type = '') {
   messageType = type;
   byId('gameMessage').textContent = message;
+  byId('gameAnnouncement').textContent = message;
   byId('gameMessage').className = `game-message ${messageType}`;
   // On phones the sidebar is collapsible, so always show hint/errors beneath the rack.
   const mobileMessage = byId('mobileGameMessage');
@@ -179,6 +180,8 @@ function restore() {
 const boardElement = byId('board');
 const BONUS_LABELS={dd:'Číslo ×2',td:'Číslo ×3',de:'Příklad ×2',te:'Příklad ×3'};
 function renderBoard() {
+  const focused=boardElement.contains(document.activeElement)
+    ? {row:document.activeElement.dataset.row,col:document.activeElement.dataset.col} : null;
   const placed = new Map(pending.map(p => [`${p.row}:${p.col}`,p]));
   const fragment = document.createDocumentFragment();
   for (let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) {
@@ -199,6 +202,7 @@ function renderBoard() {
     fragment.append(cell);
   }
   boardElement.replaceChildren(fragment);
+  if(focused)boardElement.querySelector(`.cell[data-row="${focused.row}"][data-col="${focused.col}"]`)?.focus({preventScroll:true});
 }
 function renderRack() {
   const rack = byId('rack');rack.replaceChildren();
@@ -310,6 +314,15 @@ function render() {
   updateReportButtons();
 }
 
+boardElement.addEventListener('keydown',event=>{
+  const delta={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[event.key];
+  const cell=event.target.closest?.('.cell');
+  if(!delta||!cell||!boardElement.contains(cell))return;
+  event.preventDefault();
+  const row=Number(cell.dataset.row)+delta[0],col=Number(cell.dataset.col)+delta[1];
+  if(row<0||row>=SIZE||col<0||col>=SIZE)return;
+  boardElement.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`)?.focus();
+});
 boardElement.addEventListener('click',event=>{
   const cell=event.target.closest('.cell');if(!cell||game.finished||isBotTurn()||botBusy||scoreRecap.playing()||recentMove||exchangeMode)return;
   const row=Number(cell.dataset.row),col=Number(cell.dataset.col);
@@ -581,6 +594,8 @@ byId('settingsForm').addEventListener('submit',event=>{
 });
 window.addEventListener('keydown',event=>{
   if(document.querySelector('dialog[open]')||game.finished||isBotTurn())return;
+  // A focused button or chat input must keep its native keyboard behavior.
+  if(event.target?.closest?.('button,input,select,textarea,[contenteditable]'))return;
   if(event.key>='1'&&event.key<='5'){
     const index=Number(event.key)-1;
     if(currentPlayer().rack[index]!==undefined&&!pending.some(p=>p.rackIndex===index)) {selectedIndex=index;renderRack();}

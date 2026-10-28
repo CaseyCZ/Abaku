@@ -30,7 +30,7 @@ export class GitHubIssueReporter{
       '### Popis problému',
       `<pre>${escapeForHtmlPre(description)}</pre>`,
       `**Režim:** ${MODES[mode]}`,
-      reportId?`**Soukromá kontrola partie:** ${reportId} (na serveru, smaže se do 24 hodin)`:
+      reportId?`**Soukromá kontrola partie:** ${reportId} (na serveru, odstraňuje se při pravidelném úklidu po 24 hodinách)`:
         '**Historie partie:** nepřiložena',
       '',
       '_Hlášení bylo odesláno dobrovolně přímo ze hry Číselná aréna. Soukromá data partie nejsou zveřejněna._'

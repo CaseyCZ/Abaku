@@ -117,6 +117,9 @@ body.arena-home { min-width:0; }
   #onlineDialog .online-game-app .top-bar .game-header-score .match-scoreboard .player-card {
     flex-direction:column!important;
   }
+}
+
+@media (max-width:840px) and (orientation:portrait), (max-width:700px) {
   #onlineDialog .online-match .game-message { display:none; }
   #onlineDialog .online-match .mobile-game-message { display:block; }
   #onlineDialog .online-match .mobile-game-message[data-error="true"] { color:#ffc5b3;border-color:#f4937d; }

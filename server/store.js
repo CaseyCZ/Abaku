@@ -102,7 +102,7 @@ CREATE INDEX IF NOT EXISTS idx_match_results_period ON match_results(played_at,u
     const zone=new Intl.DateTimeFormat('en-GB',{
       timeZone:'Europe/Prague',timeZoneName:'shortOffset'
     }).formatToParts(new Date(approximate)).find(p=>p.type==='timeZoneName')?.value||'GMT+1';
-    const match=/GMT([+-])(\\d{1,2})(?::(\\d{2}))?/.exec(zone);
+    const match=/GMT([+-])(\d{1,2})(?::(\d{2}))?/.exec(zone);
     if(!match)throw new Error('Nelze určit pražské časové pásmo.');
     const offset=(Number(match[2])*60+Number(match[3]||0))*60000*(match[1]==='+'?1:-1);
     return approximate-offset;

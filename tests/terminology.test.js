@@ -31,3 +31,16 @@ test('updated client modules are requested with fresh versioned URLs',()=>{
   assert.match(online,/\.\/rules\.js\?v=[\w.-]+/);
   assert.match(preview,/\.\/rules\.js\?v=[\w.-]+/);
 });
+
+test('tutorial distinguishes local and online rules without changing shared scoring',()=>{
+  const tutorial=read('../how-to-play.html');
+  assert.match(tutorial,/<a href="#modes">5\. Herní režimy<\/a>/);
+  assert.match(tutorial,/id="modes" class="tutorial-section"/);
+  assert.match(tutorial,/Místní hra – proti počítači/);
+  assert.match(tutorial,/Místní hra – dva hráči/);
+  assert.match(tutorial,/30, 60 nebo 90 sekund/);
+  assert.match(tutorial,/pevně 60 sekund na tah a 3 sekundy/);
+  assert.match(tutorial,/Zvuky, průběh partie a chat si však můžeš zapnout či vypnout nezávisle/);
+  assert.match(tutorial,/tahy kontroluje server/);
+  assert.match(tutorial,/Pravidla tahů a výpočet bodů zůstávají stejné/);
+});

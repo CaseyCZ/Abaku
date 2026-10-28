@@ -41,22 +41,106 @@ test('optional public game history contains only audited numeric game data',asyn
       equations:move.equations,breakdown:move.equationBreakdown,
       nickname:'NEVEREJNA_PREZDIVKA'}],finalBoard:move.board,finalScores:[move.points,0],
     uid:'SOUKROMY_UCET',chat:'SOUKROMY_CHAT',token:'SOUKROMY_TOKEN'};
-  let sent;
-  const reporter=new GitHubIssueReporter({token:'x'.repeat(30),fetchImpl:async(_url,opts)=>{
-    sent=JSON.parse(opts.body);
-    return {ok:true,json:async()=>({number:43,html_url:'https://github.com/CaseyCZ/Ciselna-Arena/issues/43'})};
+  const sent=[];
+  const issueUrl='https://github.com/CaseyCZ/Ciselna-Arena/issues/43';
+  const reporter=new GitHubIssueReporter({token:'x'.repeat(30),fetchImpl:async(url,opts)=>{
+    sent.push({url,payload:JSON.parse(opts.body),auth:opts.headers.Authorization});
+    if(url.endsWith('/issues'))
+      return {ok:true,json:async()=>({number:43,html_url:issueUrl})};
+    if(url.endsWith('/artifacts'))return {ok:true,json:async()=>({
+      number:1,html_url:`${issueUrl}/artifacts/1`
+    })};
+    throw new Error('Neočekávaný požadavek.');
   }});
   await reporter.create({description:'Nesprávně spočítaný tah.',mode:'bot',report});
-  assert.match(sent.body,/Veřejně přiložená anonymizovaná historie/);
-  assert.match(sent.body,/"finalScores":/);
+  assert.equal(sent.length,2);
+  assert.match(sent[0].payload.body,/části Artifacts/);
+  assert.doesNotMatch(sent[0].payload.body,/"finalScores":/);
+  assert.match(sent[1].payload.body,/"finalScores":/);
   for(const secret of ['NEVEREJNA_PREZDIVKA','SOUKROMY_UCET','SOUKROMY_CHAT','SOUKROMY_TOKEN'])
-    assert.doesNotMatch(sent.body,new RegExp(secret));
+    assert.doesNotMatch(sent[1].payload.body,new RegExp(secret));
   assert.deepEqual(publicGameHistory(report,'bot').finalScores,[move.points,0]);
   assert.throws(()=>publicGameHistory(report,'online'),/režimu/);
+  sent.length=0;
   const oversized={...report,events:Array.from({length:550},()=>({type:'move',player:0,
     accepted:true,placements,points:move.points,equations:move.equations,
     breakdown:move.equationBreakdown}))};
-  await assert.rejects(reporter.create({description:'Nesprávně spočítaný tah.',mode:'bot',report:oversized}),/příliš dlouhá/);
+  const longResult=await reporter.create({description:'Nesprávně spočítaný tah.',mode:'bot',report:oversized});
+  assert.equal(longResult.issueNumber,43);
+  assert.equal(longResult.historyComplete,true);
+  assert.equal(longResult.historyAttachment,'artifact');
+  assert.equal(sent.length,2);
+  assert.match(sent[0].payload.body,/části Artifacts/);
+  assert.doesNotMatch(sent[0].payload.body,/"finalScores":/);
+  assert.equal(sent[1].url,`https://api.github.com/repos/CaseyCZ/Ciselna-Arena/issues/43/artifacts`);
+  assert.equal(sent[1].payload.type,'generic');
+  assert.equal(sent[1].auth,'Bearer '+'x'.repeat(30));
+  const rebuilt=JSON.parse(sent[1].payload.body.match(/```json\n\n([\s\S]*?)\n\n```/)[1]);
+  assert.deepEqual(rebuilt,publicGameHistory(oversized,'bot'));
+  for(const secret of ['NEVEREJNA_PREZDIVKA','SOUKROMY_UCET','SOUKROMY_CHAT','SOUKROMY_TOKEN'])
+    assert.doesNotMatch(JSON.stringify(rebuilt),new RegExp(secret));
+});
+
+test('long history uses one GitHub document attachment when available',async()=>{
+  const board=emptyBoard();
+  const placements=[2,6,8].map((digit,i)=>({row:7,col:7+i,digit}));
+  const move=validateMove(board,placements);
+  const report={mode:'bot',ruleset:'classic-powers-roots-linked-powers',partial:false,
+    finished:true,initialBoard:board,initialScores:[0,0],
+    events:Array.from({length:550},()=>({type:'move',player:0,accepted:true,
+      placements,points:move.points,equations:move.equations,breakdown:move.equationBreakdown})),
+    finalBoard:move.board,finalScores:[move.points,0]};
+  const issueUrl='https://github.com/CaseyCZ/Ciselna-Arena/issues/45';
+  const calls=[];
+  const reporter=new GitHubIssueReporter({token:'x'.repeat(30),fetchImpl:async(url,opts)=>{
+    calls.push({url,body:JSON.parse(opts.body),version:opts.headers['X-GitHub-Api-Version']});
+    if(url.endsWith('/issues'))return {ok:true,json:async()=>({number:45,html_url:issueUrl})};
+    if(url.endsWith('/artifacts'))return {ok:true,json:async()=>({
+      number:1,html_url:`${issueUrl}/artifacts/1`
+    })};
+    throw new Error('Nepotřebný komentář.');
+  }});
+  const result=await reporter.create({description:'Chybně spočítaný tah.',mode:'bot',report});
+  assert.equal(result.historyAttachment,'artifact');
+  assert.equal(result.historyComplete,true);
+  assert.equal(calls.length,2);
+  assert.equal(calls[1].version,'2026-03-10');
+  assert.equal(calls[1].body.type,'generic');
+  assert.equal(calls[1].body.name,'Anonymizovaná historie partie');
+  const attached=JSON.parse(calls[1].body.body.match(/```json\n\n([\s\S]*?)\n\n```/)[1]);
+  assert.deepEqual(attached,publicGameHistory(report,'bot'));
+});
+
+test('rejected document attachment creates no comments and warns about the existing issue',async()=>{
+  const board=emptyBoard();
+  const placements=[2,6,8].map((digit,i)=>({row:7,col:7+i,digit}));
+  const move=validateMove(board,placements);
+  const report={mode:'bot',ruleset:'classic-powers-roots-linked-powers',partial:false,
+    finished:true,initialBoard:board,initialScores:[0,0],
+    events:Array.from({length:550},()=>({type:'move',player:0,accepted:true,
+      placements,points:move.points,equations:move.equations,breakdown:move.equationBreakdown})),
+    finalBoard:move.board,finalScores:[move.points,0]};
+  const issueUrl='https://github.com/CaseyCZ/Ciselna-Arena/issues/44';
+  let issuePosts=0,attachmentPosts=0,commentPosts=0;
+  const reporter=new GitHubIssueReporter({token:'x'.repeat(30),fetchImpl:async(url)=>{
+    if(url.endsWith('/issues')){
+      issuePosts++;
+      return {ok:true,json:async()=>({number:44,html_url:issueUrl})};
+    }
+    if(url.endsWith('/artifacts')){
+      attachmentPosts++;
+      return {ok:false,status:404};
+    }
+    commentPosts++;
+    throw new Error('Komentář se nikdy nemá vytvářet.');
+  }});
+  const result=await reporter.create({description:'Chybně spočítaný tah.',mode:'bot',report});
+  assert.equal(issuePosts,1);
+  assert.equal(attachmentPosts,1);
+  assert.equal(commentPosts,0);
+  assert.equal(result.historyComplete,false);
+  assert.equal(result.historyAttachment,'missing');
+  assert.equal(result.issueUrl,issueUrl);
 });
 
 test('GitHub failures are reported, never described to the player as successful',async()=>{

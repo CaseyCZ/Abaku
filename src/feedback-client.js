@@ -1,4 +1,4 @@
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.45';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.46';
 
 export async function sendAnonymousFeedback(payload){
   const response=await fetch(ONLINE_CONFIG.apiBase+'/api/feedback',{
@@ -34,7 +34,9 @@ export function bindFeedback({buttonId,extraButtonIds=[],send}){
     status.textContent='Odesílám hlášení…';
     try{
       const result=await send({description:description.value.trim(),attach:attach.checked});
-      status.textContent=`Problém nahlášen (č. ${result.issueNumber}). Děkujeme! `;
+      status.textContent=result.historyComplete===false?
+        `Hlášení č. ${result.issueNumber} bylo vytvořeno, ale GitHub přílohu s historií nepřijal. Neodesílej hlášení znovu; otevři ho na GitHubu. `:
+        `Problém nahlášen (č. ${result.issueNumber}). Děkujeme! `;
       if(/^https:\/\/github\.com\/CaseyCZ\/Ciselna-Arena\/issues\/\d+$/.test(result.issueUrl||'')){
         const link=document.createElement('a');
         link.href=result.issueUrl;link.target='_blank';link.rel='noopener noreferrer';

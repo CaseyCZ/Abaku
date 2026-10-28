@@ -4,6 +4,7 @@ const DEFAULT_REPOSITORY='CaseyCZ/Ciselna-Arena';
 const ALLOWED_REPOSITORIES=new Set([DEFAULT_REPOSITORY]);
 const MODES={bot:'Hra proti počítači',local:'Dva hráči na jednom zařízení',online:'Online hra'};
 const MAX_ISSUE_BODY_BYTES=50_000;
+const MAX_HISTORY_ARTIFACT_BYTES=512_000;
 
 export function validateFeedback(input){
   if(!input||typeof input.description!=='string')throw new Error('Napiš, co se stalo.');
@@ -44,46 +45,68 @@ export class GitHubIssueReporter{
     this.repository=repository;
   }
   get configured(){return this.token.length>=20;}
-  async create({description,mode,report=null}){
-    if(!this.configured)throw new Error('Hlášení problémů ještě není na serveru zapnuté.');
-    const title=`[Hlášení hráče] ${description.replace(/\s+/g,' ').slice(0,75)}`;
-    const history=report?JSON.stringify(publicGameHistory(report,mode)):null;
-    const body=[
-      '### Popis problému',
-      `<pre>${escapeForHtmlPre(description)}</pre>`,
-      `**Režim:** ${MODES[mode]}`,
-      history?['### Veřejně přiložená anonymizovaná historie partie',
-        'Obsahuje herní čísla, tahy a body; jména, chat ani přihlašovací údaje nejsou součástí přílohy.',
-        '<details><summary>Zobrazit historii partie (JSON)</summary>',
-        '```json',history,'```','</details>'].join('\n\n'):'**Historie partie:** nepřiložena',
-      '',
-      '_Hlášení bylo odesláno dobrovolně přímo ze hry Číselná aréna. Popis a případná anonymizovaná historie jsou veřejné._'
-    ].join('\n\n');
-    if(Buffer.byteLength(body,'utf8')>MAX_ISSUE_BODY_BYTES)
-      throw new Error('Historie je pro GitHub příliš dlouhá. Odešli hlášení bez přílohy a popiš konkrétní tah.');
+  async post(path,payload,apiVersion='2022-11-28'){
     let response;
     try{
-      response=await this.fetchImpl(`https://api.github.com/repos/${this.repository}/issues`,{
+      response=await this.fetchImpl(`https://api.github.com/repos/${this.repository}/${path}`,{
         method:'POST',
         headers:{
           Accept:'application/vnd.github+json',
           Authorization:`Bearer ${this.token}`,
           'Content-Type':'application/json',
-          'X-GitHub-Api-Version':'2022-11-28',
+          'X-GitHub-Api-Version':apiVersion,
           'User-Agent':'Arena-Feedback'
         },
-        body:JSON.stringify({title,body}),
-        signal:AbortSignal.timeout(8000)
+        body:JSON.stringify(payload),
+        signal:AbortSignal.timeout(apiVersion==='2026-03-10'?20000:8000)
       });
     }catch{throw new Error('GitHub teď neodpovídá. Zkus hlášení odeslat později.');}
     if(!response.ok){
-      console.error('Arena GitHub Issue: HTTP',response.status);
+      console.error('Arena GitHub feedback: HTTP',response.status);
       throw new Error('GitHub hlášení nepřijal. Zkus to prosím později.');
     }
-    const issue=await response.json();
+    try{return await response.json();}
+    catch{throw new Error('GitHub nepotvrdil uložení hlášení.');}
+  }
+  async create({description,mode,report=null}){
+    if(!this.configured)throw new Error('Hlášení problémů ještě není na serveru zapnuté.');
+    const title=`[Hlášení hráče] ${description.replace(/\s+/g,' ').slice(0,75)}`;
+    const history=report?JSON.stringify(publicGameHistory(report,mode)):null;
+    if(history&&Buffer.byteLength(history,'utf8')>MAX_HISTORY_ARTIFACT_BYTES)
+      throw new Error('Historie partie je příliš dlouhá pro jednu přílohu. Odešli problém bez historie a popiš konkrétní tah.');
+    const body=[
+      '### Popis problému',
+      `<pre>${escapeForHtmlPre(description)}</pre>`,
+      `**Režim:** ${MODES[mode]}`,
+      history?'**Historie partie:** požádáno o přiložení veřejného anonymizovaného dokumentu GitHubu. Obsahuje jen herní čísla, tahy a body, nikoli jména, chat či přihlašovací údaje. Příloha je v části Artifacts, pokud se její nahrání podařilo.':
+        '**Historie partie:** nepřiložena',
+      '',
+      '_Hlášení bylo odesláno dobrovolně přímo ze hry Číselná aréna. Popis a případná anonymizovaná historie jsou veřejné._'
+    ].join('\n\n');
+    if(Buffer.byteLength(body,'utf8')>MAX_ISSUE_BODY_BYTES)
+      throw new Error('Popis problému je pro GitHub příliš dlouhý.');
+    const issue=await this.post('issues',{title,body});
     if(!Number.isInteger(issue.number)||
        issue.html_url!==`https://github.com/${this.repository}/issues/${issue.number}`)
       throw new Error('GitHub nepotvrdil vytvoření hlášení.');
-    return {issueNumber:issue.number,issueUrl:issue.html_url};
+    if(history){
+      // The history is stored as exactly one GitHub Issue Artifact. Never
+      // scatter it across comments or silently call an incomplete upload done.
+      try{
+        const artifact=await this.post(`issues/${issue.number}/artifacts`,{
+          type:'generic',name:'Anonymizovaná historie partie',
+          body:['### Veřejná anonymizovaná historie partie','```json',history,'```'].join('\n\n')
+        },'2026-03-10');
+        if(Number.isInteger(artifact.number)&&
+           artifact.html_url===`${issue.html_url}/artifacts/${artifact.number}`)
+          return {issueNumber:issue.number,issueUrl:issue.html_url,
+            historyComplete:true,historyAttachment:'artifact'};
+      }catch(error){
+        console.error('Arena GitHub feedback: document attachment unavailable:',error.message);
+      }
+      return {issueNumber:issue.number,issueUrl:issue.html_url,
+        historyComplete:false,historyAttachment:'missing'};
+    }
+    return {issueNumber:issue.number,issueUrl:issue.html_url,historyComplete:true};
   }
 }

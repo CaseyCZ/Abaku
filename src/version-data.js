@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.45';
+export const APP_VERSION = '0.2.46';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.46',
+    date: '28. 10. 2026',
+    description: 'Anonymizovaná historie partie se ke GitHub hlášení připojuje jako jediný veřejný dokument, bez rozdělování do komentářů. Při odmítnutí přílohy se zobrazí odkaz na vytvořené hlášení a upozornění.'
+  },
   {
     version: '0.2.45',
     date: '28. 10. 2026',

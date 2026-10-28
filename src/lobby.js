@@ -1,4 +1,4 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.35';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.36';
 import {syncResumeCard} from './resume-card.js?v=0.2.4';
 const PROFILE_KEY = 'abaku-local-profile-v1';
 const GAME_KEY = 'retro-abaku-game-v1';

@@ -34,7 +34,7 @@ test('if older API omits details, do not invent per-example points',()=>{
   const legacy=scoringSteps(undefined,48,['268','936']);
   assert.equal(legacy.length,1);
   assert.equal(legacy[0].points,48);
-  assert.equal(legacy[0].equation,'(2+6=8),(9−3=6)');
+  assert.equal(legacy[0].equation,'(2+6=8), (9−3=6)');
   assert.deepEqual(scoringSteps(null,0,['268']),[]);
 });
 

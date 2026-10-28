@@ -86,7 +86,7 @@ export function readsAsEquation(sequence) {
 export function formatEquations(sequences,limit=3){
   return (Array.isArray(sequences)?sequences:[]).slice(0,limit)
     // Compact equations are individually grouped and separated by a comma.
-    .map(text=>`(${(formatEquation(text)||String(text)).replaceAll(' ','')})`).join(',');
+    .map(text=>`(${(formatEquation(text)||String(text)).replaceAll(' ','')})`).join(', ');
 }
 
 function id(row, col) { return `${row}:${col}`; }

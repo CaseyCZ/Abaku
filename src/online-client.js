@@ -1,9 +1,9 @@
 import {revealArenaChat} from './arena-ui.js?v=2';
 import {syncResumeCard} from './resume-card.js?v=0.2.4';
 import { ONLINE_CONFIG } from './online-config.js?v=0.2.8';
-import { describeMovePreview } from './preview.js?v=0.2.35';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.35';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.35';
+import { describeMovePreview } from './preview.js?v=0.2.36';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.36';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.36';
 import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=1';
 import {bindFeedback} from './feedback-client.js?v=1';
 

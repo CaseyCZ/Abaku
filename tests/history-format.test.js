@@ -6,7 +6,7 @@ import {formatEquations} from '../src/rules.js';
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 
 test('history shows compact parenthesized equations separated by commas',()=>{
-  assert.equal(formatEquations(['426','339']), '(4+2=6),(3×3=9)');
+  assert.equal(formatEquations(['426','339']), '(4+2=6), (3×3=9)');
   assert.equal(formatEquations(['426']), '(4+2=6)');
 });
 

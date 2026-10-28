@@ -1,5 +1,5 @@
 /* Unread match chat messages on the top navigation controls. */
-#menuToggle, #friendsOpen, #onlineCancel { position: relative; }
+#menuToggle, #friendsOpen, #onlineFriendsOpen { position: relative; }
 .message-count-badge {
   position: absolute;
   z-index: 4;

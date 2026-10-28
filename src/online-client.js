@@ -332,7 +332,7 @@ function refreshUnreadChat(){
   const toast=$('onlineChatToast');
   const badge=$('onlineUnreadBadge');
   const hasUnread=unreadOnlineChat>0&&!!gameState&&!gameState.finished&&!$('onlineBoardWrapper').hidden;
-  for(const id of ['menuMessageBadge','friendsMessageBadge','onlineMenuMessageBadge']){
+  for(const id of ['menuMessageBadge','friendsMessageBadge','onlineFriendsMessageBadge']){
     const counter=$(id);
     if(!counter)continue;
     counter.hidden=!hasUnread;
@@ -715,7 +715,12 @@ function addChat(uid,text){
   line.className='online-chat-line';
   const own=gameState?.mySide===uid;
   line.textContent=(own?'Já: ':'Soupeř: ')+String(text||'');
-  const chat=$('onlineChat');chat.append(line);chat.scrollTop=chat.scrollHeight;
+  const chat=$('onlineChat');
+  chat.append(line);
+  chat.scrollTop=chat.scrollHeight;
+  requestAnimationFrame(()=>{
+    if(chat.isConnected)chat.scrollTop=chat.scrollHeight;
+  });
   if(!own&&gameState&&!gameState.finished){
     unreadOnlineChat++;
     latestUnreadChat=String(text||'').slice(0,80);
@@ -1019,14 +1024,16 @@ function initializeActions(){
     const input=$('onlineChatInput'),text=input.value.trim();
     if(text){send('chat',{text:text.slice(0,160)});input.value='';}
   });
-  $('friendsOpen')?.addEventListener('click',()=>{
+  const openFriends=()=>{
     if(credential){$('manageFriends').click();return;}
     $('friendsDialog').showModal();
     $('friendSearchForm').hidden=true;document.querySelector('.friend-invite-options').hidden=true;
     $('friendRequests').textContent='';$('friendSentRequests').textContent='';$('friendList').textContent='';
     $('friendSearchResults').replaceChildren();
     $('friendMessage').textContent='Pro seznam přátel se přihlas přes Google v kartě Můj profil.';
-  });
+  };
+  $('friendsOpen')?.addEventListener('click',openFriends);
+  $('onlineFriendsOpen')?.addEventListener('click',openFriends);
   setInterval(()=>{
     if(credential&&$('friendsDialog').open&&document.visibilityState!=='hidden'&&!friendsBusy)refreshFriends();
   },20_000);

@@ -5,7 +5,7 @@ import { describeMovePreview } from './preview.js?v=0.2.37';
 import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.37';
 import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.37';
 import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=1';
-import {bindFeedback} from './feedback-client.js?v=2';
+import {bindFeedback} from './feedback-client.js?v=3';
 
 const $=id=>document.getElementById(id);
 const onlineScoreRecap=new ScoreRecap($('onlineDialog'));
@@ -1302,7 +1302,7 @@ export async function initOnline(){
     const response=await fetch(apiBase+'/health',{cache:'no-store',signal:controller.signal});
     if(!response.ok)throw new Error('Server dočasně neodpovídá.');
     const data=await response.json();
-    if(data?.status!=='ok'||!['abaku-api','arena-api'].includes(data?.service))
+    if(data?.status!=='ok'||data?.service!=='arena-api')
       throw new Error('Server není připraven.');
   }catch{
     setServerOffline(true);

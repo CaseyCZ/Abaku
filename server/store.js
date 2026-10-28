@@ -235,7 +235,7 @@ CREATE TABLE IF NOT EXISTS settled_matches (
       const snapshots=[];
       for(const row of statements.matchLoad.all()){
         try{snapshots.push(JSON.parse(row.state_json));}
-        catch{console.error('Abaku recovery unreadable match',row.match_id);}
+        catch{console.error('Arena recovery unreadable match',row.match_id);}
       }
       return snapshots;
     },

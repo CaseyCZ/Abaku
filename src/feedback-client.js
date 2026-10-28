@@ -35,7 +35,7 @@ export function bindFeedback({buttonId,send}){
     try{
       const result=await send({description:description.value.trim(),attach:attach.checked});
       status.textContent=`Problém nahlášen (č. ${result.issueNumber}). Děkujeme! `;
-      if(/^https:\/\/github\.com\/CaseyCZ\/Abaku\/issues\/\d+$/.test(result.issueUrl||'')){
+      if(/^https:\/\/github\.com\/CaseyCZ\/Ciselna-Arena\/issues\/\d+$/.test(result.issueUrl||'')){
         const link=document.createElement('a');
         link.href=result.issueUrl;link.target='_blank';link.rel='noopener noreferrer';
         link.textContent='Zobrazit hlášení';

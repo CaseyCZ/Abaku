@@ -1,6 +1,6 @@
 # Číselná aréna API – low-resource Oracle Free Tier
 
-The API runs on Oracle on port 8790 (the PM2 process was originally named `abaku-api`; its renaming to `arena-api` is a separate deployment step). The web application can still run offline AI games when the API is unavailable. Deployments should restart only this process, without modifying other PM2 services.
+The API runs on Oracle on port 8790 as the `arena-api` PM2 process. The web application can still run offline AI games when the API is unavailable. Deployments should restart only this process, without modifying other PM2 services.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - Soubory ukládej **mimo repozitář a mimo webový adresář**. Výchozí soukromá cesta je `/home/ubuntu/abaku-reports`, změnitelná pomocí `ABAKU_REPORT_DIR`; práva složky `0700`, souborů `0600`. Počet uchovávaných reportů je omezen na 500.
 - Server soubory maže při spuštění, při každém seznamu a jednou za hodinu, jakmile jsou starší než 24 hodin. Oprávněný správce může soukromě používat `GET /api/reports` a `GET /api/reports/detail?id=<uuid>` s HTTP hlavičkou `Authorization: Bearer <ABAKU_REPORT_ADMIN_TOKEN>`; token musí mít alespoň 32 znaků. Bez tohoto nastavení jsou čtecí cesty uzamčené.
 - Přístup do existujícího dashboardu lze připojit pouze ze serverové části dashboardu; **nikdy** nevkládej admin token do veřejné stránky nebo JavaScriptu.
-- Po přejmenování GitHubu je výchozím cílem hlášení `CaseyCZ/Ciselna-Arena`. Privátní proměnná `ABAKU_GITHUB_REPO` zachovává původní název, aby se nemusely měnit produkční tajné konfigurace. Veřejná API adresa je nově `/arena-api/`; NGINX zatím přepisuje tuto cestu na existující `/abaku-api/`. PM2 službu přejmenuj samostatně po kontrole nasazení. Databázové cesty a přihlašovací relace se nemění.
+- Hlášení se odesílají výhradně do `CaseyCZ/Ciselna-Arena`. Privátní proměnná `ABAKU_GITHUB_REPO` zatím zachovává původní název, aby se nemusely měnit produkční tajné konfigurace. Veřejná API adresa je `/arena-api/`, PM2 služba `arena-api`. Stará cesta `/abaku-api/` může být po ověření nového webu odstraněna z NGINX. Databázové cesty a přihlašovací relace se nemění.
 - Běžné vývojové ověření je `npm test` z kořene repozitáře; před produkčním restartem zkontroluj aktivní hráče a stav zálohy. Nasazení nové perzistence poprvé obnovu starých, dosud neuložených RAM partií nezajistí.
 
 ## Local smoke tests
@@ -78,7 +78,7 @@ location ^~ /arena-api/ {
 }
 ```
 
-For this example, REST `/arena-api/api/me` is mapped to Node `/api/me`; WebSocket `/arena-api/ws` maps to `/ws`. Set the frontend API base to your actual HTTPS host plus `/arena-api`. The Oracle deployment currently uses a compatible NGINX rewrite from `/arena-api/` to the existing `/abaku-api/` proxy location; keep that proxy (including WebSocket headers) until the migration is complete.
+For this example, REST `/arena-api/api/me` is mapped to Node `/api/me`; WebSocket `/arena-api/ws` maps to `/ws`. Set the frontend API base to your actual HTTPS host plus `/arena-api`. On Oracle, remove the temporary rewrite only when `/arena-api/` directly proxies to port 8790 with the WebSocket upgrade headers preserved.
 
 Authenticated HTTP actions are limited to 180 requests per minute **per
 verified player**, so people sharing a school/home NAT IP do not exhaust one

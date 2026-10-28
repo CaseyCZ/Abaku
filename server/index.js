@@ -103,7 +103,7 @@ function storageFailure(error){
 }
 function publicError(error){
   if(storageFailure(error)){
-    console.error('Abaku API storage error:',error);
+    console.error('Arena API storage error:',error);
     return 'Server má dočasný problém s uložením dat. Zkus to prosím znovu.';
   }
   return String(error?.message||'Chyba').slice(0,180);
@@ -176,7 +176,7 @@ const clock=setInterval(()=>{engine.tick();friendChallenges.tick();
         const token=socketSessionTokens.get(ws);
         if(token&&!store.sessionActive(token))ws.close(1008,'Relace vypršela nebo byla odhlášena.');
       }
-    }catch(error){console.error('Abaku session cleanup:',error.message);}
+    }catch(error){console.error('Arena session cleanup:',error.message);}
   }
   for(const [key,item] of rate)if(now-item.start>120_000)rate.delete(key);
   for(const [key,item] of reportRate)if(now-item.start>10*60_000)reportRate.delete(key);
@@ -184,9 +184,9 @@ const clock=setInterval(()=>{engine.tick();friendChallenges.tick();
 },1000);
 clock.unref();
 const cleanupClock=setInterval(()=>reportStore.cleanup().catch(error=>
-  console.error('Abaku report cleanup:',error.message)),60*60_000);
+  console.error('Arena report cleanup:',error.message)),60*60_000);
 cleanupClock.unref();
-reportStore.cleanup().catch(error=>console.error('Abaku report directory:',error.message));
+reportStore.cleanup().catch(error=>console.error('Arena report directory:',error.message));
 
 const http=createServer(async(request,response)=>{
   cors(request,response);
@@ -425,7 +425,7 @@ wss.on('connection',(ws)=>{
     if(uid&&sockets.get(uid)===ws){sockets.delete(uid);engine.disconnect(uid);}
   });
 });
-http.listen(port,host,()=>console.log('Abaku API listening on '+host+':'+port));
+http.listen(port,host,()=>console.log('Arena API listening on '+host+':'+port));
 function stop(){
   clearInterval(clock);
   wss.clients.forEach(ws=>ws.close(1001,'Restart serveru'));

@@ -7,7 +7,7 @@ import {ONLINE_CONFIG} from './online-config.js?v=0.2.9';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
   from './player-identity.js?v=1';
 import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.38';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=2';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=3';
 import {reportEligibility,addReportReceipt} from './report-policy.js?v=1';
 
 const byId = id => document.getElementById(id);

@@ -1,5 +1,5 @@
 const DEFAULT_REPOSITORY='CaseyCZ/Ciselna-Arena';
-const ALLOWED_REPOSITORIES=new Set(['CaseyCZ/Abaku',DEFAULT_REPOSITORY]);
+const ALLOWED_REPOSITORIES=new Set([DEFAULT_REPOSITORY]);
 const MODES={bot:'Hra proti počítači',local:'Dva hráči na jednom zařízení',online:'Online hra'};
 
 export function validateFeedback(input){
@@ -16,7 +16,6 @@ function escapeForHtmlPre(text){
 
 export class GitHubIssueReporter{
   constructor({token,fetchImpl=fetch,repository=DEFAULT_REPOSITORY}={}){
-    // Support the previous repository for a temporary rollback if needed.
     // Never interpolate an arbitrary environment-provided URL into a request.
     if(!ALLOWED_REPOSITORIES.has(repository))throw new Error('Neplatný GitHub repozitář pro hlášení.');
     this.token=token||'';
@@ -45,14 +44,14 @@ export class GitHubIssueReporter{
           Authorization:`Bearer ${this.token}`,
           'Content-Type':'application/json',
           'X-GitHub-Api-Version':'2022-11-28',
-          'User-Agent':'Abaku-Feedback'
+          'User-Agent':'Arena-Feedback'
         },
         body:JSON.stringify({title,body}),
         signal:AbortSignal.timeout(8000)
       });
     }catch{throw new Error('GitHub teď neodpovídá. Zkus hlášení odeslat později.');}
     if(!response.ok){
-      console.error('Abaku GitHub Issue: HTTP',response.status);
+      console.error('Arena GitHub Issue: HTTP',response.status);
       throw new Error('GitHub hlášení nepřijal. Zkus to prosím později.');
     }
     const issue=await response.json();

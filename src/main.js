@@ -1,15 +1,14 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.44';
-import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.44';
-import {chooseMove} from './ai.js?v=0.2.44';
-import {describeMovePreview} from './preview.js?v=0.2.44';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.44';
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.44';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.45';
+import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.45';
+import {chooseMove} from './ai.js?v=0.2.45';
+import {describeMovePreview} from './preview.js?v=0.2.45';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.45';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.45';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
-  from './player-identity.js?v=0.2.44';
-import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.44';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.44';
-import {reportEligibility,addReportReceipt} from './report-policy.js?v=0.2.44';
-import {createGameAudio} from './game-audio.js?v=0.2.44';
+  from './player-identity.js?v=0.2.45';
+import {ensureAudit,recordAudit,localReport} from './report-client.js?v=0.2.45';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.45';
+import {createGameAudio} from './game-audio.js?v=0.2.45';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-arena-settings-v1';
@@ -36,8 +35,6 @@ let exchangeMode = false;
 let exchangeIndices = new Set();
 let deadline = null;
 let botBusy = false;
-let reportSubmitting = false;
-let reportRefreshTimer = null;
 let messageType = '';
 let recentMove = null;
 let recentMoveTimer = null;
@@ -299,7 +296,6 @@ function render() {
   byId('confirmButton').disabled=busy||!pending.length;
   byId('exchangeButton').textContent=exchangeMode ? `Potvrdit výměnu (${exchangeIndices.size})`:'Vyměnit';
   byId('exchangeButton').dataset.exchangeConfirm=String(exchangeMode);
-  updateReportButtons();
 }
 
 boardElement.addEventListener('keydown',event=>{
@@ -357,9 +353,7 @@ function showOfflineResult(){
   byId('onlineResultScore0').textContent=String(first);
   byId('onlineResultScore1').textContent=String(second);
   byId('onlineResultReason').textContent=game.finishReason||'Partie skončila podle pravidel.';
-  byId('onlineRematchStatus').textContent=reportEligibility(
-    game.reportReceipts,game.audit.revision,game.finished).kind==='sent'
-    ?'Partie již byla odeslána ke kontrole.':'Můžeš rovnou začít další partii.';
+  byId('onlineRematchStatus').textContent='Můžeš rovnou začít další partii.';
   byId('onlineRematch').hidden=false;
   byId('onlineRematch').disabled=false;
   dialog.showModal();
@@ -513,63 +507,14 @@ byId('settingsButton').addEventListener('click',()=>{
   byId('difficultySetting').value=settings.difficulty;
   byId('timeSetting').value=String(settings.time);byId('soundSetting').checked=settings.sound;
   byId('scoreRecapSecondsSetting').value=String(getRecapSeconds());
-  updateReportButtons();
   byId('settingsDialog').showModal();
 });
-function updateReportButtons(){
-  if(!game)return;
-  const state=reportEligibility(game.reportReceipts,game.audit?.revision||0,game.finished);
-  const label=state.kind==='sent'?'Již bylo odesláno'
-    :state.kind==='limit'?'Limit kontrol dosažen'
-    :state.kind==='cooldown'?`Znovu za ${Math.max(1,Math.ceil((state.retryAt-Date.now())/1000))} s`
-    :'Prověřit partii';
-  for(const id of ['reportGameButton','offlineReportResultButton']){
-    const button=byId(id);
-    button.disabled=reportSubmitting||state.kind!=='ready';
-    button.textContent=label;
-  }
-  if(state.kind==='cooldown'&&!reportRefreshTimer){
-    reportRefreshTimer=setTimeout(()=>{
-      reportRefreshTimer=null;
-      updateReportButtons();
-    },Math.max(0,state.retryAt-Date.now())+100);
-  }
-}
-async function reportCurrentGame(button,statusElement){
-  if(reportSubmitting)return;
-  const state=reportEligibility(game.reportReceipts,game.audit?.revision||0,game.finished);
-  if(state.kind!=='ready'){
-    statusElement.textContent=state.kind==='sent'?'Partie v tomto stavu již byla odeslána.'
-      :'Další kontrola bude dostupná později.';
-    updateReportButtons();
-    return;
-  }
-  const reportedGame=game;
-  const reportedMode=settings.mode;
-  const revision=game.audit?.revision||0;
-  const finished=game.finished;
-  reportSubmitting=true;
-  updateReportButtons();
-  statusElement.textContent='Odesílám partii…';
-  try{
-    const result=await sendLocalReport(reportedGame,reportedMode);
-    reportedGame.reportReceipts=addReportReceipt(
-      reportedGame.reportReceipts,result.id,revision,finished);
-    if(game===reportedGame)save();
-    statusElement.textContent=`Partie odeslána ke kontrole (č. ${result.id.slice(0,8)}).`;
-  }catch(error){statusElement.textContent=error.message||'Odeslání se nezdařilo.';}
-  finally{reportSubmitting=false;updateReportButtons();}
-}
-byId('reportGameButton').addEventListener('click',()=>reportCurrentGame(
-  byId('reportGameButton'),byId('reportGameStatus')));
-bindFeedback({buttonId:'reportProblemButton',send:({description,attach})=>{
+bindFeedback({buttonId:'reportProblemButton',extraButtonIds:['offlineResultProblemButton'],send:({description,attach})=>{
   if(attach&&!game.audit?.events?.length)
     throw new Error('Pro přiložení historie nejdříve odehraj tah, nebo přílohu vypni.');
   return sendAnonymousFeedback({description,mode:settings.mode,
-    ...(attach?{report:localReport(game,settings.mode)}:{})});
+    ...(attach?{report:localReport(game,settings.mode),historyPublicConsent:true}:{})});
 }});
-byId('offlineReportResultButton').addEventListener('click',()=>reportCurrentGame(
-  byId('offlineReportResultButton'),byId('onlineRematchStatus')));
 byId('settingsForm').addEventListener('submit',event=>{
   if(event.submitter?.value!=='save')return;
   settings={...settings,difficulty:byId('difficultySetting').value,time:Number(byId('timeSetting').value),sound:byId('soundSetting').checked};

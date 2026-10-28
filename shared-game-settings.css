@@ -56,13 +56,6 @@
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-details p {
   margin:8px 0 0;font-size:12px;line-height:1.5;color:#afc2dc;
 }
-:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-report-body {display:grid;gap:8px}
-:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-report-body .gold-button {
-  width:100%;white-space:normal;
-}
-:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-report-body .dialog-note:empty {
-  display:none;
-}
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-privacy-actions {
   display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
   gap:10px 18px;padding:8px 0 4px;

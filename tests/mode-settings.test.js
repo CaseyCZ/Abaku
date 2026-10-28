@@ -79,16 +79,16 @@ test('identical shared settings paragraphs and labels come from one copy table',
   assert.match(ui,/node\.textContent=value/);
 });
 
-test('private match review is labeled consistently and stays separate from public feedback',()=>{
-  assert.match(ui,/reportTitle:'Prověřit partii'/);
-  assert.match(ui,/Nesedí ti uznaný tah nebo body\?/);
+test('problem reporting is the only reporting action in both modes and results',()=>{
   for(const page of [local,online]){
-    assert.match(page,/data-arena-settings-copy="reportTitle">Prověřit partii/);
     assert.match(page,/Nahlásit problém/);
-    assert.doesNotMatch(page,/Odeslat partii ke kontrole/);
+    assert.doesNotMatch(page,/Prověřit partii|class="game-settings-details game-settings-report"/);
+    assert.match(page,/Přiložit anonymizovanou historii partie na GitHub \(veřejně\)/);
   }
-  assert.match(main,/:\s*'Prověřit partii';/);
-  assert.match(client,/:\s*'Prověřit partii';/);
+  assert.match(main,/extraButtonIds:\['offlineResultProblemButton'\]/);
+  assert.match(client,/extraButtonIds:\['onlineResultProblemButton'\]/);
+  assert.match(main,/historyPublicConsent:true/);
+  assert.match(client,/historyPublicConsent:true/);
 });
 
 test('sound synthesis is shared but obeys each mode enablement',()=>{

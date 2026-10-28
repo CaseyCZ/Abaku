@@ -48,9 +48,6 @@
 #onlineGameSettingsDialog :is(.settings-help-details,.settings-report-details){margin:0;padding:7px 10px;border:1px solid #39597e;border-radius:10px;background:#102846}
 #onlineGameSettingsDialog :is(.settings-help-details,.settings-report-details) summary{cursor:pointer;min-height:28px;line-height:28px;font-size:12px;font-weight:700;color:#dce7f5}
 #onlineGameSettingsDialog :is(.settings-help-details,.settings-report-details) p{margin:8px 0 0;font-size:12px;line-height:1.5}
-#onlineGameSettingsDialog .settings-report-body{display:grid;gap:8px}
-#onlineGameSettingsDialog .settings-report-body .gold-button{width:100%;white-space:normal}
-#onlineGameSettingsDialog .settings-report-body #onlineReportGameStatus:empty{display:none}
 #onlineGameSettingsDialog .version-history{margin:0;padding:7px 10px}
 #onlineGameSettingsDialog .version-history summary{min-height:28px;line-height:28px;font-size:12px}
 #onlineGameSettingsDialog .online-game-settings-actions{gap:8px;margin-top:3px}

@@ -25,20 +25,18 @@ test('online uses shared compact styling with its own visibility and sound switc
   assert.match(shared,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-fields \.game-settings-field select/);
 });
 
-test('help, game reporting and version history are collapsed; issue reporting is last',()=>{
+test('help and version history are collapsed; issue reporting is the sole action',()=>{
   assert.match(html,/<details class="game-settings-details">/);
-  assert.match(html,/<details class="game-settings-details game-settings-report">/);
+  assert.doesNotMatch(html,/<details class="game-settings-details game-settings-report">/);
   assert.match(html,/<details id="onlineSettingsPrivacy" class="game-settings-details game-settings-privacy">/);
   assert.match(html,/<details class="version-history" data-version-history>/);
   assert.doesNotMatch(html,/<details[^>]*\bopen(?:=|>)/);
   assert.match(html,/href="\.\/privacy\.html"/);
   assert.match(page,/<footer class="lobby-footer">[\s\S]*?href="\.\/privacy\.html"/);
-  const report=html.indexOf('id="onlineReportGameButton"');
-  const status=html.indexOf('id="onlineReportGameStatus"');
   const save=html.indexOf('id="onlineSettingsSave"');
   const issue=html.indexOf('id="onlineReportProblemButton"');
-  assert.ok(report>0&&status>report&&save>status&&issue>save);
-  assert.match(html,/id="onlineReportGameStatus" class="dialog-note" role="status" aria-live="polite"/);
+  assert.ok(save>0&&issue>save);
+  assert.match(page,/id="onlineResultProblemButton" class="gold-button">Nahlásit problém/);
   assert.match(html,/id="onlineTimeHelp"[^>]*>Online partie mají pevně 60 sekund na tah a 3 sekundy/);
   assert.match(css,/#onlineGameSettingsDialog \.online-game-settings-body\{padding:16px 18px;gap:9px;text-align:left\}/);
   assert.match(page,/href="\.\/arena-home\.css\?v=[\w.-]+"/);

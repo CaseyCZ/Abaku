@@ -1,5 +1,3 @@
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.44';
-
 export const REPORT_RULESET='classic-powers-roots-linked-powers';
 export function ensureAudit(game){
   if(game.audit?.ruleset===REPORT_RULESET&&Array.isArray(game.audit.events)){
@@ -39,16 +37,4 @@ export function localReport(game,mode){
   return {mode,ruleset:log.ruleset,partial:log.partial,finished:Boolean(game.finished),
     initialBoard:log.initialBoard,initialScores:log.initialScores,
     events:log.events,finalBoard:game.board,finalScores:game.players.map(p=>p.score)};
-}
-
-export async function sendLocalReport(game,mode){
-  const payload=localReport(game,mode);
-  if(!payload.events.length)throw new Error('Nejdříve odehraj alespoň jeden tah.');
-  const response=await fetch(ONLINE_CONFIG.apiBase+'/api/reports',{
-    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
-  });
-  let result;
-  try{result=await response.json();}catch{throw new Error('Server kontroly momentálně neodpovídá.');}
-  if(!response.ok)throw new Error(result.error||'Partii se nepodařilo odeslat.');
-  return result;
 }

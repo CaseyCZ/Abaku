@@ -11,20 +11,20 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.44">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.44">
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.44">
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.44">
-  <link rel="stylesheet" href="./analytics.css?v=0.2.44">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.44">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.44">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.44">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.44">
-  <link rel="stylesheet" href="./online-view.css?v=0.2.44">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.44">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.44">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.44">
-  <script src="./src/analytics.js?v=0.2.44" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.45">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.45">
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.45">
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.45">
+  <link rel="stylesheet" href="./analytics.css?v=0.2.45">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.45">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.45">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.45">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.45">
+  <link rel="stylesheet" href="./online-view.css?v=0.2.45">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.45">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.45">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.45">
+  <script src="./src/analytics.js?v=0.2.45" defer></script>
 </head>
 <body class="arena-home">
   <a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>
@@ -317,14 +317,6 @@
         <p><strong>Online:</strong> čas na tah a zobrazení příkladu jsou pevné. Přepínače v tomto okně platí jen pro tvoji online obrazovku; nemění nastavení soupeře.</p>
         <p id="homeLocalSettingsExplanation" hidden><strong>Místní hra:</strong> má vlastní nastavení času, zobrazení příkladu, obtížnosti počítače, průběhu, chatu a zvuků. Proti počítači se chat nezobrazuje. Změny místní hry neovlivní online partie.</p>
       </details>
-      <details class="game-settings-details game-settings-report">
-        <summary data-arena-settings-copy="reportTitle">Prověřit partii</summary>
-        <div class="game-settings-report-body">
-          <p data-arena-settings-copy="reportBody"></p>
-          <button type="button" id="onlineReportGameButton" class="gold-button">Prověřit partii</button>
-          <p id="onlineReportGameStatus" class="dialog-note" role="status" aria-live="polite"></p>
-        </div>
-      </details>
       <details id="onlineSettingsPrivacy" class="game-settings-details game-settings-privacy">
         <summary data-arena-settings-copy="privacyTitle">Soukromí a cookies</summary>
         <div class="game-settings-privacy-actions">
@@ -344,9 +336,9 @@
       <h2 id="feedbackTitle">Nahlásit problém</h2>
       <label for="feedbackDescription">Co nefungovalo?</label>
       <textarea id="feedbackDescription" rows="5" minlength="10" maxlength="1500" required placeholder="Např. rozložení menu se na telefonu nevejde…"></textarea>
-      <label class="feedback-check-line"><input type="checkbox" id="feedbackAttach"> Přiložit historii partie</label>
-      <p>Popis problému se zveřejní na GitHubu. Neuváděj v něm osobní údaje. Přiložená historie zůstane soukromá a smaže se po 24 hodinách.</p>
-      <label class="feedback-check-line"><input type="checkbox" id="feedbackConsent" required> Souhlasím se zveřejněním popisu.</label>
+      <label class="feedback-check-line"><input type="checkbox" id="feedbackAttach"> Přiložit anonymizovanou historii partie na GitHub (veřejně)</label>
+      <p>Popis problému i případná historie partie se veřejně zobrazí na GitHubu a automaticky se nemažou. Nepiš osobní údaje. Historie obsahuje pouze herní tahy, čísla a body, bez jmen, chatu a přihlašovacích údajů.</p>
+      <label class="feedback-check-line"><input type="checkbox" id="feedbackConsent" required> Souhlasím se zveřejněním popisu a případné historie.</label>
       <p id="feedbackStatus" role="status" aria-live="polite"></p>
       <div class="dialog-actions"><button type="button" id="feedbackCancel" class="gold-button">Zrušit</button><button type="submit" id="feedbackSubmit" class="gold-button primary">Odeslat hlášení</button></div>
     </form>
@@ -364,16 +356,15 @@
       <p id="onlineResultReason"></p>
       <p id="onlineRematchStatus" role="status" aria-live="polite"></p>
       <div class="online-result-actions">
-        <button type="button" id="onlineReportResultButton" class="gold-button">Prověřit partii</button>
+        <button type="button" id="onlineResultProblemButton" class="gold-button">Nahlásit problém</button>
         <button type="button" id="onlineRematch" class="gold-button">⚔ Odveta</button>
         <button type="button" id="onlineResultExit" class="gold-button">⌂ Ukončit</button>
       </div>
-      <p id="onlineReportResultStatus" role="status" aria-live="polite"></p>
     </div>
   </dialog>
-  <script type="module" src="./src/site-navigation.js?v=0.2.44"></script>
-  <script type="module" src="./src/arena-ui.js?v=0.2.44"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.44"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.44"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.45"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.45"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.45"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.45"></script>
 </body>
 </html>

@@ -1,12 +1,12 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.44';
-import {syncResumeCard} from './resume-card.js?v=0.2.44';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.44';
-import { describeMovePreview } from './preview.js?v=0.2.44';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.44';
-import {ScoreRecap} from './score-recap.js?v=0.2.44';
-import {createGameAudio} from './game-audio.js?v=0.2.44';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.44';
-import {bindFeedback} from './feedback-client.js?v=0.2.44';
+import {revealArenaChat} from './arena-ui.js?v=0.2.45';
+import {syncResumeCard} from './resume-card.js?v=0.2.45';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.45';
+import { describeMovePreview } from './preview.js?v=0.2.45';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.45';
+import {ScoreRecap} from './score-recap.js?v=0.2.45';
+import {createGameAudio} from './game-audio.js?v=0.2.45';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.45';
+import {bindFeedback} from './feedback-client.js?v=0.2.45';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -63,7 +63,6 @@ function clearSavedCredential(){
   clearVerifiedOnlineProfile();
 }
 let credential=null,connection=null,gameState=null,selected=null,pending=[],exchanging=false,selectedExchange=new Set();
-let reportSubmitting=false,reportRefreshTimer=null;
 let onlineName='Hráč';
 let recentOnlineMove=null;
 let recentOnlineMoveId=null;
@@ -172,48 +171,6 @@ async function api(path,method='GET',data){
     throw error;
   }
   return json;
-}
-function updateOnlineReportButtons(){
-  const status=gameState?.reportStatus||{kind:'ready'};
-  const kind=status.kind==='cooldown'&&Date.now()>=status.retryAt?'ready':status.kind;
-  const label=kind==='sent'?'Již bylo odesláno'
-    :kind==='limit'?'Limit kontrol dosažen'
-    :kind==='cooldown'?`Znovu za ${Math.max(1,Math.ceil((status.retryAt-Date.now())/1000))} s`
-    :'Prověřit partii';
-  for(const id of ['onlineReportGameButton','onlineReportResultButton']){
-    const button=$(id);
-    button.disabled=reportSubmitting||kind!=='ready';
-    button.textContent=label;
-  }
-  if(kind==='cooldown'&&!reportRefreshTimer){
-    reportRefreshTimer=setTimeout(()=>{
-      reportRefreshTimer=null;
-      updateOnlineReportButtons();
-    },Math.max(0,status.retryAt-Date.now())+100);
-  }
-}
-async function reportOnlineGame(button,statusElement){
-  if(reportSubmitting)return;
-  if(!gameState?.matchId){statusElement.textContent='Nejdříve zahraj partii.';return;}
-  const status=gameState.reportStatus;
-  if(status?.kind==='sent'){
-    statusElement.textContent='Partie v tomto stavu již byla odeslána.';
-    updateOnlineReportButtons();
-    return;
-  }
-  const matchId=gameState.matchId;
-  reportSubmitting=true;
-  updateOnlineReportButtons();
-  statusElement.textContent='Odesílám partii…';
-  try{
-    const result=await api('/api/reports/online','POST',{matchId});
-    if(gameState?.matchId===matchId&&gameState.auditRevision===result.reportRevision&&
-       gameState.finished===result.reportFinished&&
-       (!gameState.reportStatus||gameState.reportStatus.kind==='ready'))
-      gameState.reportStatus={kind:'sent',id:result.id};
-    statusElement.textContent=`Partie odeslána ke kontrole (č. ${result.id.slice(0,8)}).`;
-  }catch(error){statusElement.textContent=error.message||'Odeslání se nezdařilo.';}
-  finally{reportSubmitting=false;updateOnlineReportButtons();}
 }
 function googleSdk(){
   return new Promise((resolve,reject)=>{
@@ -814,7 +771,6 @@ function renderOnlineStatus(s){
 const ONLINE_BONUS_LABELS={dd:'Číslo ×2',td:'Číslo ×3',de:'Příklad ×2',te:'Příklad ×3'};
 function renderOnline(){
   if(!gameState)return;
-  updateOnlineReportButtons();
   const s=gameState;
   const info=$('onlineScore');
   info.textContent='Hráč 1: '+s.players[0].score+' · Hráč 2: '+s.players[1].score+' · V sáčku: '+s.bagCount+' · Čas na tah: '+(s.seconds||60)+' s';
@@ -1029,22 +985,17 @@ function initializeActions(){
   $('onlineRetryNow').addEventListener('click',retryOnlineConnection);
   // Available throughout an online match, not just in the lobby.
   const inGameSettings=$('onlineGameSettingsDialog');
-  $('onlineReportGameButton').addEventListener('click',()=>reportOnlineGame(
-    $('onlineReportGameButton'),$('onlineReportGameStatus')));
-  bindFeedback({buttonId:'onlineReportProblemButton',send:({description,attach})=>{
+  bindFeedback({buttonId:'onlineReportProblemButton',extraButtonIds:['onlineResultProblemButton'],send:({description,attach})=>{
     if(attach&&!gameState?.matchId)throw new Error('Pro přiložení historie nejdříve zahraj partii.');
     return api('/api/feedback','POST',{
-      description,mode:'online',...(attach?{matchId:gameState.matchId}:{})
+      description,mode:'online',...(attach?{matchId:gameState.matchId,historyPublicConsent:true}:{})
     });
   }});
-  $('onlineReportResultButton').addEventListener('click',()=>reportOnlineGame(
-    $('onlineReportResultButton'),$('onlineReportResultStatus')));
   const openSettings=(fromHome=false)=>{
     $('onlineSoundSetting').checked=onlineSoundEnabled;
     $('homeLocalTimeHelp').hidden=!fromHome;
     $('homeLocalSettingsExplanation').hidden=!fromHome;
     $('onlineSettingsPrivacy').hidden=fromHome;
-    updateOnlineReportButtons();
     if(!inGameSettings.open)inGameSettings.showModal();
   };
   $('onlineSettingsButton').addEventListener('click',()=>openSettings(false));

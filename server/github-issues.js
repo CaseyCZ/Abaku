@@ -1,6 +1,9 @@
+import {auditReport} from './report-audit.js';
+
 const DEFAULT_REPOSITORY='CaseyCZ/Ciselna-Arena';
 const ALLOWED_REPOSITORIES=new Set([DEFAULT_REPOSITORY]);
 const MODES={bot:'Hra proti počítači',local:'Dva hráči na jednom zařízení',online:'Online hra'};
+const MAX_ISSUE_BODY_BYTES=50_000;
 
 export function validateFeedback(input){
   if(!input||typeof input.description!=='string')throw new Error('Napiš, co se stalo.');
@@ -14,6 +17,24 @@ function escapeForHtmlPre(text){
   return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+// The caller may provide arbitrary extra keys. Only reviewed game data goes to a public issue.
+export function publicGameHistory(report,mode){
+  if(report?.mode!==mode)throw new Error('Historie neodpovídá hernímu režimu.');
+  auditReport(report);
+  return {mode:report.mode,ruleset:report.ruleset,partial:report.partial,
+    finished:report.finished===true,
+    initialBoard:report.initialBoard,initialScores:report.initialScores,
+    events:report.events.map(event=>event.type==='move'?{
+      type:'move',player:event.player,accepted:event.accepted,
+      placements:event.placements.map(p=>({row:p.row,col:p.col,digit:p.digit})),
+      ...(event.accepted?{points:event.points,equations:event.equations,
+        breakdown:Array.isArray(event.breakdown)?event.breakdown.map(b=>({
+          sequence:b.sequence,equation:b.equation,base:b.base,multiplier:b.multiplier,points:b.points
+        })):[]}:{}),
+    }:{type:event.type,player:event.player}),
+    finalBoard:report.finalBoard,finalScores:report.finalScores};
+}
+
 export class GitHubIssueReporter{
   constructor({token,fetchImpl=fetch,repository=DEFAULT_REPOSITORY}={}){
     // Never interpolate an arbitrary environment-provided URL into a request.
@@ -23,18 +44,23 @@ export class GitHubIssueReporter{
     this.repository=repository;
   }
   get configured(){return this.token.length>=20;}
-  async create({description,mode,reportId=null}){
+  async create({description,mode,report=null}){
     if(!this.configured)throw new Error('Hlášení problémů ještě není na serveru zapnuté.');
     const title=`[Hlášení hráče] ${description.replace(/\s+/g,' ').slice(0,75)}`;
+    const history=report?JSON.stringify(publicGameHistory(report,mode)):null;
     const body=[
       '### Popis problému',
       `<pre>${escapeForHtmlPre(description)}</pre>`,
       `**Režim:** ${MODES[mode]}`,
-      reportId?`**Soukromá kontrola partie:** ${reportId} (na serveru, odstraňuje se při pravidelném úklidu po 24 hodinách)`:
-        '**Historie partie:** nepřiložena',
+      history?['### Veřejně přiložená anonymizovaná historie partie',
+        'Obsahuje herní čísla, tahy a body; jména, chat ani přihlašovací údaje nejsou součástí přílohy.',
+        '<details><summary>Zobrazit historii partie (JSON)</summary>',
+        '```json',history,'```','</details>'].join('\n\n'):'**Historie partie:** nepřiložena',
       '',
-      '_Hlášení bylo odesláno dobrovolně přímo ze hry Číselná aréna. Soukromá data partie nejsou zveřejněna._'
+      '_Hlášení bylo odesláno dobrovolně přímo ze hry Číselná aréna. Popis a případná anonymizovaná historie jsou veřejné._'
     ].join('\n\n');
+    if(Buffer.byteLength(body,'utf8')>MAX_ISSUE_BODY_BYTES)
+      throw new Error('Historie je pro GitHub příliš dlouhá. Odešli hlášení bez přílohy a popiš konkrétní tah.');
     let response;
     try{
       response=await this.fetchImpl(`https://api.github.com/repos/${this.repository}/issues`,{

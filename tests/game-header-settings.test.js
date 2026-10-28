@@ -49,10 +49,10 @@ test('local match settings mirror the compact homepage without changing setting 
   assert.match(settings,/class="game-settings-fields"/);
   assert.match(settings,/class="game-settings-toggles"/);
   assert.match(settings,/<details class="game-settings-details">/);
-  assert.match(settings,/<details class="game-settings-details game-settings-report">/);
+  assert.doesNotMatch(settings,/<details class="game-settings-details game-settings-report">/);
   assert.match(settings,/<details class="version-history" data-version-history>/);
   assert.doesNotMatch(settings,/<details[^>]*\bopen(?:=|>)/);
-  for(const id of ['settingsForm','difficultySetting','timeSetting','scoreRecapSecondsSetting','historySetting','chatSetting','soundSetting','reportGameButton','reportGameStatus','reportProblemButton']){
+  for(const id of ['settingsForm','difficultySetting','timeSetting','scoreRecapSecondsSetting','historySetting','chatSetting','soundSetting','reportProblemButton']){
     assert.equal(settings.split('id="'+id+'"').length-1,1,id);
   }
   assert.doesNotMatch(settings,/id="modeSetting"/);
@@ -62,6 +62,7 @@ test('local match settings mirror the compact homepage without changing setting 
   assert.match(main,/byId\('settingsForm'\)\.addEventListener\('submit'/);
   assert.match(main,/settings=\{\.\.\.settings,difficulty:/);
   assert.match(main,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
+  assert.match(game,/id="offlineResultProblemButton" class="gold-button">Nahlásit problém/);
   assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-fields \{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-toggles \{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(game,/shared-game-settings\.css\?v=[\w.-]+/);

@@ -7,8 +7,6 @@ const PANEL_KEY=byId('settingsDialog')?'arena-local-panels-v1':'arena-online-pan
 const SETTINGS_COPY=Object.freeze({
   explanation:'Vysvětlení nastavení',
   panels:'Průběh a chat jsou vedle desky, na telefonu pod ní.',
-  reportTitle:'Prověřit partii',
-  reportBody:'Nesedí ti uznaný tah nebo body? Odešli partii k soukromé kontrole. Odešle se historie tahů, příklady a body, bez jmen a chatu. Záznam se smaže po 24 hodinách.',
   privacyTitle:'Soukromí a cookies',
   privacyLink:'Zásady soukromí',
   cookies:'Nastavení cookies'

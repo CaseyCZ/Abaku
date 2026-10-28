@@ -25,16 +25,14 @@ Node's built-in `node:sqlite` removes the need for a native SQLite npm addon. De
 - Six invalid board moves may be recorded per five-second window for a player; further attempts temporarily return an error without another SQLite write.
 - Changing the public **origin** requires updating Google authorized JavaScript origins and `CORS_ORIGIN`. Changing a GitHub Pages project path to `/Ciselna-Arena/` leaves the origin `https://caseycz.github.io` unchanged.
 
-## Dobrovolná kontrola partií
+## Hlášení problémů a dobrovolná kontrola partií
 
-- V nastavení místní i online hry a na výsledkové obrazovce je tlačítko **Prověřit partii**. Nikdy neodesílá nic samo.
-- Offline hra si vede soukromou historii umístění kamenů, zamítnutých pokusů, příkladů, skóre a bonusů v uložené partii v prohlížeči. Online server ukládá historii v soukromé SQLite databázi kvůli obnově po restartu; do dobrovolně odeslaného kontrolního reportu se nedávají UID, přezdívky, chat ani přihlašovací tokeny.
-- `POST /api/reports` přijímá dobrovolný anonymní offline záznam (max. 256 KiB); `POST /api/reports/online` vyžaduje přihlášení a ID vlastní online partie a vytváří záznam ze serverové historie.
+- V nastavení místní i online hry a na výsledkové obrazovce je tlačítko **Nahlásit problém**. Popis problému a případná **dobrovolně přiložená anonymizovaná historie partie** se zveřejní v jednom GitHub Issue. Formulář výslovně upozorňuje, že se veřejný obsah automaticky nemaže.
+- Offline hra si vede historii umístění kamenů, zamítnutých pokusů, příkladů, skóre a bonusů v uložené partii v prohlížeči. Online server ukládá historii v soukromé SQLite databázi kvůli obnově po restartu. Při hlášení s přílohou se posílají pouze herní data, nikdy UID, přezdívky, chat ani přihlašovací tokeny.
+- `POST /api/feedback` umožňuje přiložit historii místní partie (`report`) nebo ID vlastní online partie (`matchId`). Veřejná příloha vyžaduje `historyPublicConsent: true`. Server historii ověří a bezpečně vybere povolená pole; velikost celého GitHub Issue je omezena na 50 000 bajtů. Samostatné API `/api/reports` a `/api/reports/online` již není dostupné.
 - Samostatný modul `report-audit.js` **nepoužívá** herní validátor: přehrává desku, samostatně vyhodnotí matematiku i sousednost kamenů a přepočítá body/bonusy. Hlásí rozdíly ve vyhodnocení přijatých/zamítnutých tahů.
 - Nové partie používají pravidla `classic-powers-roots-linked-powers`: v dalším tahu lze navázat na koncový výsledek staršího příkladu, i mocninou či odmocninou (`112` + `4` → `24`, `5611` + `29` → `1129`). Položení celé neplatné řady `9724` v jednom tahu je nadále zakázané. Starší záznamy `classic-powers-roots-linked`, `classic-powers-roots-strict` a `classic-powers-roots` se přehrávají podle historických pravidel své verze.
-- Soubory ukládej **mimo repozitář a mimo webový adresář**. Výchozí soukromá cesta je `/home/ubuntu/arena-reports`, změnitelná pomocí `ARENA_REPORT_DIR`; práva složky `0700`, souborů `0600`. Počet uchovávaných reportů je omezen na 500.
-- Server soubory maže při spuštění, při každém seznamu a jednou za hodinu, jakmile jsou starší než 24 hodin. Oprávněný správce může soukromě používat `GET /api/reports` a `GET /api/reports/detail?id=<uuid>` s HTTP hlavičkou `Authorization: Bearer <ARENA_REPORT_ADMIN_TOKEN>`; token musí mít alespoň 32 znaků. Bez tohoto nastavení jsou čtecí cesty uzamčené.
-- Přístup do existujícího dashboardu lze připojit pouze ze serverové části dashboardu; **nikdy** nevkládej admin token do veřejné stránky nebo JavaScriptu.
+- Nové kontrolní soubory se na serveru již neukládají. Starší soukromé soubory ve složce `/home/ubuntu/arena-reports` zůstávají mimo web a při pravidelném úklidu se odstraní po 24 hodinách. Jejich původní administrátorské čtecí API bylo vypnuto.
 - Hlášení se odesílají výhradně do `CaseyCZ/Ciselna-Arena`. Produkční proměnné používají prefix `ARENA_`. Veřejná API adresa je `/arena-api/`, PM2 služba `arena-api`. Nová instalace používá čistou databázi `/home/ubuntu/arena-data/arena.sqlite`; předchozí data patří pouze do soukromé zálohy. Nové přihlašovací relace mají prefix `arena_` a vyžadují nové přihlášení.
 - Běžné vývojové ověření je `npm test` z kořene repozitáře; před produkčním restartem zkontroluj aktivní hráče a stav zálohy. Nasazení nové perzistence poprvé obnovu starých, dosud neuložených RAM partií nezajistí.
 

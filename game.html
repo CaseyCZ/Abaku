@@ -11,16 +11,16 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.44" />
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.44" />
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.44" />
-  <link rel="stylesheet" href="./analytics.css?v=0.2.44" />
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.44" />
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.44">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.44">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.44">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.44">
-  <script src="./src/analytics.js?v=0.2.44" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.45" />
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.45" />
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.45" />
+  <link rel="stylesheet" href="./analytics.css?v=0.2.45" />
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.45" />
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.45">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.45">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.45">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.45">
+  <script src="./src/analytics.js?v=0.2.45" defer></script>
 </head>
 <body>
 
@@ -163,14 +163,6 @@
         <p>Proti počítači se chat nezobrazuje. Změny času a obtížnosti se použijí v místní hře.</p>
         <p>„Vypnuto“ přeskočí vyhodnocení bodů, ale nová čísla se na desce ještě 3 sekundy zvýrazní. Online hra má vždy 3 sekundy.</p>
       </details>
-      <details class="game-settings-details game-settings-report">
-        <summary data-arena-settings-copy="reportTitle">Prověřit partii</summary>
-        <div class="game-settings-report-body">
-          <p data-arena-settings-copy="reportBody"></p>
-          <button type="button" id="reportGameButton" class="gold-button">Prověřit partii</button>
-          <p id="reportGameStatus" class="dialog-note" role="status" aria-live="polite"></p>
-        </div>
-      </details>
       <details class="game-settings-details game-settings-privacy">
         <summary data-arena-settings-copy="privacyTitle">Soukromí a cookies</summary>
         <div class="game-settings-privacy-actions">
@@ -190,9 +182,9 @@
       <h2 id="feedbackTitle">Nahlásit problém</h2>
       <label for="feedbackDescription">Co nefungovalo?</label>
       <textarea id="feedbackDescription" rows="5" minlength="10" maxlength="1500" required placeholder="Např. po otevření menu nejde kliknout na Uložit…"></textarea>
-      <label class="check-line"><input type="checkbox" id="feedbackAttach"> Přiložit historii partie</label>
-      <p class="dialog-note">Popis problému se zveřejní na GitHubu. Neuváděj v něm osobní údaje. Přiložená historie zůstane soukromá a smaže se po 24 hodinách.</p>
-      <label class="check-line"><input type="checkbox" id="feedbackConsent" required> Souhlasím se zveřejněním popisu.</label>
+      <label class="check-line"><input type="checkbox" id="feedbackAttach"> Přiložit anonymizovanou historii partie na GitHub (veřejně)</label>
+      <p class="dialog-note">Popis problému i případná historie partie se veřejně zobrazí na GitHubu a automaticky se nemažou. Nepiš osobní údaje. Historie obsahuje pouze herní tahy, čísla a body, bez jmen, chatu a přihlašovacích údajů.</p>
+      <label class="check-line"><input type="checkbox" id="feedbackConsent" required> Souhlasím se zveřejněním popisu a případné historie.</label>
       <p id="feedbackStatus" class="dialog-note" role="status" aria-live="polite"></p>
       <menu><button type="button" id="feedbackCancel" class="gold-button">Zrušit</button><button type="submit" id="feedbackSubmit" class="gold-button primary">Odeslat hlášení</button></menu>
     </form>
@@ -242,16 +234,16 @@
       <p id="onlineResultReason"></p>
       <p id="onlineRematchStatus" role="status" aria-live="polite"></p>
       <div class="online-result-actions">
-        <button type="button" id="offlineReportResultButton" class="gold-button">Prověřit partii</button>
+        <button type="button" id="offlineResultProblemButton" class="gold-button">Nahlásit problém</button>
         <button type="button" id="onlineRematch" class="gold-button">⚔ Odveta</button>
         <button type="button" id="onlineResultExit" class="gold-button">⌂ Ukončit</button>
       </div>
     </div>
   </dialog>
 
-  <script type="module" src="./src/arena-ui.js?v=0.2.44"></script>
-  <script type="module" src="./src/site-navigation.js?v=0.2.44"></script>
-  <script type="module" src="./src/main.js?v=0.2.44"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.44"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.45"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.45"></script>
+  <script type="module" src="./src/main.js?v=0.2.45"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.45"></script>
 </body>
 </html>

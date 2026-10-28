@@ -1,5 +1,4 @@
 import { createServer } from 'node:http';
-import { timingSafeEqual } from 'node:crypto';
 import { isIP } from 'node:net';
 import { URL } from 'node:url';
 import { OAuth2Client } from 'google-auth-library';
@@ -32,21 +31,14 @@ const MAX_PENDING_WS_AUTH=300;
 const fullServerMessage='Server je plný (700/700 hráčů). Zkus to později.';
 const rate=new Map();
 const pendingWsAuth=new Set();
-const reportRate=new Map();
 const feedbackRate=new Map();
 let feedbackDay='',feedbackDayCount=0;
+// Keep expiring previously stored reports for 24 hours; no new report files are written.
 const reportStore=new ReportStore({directory:process.env.ARENA_REPORT_DIR||'/home/ubuntu/arena-reports'});
 const issueReporter=new GitHubIssueReporter({
   token:process.env.ARENA_GITHUB_ISSUES_TOKEN,
   repository:process.env.ARENA_GITHUB_REPO||'CaseyCZ/Ciselna-Arena'
 });
-const adminToken=process.env.ARENA_REPORT_ADMIN_TOKEN||'';
-
-function reportLimited(ip){
-  const now=Date.now(),current=reportRate.get(ip);
-  if(!current||now-current.start>=10*60_000){reportRate.set(ip,{start:now,count:1});return false;}
-  return ++current.count>20;
-}
 function feedbackLimited(ip){
   const now=Date.now(),day=new Date(now).toISOString().slice(0,10);
   if(day!==feedbackDay){feedbackDay=day;feedbackDayCount=0;}
@@ -57,13 +49,6 @@ function feedbackLimited(ip){
   feedbackDayCount++;
   return false;
 }
-function adminAllowed(request){
-  if(adminToken.length<32)return false;
-  const token=(request.headers.authorization||'').replace(/^Bearer /,'');
-  if(token.length!==adminToken.length)return false;
-  return timingSafeEqual(Buffer.from(token),Buffer.from(adminToken));
-}
-
 function limited(ip,limit=180){
   const now=Date.now();
   const row=rate.get(ip);
@@ -179,7 +164,6 @@ const clock=setInterval(()=>{engine.tick();friendChallenges.tick();
     }catch(error){console.error('Arena session cleanup:',error.message);}
   }
   for(const [key,item] of rate)if(now-item.start>120_000)rate.delete(key);
-  for(const [key,item] of reportRate)if(now-item.start>10*60_000)reportRate.delete(key);
   for(const [key,item] of feedbackRate)if(now-item.start>60*60_000)feedbackRate.delete(key);
 },1000);
 clock.unref();
@@ -198,8 +182,6 @@ const http=createServer(async(request,response)=>{
   // shared school/home NAT IP. Public reads and sign-in still need IP limits.
   const publicRead=request.method==='GET'&&['/health','/api/presence','/api/leaderboard'].includes(pathname);
   const guestRoute=(pathname==='/api/session'&&request.method==='POST')||
-    (pathname==='/api/reports'&&['GET','POST'].includes(request.method))||
-    (pathname==='/api/reports/detail'&&request.method==='GET')||
     (pathname==='/api/feedback'&&request.method==='POST');
   const authHeader=request.headers.authorization||'';
   const limitKey=publicRead?'public:'+requester:guestRoute?'guest:'+requester:
@@ -220,22 +202,6 @@ const http=createServer(async(request,response)=>{
     if(request.method==='GET'&&pathname==='/api/presence')return respond(response,200,{
       online:presence.count(engine.connections),waiting:engine.waitingCount(),refreshSeconds:20,limit:MAX_ONLINE_PLAYERS
     });
-    if(pathname==='/api/reports'&&request.method==='POST'){
-      if(reportLimited(requester))
-        return respond(response,429,{error:'Příliš mnoho odeslaných partií. Zkus to později.'});
-      const data=await body(request,256*1024);
-      if(data?.mode==='online')throw new Error('Online partie se odesílá přímo ze serveru.');
-      return respond(response,201,await reportStore.submit(data));
-    }
-    if(pathname==='/api/reports'&&request.method==='GET'){
-      if(!adminAllowed(request))return respond(response,403,{error:'Kontroly jsou soukromé.'});
-      return respond(response,200,{reports:await reportStore.list()});
-    }
-    if(pathname==='/api/reports/detail'&&request.method==='GET'){
-      if(!adminAllowed(request))return respond(response,403,{error:'Kontroly jsou soukromé.'});
-      const item=await reportStore.get(searchParams.get('id'));
-      return respond(response,item?200:404,item||{error:'Záznam už neexistuje.'});
-    }
     if(pathname==='/api/feedback'&&request.method==='POST'){
       if(!issueReporter.configured)
         return respond(response,503,{error:'Hlášení problémů ještě není na serveru zapnuté.'});
@@ -244,18 +210,20 @@ const http=createServer(async(request,response)=>{
       const data=await body(request,260*1024);
       const {description,mode}=validateFeedback(data);
       if(data.report&&data.matchId)throw new Error('Nelze přiložit dvě různé partie.');
-      let reportId=null;
+      if((data.report||data.matchId)&&data.historyPublicConsent!==true)
+        throw new Error('Přiložení veřejné historie vyžaduje výslovný souhlas.');
+      let report=null;
       if(data.report){
         if(!['bot','local'].includes(mode)||data.report.mode!==mode)
           throw new Error('Historie neodpovídá hernímu režimu.');
-        reportId=(await reportStore.submit(data.report)).id;
+        report=data.report;
       }else if(data.matchId){
         if(mode!=='online')throw new Error('Historie neodpovídá hernímu režimu.');
         const uid=await identity(request);
-        reportId=(await reportStore.submit(engine.reportFor(uid,data.matchId))).id;
+        report=engine.reportFor(uid,data.matchId);
       }
-      const issue=await issueReporter.create({description,mode,reportId});
-      return respond(response,201,{...issue,reportId});
+      const issue=await issueReporter.create({description,mode,report});
+      return respond(response,201,issue);
     }
     // Exchange an already verified Google ID token for a revocable session.
     // Google is required for initial sign-in, not for each later page load.
@@ -269,13 +237,6 @@ const http=createServer(async(request,response)=>{
     const uid=await identity(request);
     if(limited('player:'+uid))return respond(response,429,{error:'Příliš mnoho požadavků.'});
     store.ensure(uid);
-    if(request.method==='POST'&&pathname==='/api/reports/online'){
-      if(reportLimited(requester))
-        return respond(response,429,{error:'Příliš mnoho odeslaných partií. Zkus to později.'});
-      const data=await body(request);
-      return respond(response,201,await engine.submitReport(uid,data?.matchId,
-        report=>reportStore.submit(report)));
-    }
     if(request.method==='DELETE'&&pathname==='/api/session'){
       const bearer=request.headers.authorization||'';
       const sessionToken=bearer.slice(7);

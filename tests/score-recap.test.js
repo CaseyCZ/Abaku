@@ -40,8 +40,8 @@ test('if older API omits details, do not invent per-example points',()=>{
 
 test('scroll automatically advances with timers, never requires user confirmation',()=>{
   const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
-  assert.match(js,/const visibleSeconds=getRecapSeconds\(\);/);
-  assert.match(js,/if\(getRecapSeconds\(\)===0\)\{\s*onDone\?\.\(\);\s*return;/);
+  assert.match(js,/const visibleSeconds=this\.seconds\(\);/);
+  assert.match(js,/if\(this\.seconds\(\)===0\)\{\s*onDone\?\.\(\);\s*return;/);
   assert.match(js,/const stepDuration=counterDuration\+visibleSeconds\*1000;/);
   assert.match(js,/const completedDuration=visibleSeconds\*1000;/);
   assert.match(js,/steps\.forEach\(\(item,index\)=>/);
@@ -58,7 +58,7 @@ test('scroll automatically advances with timers, never requires user confirmatio
 });
 
 
-test('each example duration is configurable and stored for offline and online',()=>{
+test('only local example duration is configurable; removed values migrate to three seconds',()=>{
   const oldStorage=globalThis.localStorage;
   const data=new Map();
   globalThis.localStorage={
@@ -66,7 +66,7 @@ test('each example duration is configurable and stored for offline and online',(
     setItem:(key,value)=>data.set(key,String(value))
   };
   try{
-    assert.deepEqual(RECAP_SECONDS_OPTIONS,[0,2,3,5,8,10]);
+    assert.deepEqual(RECAP_SECONDS_OPTIONS,[0,2,3,5]);
     assert.equal(getRecapSeconds(),3);
     for(const seconds of RECAP_SECONDS_OPTIONS){
       assert.equal(setRecapSeconds(seconds),true);
@@ -76,8 +76,12 @@ test('each example duration is configurable and stored for offline and online',(
     assert.equal(getRecapSeconds(),0);
     assert.equal(setRecapSeconds(11),false);
     assert.equal(getRecapSeconds(),0);
-    assert.equal(setRecapSeconds(10),true);
-    assert.equal(data.get('arena-score-recap-seconds-v1'),'10');
+    assert.equal(setRecapSeconds(10),false);
+    assert.equal(data.get('arena-local-score-recap-seconds-v1'),'0');
+    data.delete('arena-local-score-recap-seconds-v1');
+    data.set('arena-score-recap-seconds-v1','10');
+    assert.equal(getRecapSeconds(),3);
+    assert.equal(data.get('arena-local-score-recap-seconds-v1'),'3');
   }finally{
     if(oldStorage===undefined)delete globalThis.localStorage;
     else globalThis.localStorage=oldStorage;
@@ -105,7 +109,7 @@ test('future recaps wait for optional asynchronous board-highlight completion',(
 
 test('Vypnuto skips the recap but still executes the completed-move highlight callback',()=>{
   const js=readFileSync(new URL('../src/score-recap.js',import.meta.url),'utf8');
-  const at=js.indexOf('if(getRecapSeconds()===0){');
+  const at=js.indexOf('if(this.seconds()===0){');
   const scoring=js.indexOf('const steps=scoringSteps(',at);
   assert.ok(at>=0&&scoring>at);
   assert.match(js.slice(at,scoring),/onDone\?\.\(\);\s*return;/);

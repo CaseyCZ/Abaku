@@ -60,7 +60,7 @@ V jednom tahu můžeš přidat až **pět číslic**. Když se ti nehodí, můž
 
 - 🟦 **Bonusová políčka** a chytré bodování.
 - 💡 **Nápovědu** při hraní proti počítači.
-- ⏱️ **Volitelný čas na tah** a nastavení zvuků.
+- ⏱️ **Čas na tah podle tebe** v místní hře; online má každý tah 60 sekund. Zvuky lze zapnout nebo vypnout v obou režimech.
 - 🎬 **Přehledné vyhodnocení tahů**, příkladů a bodů.
 - 🔄 **Pokračování v rozehrané partii** a možnost odvety.
 - 🏅 **Hráčské profily, statistiky a žebříček**.

@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.37';
+export const APP_VERSION = '0.2.38';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.38',
+    date: '28. 10. 2026',
+    description: 'Sjednocený vzhled a texty nastavení: místní hra má vlastní výběr času a vyhodnocení, online partie pevně 60 a 3 sekundy. Oba režimy mají samostatné volby průběhu, chatu a zvuků.'
+  },
   {
     version: '0.2.37',
     date: '28. 10. 2026',

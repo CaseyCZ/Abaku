@@ -12,5 +12,7 @@ jobs:
           node-version: 22
       - name: Check optional online client syntax
         run: node --check src/online-client.js && node --check src/lobby.js
+      - name: Check asset versions
+        run: npm run check:assets
       - name: Run unit tests
         run: npm test

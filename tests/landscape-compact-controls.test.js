@@ -44,5 +44,5 @@ test('local control bar lives inside the main stage without losing action IDs',(
   for(const id of ['undoButton','rack','confirmButton','hintButton','exchangeButton','passButton']){
     assert.equal((stage.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id);
   }
-  assert.match(html,/game-chrome\.css\?v=0\.2\.30/);
+  assert.match(html,/game-chrome\.css\?v=[\w.-]+/);
 });

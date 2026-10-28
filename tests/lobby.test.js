@@ -68,17 +68,14 @@ test('lobby displays real online and random matchmaking queue counts without inv
 });
 
 
-test('only online turn time is selectable; default is 60 seconds',()=>{
-  assert.match(landing,/id="onlineTurnSeconds"/);
-  for(const time of [30,60,90]) assert.match(landing,new RegExp('<option value="'+time+'"'));
-  assert.match(landing,/<option value="60" selected>/);
-  assert.doesNotMatch(landing,/<option value="90" selected>/);
-  assert.match(onlineClient,/Number\(\$\(\x27onlineTurnSeconds\x27\)\.value\) : 60/);
-  assert.match(onlineClient,/selectedTurnSeconds/);
-  assert.match(onlineClient,/arena-online-default-60-migrated-v1/);
+test('online turn time is fixed to 60 seconds for random and invited matches',()=>{
+  assert.doesNotMatch(landing,/id="onlineTurnSeconds"/);
+  assert.match(landing,/Online partie mají pevně 60 sekund na tah/);
+  assert.match(onlineClient,/const ONLINE_TURN_SECONDS=60/);
   assert.match(onlineClient,/send\('matchmake',\{seconds:action\.seconds\}\)/);
   assert.match(onlineClient,/send\('invite',\{seconds:action\.seconds\}\)/);
-  assert.match(onlineClient,/connectOnline\(\{type:'random',seconds:selectedTurnSeconds\(\)\}\)/);
+  assert.match(onlineClient,/connectOnline\(\{type:'random',seconds:ONLINE_TURN_SECONDS\}\)/);
+  assert.match(onlineClient,/connectOnline\(\{type:'invite',seconds:ONLINE_TURN_SECONDS\}\)/);
 });
 
 
@@ -133,15 +130,15 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   // Never persist the short-lived Google ID token to persistent storage.
   assert.doesNotMatch(onlineClient,/localStorage\.setItem\(durableSessionKey,value\)/);
   assert.match(landing,/Hráči a partie/);
-  assert.match(lobby,/online-client\.js\?v=\d+\.\d+\.\d+/);
+  assert.match(lobby,/online-client\.js\?v=[\w.-]+/);
 });
 
 test('online match uses the local game markup and stylesheet on phone and desktop',()=>{
   const html=landing;
   const css=file('../online-view.css');
-  assert.match(html,/style\.css\?v=0\.2\.35/);
-  assert.match(html,/game-chrome\.css\?v=0\.2\.30/);
-  assert.match(html,/online-view\.css\?v=\d+/);
+  assert.match(html,/style\.css\?v=[\w.-]+/);
+  assert.match(html,/game-chrome\.css\?v=[\w.-]+/);
+  assert.match(html,/online-view\.css\?v=[\w.-]+/);
   assert.doesNotMatch(html,/online-(?:game|chrome)\.css/);
   assert.match(html,/class="game-app online-game-app"/);
   assert.match(html,/class="top-bar"/);
@@ -171,7 +168,7 @@ test('online match uses the local game markup and stylesheet on phone and deskto
 
 test('online blue scorecard header follows the actual active player, not always player one',()=>{
   const css=file('../arena-modern.css');
-  assert.match(landing,/game-chrome\.css\?v=0\.2\.30/);
+  assert.match(landing,/game-chrome\.css\?v=[\w.-]+/);
   assert.match(css,/\.player-card\.active/);
   assert.doesNotMatch(css,/#onlineDialog #onlinePlayer0Card \.player-name\{/);
   assert.match(onlineClient,/onlinePlayer'\+side\+'Card'\)\.classList\.toggle\('active',!s\.finished&&s\.turn===side\)/);
@@ -252,7 +249,7 @@ test('online reconnection client remains parseable JavaScript after new state ha
 
 test('match end displays winner and scores in a dedicated result dialog on all devices',()=>{
   const css=file('../result-dialog.css');
-  assert.match(landing,/href="\.\/result-dialog\.css\?v=1"/);
+  assert.match(landing,/href="\.\/result-dialog\.css\?v=[\w.-]+"/);
   for(const id of ['onlineResultDialog','onlineResultTitle','onlineResultDescription',
     'onlineResultScore0','onlineResultScore1','onlineRematch','onlineResultExit',
     'onlineRematchStatus','onlineResultReason'])
@@ -276,8 +273,8 @@ test('collapsed or out-of-view chat gets a persistent tappable unread notificati
   assert.match(landing,/id="onlineChatToastPreview"/);
   assert.match(landing,/id="onlineChatToastCount"/);
   assert.match(landing,/id="onlineUnreadBadge"[^>]*hidden/);
-  assert.match(onlineClient,/function chatActuallyVisible\(\)/);
-  assert.match(onlineClient,/getComputedStyle\(panel\)\.display==='none'/);
+  assert.match(onlineClient,/function refreshUnreadChat\(\)/);
+  assert.match(onlineClient,/const hasUnread=unreadOnlineChat>0/);
   assert.match(onlineClient,/if\(!own&&gameState&&\!gameState\.finished\)/);
   assert.match(onlineClient,/unreadOnlineChat\+\+/);
   assert.match(onlineClient,/latestUnreadChat=String\(text\|\|''\)\.slice\(0,80\)/);
@@ -301,9 +298,9 @@ test('opponent disconnection shows a prominent message and leaving voluntarily c
 test('online scoring is a hands-free animation of each server-verified equation before end dialog',()=>{
   const recap=file('../src/score-recap.js');
   const styles=file('../score-recap.css');
-  assert.match(landing,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.37'/);
-  assert.match(onlineClient,/new ScoreRecap\(\$\('onlineDialog'\)\)/);
+  assert.match(landing,/score-recap\.css\?v=[\w.-]+/);
+  assert.match(onlineClient,/import \{ScoreRecap\} from '.\/score-recap\.js\?v=[\w.-]+'/);
+  assert.match(onlineClient,/new ScoreRecap\(\$\('onlineDialog'\),\{seconds:\(\)=>ONLINE_RECAP_SECONDS\}\)/);
   assert.match(onlineClient,/breakdown:move\.equationBreakdown,equations:move\.equations/);
   assert.match(onlineClient,/total:move\.points/);
   assert.match(onlineClient,/onDone:\(\)=>showOnlineHighlight\(move\)/);
@@ -317,14 +314,11 @@ test('online scoring is a hands-free animation of each server-verified equation 
 });
 
 
-test('online lobby offers saved per-equation animation seconds shared with offline',()=>{
-  assert.match(landing,/id="onlineRecapSeconds"/);
-  assert.match(landing,/id="onlineRecapSeconds"[\s\S]*?<option value="0">Vypnuto<\/option>/);
-  for(const seconds of [2,3,5,8,10])
-    assert.match(landing,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
-  assert.match(onlineClient,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from/);
-  assert.match(onlineClient,/recapSelect\.value=String\(getRecapSeconds\(\)\)/);
-  assert.match(onlineClient,/setRecapSeconds\(choice\)/);
+test('online always uses a fixed three-second recap independent of the local preference',()=>{
+  assert.doesNotMatch(landing,/id="onlineRecapSeconds"/);
+  assert.match(landing,/Online partie mají pevně 60 sekund na tah a 3 sekundy/);
+  assert.match(onlineClient,/const ONLINE_RECAP_SECONDS=3/);
+  assert.match(onlineClient,/seconds:\(\)=>ONLINE_RECAP_SECONDS/);
   assert.match(onlineClient,/onlineScoreRecap\.play\(\{/);
 });
 
@@ -341,33 +335,29 @@ test('online scoring highlight starts after automatic calculations, not under pa
   assert.match(onlineClient,/onlineScoreRecap\.playing\(\)\|\|recentOnlineMove\)return/);
 });
 
-test('in-match online settings are always accessible and persist for the next move',()=>{
+test('in-match online settings control sound and panels but not fixed durations',()=>{
   const css=file('../online-view.css');
-  assert.match(landing,/id="onlineRecapSeconds"[\s\S]*?<option value="0">Vypnuto<\/option>/);
   assert.match(landing,/id="onlineSettingsButton"/);
   assert.match(landing,/id="onlineGameSettingsDialog"/);
-  assert.match(landing,/id="onlineRecapSeconds"/);
+  assert.match(landing,/id="onlineSoundSetting"/);
   assert.match(landing,/id="onlineSettingsSave"/);
   assert.match(landing,/id="onlineSettingsCancel"/);
   assert.match(landing,/id="onlineCancel"/);
-  for(const seconds of [2,3,5,8,10])
-    assert.match(landing,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
   assert.match(onlineClient,/onlineSettingsButton'\)\.addEventListener\('click',openSettings/);
   assert.match(onlineClient,/lobbySettingsButton'\)\.addEventListener\('click',openSettings/);
-  assert.match(onlineClient,/onlineRecapSeconds'\)\.value=String\(getRecapSeconds\(\)\)/);
   assert.match(onlineClient,/onlineSettingsSave'\)\.addEventListener\('click'/);
-  assert.match(onlineClient,/setRecapSeconds\(choice\)/);
-  assert.match(onlineClient,/localStorage\.setItem\(timeStorageKey,String\(savedTurnSeconds\)\)/);
+  assert.match(onlineClient,/localStorage\.setItem\(ONLINE_SOUND_KEY,String\(onlineSoundEnabled\)\)/);
   assert.match(landing,/id="onlineGameNavigation"/);
   assert.match(onlineClient,/onlineMenuToggle\.addEventListener\('click'/);
   assert.match(file('../shared-game-settings.css'),/:is\(#settingsDialog,#onlineGameSettingsDialog\)/);
 });
 
 
-test('Vypnuto in-game preserves final board highlight without showing score scroll',()=>{
+test('Vypnuto in local game preserves final board highlight; online recap stays enabled',()=>{
   const js=file('../src/score-recap.js');
-  assert.match(js,/if\(getRecapSeconds\(\)===0\)\{\s*onDone\?\.\(\);\s*return;/);
+  assert.match(js,/if\(this\.seconds\(\)===0\)\{\s*onDone\?\.\(\);\s*return;/);
   assert.match(onlineClient,/onDone:\(\)=>showOnlineHighlight\(move\)/);
+  assert.match(onlineClient,/ONLINE_RECAP_SECONDS=3/);
 });
 
 
@@ -376,10 +366,10 @@ test('server creates and verifies hashed revocable device sessions on REST and W
   const store=file('../server/store.js');
   assert.match(api,/pathname==='\/api\/session'/);
   assert.match(api,/store\.createSession\(uid\)/);
-  assert.match(api,/store\.revokeSession\(bearer\.slice\(7\)\)/);
+  assert.match(api,/store\.revokeSession\(sessionToken\)/);
   assert.match(api,/store\.sessionUid\(token\)/);
   assert.match(api,/return verifyGoogle\(token\)/);
-  assert.match(api,/uid=await verify\(msg\.idToken\)/);
+  assert.match(api,/verifiedUid=await verify\(msg\.idToken\)/);
   assert.match(store,/CREATE TABLE IF NOT EXISTS login_sessions/);
   assert.match(store,/createHash\('sha256'\)/);
   assert.match(store,/const SESSION_TTL=30\*24\*60\*60\*1000/);
@@ -452,7 +442,7 @@ test('homepage text is centered without modifying mode card geometry or responsi
   assert.ok(css.includes('.arena-home .game-options{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}'));
   assert.ok(css.includes('.home-start{grid-template-columns:minmax(0,1fr);gap:18px}'));
   assert.ok(css.includes('.arena-home .lobby-intro .hero-resume{width:min(100%,430px)'));
-  assert.match(landing,/href="\.\/arena-home\.css\?v=\d+\.\d+\.\d+"/);
+  assert.match(landing,/href="\.\/arena-home\.css\?v=[\w.-]+"/);
 });
 
 test('home lower sections are centered and saved card bottom aligns with mode grid only on desktop',()=>{
@@ -469,5 +459,5 @@ test('home lower sections are centered and saved card bottom aligns with mode gr
   // Only align desktop bottom edges when the unified saved/online card is visible.
   assert.match(css,/@media\(min-width:761px\)\{\s*\.arena-home \.home-start:has\(#resumeCard:not\(\[hidden\]\)\)\{align-items:end\}/);
   assert.match(css,/@media\(max-width:760px\)\{[\s\S]*?\.home-start\{grid-template-columns:minmax\(0,1fr\);gap:18px\}/);
-  assert.match(landing,/href="\.\/arena-home\.css\?v=\d+\.\d+\.\d+"/);
+  assert.match(landing,/href="\.\/arena-home\.css\?v=[\w.-]+"/);
 });

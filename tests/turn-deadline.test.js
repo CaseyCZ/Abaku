@@ -28,14 +28,14 @@ test('old saves migrate once; invalid timestamps cannot block startup',()=>{
 });
 
 test('game saves deadlines on turn start, settings change and after score reveal',()=>{
-  assert.match(main,/import \{createTurnDeadline, restoreTurnDeadline\} from '\.\/turn-deadline\.js\?v=0\.2\.18'/);
+  assert.match(main,/import \{createTurnDeadline, restoreTurnDeadline\} from '\.\/turn-deadline\.js\?v=[\w.-]+'/);
   assert.match(main,/function resetDeadline\(\) \{[\s\S]*?deadline=createTurnDeadline\(settings\.time\);[\s\S]*?game\.turnDeadline=deadline;/);
   assert.match(main,/const restored=restoreTurnDeadline\(game\.turnDeadline,settings\.time\)/);
   assert.match(main,/if\(game\.turnDeadline!==restored\)\{[\s\S]*?game\.turnDeadline=restored;[\s\S]*?save\(\);/);
   assert.match(main,/resetDeadline\(\);save\(\);render\(\);/);
-  assert.match(main,/if\(modeChanged\)newGame\(\);else\{resetDeadline\(\);save\(\);render\(\);\}/);
+  assert.match(main,/resetDeadline\(\);save\(\);render\(\);/);
   // main.js has its own cache token. Landscape-only CSS releases leave its logic unchanged.
-  assert.match(game,/src\/main\.js\?v=\d+\.\d+\.\d+/);
+  assert.match(game,/src\/main\.js\?v=[\w.-]+/);
 });
 
 test('scoreboard is a two-column grid below the centered bag count',()=>{

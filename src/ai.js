@@ -1,4 +1,4 @@
-import {SIZE, validateMove} from './rules.js?v=arena-20261028a';
+import {SIZE, validateMove} from './rules.js?v=0.2.38';
 
 function shuffle(items) {
   const out = [...items];

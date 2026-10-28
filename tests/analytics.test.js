@@ -44,8 +44,8 @@ test('all Arena pages load the same consent-managed analytics, with distinct GA4
   for(const path of pages){
     const html=read(path);
     // Pages may use independent cache versions for the consent script.
-    assert.match(html,/src="\.(?:\/)src\/analytics\.js\?v=\d+" defer/);
-    assert.match(html,/href="\.(?:\/)analytics\.css\?v=1"/);
+    assert.match(html,/src="\.(?:\/)src\/analytics\.js\?v=[\w.-]+" defer/);
+    assert.match(html,/href="\.(?:\/)analytics\.css\?v=[\w.-]+"/);
     assert.match(html,/data-cookie-settings/);
     assert.match(html,/href="\.\/privacy\.html"|id="privacyConsentTitle"|Soukromí a cookies/);
     const title=html.match(/<meta name="analytics-page-title" content="([^"]+)"/)?.[1];

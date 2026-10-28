@@ -15,7 +15,7 @@ test('only unoccupied bonus ×2/×3 hints use smaller typography',()=>{
   assert.match(online,/digit!==null\?' occupied':' bonus-hint'/);
 });
 test('both game and online views fetch new stylesheet while tile sizes stay untouched',()=>{
-  for(const page of [game,home]) assert.match(page,/arena-layout\.css\?v=0\.2\.14/);
+  for(const page of [game,home]) assert.match(page,/arena-layout\.css\?v=[\w.-]+/);
   assert.doesNotMatch(css,/\.tile\.bonus-hint/);
   assert.doesNotMatch(css,/\.online-tile\.bonus-hint/);
 });

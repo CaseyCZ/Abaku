@@ -37,6 +37,6 @@ test('privacy and consent settings are reachable from the game settings dialog',
   assert.match(analytics,/const dialog = button\.closest\('dialog'\);/);
   assert.match(analytics,/if \(dialog\?\.open\) dialog\.close\(\);/);
   assert.match(analytics,/showBanner\(true\);/);
-  assert.match(game,/src\/analytics\.js\?v=2/);
+  assert.match(game,/src\/analytics\.js\?v=[\w.-]+/);
   assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-privacy-actions/);
 });

@@ -1,14 +1,15 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=arena-20261028a';
-import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=arena-20261028a';
-import {chooseMove} from './ai.js?v=arena-20261028a';
-import {describeMovePreview} from './preview.js?v=arena-20261028a';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=arena-20261028a';
-import {ONLINE_CONFIG} from './online-config.js?v=arena-20261028a';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.38';
+import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.38';
+import {chooseMove} from './ai.js?v=0.2.38';
+import {describeMovePreview} from './preview.js?v=0.2.38';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.38';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.38';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
-  from './player-identity.js?v=arena-20261028a';
-import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=arena-20261028a';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=arena-20261028a';
-import {reportEligibility,addReportReceipt} from './report-policy.js?v=arena-20261028a';
+  from './player-identity.js?v=0.2.38';
+import {ensureAudit,recordAudit,sendLocalReport,localReport} from './report-client.js?v=0.2.38';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.38';
+import {reportEligibility,addReportReceipt} from './report-policy.js?v=0.2.38';
+import {createGameAudio} from './game-audio.js?v=0.2.38';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-arena-settings-v1';
@@ -40,22 +41,8 @@ let reportRefreshTimer = null;
 let messageType = '';
 let recentMove = null;
 let recentMoveTimer = null;
-let audioContext;
 const scoreRecap = new ScoreRecap(document.body);
-
-function sound(kind = 'tap') {
-  if (!settings.sound) return;
-  try {
-    audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioContext.createOscillator(), volume = audioContext.createGain();
-    oscillator.type = kind === 'error' ? 'sawtooth' : 'sine';
-    oscillator.frequency.value = kind === 'success' ? 690 : kind === 'error' ? 140 : 480;
-    volume.gain.setValueAtTime(.05,audioContext.currentTime);
-    volume.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime + .14);
-    oscillator.connect(volume).connect(audioContext.destination);
-    oscillator.start();oscillator.stop(audioContext.currentTime + .15);
-  } catch { /* audio is optional */ }
-}
+const sound=createGameAudio(()=>settings.sound);
 
 function currentPlayer() { return game.players[game.turn]; }
 function playerLabel(index) { return index === 0 ? offlinePlayerName() : settings.mode === 'bot' ? 'Počítač' : 'Hráč 2'; }
@@ -523,7 +510,7 @@ byId('chatForm').addEventListener('submit',event=>{
 byId('rulesButton').addEventListener('click',()=>byId('rulesDialog').showModal());
 byId('closeRules').addEventListener('click',()=>byId('rulesDialog').close());
 byId('settingsButton').addEventListener('click',()=>{
-  byId('modeSetting').value=settings.mode;byId('difficultySetting').value=settings.difficulty;
+  byId('difficultySetting').value=settings.difficulty;
   byId('timeSetting').value=String(settings.time);byId('soundSetting').checked=settings.sound;
   byId('scoreRecapSecondsSetting').value=String(getRecapSeconds());
   updateReportButtons();
@@ -585,13 +572,10 @@ byId('offlineReportResultButton').addEventListener('click',()=>reportCurrentGame
   byId('offlineReportResultButton'),byId('onlineRematchStatus')));
 byId('settingsForm').addEventListener('submit',event=>{
   if(event.submitter?.value!=='save')return;
-  const mode=byId('modeSetting').value;
-  const modeChanged=mode!==settings.mode;
-  if (modeChanged && !confirm('Změna herního režimu zahájí novou partii a nahradí současnou hru. Pokračovat?')) { event.preventDefault(); return; }
-  settings={mode,difficulty:byId('difficultySetting').value,time:Number(byId('timeSetting').value),sound:byId('soundSetting').checked};
+  settings={...settings,difficulty:byId('difficultySetting').value,time:Number(byId('timeSetting').value),sound:byId('soundSetting').checked};
   setRecapSeconds(byId('scoreRecapSecondsSetting').value);
   try{localStorage.setItem(settingsKey,JSON.stringify(settings));}catch{}
-  if(modeChanged)newGame();else{resetDeadline();save();render();}
+  resetDeadline();save();render();
 });
 window.addEventListener('keydown',event=>{
   if(document.querySelector('dialog[open]')||game.finished||isBotTurn())return;

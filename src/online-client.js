@@ -1,16 +1,23 @@
-import {revealArenaChat} from './arena-ui.js?v=arena-20261028a';
-import {syncResumeCard} from './resume-card.js?v=arena-20261028a';
-import { ONLINE_CONFIG } from './online-config.js?v=arena-20261028a';
-import { describeMovePreview } from './preview.js?v=arena-20261028a';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=arena-20261028a';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=arena-20261028a';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=arena-20261028a';
-import {bindFeedback} from './feedback-client.js?v=arena-20261028a';
+import {revealArenaChat} from './arena-ui.js?v=0.2.38';
+import {syncResumeCard} from './resume-card.js?v=0.2.38';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.38';
+import { describeMovePreview } from './preview.js?v=0.2.38';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.38';
+import {ScoreRecap} from './score-recap.js?v=0.2.38';
+import {createGameAudio} from './game-audio.js?v=0.2.38';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.38';
+import {bindFeedback} from './feedback-client.js?v=0.2.38';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
 const displayAvatar=avatar=>avatar==='♟'?'♟\uFE0E':(avatar||'✦');
-const onlineScoreRecap=new ScoreRecap($('onlineDialog'));
+const ONLINE_TURN_SECONDS=60;
+const ONLINE_RECAP_SECONDS=3;
+const onlineScoreRecap=new ScoreRecap($('onlineDialog'),{seconds:()=>ONLINE_RECAP_SECONDS});
+const ONLINE_SOUND_KEY='arena-online-sound-v1';
+let onlineSoundEnabled=true;
+try{onlineSoundEnabled=localStorage.getItem(ONLINE_SOUND_KEY)!=='false';}catch{}
+const sound=createGameAudio(()=>onlineSoundEnabled);
 const safeApiBase=()=>{
   try{
     const url=new URL(ONLINE_CONFIG.apiBase);
@@ -73,27 +80,6 @@ let currentFriendChallenge=null;
 let pendingFriendChallenge=null, promptedFriendChallengeId=null;
 let lastHandledChallengeId=null;
 let friendChallengeTimer=null;
-const validTurnSeconds=[30,60,90];
-const timeStorageKey='arena-online-turn-seconds';
-const selectedTurnSeconds=()=>validTurnSeconds.includes(Number($('onlineTurnSeconds').value))
-  ? Number($('onlineTurnSeconds').value) : 60;
-function initOnlineTimeSetting(){
-  const recapSelect=$('onlineRecapSeconds');
-  recapSelect.value=String(getRecapSeconds());
-  const select=$('onlineTurnSeconds');
-  try{
-    const migrationKey='arena-online-default-60-migrated-v1';
-    const alreadyMigrated=localStorage.getItem(migrationKey)==='yes';
-    const saved=Number(localStorage.getItem(timeStorageKey));
-    // Replace only the old 90-second default once. Later user-selected 90s remains saved.
-    const preferred=!alreadyMigrated&&saved===90 ? 60 : saved;
-    if(validTurnSeconds.includes(preferred))select.value=String(preferred);
-    if(!alreadyMigrated){
-      if(saved===90)localStorage.setItem(timeStorageKey,'60');
-      localStorage.setItem(migrationKey,'yes');
-    }
-  }catch{ /* browser storage may be disabled */ }
-}
 let presenceTimer=null;
 let lastPresence=null;
 async function heartbeat(){
@@ -569,6 +555,7 @@ function connectOnline(action,{reconnecting=false}={}){
         return;
       }
       status(msg.message||'Chyba serveru.',true);
+      if(gameState)sound('error');
       return;
     }
     if(msg.type==='authenticated'){
@@ -650,7 +637,7 @@ function connectOnline(action,{reconnecting=false}={}){
       }
       return;
     }
-    if(msg.type==='move-accepted'){pending=[];selected=null;status('Platný tah: '+formatEquations(msg.equations)+' · +'+msg.points+' bodů.');return;}
+    if(msg.type==='move-accepted'){pending=[];selected=null;sound('success');status('Platný tah: '+formatEquations(msg.equations)+' · +'+msg.points+' bodů.');return;}
     if(msg.type==='turn-passed'){status('Tah vynechán ('+msg.reason+').');return;}
     if(msg.type==='opponent'){
       disconnectedOpponent=msg.status==='disconnected';
@@ -824,10 +811,10 @@ function renderOnline(){
     cell.title=cell.getAttribute('aria-label');
     cell.addEventListener('click',()=>{
       const old=pending.findIndex(p=>p.row===row&&p.col===col);
-      if(old>=0){selected=pending[old].rackIndex;pending.splice(old,1);renderOnline();return;}
+      if(old>=0){selected=pending[old].rackIndex;pending.splice(old,1);sound();renderOnline();return;}
       if(selected===null||pending.some(p=>p.rackIndex===selected))return;
       pending.push({row,col,digit:s.rack[selected],rackIndex:selected});
-      selected=null;renderOnline();
+      selected=null;sound();renderOnline();
     });
     fragment.append(cell);
   }
@@ -851,6 +838,7 @@ function renderOnline(){
     tile.addEventListener('click',()=>{
       if(exchanging){selectedExchange.has(i)?selectedExchange.delete(i):selectedExchange.add(i);}
       else selected=selected===i?null:i;
+      sound();
       renderOnline();
     });
     rack.append(tile);
@@ -922,7 +910,7 @@ function initializeActions(){
   $('playRandom').addEventListener('click',event=>{
     if(!configured||!credential)return;
     event.stopImmediatePropagation();
-    connectOnline({type:'random',seconds:selectedTurnSeconds()});
+    connectOnline({type:'random',seconds:ONLINE_TURN_SECONDS});
   },true);
   $('playFriends').addEventListener('click',event=>{
     if(!configured||!credential)return;
@@ -1003,10 +991,8 @@ function initializeActions(){
   }});
   $('onlineReportResultButton').addEventListener('click',()=>reportOnlineGame(
     $('onlineReportResultButton'),$('onlineReportResultStatus')));
-  let savedTurnSeconds=selectedTurnSeconds();
   const openSettings=()=>{
-    $('onlineRecapSeconds').value=String(getRecapSeconds());
-    $('onlineTurnSeconds').value=String(savedTurnSeconds);
+    $('onlineSoundSetting').checked=onlineSoundEnabled;
     updateOnlineReportButtons();
     if(!inGameSettings.open)inGameSettings.showModal();
   };
@@ -1015,38 +1001,34 @@ function initializeActions(){
   if(location.hash==='#settings')openSettings();
   window.addEventListener('hashchange',()=>{if(location.hash==='#settings')openSettings();});
   inGameSettings.addEventListener('close',()=>{
-    $('onlineTurnSeconds').value=String(savedTurnSeconds);
-    $('onlineRecapSeconds').value=String(getRecapSeconds());
+    $('onlineSoundSetting').checked=onlineSoundEnabled;
     if(location.hash==='#settings')history.replaceState(null,'',location.pathname+location.search);
   });
   $('onlineSettingsCancel').addEventListener('click',()=>{
     inGameSettings.close();
   });
   $('onlineSettingsSave').addEventListener('click',()=>{
-    const choice=$('onlineRecapSeconds').value;
-    if(setRecapSeconds(choice)){
-      savedTurnSeconds=selectedTurnSeconds();
-      try{localStorage.setItem(timeStorageKey,String(savedTurnSeconds));}catch{/* Storage may be disabled. */}
-      inGameSettings.close();
-      status('Nastavení uloženo: každý příklad '+choice+' s (použije se při příštím tahu).');
-    }
+    onlineSoundEnabled=$('onlineSoundSetting').checked;
+    try{localStorage.setItem(ONLINE_SOUND_KEY,String(onlineSoundEnabled));}catch{}
+    inGameSettings.close();
+    status('Nastavení zobrazení a zvuků uloženo.');
   });
   $('onlineConfirm').addEventListener('click',()=>{
     if(ownTurn()&&pending.length)send('move',{placements:pending.map(p=>({row:p.row,col:p.col,rackIndex:p.rackIndex}))});
   });
-  $('onlineUndo').addEventListener('click',()=>{pending=[];selected=null;exchanging=false;selectedExchange.clear();renderOnline();});
-  $('onlinePass').addEventListener('click',()=>{if(ownTurn())send('pass');});
+  $('onlineUndo').addEventListener('click',()=>{pending=[];selected=null;exchanging=false;selectedExchange.clear();sound();renderOnline();});
+  $('onlinePass').addEventListener('click',()=>{if(ownTurn()){send('pass');sound();}});
   $('onlineExchange').addEventListener('click',()=>{
     if(!ownTurn())return;
     if(!exchanging){pending=[];selected=null;exchanging=true;renderOnline();return;}
-    if(selectedExchange.size)send('exchange',{indices:[...selectedExchange]});
+    if(selectedExchange.size){send('exchange',{indices:[...selectedExchange]});sound();}
     exchanging=false;selectedExchange.clear();renderOnline();
   });
   $('onlineChatForm').addEventListener('submit',event=>{
     event.preventDefault();
     if(!gameState||gameState.finished)return;
     const input=$('onlineChatInput'),text=input.value.trim();
-    if(text){send('chat',{text:text.slice(0,160)});input.value='';}
+    if(text){send('chat',{text:text.slice(0,160)});sound();input.value='';}
   });
   const openFriends=()=>{
     if(pendingFriendChallenge&&!(gameState&&!gameState.finished)){
@@ -1078,7 +1060,7 @@ function initializeActions(){
   });
   $('friendCreateCode').addEventListener('click',()=>{
     $('friendsDialog').close();
-    connectOnline({type:'invite',seconds:selectedTurnSeconds()});
+    connectOnline({type:'invite',seconds:ONLINE_TURN_SECONDS});
   });
   $('friendJoinCode').addEventListener('click',()=>{
     const code=prompt('Zadej kód pozvánky od přítele:');
@@ -1183,7 +1165,7 @@ async function refreshFriends(){
     for(const player of data.friends||[]){
       appendFriend(friends,player,'⚔ Vyzvat',async()=>{
         $('friendsDialog').close();
-        connectOnline({type:'friend',targetId:player.id,friendName:player.nickname,seconds:selectedTurnSeconds()});
+        connectOnline({type:'friend',targetId:player.id,friendName:player.nickname,seconds:ONLINE_TURN_SECONDS});
       });
     }
     for(const [i,player] of (data.friends||[]).entries()){
@@ -1300,7 +1282,6 @@ function renderResponsiveGoogleButton(g){
 export async function initOnline(){
   if(!onlineInitStarted){
     onlineInitStarted=true;
-    initOnlineTimeSetting();
     initializeActions();
   }
   if(!configured){

@@ -1,11 +1,13 @@
 {
   "name": "ciselna-arena",
-  "version": "0.2.37",
+  "version": "0.2.38",
   "private": true,
   "type": "module",
   "description": "Číselná aréna – nezávislá matematická desková hra",
   "scripts": {
     "test": "node --test",
+    "stamp:assets": "node scripts/stamp-assets.mjs",
+    "check:assets": "node scripts/stamp-assets.mjs --check",
     "dev": "npx --yes serve . -l 3000"
   }
 }

@@ -1,4 +1,4 @@
-import {ONLINE_CONFIG} from './online-config.js?v=arena-20261028a';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.38';
 
 export const REPORT_RULESET='classic-powers-roots-linked-powers';
 export function ensureAudit(game){

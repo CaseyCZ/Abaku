@@ -15,15 +15,15 @@ test('lobby and offline game expose one shared current version and changelog',()
   assert.equal(new Set(RELEASE_HISTORY.map(item=>item.version)).size,RELEASE_HISTORY.length);
   for(const page of pages){
     assert.match(page,/<details class="version-history" data-version-history><summary>Historie změn<\/summary><\/details>/);
-    assert.match(page,/version-history\.css\?v=0\.2\.3/);
-    assert.match(page,/src\/version-ui\.js\?v=0\.2\.37/);
+    assert.match(page,/version-history\.css\?v=[\w.-]+/);
+    assert.match(page,/src\/version-ui\.js\?v=[\w.-]+/);
     assert.doesNotMatch(page,/<summary>Verze 0\.2\.[0-9]+/);
   }
 });
 
 test('shared renderer shows release dates and notes on both settings screens',()=>{
   const source=read('../src/version-ui.js');
-  assert.match(source,/from '\.\/version-data\.js\?v=0\.2\.37'/);
+  assert.match(source,/from '\.\/version-data\.js\?v=[\w.-]+'/);
   assert.doesNotMatch(source,/innerHTML|document\.write|localStorage/);
   function element(tag){
     return {tag,children:[],textContent:'',className:'',

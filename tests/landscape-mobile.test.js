@@ -16,7 +16,7 @@ test('landscape phone board follows viewport width, not available height',()=>{
   assert.match(landscape,/\.game-app \.board-rim\{[^}]*aspect-ratio:1 \/ 1/);
   assert.match(landscape,/\.game-app \.board\{[^}]*width:100%;height:100%!important;/);
   assert.match(landscape,/\.game-app \.right-side\{[^}]*grid-column:1;grid-row:2/);
-  assert.match(html,/game-chrome\.css\?v=0\.2\.30/);
+  assert.match(html,/game-chrome\.css\?v=[\w.-]+/);
 });
 
 test('landscape score recap is compact and cannot exceed viewport height',()=>{
@@ -25,7 +25,7 @@ test('landscape score recap is compact and cannot exceed viewport height',()=>{
   assert.match(landscape,/\.arena-score-recap \.arena-score-face\{[^}]*padding:8px 14px 10px/);
   assert.match(landscape,/\.arena-score-recap \.arena-score-counter\{[^}]*width:52px;height:52px/);
   assert.match(js,/scoreRecap\.play\(\{player:who,breakdown:checked\.equationBreakdown/);
-  assert.match(html,/score-recap\.css\?v=0\.2\.15/);
+  assert.match(html,/score-recap\.css\?v=[\w.-]+/);
 });
 
 test('portrait rules remain untouched: overrides are only inside landscape media',()=>{
@@ -66,7 +66,7 @@ test('landscape page scroll exists before game tiles are populated',()=>{
   assert.match(landscape,/\.game-app\{\s*height:auto!important;min-height:100dvh;overflow:visible!important/);
   assert.match(landscape,/\.game-app \.board-rim\{\s*box-sizing:border-box;display:flex;[\s\S]*?aspect-ratio:1 \/ 1/);
   assert.match(landscape,/\.game-app \.board\{[\s\S]*?width:100%;height:100%!important/);
-  assert.match(html,/game-chrome\.css\?v=0\.2\.30/);
+  assert.match(html,/game-chrome\.css\?v=[\w.-]+/);
 });
 
 test('landscape phone shows the same accessible toggle menu as portrait',()=>{
@@ -82,5 +82,5 @@ test('landscape phone shows the same accessible toggle menu as portrait',()=>{
   }
   assert.match(nav,/navigation\.classList\.toggle\('is-open'\)/);
   assert.match(nav,/matchMedia\('\(max-width:760px\), \(orientation:landscape\) and \(max-width:1100px\) and \(max-height:600px\) and \(pointer:coarse\)'\)/);
-  assert.match(html,/site-navigation\.js\?v=2/);
+  assert.match(html,/site-navigation\.js\?v=[\w.-]+/);
 });

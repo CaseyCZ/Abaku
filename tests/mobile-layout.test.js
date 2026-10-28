@@ -30,8 +30,8 @@ test('status and chat visibility is controlled from settings on every screen siz
   assert.match(file('../src/arena-ui.js'),/event\.defaultPrevented/);
 });
 test('mobile assets use cache-busted current version',()=>{
-  assert.match(html,/style\.css\?v=0\.2\.35/);
-  assert.match(html,/main\.js\?v=\d+\.\d+\.\d+/);
+  assert.match(html,/style\.css\?v=[\w.-]+/);
+  assert.match(html,/main\.js\?v=[\w.-]+/);
 });
 
 test('return to lobby requires confirmation and saves current game',()=>{
@@ -67,8 +67,8 @@ test('accepted offline move shows one message and highlights board tiles for thr
 
 test('offline accepted move starts an automatic one-equation-at-a-time score scroll',()=>{
   const scoreStyle=file('../score-recap.css');
-  assert.match(html,/score-recap\.css\?v=0\.2\.15/);
-  assert.match(js,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=0\.2\.37'/);
+  assert.match(html,/score-recap\.css\?v=[\w.-]+/);
+  assert.match(js,/import \{ScoreRecap,getRecapSeconds,setRecapSeconds\} from '.\/score-recap\.js\?v=[\w.-]+'/);
   assert.match(js,/const scoreRecap = new ScoreRecap\(document\.body\)/);
   assert.match(js,/scoreRecap\.play\(\{player:who,breakdown:checked\.equationBreakdown/);
   assert.match(js,/equations:checked\.equations,total:checked\.points/);
@@ -78,11 +78,12 @@ test('offline accepted move starts an automatic one-equation-at-a-time score scr
 });
 
 
-test('offline settings allow choosing the same saved score-tally duration as online',()=>{
+test('offline settings allow choosing a local-only score-tally duration',()=>{
   assert.match(html,/id="scoreRecapSecondsSetting"/);
   assert.match(html,/<option value="0">Vypnuto<\/option>/);
-  for(const seconds of [2,3,5,8,10])
+  for(const seconds of [2,3,5])
     assert.match(html,new RegExp('<option value="'+seconds+'"[^>]*>'+seconds+' sekund'));
+  assert.doesNotMatch(html,/<option value="8">|<option value="10">/);
   assert.match(js,/byId\('scoreRecapSecondsSetting'\)\.value=String\(getRecapSeconds\(\)\)/);
   assert.match(js,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
   assert.match(js,/onDone:\(\)=>new Promise\(resolve=>\{/);
@@ -112,7 +113,7 @@ test('the board becomes interactive again after recap and three-second highlight
 
 test('offline completed game reuses the existing online results dialog and styling',()=>{
   const sharedCss=file('../result-dialog.css');
-  assert.match(html,/href="\.\/result-dialog\.css\?v=1"/);
+  assert.match(html,/href="\.\/result-dialog\.css\?v=[\w.-]+"/);
   for(const id of [
     'onlineResultDialog','onlineResultTitle','onlineResultDescription',
     'onlineResultPlayer0','onlineResultPlayer1','onlineResultScore0',

@@ -26,14 +26,14 @@ test('timer stays live in the top center and the bag count precedes the scoreboa
   assert.match(css,/\.game-app \.top-bar \.timer-wrap\.warning strong\{color:#ff8066\}/);
   assert.match(css,/@media\(max-width:370px\)\{[\s\S]*?\.game-app \.top-bar > \.bag-count\{font-size:11px\}/);
   assert.match(css,/\.game-app \.top-bar \.game-header-score\{\s*grid-column:1\/-1;grid-row:3/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.30/);
+  assert.match(game,/game-chrome\.css\?v=[\w.-]+/);
 });
 
 test('game menu reuses the homepage mobile navigation and keeps actions functional',()=>{
   assert.match(game,/id="menuToggle"[^>]*aria-expanded="false"[^>]*aria-controls="siteNavigation"/);
   assert.match(game,/id="siteNavigation" aria-label="Menu hry"/);
-  assert.match(game,/src\/site-navigation\.js\?v=2/);
-  assert.match(home,/src\/site-navigation\.js\?v=2/);
+  assert.match(game,/src\/site-navigation\.js\?v=[\w.-]+/);
+  assert.match(home,/src\/site-navigation\.js\?v=[\w.-]+/);
   for(const id of ['lobbyButton','rulesButton','settingsButton','newButton']){
     assert.equal(game.split('id="'+id+'"').length-1,1,id);
     assert.match(main,new RegExp(id+"'\\)\\.addEventListener\\('click'"));
@@ -52,18 +52,19 @@ test('local match settings mirror the compact homepage without changing setting 
   assert.match(settings,/<details class="game-settings-details game-settings-report">/);
   assert.match(settings,/<details class="version-history" data-version-history>/);
   assert.doesNotMatch(settings,/<details[^>]*\bopen(?:=|>)/);
-  for(const id of ['settingsForm','modeSetting','difficultySetting','timeSetting','scoreRecapSecondsSetting','historySetting','chatSetting','soundSetting','reportGameButton','reportGameStatus','reportProblemButton']){
+  for(const id of ['settingsForm','difficultySetting','timeSetting','scoreRecapSecondsSetting','historySetting','chatSetting','soundSetting','reportGameButton','reportGameStatus','reportProblemButton']){
     assert.equal(settings.split('id="'+id+'"').length-1,1,id);
   }
+  assert.doesNotMatch(settings,/id="modeSetting"/);
   assert.ok(settings.indexOf('id="reportProblemButton"')>settings.indexOf('value="save"'));
   assert.match(settings,/<button value="cancel"/);
   assert.match(settings,/<button value="save"/);
   assert.match(main,/byId\('settingsForm'\)\.addEventListener\('submit'/);
-  assert.match(main,/modeChanged && !confirm/);
+  assert.match(main,/settings=\{\.\.\.settings,difficulty:/);
   assert.match(main,/setRecapSeconds\(byId\('scoreRecapSecondsSetting'\)\.value\)/);
   assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-fields \{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-toggles \{\s*display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
-  assert.match(game,/shared-game-settings\.css\?v=1/);
+  assert.match(game,/shared-game-settings\.css\?v=[\w.-]+/);
   const currentVersion=JSON.parse(read('../package.json')).version;
   assert.ok(game.includes('src/version-ui.js?v='+currentVersion));
 });

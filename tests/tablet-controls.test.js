@@ -19,7 +19,7 @@ test('tablet-only portrait query keeps actions visible without changing phones o
   assert.match(tablet,/grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\) max-content minmax\(0,2fr\)!important;/);
   assert.match(tablet,/grid-template-rows:auto;/);
   assert.match(tablet,/\.game-app \.control-bar \.game-mode\{display:none!important\}/);
-  assert.match(game,/game-chrome\.css\?v=0\.2\.30/);
+  assert.match(game,/game-chrome\.css\?v=[\w.-]+/);
 });
 
 test('tablet rack and all three actions occupy a single row at digit height',()=>{

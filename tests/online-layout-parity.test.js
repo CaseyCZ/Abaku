@@ -25,13 +25,14 @@ test('tablet match header keeps both player cards on the same score row',()=>{
 
 test('online settings share markup classes and one CSS component with local settings',()=>{
   for(const page of [local,online]){
-    assert.match(page,/shared-game-settings\.css\?v=1/);
-    assert.match(page,/class="game-settings-fields"/);
+    assert.match(page,/shared-game-settings\.css\?v=[\w.-]+/);
     assert.match(page,/class="game-settings-toggles"/);
     assert.match(page,/class="game-settings-details game-settings-privacy"/);
   }
+  assert.match(local,/class="game-settings-fields"/);
   assert.match(sharedSettings,/:is\(#settingsDialog,#onlineGameSettingsDialog\)/);
-  for(const id of ['onlineTurnSeconds','onlineRecapSeconds','onlineHistorySetting','onlineChatSetting']){
+  for(const id of ['onlineHistorySetting','onlineChatSetting','onlineSoundSetting']){
     assert.equal(online.split('id="'+id+'"').length-1,1);
   }
+  assert.doesNotMatch(online,/id="onlineTurnSeconds"|id="onlineRecapSeconds"/);
 });

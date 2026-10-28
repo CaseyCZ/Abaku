@@ -10,7 +10,9 @@ const RESTART_RECOVERY_WINDOW = 24 * 60 * 60_000;
 const INVALID_MOVE_WINDOW = 5_000;
 const MAX_INVALID_MOVES = 6;
 const INVITE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-const legalTime = value => [30, 60, 90].includes(Number(value)) ? Number(value) : 60;
+// All newly created online matches use one fixed turn duration.
+// Restored historical matches retain their original deadline and duration.
+const legalTime = () => 60;
 
 export class MatchEngine {
   constructor({send = () => {}, onResult = () => {}, onChange = () => {}, onFinish = null, onDelete = () => {}, clock = () => Date.now(), rng = Math.random, getName = () => null} = {}) {

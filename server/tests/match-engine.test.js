@@ -14,7 +14,7 @@ test('matchmaking pairs two different players, sends only personal racks',()=>{
   game.joinRandom('a',30); game.joinRandom('b',30);
   const a=game.matchOf('a'),b=game.matchOf('b');
   assert.equal(a,b);
-  assert.equal(a.seconds,30);
+  assert.equal(a.seconds,60);
   assert.equal(a.players[0].rack.length,5);
   const personal=out.filter(x=>x.type==='match-state');
   assert.equal(personal.at(-2).rack.length,5);
@@ -134,29 +134,28 @@ test('players may queue and be matched again after a completed game',()=>{
   assert.equal(game.matchOf('b'),game.matchOf('d'));
 });
 
-test('random matchmaking keeps selected turn times compatible',()=>{
+test('random matchmaking ignores legacy time choices and pairs everyone at 60 seconds',()=>{
   const {game,out}=rig();
   game.connect('thirty');game.connect('sixty');game.connect('sixty2');game.connect('thirty2');
   game.joinRandom('thirty',30);
   game.joinRandom('sixty',60);
-  assert.equal(game.waitingCount(),2);
-  assert.equal(game.matchOf('thirty'),null);
+  assert.equal(game.waitingCount(),0);
+  assert.equal(game.matchOf('thirty'),game.matchOf('sixty'));
+  assert.equal(game.matchOf('thirty').seconds,60);
   game.joinRandom('sixty2',60);
-  assert.equal(game.matchOf('sixty').seconds,60);
-  assert.equal(game.matchOf('sixty'),game.matchOf('sixty2'));
   assert.equal(game.waitingCount(),1);
   game.joinRandom('thirty2',30);
-  assert.equal(game.matchOf('thirty').seconds,30);
-  assert.equal(game.matchOf('thirty'),game.matchOf('thirty2'));
+  assert.equal(game.matchOf('sixty2').seconds,60);
+  assert.equal(game.matchOf('sixty2'),game.matchOf('thirty2'));
   assert.ok(out.some(x=>x.type==='match-state'&&x.uid==='sixty2'&&x.seconds===60));
 });
 
-test('private invite uses creator turn limit, and invalid time defaults to 60 sec',()=>{
+test('private invite always has 60 seconds, even when creator requests old duration',()=>{
   const {game}=rig();
   game.connect('a');game.connect('b');game.connect('c');
   const code=game.makeInvite('a',30);
   game.joinInvite('b',code);
-  assert.equal(game.matchOf('a').seconds,30);
+  assert.equal(game.matchOf('a').seconds,60);
   game.joinRandom('c',500);
   assert.equal(game.queue[0].seconds,60);
 });
@@ -319,7 +318,7 @@ test('resigning an active game immediately awards the win and notifies both play
   assert.throws(()=>game.resign('a'),/rozehraná/);
 });
 
-test('rematch requires acceptance from both players, preserves time and resets score',()=>{
+test('rematch requires acceptance from both players, uses 60 seconds and resets score',()=>{
   const {game,out}=rig();
   game.connect('a');game.connect('b');
   const old=game.createMatch('a','b',30);
@@ -333,7 +332,7 @@ test('rematch requires acceptance from both players, preserves time and resets s
   const next=game.matchOf('a');
   assert.notEqual(next,old);
   assert.equal(next,game.matchOf('b'));
-  assert.equal(next.seconds,30);
+  assert.equal(next.seconds,60);
   assert.equal(next.players[0].uid,'b');
   assert.deepEqual(next.players.map(p=>p.score),[0,0]);
   assert.equal(next.finished,false);

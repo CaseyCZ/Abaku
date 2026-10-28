@@ -1,17 +1,25 @@
 // Sequential scoring display shared by local and online matches.
 // It only visualises points already calculated by validateMove on the client
 // or the authoritative server. It never changes the saved/player score.
-import {formatEquations} from './rules.js?v=arena-20261028a';
+import {formatEquations} from './rules.js?v=0.2.38';
 
-// Shared between offline and online screens in the same browser.
-export const RECAP_SECONDS_OPTIONS=Object.freeze([0,2,3,5,8,10]);
-export const RECAP_STORAGE_KEY='arena-score-recap-seconds-v1';
+// Local players choose their duration; online matches always use three seconds.
+export const RECAP_SECONDS_OPTIONS=Object.freeze([0,2,3,5]);
+export const RECAP_STORAGE_KEY='arena-local-score-recap-seconds-v1';
+const LEGACY_RECAP_STORAGE_KEY='arena-score-recap-seconds-v1';
 export function getRecapSeconds(){
   try{
-    const stored=localStorage.getItem(RECAP_STORAGE_KEY);
+    // Read the old shared preference only until a local-specific one is saved.
+    const current=localStorage.getItem(RECAP_STORAGE_KEY);
+    const legacy=current===null?localStorage.getItem(LEGACY_RECAP_STORAGE_KEY):null;
+    const stored=current??legacy;
     // Number(null) is zero: missing preferences must remain 3 seconds.
-    if(stored!==null&&stored!==''&&RECAP_SECONDS_OPTIONS.includes(Number(stored)))
-      return Number(stored);
+    const preferred=stored!==null&&stored!==''&&RECAP_SECONDS_OPTIONS.includes(Number(stored))
+      ?Number(stored):3;
+    // Invalid former 8/10-second choices become a saved local 3-second value.
+    if(current===null&&legacy!==null||current!==null&&String(preferred)!==current)
+      localStorage.setItem(RECAP_STORAGE_KEY,String(preferred));
+    return preferred;
   }catch{ /* localStorage may be blocked */ }
   return 3;
 }
@@ -46,7 +54,8 @@ export function scoringSteps(breakdown,total,equations=[]){
 }
 
 export class ScoreRecap {
-  constructor(container=document.body){
+  constructor(container=document.body,{seconds=getRecapSeconds}={}){
+    this.seconds=seconds;
     this.root=document.createElement('div');
     this.root.className='arena-score-recap';
     this.root.hidden=true;
@@ -105,7 +114,7 @@ export class ScoreRecap {
     this.cancel();
     // Disabled: skip the parchment/point counter entirely. The same onDone
     // callback still highlights newly played tiles for 3 seconds.
-    if(getRecapSeconds()===0){
+    if(this.seconds()===0){
       onDone?.();
       return;
     }
@@ -120,7 +129,7 @@ export class ScoreRecap {
     const counterDuration=reduced?100:700;
     // Hold each COMPLETE example on screen for the selected number
     // of seconds AFTER the counter finishes animating.
-    const visibleSeconds=getRecapSeconds();
+    const visibleSeconds=this.seconds();
     const stepDuration=counterDuration+visibleSeconds*1000;
     const completedDuration=visibleSeconds*1000;
     const animateCount=(from,to)=>{

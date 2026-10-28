@@ -10,16 +10,16 @@ const start=page.indexOf('<dialog id="onlineGameSettingsDialog"');
 const end=page.indexOf('</dialog>',start);
 const html=page.slice(start,end);
 
-test('both game modes use the same compact settings components',()=>{
+test('online uses shared compact styling with its own visibility and sound switches',()=>{
   assert.ok(start>=0&&end>start);
-  assert.match(html,/<div class="game-settings-toggles" role="group" aria-label="Zobrazení panelů">/);
-  assert.match(html,/<div class="game-settings-fields">/);
+  assert.match(html,/<div class="game-settings-toggles" role="group" aria-label="Zobrazení a zvuk">/);
   assert.match(html,/<div class="online-game-settings-body game-settings-body">/);
   assert.match(html,/<h2 id="onlineGameSettingsTitle">Nastavení partie<\/h2>/);
-  assert.match(page,/href="\.\/shared-game-settings\.css\?v=1"/);
-  for(const id of ['onlineHistorySetting','onlineChatSetting','onlineRecapSeconds','onlineTurnSeconds']){
+  assert.match(page,/href="\.\/shared-game-settings\.css\?v=[\w.-]+"/);
+  for(const id of ['onlineHistorySetting','onlineChatSetting','onlineSoundSetting']){
     assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1,id+' must remain present once');
   }
+  assert.doesNotMatch(html,/id="onlineTurnSeconds"|id="onlineRecapSeconds"/);
   assert.match(shared,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-toggles/);
   assert.match(shared,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-fields/);
   assert.match(shared,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.game-settings-fields \.game-settings-field select/);
@@ -39,21 +39,19 @@ test('help, game reporting and version history are collapsed; issue reporting is
   const issue=html.indexOf('id="onlineReportProblemButton"');
   assert.ok(report>0&&status>report&&save>status&&issue>save);
   assert.match(html,/id="onlineReportGameStatus" class="dialog-note" role="status" aria-live="polite"/);
-  assert.match(html,/id="onlineTimeHelp"/);
-  assert.match(html,/aria-describedby="onlineTimeHelp"/);
+  assert.match(html,/id="onlineTimeHelp"[^>]*>Online partie mají pevně 60 sekund na tah a 3 sekundy/);
   assert.match(css,/#onlineGameSettingsDialog \.online-game-settings-body\{padding:16px 18px;gap:9px;text-align:left\}/);
-  assert.match(page,/href="\.\/arena-home\.css\?v=0\.2\.11"/);
+  assert.match(page,/href="\.\/arena-home\.css\?v=[\w.-]+"/);
 });
 
-test('original time values, cancel and save actions remain available',()=>{
-  for(const [id,values] of [['onlineRecapSeconds',[0,2,3,5,8,10]],['onlineTurnSeconds',[30,60,90]]]){
-    const select=html.slice(html.indexOf('id="'+id+'"'),html.indexOf('</select>',html.indexOf('id="'+id+'"')));
-    for(const value of values)assert.match(select,new RegExp('<option value="'+value+'"'));
-  }
+test('fixed online durations, sound and cancel/save actions remain available',()=>{
+  assert.match(html,/id="onlineSoundSetting" checked/);
   for(const id of ['onlineSettingsCancel','onlineSettingsSave','onlineReportProblemButton'])
     assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1);
   const client=file('../src/online-client.js');
   assert.match(client,/onlineSettingsSave'\)\.addEventListener\('click'/);
   assert.match(client,/onlineSettingsCancel'\)\.addEventListener\('click'/);
   assert.match(client,/buttonId:'onlineReportProblemButton'/);
+  assert.match(client,/const ONLINE_TURN_SECONDS=60/);
+  assert.match(client,/const ONLINE_RECAP_SECONDS=3/);
 });

@@ -1,8 +1,10 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=arena-20261028e';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=arena-20261028f';
 import {syncResumeCard} from './resume-card.js?v=arena-20261028a';
 const PROFILE_KEY = 'arena-local-profile-v1';
 const GAME_KEY = 'retro-arena-game-v1';
 const byId = id => document.getElementById(id);
+// Keep the saved chess-pawn value unchanged; force a monochrome glyph on iOS.
+const displayAvatar = avatar => avatar === '♟' ? '♟\uFE0E' : (avatar || '✦');
 
 function getSaved(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); }
@@ -19,7 +21,7 @@ function paintProfile() {
   const {nickname,avatar}=loadProfile();
   byId('welcomeName').textContent=nickname;
   byId('profileName').textContent=nickname;
-  byId('profileAvatar').textContent=avatar;
+  byId('profileAvatar').textContent=displayAvatar(avatar);
 }
 function showSavedGame() {
   const game=getSaved(GAME_KEY);

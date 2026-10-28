@@ -8,6 +8,8 @@ import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-id
 import {bindFeedback} from './feedback-client.js?v=arena-20261028a';
 
 const $=id=>document.getElementById(id);
+// Display the chess pawn as a text symbol while keeping the stored avatar value.
+const displayAvatar=avatar=>avatar==='♟'?'♟\uFE0E':(avatar||'✦');
 const onlineScoreRecap=new ScoreRecap($('onlineDialog'));
 const safeApiBase=()=>{
   try{
@@ -247,7 +249,7 @@ function showProfile(profile){
   cacheVerifiedOnlineProfile(profile);
   $('welcomeName').textContent=profile.nickname;
   $('profileName').textContent=profile.nickname;
-  $('profileAvatar').textContent=profile.avatar||'✦';
+  $('profileAvatar').textContent=displayAvatar(profile.avatar);
   $('onlineStats').hidden=false;
   $('onlineStats').textContent='Zápasy: '+profile.played+' · Výhry: '+profile.wins+' · Úspěšnost: '+profile.winRate+' %';
   $('onlineLogout').hidden=false;
@@ -1133,7 +1135,7 @@ function initializeActions(){
 let friendsBusy=false;
 function appendFriend(container,player,buttonText,handler){
   const row=document.createElement('div');row.className='friend-entry';
-  const name=document.createElement('span');name.textContent=(player.avatar||'✦')+' '+player.nickname;
+  const name=document.createElement('span');name.textContent=displayAvatar(player.avatar)+' '+player.nickname;
   row.append(name);
   if(handler){
     const button=document.createElement('button');button.type='button';button.className='gold-button';button.textContent=buttonText;
@@ -1223,7 +1225,7 @@ function showFriendChallenge(challenge,force=false){
   if(gameState&&!gameState.finished)return;
   promptedFriendChallengeId=challenge.id;
   currentFriendChallenge=challenge;
-  $('friendChallengeFrom').textContent=(challenge.from.avatar||'✦')+' '+challenge.from.nickname;
+  $('friendChallengeFrom').textContent=displayAvatar(challenge.from.avatar)+' '+challenge.from.nickname;
   $('friendChallengeTime').textContent='Čas na tah: '+challenge.seconds+' sekund · pozvánka vyprší za '+Math.ceil(challenge.expiresInSeconds/60)+' min.';
   $('friendChallengeStatus').textContent='';
   $('friendChallengeDialog').showModal();

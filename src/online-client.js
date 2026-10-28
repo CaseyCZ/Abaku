@@ -1,12 +1,12 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.41';
-import {syncResumeCard} from './resume-card.js?v=0.2.41';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.41';
-import { describeMovePreview } from './preview.js?v=0.2.41';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.41';
-import {ScoreRecap} from './score-recap.js?v=0.2.41';
-import {createGameAudio} from './game-audio.js?v=0.2.41';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.41';
-import {bindFeedback} from './feedback-client.js?v=0.2.41';
+import {revealArenaChat} from './arena-ui.js?v=0.2.42';
+import {syncResumeCard} from './resume-card.js?v=0.2.42';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.42';
+import { describeMovePreview } from './preview.js?v=0.2.42';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.42';
+import {ScoreRecap} from './score-recap.js?v=0.2.42';
+import {createGameAudio} from './game-audio.js?v=0.2.42';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.42';
+import {bindFeedback} from './feedback-client.js?v=0.2.42';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -1039,15 +1039,17 @@ function initializeActions(){
   }});
   $('onlineReportResultButton').addEventListener('click',()=>reportOnlineGame(
     $('onlineReportResultButton'),$('onlineReportResultStatus')));
-  const openSettings=()=>{
+  const openSettings=(fromHome=false)=>{
     $('onlineSoundSetting').checked=onlineSoundEnabled;
+    $('homeLocalTimeHelp').hidden=!fromHome;
+    $('homeLocalSettingsExplanation').hidden=!fromHome;
     updateOnlineReportButtons();
     if(!inGameSettings.open)inGameSettings.showModal();
   };
-  $('onlineSettingsButton').addEventListener('click',openSettings);
-  $('lobbySettingsButton').addEventListener('click',openSettings);
-  if(location.hash==='#settings')openSettings();
-  window.addEventListener('hashchange',()=>{if(location.hash==='#settings')openSettings();});
+  $('onlineSettingsButton').addEventListener('click',()=>openSettings(false));
+  $('lobbySettingsButton').addEventListener('click',()=>openSettings(true));
+  if(location.hash==='#settings')openSettings(!$('onlineDialog').open);
+  window.addEventListener('hashchange',()=>{if(location.hash==='#settings')openSettings(!$('onlineDialog').open);});
   inGameSettings.addEventListener('close',()=>{
     $('onlineSoundSetting').checked=onlineSoundEnabled;
     if(location.hash==='#settings')history.replaceState(null,'',location.pathname+location.search);

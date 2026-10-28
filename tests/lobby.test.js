@@ -417,8 +417,8 @@ test('in-match online settings control sound and panels but not fixed durations'
   assert.match(landing,/id="onlineSettingsSave"/);
   assert.match(landing,/id="onlineSettingsCancel"/);
   assert.match(landing,/id="onlineCancel"/);
-  assert.match(onlineClient,/onlineSettingsButton'\)\.addEventListener\('click',openSettings/);
-  assert.match(onlineClient,/lobbySettingsButton'\)\.addEventListener\('click',openSettings/);
+  assert.match(onlineClient,/onlineSettingsButton'\)\.addEventListener\('click',\(\)=>openSettings\(false\)\)/);
+  assert.match(onlineClient,/lobbySettingsButton'\)\.addEventListener\('click',\(\)=>openSettings\(true\)\)/);
   assert.match(onlineClient,/onlineSettingsSave'\)\.addEventListener\('click'/);
   assert.match(onlineClient,/localStorage\.setItem\(ONLINE_SOUND_KEY,String\(onlineSoundEnabled\)\)/);
   assert.match(landing,/id="onlineGameNavigation"/);

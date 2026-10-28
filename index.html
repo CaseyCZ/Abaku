@@ -11,20 +11,20 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.41">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.41">
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.41">
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.41">
-  <link rel="stylesheet" href="./analytics.css?v=0.2.41">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.41">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.41">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.41">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.41">
-  <link rel="stylesheet" href="./online-view.css?v=0.2.41">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.41">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.41">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.41">
-  <script src="./src/analytics.js?v=0.2.41" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.42">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.42">
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.42">
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.42">
+  <link rel="stylesheet" href="./analytics.css?v=0.2.42">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.42">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.42">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.42">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.42">
+  <link rel="stylesheet" href="./online-view.css?v=0.2.42">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.42">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.42">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.42">
+  <script src="./src/analytics.js?v=0.2.42" defer></script>
 </head>
 <body class="arena-home">
   <a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>
@@ -299,10 +299,11 @@
       <h2 id="onlineGameSettingsTitle">Nastavení partie</h2>
       <section class="game-settings-section" aria-labelledby="onlineGameSettingsMatchTitle">
         <h3 id="onlineGameSettingsMatchTitle">Partie</h3>
+        <p class="settings-inline-note" id="homeLocalTimeHelp" hidden><strong>Místní hra:</strong> Proti počítači nebo ve dvou na jednom zařízení si můžeš nastavit 30, 60 nebo 90 sekund na tah a zobrazení příkladu vypnout nebo zvolit 2, 3 či 5 sekund. Tyto volby najdeš v nastavení místní hry.</p>
         <p class="settings-inline-note" id="onlineTimeHelp">Online partie mají pevně 60 sekund na tah a 3 sekundy na zobrazení každého příkladu.</p>
       </section>
       <section class="game-settings-section" aria-labelledby="onlineGameDisplayTitle">
-        <h3 id="onlineGameDisplayTitle">Herní obrazovka</h3>
+        <h3 id="onlineGameDisplayTitle">Herní obrazovka – online</h3>
         <div class="game-settings-toggles" role="group" aria-label="Zobrazení a zvuk">
           <label class="check-line"><input type="checkbox" id="onlineHistorySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
           <label class="check-line"><input type="checkbox" id="onlineChatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
@@ -312,7 +313,9 @@
       <details class="game-settings-details">
         <summary data-arena-settings-copy="explanation">Vysvětlení nastavení</summary>
         <p data-arena-settings-copy="panels"></p>
-        <p>Čas na tah a délka zobrazení příkladu jsou online pevné. Zvuky, průběh a chat lze zapnout nebo vypnout nezávisle na místní hře.</p>
+        <p><strong>Zobrazit průběh</strong> ukazuje odehrané tahy a získané body. <strong>Zobrazit chat</strong> určuje, jestli vidíš okno zpráv. <strong>Zvuky</strong> zapínají nebo vypínají zvukové efekty.</p>
+        <p><strong>Online:</strong> čas na tah a zobrazení příkladu jsou pevné. Přepínače v tomto okně platí jen pro tvoji online obrazovku; nemění nastavení soupeře.</p>
+        <p id="homeLocalSettingsExplanation" hidden><strong>Místní hra:</strong> má vlastní nastavení času, zobrazení příkladu, obtížnosti počítače, průběhu, chatu a zvuků. Proti počítači se chat nezobrazuje. Změny místní hry neovlivní online partie.</p>
       </details>
       <details class="game-settings-details game-settings-report">
         <summary data-arena-settings-copy="reportTitle">Odeslat partii ke kontrole</summary>
@@ -368,9 +371,9 @@
       <p id="onlineReportResultStatus" role="status" aria-live="polite"></p>
     </div>
   </dialog>
-  <script type="module" src="./src/site-navigation.js?v=0.2.41"></script>
-  <script type="module" src="./src/arena-ui.js?v=0.2.41"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.41"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.41"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.42"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.42"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.42"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.42"></script>
 </body>
 </html>

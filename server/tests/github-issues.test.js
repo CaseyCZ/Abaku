@@ -107,6 +107,8 @@ test('long history uses one GitHub document attachment when available',async()=>
   assert.equal(calls[1].version,'2026-03-10');
   assert.equal(calls[1].body.type,'generic');
   assert.equal(calls[1].body.name,'Anonymizovaná historie partie');
+  assert.match(calls[1].body.body,/\n  "mode": "bot",\n/);
+  assert.match(calls[1].body.body,/\n    \{\n      "type": "move",/);
   const attached=JSON.parse(calls[1].body.body.match(/```json\n\n([\s\S]*?)\n\n```/)[1]);
   assert.deepEqual(attached,publicGameHistory(report,'bot'));
 });

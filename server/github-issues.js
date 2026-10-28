@@ -71,7 +71,8 @@ export class GitHubIssueReporter{
   async create({description,mode,report=null}){
     if(!this.configured)throw new Error('Hlášení problémů ještě není na serveru zapnuté.');
     const title=`[Hlášení hráče] ${description.replace(/\s+/g,' ').slice(0,75)}`;
-    const history=report?JSON.stringify(publicGameHistory(report,mode)):null;
+    // Keep the public document readable on GitHub, including on small screens.
+    const history=report?JSON.stringify(publicGameHistory(report,mode),null,2):null;
     if(history&&Buffer.byteLength(history,'utf8')>MAX_HISTORY_ARTIFACT_BYTES)
       throw new Error('Historie partie je příliš dlouhá pro jednu přílohu. Odešli problém bez historie a popiš konkrétní tah.');
     const body=[

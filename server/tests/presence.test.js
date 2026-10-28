@@ -26,3 +26,28 @@ test('inactive users automatically expire without a database or background proce
   now=69_999;assert.equal(presence.count(),1);
   now=70_000;assert.equal(presence.count(),0);
 });
+
+test('capacity of 700 counts unique players, permits reconnects and releases expired slots',()=>{
+  let now=1000;
+  const presence=new PresenceTracker({clock:()=>now,ttlMs:70_000});
+  for(let i=0;i<700;i++)presence.touch('player-'+i);
+  assert.equal(presence.count(),700);
+  assert.equal(presence.canAdmit('new-player'),false);
+  assert.equal(presence.canAdmit('player-0'),true);
+  assert.equal(presence.canAdmit('player-0',['player-0']),true);
+  presence.remove('player-0');
+  assert.equal(presence.canAdmit('new-player'),true);
+  presence.touch('new-player');
+  assert.equal(presence.count(),700);
+  now+=70_000;
+  assert.equal(presence.canAdmit('another-player'),true);
+});
+
+test('live WebSocket users occupy capacity even without a recent presence heartbeat',()=>{
+  const presence=new PresenceTracker();
+  const connected=new Set(Array.from({length:700},(_,i)=>'ws-'+i));
+  assert.equal(presence.canAdmit('new-player',connected),false);
+  assert.equal(presence.canAdmit('ws-42',connected),true);
+  connected.delete('ws-42');
+  assert.equal(presence.canAdmit('new-player',connected),true);
+});

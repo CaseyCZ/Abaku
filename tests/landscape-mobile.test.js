@@ -16,7 +16,7 @@ test('landscape phone board follows viewport width, not available height',()=>{
   assert.match(landscape,/\.game-app \.board-rim\{[^}]*aspect-ratio:1 \/ 1/);
   assert.match(landscape,/\.game-app \.board\{[^}]*width:100%;height:100%!important;/);
   assert.match(landscape,/\.game-app \.right-side\{[^}]*grid-column:1;grid-row:2/);
-  assert.match(html,/game-chrome\.css\?v=0\.2\.26/);
+  assert.match(html,/game-chrome\.css\?v=0\.2\.27/);
 });
 
 test('landscape score recap is compact and cannot exceed viewport height',()=>{
@@ -66,7 +66,7 @@ test('landscape page scroll exists before game tiles are populated',()=>{
   assert.match(landscape,/\.game-app\{\s*height:auto!important;min-height:100dvh;overflow:visible!important/);
   assert.match(landscape,/\.game-app \.board-rim\{\s*box-sizing:border-box;display:flex;[\s\S]*?aspect-ratio:1 \/ 1/);
   assert.match(landscape,/\.game-app \.board\{[\s\S]*?width:100%;height:100%!important/);
-  assert.match(html,/game-chrome\.css\?v=0\.2\.26/);
+  assert.match(html,/game-chrome\.css\?v=0\.2\.27/);
 });
 
 test('landscape phone shows the same accessible toggle menu as portrait',()=>{

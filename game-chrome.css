@@ -257,6 +257,40 @@
 }
 
 
+/* Tablet portrait: keep all local-game actions beside the digit rack.
+   Balanced side columns center the tiles across the screen. Narrow phones,
+   phone landscape and desktop retain their existing layout. */
+@media (min-width:700px) and (max-width:1100px) and (orientation:portrait) and (pointer:coarse){
+  .game-app .control-bar{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) max-content minmax(0,1fr)!important;
+    grid-template-rows:auto auto;
+    align-items:center;justify-items:stretch;
+    column-gap:clamp(6px,1.2vw,14px);row-gap:4px;
+    width:100%;min-width:0;max-width:none;
+    box-sizing:border-box;padding:6px 10px calc(6px + env(safe-area-inset-bottom));
+  }
+  .game-app .control-bar .rack-frame{
+    grid-column:2;grid-row:1 / span 2;
+    justify-self:center;align-self:center;
+    width:max-content;max-width:100%;min-width:0;
+    margin:0;padding:0;gap:6px;
+  }
+  .game-app .control-bar .game-controls{display:contents!important}
+  .game-app .control-bar #hintButton{grid-column:1;grid-row:1}
+  .game-app .control-bar #exchangeButton{grid-column:1;grid-row:2}
+  .game-app .control-bar #passButton{
+    grid-column:3;grid-row:1 / span 2;align-self:stretch;
+  }
+  .game-app .control-bar .game-controls .gold-button{
+    box-sizing:border-box;width:100%;max-width:100%;min-width:0;
+    min-height:32px;padding:6px 7px;
+    font-size:clamp(11px,1.3vw,13px);line-height:1.2;
+    white-space:normal;
+  }
+  .game-app .control-bar .game-mode{display:none!important}
+}
+
 /* Phone landscape (iPhone and Android): board is based on screen WIDTH, not the short height.
    Vertical scrolling is intentional for the full 15x15 board. Portrait and PC
    remain unchanged. Keep any optional history/chat panels below the board. */

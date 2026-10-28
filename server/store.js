@@ -37,6 +37,13 @@ CREATE TABLE IF NOT EXISTS login_sessions (
   created_at INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_login_sessions_uid ON login_sessions(uid);
+CREATE TABLE IF NOT EXISTS match_results (
+  id INTEGER PRIMARY KEY,
+  uid TEXT NOT NULL REFERENCES players(uid) ON DELETE CASCADE,
+  played_at INTEGER NOT NULL,
+  result TEXT NOT NULL CHECK(result IN ('win','loss','draw'))
+);
+CREATE INDEX IF NOT EXISTS idx_match_results_period ON match_results(played_at,uid);
 `);
   const statements={
     lookup:db.prepare('SELECT public_id AS id,nickname,avatar,played,wins,losses,draws FROM players WHERE uid=?'),
@@ -45,6 +52,18 @@ CREATE INDEX IF NOT EXISTS idx_login_sessions_uid ON login_sessions(uid);
     rename:db.prepare('UPDATE players SET nickname=?,avatar=? WHERE uid=?'),
     leaderboard:db.prepare(`SELECT nickname,avatar,played,wins,losses,draws
       FROM players WHERE played>0 ORDER BY (wins*1.0/played) DESC, wins DESC, played DESC LIMIT ?`),
+    leaderboardPeriod:db.prepare(`SELECT p.nickname,p.avatar,
+      COUNT(*) AS played,
+      SUM(CASE WHEN r.result='win' THEN 1 ELSE 0 END) AS wins,
+      SUM(CASE WHEN r.result='loss' THEN 1 ELSE 0 END) AS losses,
+      SUM(CASE WHEN r.result='draw' THEN 1 ELSE 0 END) AS draws
+      FROM match_results r JOIN players p ON p.uid=r.uid
+      WHERE r.played_at>=?
+      GROUP BY r.uid
+      ORDER BY (SUM(CASE WHEN r.result='win' THEN 1 ELSE 0 END)*1.0/COUNT(*)) DESC,
+        wins DESC, played DESC, p.nickname COLLATE NOCASE
+      LIMIT ?`),
+    resultInsert:db.prepare('INSERT INTO match_results(uid,played_at,result) VALUES(?,?,?)'),
     search:db.prepare("SELECT public_id AS id,nickname,avatar FROM players WHERE nickname LIKE ? LIMIT 15"),
     friendList:db.prepare(`SELECT p.public_id AS id,p.nickname,p.avatar FROM players p
       WHERE p.uid IN (
@@ -72,6 +91,32 @@ CREATE INDEX IF NOT EXISTS idx_login_sessions_uid ON login_sessions(uid);
     sessionExtend:db.prepare('UPDATE login_sessions SET expires_at=? WHERE token_hash=? AND expires_at>?')
   };
   const expose=p=>p && {...p,winRate:p.played ? Math.round(p.wins/p.played*10000)/100 : 0};
+  const pragueDateParts=timestamp=>{
+    const parts=new Intl.DateTimeFormat('en-GB',{
+      timeZone:'Europe/Prague',year:'numeric',month:'2-digit',day:'2-digit'
+    }).formatToParts(new Date(timestamp));
+    return Object.fromEntries(parts.filter(p=>['year','month','day'].includes(p.type)).map(p=>[p.type,Number(p.value)]));
+  };
+  const pragueMidnightUtc=(year,month,day)=>{
+    const approximate=Date.UTC(year,month-1,day);
+    const zone=new Intl.DateTimeFormat('en-GB',{
+      timeZone:'Europe/Prague',timeZoneName:'shortOffset'
+    }).formatToParts(new Date(approximate)).find(p=>p.type==='timeZoneName')?.value||'GMT+1';
+    const match=/GMT([+-])(\\d{1,2})(?::(\\d{2}))?/.exec(zone);
+    if(!match)throw new Error('Nelze určit pražské časové pásmo.');
+    const offset=(Number(match[2])*60+Number(match[3]||0))*60000*(match[1]==='+'?1:-1);
+    return approximate-offset;
+  };
+  const periodStart=period=>{
+    const now=Date.now(),{year,month,day}=pragueDateParts(now);
+    if(period==='month')return pragueMidnightUtc(year,month,1);
+    if(period==='week'){
+      const weekday=new Date(Date.UTC(year,month-1,day)).getUTCDay();
+      const monday=new Date(Date.UTC(year,month-1,day-(weekday+6)%7));
+      return pragueMidnightUtc(monday.getUTCFullYear(),monday.getUTCMonth()+1,monday.getUTCDate());
+    }
+    throw new Error('Neplatné období žebříčku.');
+  };
   const ensure=uid=>{
     if(typeof uid!=='string'||!uid||uid.length>150)throw new Error('Neplatný identifikátor.');
     if (!statements.lookup.get(uid)) {
@@ -110,11 +155,13 @@ CREATE INDEX IF NOT EXISTS idx_login_sessions_uid ON login_sessions(uid);
     if(!Array.isArray(ids)||ids.length!==2||ids[0]===ids[1])throw new Error('Neplatný výsledek.');
     db.exec('BEGIN IMMEDIATE');
     try {
+      const playedAt=Date.now();
       for(const uid of ids){
         ensure(uid);
         if(winner===null)statements.draw.run(uid);
         else if(winner===uid)statements.win.run(uid);
         else statements.lose.run(uid);
+        statements.resultInsert.run(uid,playedAt,winner===null?'draw':winner===uid?'win':'loss');
       }
       db.exec('COMMIT');
     } catch(error){db.exec('ROLLBACK');throw error;}
@@ -145,7 +192,12 @@ CREATE INDEX IF NOT EXISTS idx_login_sessions_uid ON login_sessions(uid);
   return {
     db,ensure,rename,request,respond,record,createSession,sessionUid,revokeSession,
     get:uid=>expose(statements.lookup.get(uid)),
-    leaderboard:(limit=30)=>statements.leaderboard.all(Math.min(50,Math.max(1,Number(limit)||30))).map(expose),
+    leaderboard:(limit=30,period='all')=>{
+      const capped=Math.min(50,Math.max(1,Number(limit)||30));
+      if(period==='all')return statements.leaderboard.all(capped).map(expose);
+      if(!['week','month'].includes(period))throw new Error('Neplatné období žebříčku.');
+      return statements.leaderboardPeriod.all(periodStart(period),capped).map(expose);
+    },
     findPlayers:query=>statements.search.all('%'+String(query||'').slice(0,20).replace(/[%_]/g,'')+'%'),
     friends:uid=>statements.friendList.all(uid,uid),
     incoming:uid=>statements.pending.all(uid),

@@ -85,7 +85,8 @@ export function readsAsEquation(sequence) {
 }
 export function formatEquations(sequences,limit=3){
   return (Array.isArray(sequences)?sequences:[]).slice(0,limit)
-    .map(text=>formatEquation(text)||String(text)).join(' · ');
+    // Non-breaking spaces preserve the requested visible double gap in HTML.
+    .map(text=>formatEquation(text)||String(text)).join('\u00a0\u00a0');
 }
 
 function id(row, col) { return `${row}:${col}`; }

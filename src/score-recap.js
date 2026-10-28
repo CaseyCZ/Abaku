@@ -1,7 +1,7 @@
 // Original-Abaku-inspired sequential scoring display.
 // It only visualises points already calculated by validateMove on the client
 // or the authoritative server. It never changes the saved/player score.
-import {formatEquations} from './rules.js?v=0.2.24';
+import {formatEquations} from './rules.js?v=0.2.34';
 
 // Shared between offline and online screens in the same browser.
 export const RECAP_SECONDS_OPTIONS=Object.freeze([0,2,3,5,8,10]);

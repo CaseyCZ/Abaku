@@ -841,9 +841,10 @@ function renderOnline(){
   for(let i=0;i<s.rack.length;i++){
     const tile=document.createElement('button');
     tile.type='button';
-    tile.className='tile'+(selected===i||selectedExchange.has(i)?' selected':'');
-    tile.textContent=String(s.rack[i]);
-    tile.disabled=!canPlay||pending.some(p=>p.rackIndex===i);
+    const used=pending.some(p=>p.rackIndex===i);
+    tile.className='tile'+(used?' empty':'')+(selected===i?' selected':'')+(selectedExchange.has(i)?' exchange-selected':'');
+    tile.textContent=used?'':String(s.rack[i]);
+    tile.disabled=!canPlay||used;
     tile.setAttribute('aria-label','Číslo '+s.rack[i]);
     tile.addEventListener('click',()=>{
       if(exchanging){selectedExchange.has(i)?selectedExchange.delete(i):selectedExchange.add(i);}

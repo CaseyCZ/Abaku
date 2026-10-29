@@ -291,6 +291,11 @@ const http=createServer(async(request,response)=>{
       if(typeof data.id!=='string')throw new Error('Vyber hráče.');
       store.request(uid,data.id);return respond(response,200,{ok:true});
     }
+    if(request.method==='POST'&&pathname==='/api/friends/cancel'){
+      const data=await body(request);
+      if(typeof data.id!=='string')throw new Error('Vyber odeslanou žádost.');
+      store.cancelRequest(uid,data.id);return respond(response,200,{ok:true});
+    }
     if(request.method==='POST'&&pathname==='/api/friends/respond'){
       const data=await body(request);
       if(typeof data.id!=='string'||typeof data.accept!=='boolean')throw new Error('Neplatná odpověď.');

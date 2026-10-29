@@ -73,12 +73,13 @@ let reconnects=0, lastSocketMessageAt=0;
 let socketMonitorTimer=null, onlineInitRetryTimer=null;
 let onlineInitStarted=false, onlineServerReady=false;
 let unreadOnlineChat=0, latestUnreadChat='';
+let pendingFriendRequestCount=0, knownFriendRequestIds=new Set();
 let resultShownFor=null, rematchRequestedByMe=false, rematchOfferFromOpponent=false;
 let disconnectedOpponent=false;
 let currentFriendChallenge=null;
 let pendingFriendChallenge=null, promptedFriendChallengeId=null;
 let lastHandledChallengeId=null;
-let friendChallengeTimer=null;
+let friendChallengeTimer=null, friendRequestTimer=null;
 let presenceTimer=null;
 let lastPresence=null;
 let ownQueueWaiting=false;
@@ -270,7 +271,7 @@ function refreshUnreadChat(){
   const badge=$('onlineUnreadBadge');
   const hasUnread=unreadOnlineChat>0&&!!gameState&&!gameState.finished&&!$('onlineBoardWrapper').hidden;
   const messageCount=hasUnread?unreadOnlineChat:0;
-  const notificationCount=messageCount+(pendingFriendChallenge?1:0);
+  const notificationCount=messageCount+(pendingFriendChallenge?1:0)+pendingFriendRequestCount;
   for(const id of ['menuMessageBadge','friendsMessageBadge','onlineFriendsMessageBadge']){
     const counter=$(id);
     if(!counter)continue;
@@ -288,6 +289,21 @@ function refreshUnreadChat(){
     $('onlineChatToastCount').textContent=unreadOnlineChat===1?'Nová zpráva · Chat':'Nové zprávy ('+unreadOnlineChat+')';
     $('onlineChatToastPreview').textContent=latestUnreadChat;
     toast.setAttribute('aria-label','Otevřít chat: '+unreadOnlineChat+' nepřečtených zpráv');
+  }
+}
+function setFriendRequestNotifications(requests,announce=false){
+  const list=Array.isArray(requests)?requests:[];
+  const ids=new Set(list.map(player=>player.id).filter(id=>typeof id==='string'));
+  const newlyReceived=list.find(player=>typeof player.id==='string'&&!knownFriendRequestIds.has(player.id));
+  pendingFriendRequestCount=ids.size;
+  knownFriendRequestIds=ids;
+  refreshUnreadChat();
+  const toast=$('friendRequestToast');
+  if(!toast)return;
+  if(!ids.size||$('friendsDialog').open){toast.hidden=true;return;}
+  if(announce&&newlyReceived){
+    toast.textContent='Nová žádost o přátelství od '+newlyReceived.nickname+' · Zobrazit';
+    toast.hidden=false;
   }
 }
 function markOnlineChatRead(){
@@ -1045,6 +1061,10 @@ function initializeActions(){
   };
   $('friendsOpen')?.addEventListener('click',openFriends);
   $('onlineFriendsOpen')?.addEventListener('click',openFriends);
+  $('friendRequestToast')?.addEventListener('click',()=>{
+    $('friendRequestToast').hidden=true;
+    if(credential)$('manageFriends').click();
+  });
   setInterval(()=>{
     if(credential&&$('friendsDialog').open&&document.visibilityState!=='hidden'&&!friendsBusy)refreshFriends();
   },20_000);
@@ -1052,6 +1072,7 @@ function initializeActions(){
     if(!credential)return;
     $('friendSearchForm').hidden=false;document.querySelector('.friend-invite-options').hidden=false;
     $('friendsDialog').showModal();
+    $('friendRequestToast').hidden=true;
     $('friendSearchResults').replaceChildren();
     $('friendMessage').textContent='';
     await refreshFriends();
@@ -1137,6 +1158,7 @@ function appendFriend(container,player,buttonText,handler){
 async function refreshFriends(){
   try{
     const data=await api('/api/friends');
+    setFriendRequestNotifications(data.requests);
     const incoming=$('friendRequests'),sent=$('friendSentRequests'),friends=$('friendList');
     incoming.replaceChildren();sent.replaceChildren();friends.replaceChildren();
     for(const player of data.requests||[]){
@@ -1159,10 +1181,13 @@ async function refreshFriends(){
       row.append(decline);
     }
     for(const player of data.sentRequests||[]){
-      const row=appendFriend(sent,player);
+      const row=appendFriend(sent,player,'Zrušit žádost',async()=>{
+        await api('/api/friends/cancel','POST',{id:player.id});
+        $('friendMessage').textContent='Odeslaná žádost byla zrušena.';
+      });
       const label=document.createElement('span');
       label.className='friend-request-pending';label.textContent='Čeká na přijetí';
-      row.append(label);
+      row.insertBefore(label,row.lastElementChild);
     }
     for(const player of data.friends||[]){
       appendFriend(friends,player,'⚔ Vyzvat',async()=>{
@@ -1229,12 +1254,26 @@ async function refreshFriendChallenges(){
     if(challenge)showFriendChallenge(challenge);
   }catch{ /* The lobby stays playable even if invitation polling is unavailable. */ }
 }
+async function refreshFriendRequestNotifications(){
+  if(!credential||document.visibilityState==='hidden'||$('friendsDialog').open||friendsBusy)return;
+  const requestedWith=credential;
+  try{
+    const data=await api('/api/friends');
+    if(credential!==requestedWith||$('friendsDialog').open)return;
+    setFriendRequestNotifications(data.requests,true);
+  }catch{/* Keep the last verified count if polling briefly fails. */}
+}
 function startFriendChallengeUpdates(){
   if(friendChallengeTimer)return;
   refreshFriendChallenges();
+  refreshFriendRequestNotifications();
   friendChallengeTimer=setInterval(refreshFriendChallenges,10_000);
+  friendRequestTimer=setInterval(refreshFriendRequestNotifications,20_000);
   document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible')refreshFriendChallenges();
+    if(document.visibilityState==='visible'){
+      refreshFriendChallenges();
+      refreshFriendRequestNotifications();
+    }
   });
 }
 async function respondToFriendChallenge(accept){

@@ -52,6 +52,25 @@ test('outgoing requests list only pending invites and decline removes them',()=>
     assert.equal(s.friends('alice').length,1);
   } finally {s.close();}
 });
+test('sent requests can be cancelled only by their sender while pending',()=>{
+  const s=openStore(':memory:');
+  try{
+    s.ensure('alice');s.ensure('bob');s.ensure('charlie');
+    const alice=s.get('alice').id,bob=s.get('bob').id;
+    s.request('alice',bob);
+    assert.throws(()=>s.cancelRequest('charlie',bob),/nalezena/);
+    assert.deepEqual(s.incoming('bob').map(p=>p.id),[alice]);
+    s.cancelRequest('alice',bob);
+    assert.equal(s.outgoing('alice').length,0);
+    assert.equal(s.incoming('bob').length,0);
+    assert.throws(()=>s.cancelRequest('alice',bob),/nalezena/);
+    s.request('alice',bob);
+    s.respond('bob',alice,true);
+    assert.throws(()=>s.cancelRequest('alice',bob),/nalezena/);
+    assert.equal(s.friends('bob').length,1);
+  }finally{s.close();}
+});
+
 test('nickname validation and uniqueness',()=>{
   const s=openStore(':memory:');
   try {

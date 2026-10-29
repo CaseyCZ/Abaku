@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS settled_matches (
     acceptedFriend:db.prepare("SELECT 1 AS is_friend FROM friend_requests WHERE status='accepted' AND ((sender=? AND recipient=?) OR (sender=? AND recipient=?)) LIMIT 1"),
     insertRequest:db.prepare("INSERT INTO friend_requests(sender,recipient,status) VALUES(?,?,'pending') ON CONFLICT(sender,recipient) DO UPDATE SET status='pending'"),
     removeFriend:db.prepare("DELETE FROM friend_requests WHERE (sender=? AND recipient=?) OR (sender=? AND recipient=?)"),
+    cancelRequest:db.prepare("DELETE FROM friend_requests WHERE sender=? AND recipient=? AND status='pending'"),
     reply:db.prepare("UPDATE friend_requests SET status=? WHERE sender=? AND recipient=? AND status='pending'"),
     win:db.prepare('UPDATE players SET played=played+1,wins=wins+1 WHERE uid=?'),
     lose:db.prepare('UPDATE players SET played=played+1,losses=losses+1 WHERE uid=?'),
@@ -159,6 +160,11 @@ CREATE TABLE IF NOT EXISTS settled_matches (
     if(outgoing?.status==='accepted'||incoming?.status==='accepted')throw new Error('Už jste přátelé.');
     if(incoming?.status==='pending')throw new Error('Tento hráč už tě požádal. Přijmi jeho žádost.');
     statements.insertRequest.run(sender,recipient);
+  };
+  const cancelRequest=(sender,recipientId)=>{
+    const recipient=statements.lookupId.get(recipientId)?.uid;
+    if(!recipient||sender===recipient||statements.cancelRequest.run(sender,recipient).changes===0)
+      throw new Error('Čekající žádost nebyla nalezena.');
   };
   const respond=(recipient,senderId,accept)=>{
     const sender=statements.lookupId.get(senderId)?.uid;
@@ -229,7 +235,7 @@ CREATE TABLE IF NOT EXISTS settled_matches (
     return statements.sessionDelete.run(sessionDigest(token)).changes>0;
   };
   return {
-    db,ensure,rename,request,respond,record,createSession,sessionUid,sessionActive,revokeSession,
+    db,ensure,rename,request,cancelRequest,respond,record,createSession,sessionUid,sessionActive,revokeSession,
     saveMatch,
     loadMatches:()=>{
       const snapshots=[];

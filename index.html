@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="./game-chrome.css?v=0.2.48">
   <link rel="stylesheet" href="./online-view.css?v=0.2.48">
   <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.48">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.48">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.48&amp;friends=20261029">
   <link rel="stylesheet" href="./version-history.css?v=0.2.48">
   <script src="./src/analytics.js?v=0.2.48" defer></script>
 </head>
@@ -40,6 +40,7 @@
         <button type="button" class="gold-button" id="friendsOpen">Přátelé<span id="friendsMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
       </nav>
     </header>
+    <button type="button" id="friendRequestToast" class="friend-request-toast" hidden aria-live="polite">Nová žádost o přátelství · Zobrazit</button>
     <main class="lobby-main" id="mainContent" tabindex="-1">
       <div class="home-start">
       <section class="lobby-intro" aria-labelledby="heroTitle">
@@ -371,7 +372,7 @@
   </dialog>
   <script type="module" src="./src/site-navigation.js?v=0.2.48"></script>
   <script type="module" src="./src/arena-ui.js?v=0.2.48"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.48"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.48&amp;friends=20261029"></script>
   <script type="module" src="./src/version-ui.js?v=0.2.48"></script>
 </body>
 </html>

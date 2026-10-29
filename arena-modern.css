@@ -335,10 +335,10 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
   color:#dcecfb;background:#172f54;
   border-color:#335377;font-weight:800;text-shadow:none;
 }
-.cell.dd,#onlineDialog .online-cell.dd{background:#285f93;color:#dbecff}
-.cell.td,#onlineDialog .online-cell.td{background:#866326;color:#ffe39b}
-.cell.de,#onlineDialog .online-cell.de{background:#244878;color:#e2efff}
-.cell.te,#onlineDialog .online-cell.te{background:#a67a2e;color:#fff0b5}
+.cell.dd,#onlineDialog .online-cell.dd{background:#bb8e36;color:#182941}
+.cell.td,#onlineDialog .online-cell.td{background:#866326;color:#fff0ba}
+.cell.de,#onlineDialog .online-cell.de{background:#2b6596;color:#ecf6ff}
+.cell.te,#onlineDialog .online-cell.te{background:#244878;color:#e2efff}
 /* Optional classic colours. Both styles render the same bonusAt() positions. */
 :root[data-arena-board-theme="classic"]{
   --classic-double-digit:#bfdd99;

@@ -21,10 +21,6 @@
 
 <p align="center">✨ Bez instalace &nbsp;·&nbsp; 📱 Na mobilu i počítači &nbsp;·&nbsp; 🧠 Pro malé i velké stratégy</p>
 
-![Ukázka rozehrané partie Číselné arény proti počítači – deska, čísla, skóre a průběh tahů](./assets/arena-gameplay.jpg)
-
-*Ukázka skutečné rozehrané partie proti počítači.*
-
 ---
 
 ## 🧩 Jednoduchá pravidla. Spousta možností.

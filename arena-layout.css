@@ -176,7 +176,7 @@ html[data-arena-history="false"] .game-app[data-arena-mode="bot"] .main-stage{gr
 .move-preview[data-state="valid"],.online-preview[data-state="valid"]{color:#95f4b9!important}
 
 
-/* Multipliers should be readable without memorising four shades of blue/gold. */
+/* Number bonuses are gold, example bonuses are blue; ×3 is the darker shade. */
 .board .cell.bonus-hint:is(.dd,.td,.de,.te),
 #onlineDialog .online-cell.bonus-hint:is(.dd,.td,.de,.te){
   font-size:clamp(8px,.8vw,13px);font-weight:800;letter-spacing:-.04em;
@@ -192,10 +192,10 @@ html[data-arena-history="false"] .game-app[data-arena-mode="bot"] .main-stage{gr
   border:1px solid #5c84ad;border-radius:6px;color:#eff7ff;
   font:800 11px/1 ui-sans-serif,system-ui,sans-serif;
 }
-.bonus-key.dd{background:#275c8d}
-.bonus-key.td{background:#9d762f;border-color:#cbac61;color:#fff2cb}
-.bonus-key.de{background:#244876}
-.bonus-key.te{background:#bd9038;border-color:#d9b45c;color:#142843}
+.bonus-key.dd{background:#bb8e36;color:#182941;border-color:#e2b95b}
+.bonus-key.td{background:#866326;border-color:#c6a051;color:#fff0ba}
+.bonus-key.de{background:#2b6596;color:#ecf6ff;border-color:#6ca4d1}
+.bonus-key.te{background:#244878;border-color:#4e81b9;color:#e2efff}
 @media (max-width:1100px) and (orientation:portrait),(max-width:740px){
   .board .cell.bonus-hint:is(.dd,.td,.de,.te),
   #onlineDialog .online-cell.bonus-hint:is(.dd,.td,.de,.te){font-size:clamp(8px,1.9vw,12px)}

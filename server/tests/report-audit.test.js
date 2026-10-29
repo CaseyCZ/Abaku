@@ -51,10 +51,10 @@ test('62 alone is invalid, even when the game incorrectly marks it accepted',()=
 test('rulesets are kept separate so future powers do not mislabel the old game',()=>{
   const report=gameReport();
   const move=placements('24');
-  report.events=[{type:'move',player:0,accepted:true,placements:move,points:18,equations:['24']}];
+  report.events=[{type:'move',player:0,accepted:true,placements:move,points:12,equations:['24']}];
   report.finalBoard=emptyBoard();
   for(const p of move)report.finalBoard[p.row][p.col]=p.digit;
-  report.finalScores=[18,0];
+  report.finalScores=[12,0];
   assert.ok(auditReport(report).issues.some(i=>i.type==='accepted-invalid'));
   report.ruleset='classic-powers-roots';
   assert.equal(auditReport(report).ok,true);
@@ -67,8 +67,8 @@ test('strict rules reject 9724 as a whole while historical checks keep their ori
   const report={mode:'bot',ruleset:'classic-powers-roots-strict',partial:false,
     initialBoard:emptyBoard(),initialScores:[0,0],
     events:[{type:'move',player:0,accepted:true,placements:placed,
-      points:60,equations:['972','24']}],
-    finalBoard:board,finalScores:[60,0]};
+      points:42,equations:['972','24']}],
+    finalBoard:board,finalScores:[42,0]};
   assert.ok(auditReport(report).issues.some(i=>i.type==='accepted-invalid'));
   report.ruleset='classic-powers-roots';
   assert.equal(auditReport(report).ok,true,'the old stored game was valid under its own version');
@@ -122,7 +122,7 @@ test('a later-turn power is valid in the new ruleset, unlike an invalid one-turn
   const allAtOnce={mode:'bot',ruleset:'classic-powers-roots-linked-powers',partial:false,
     initialBoard:emptyBoard(),initialScores:[0,0],
     events:[{type:'move',player:0,accepted:true,placements:allTiles,
-      points:60,equations:['972','24']}],
+      points:42,equations:['972','24']}],
     finalBoard:invalidBoard,finalScores:[60,0]};
   assert.ok(auditReport(allAtOnce).issues.some(i=>i.type==='accepted-invalid'));
 });
@@ -132,6 +132,12 @@ test('independent checker agrees with actual powers and roots and their bonus sc
     const report=gameReport(digits,'classic-powers-roots-strict');
     assert.equal(auditReport(report).ok,true,`${digits}: ${JSON.stringify(auditReport(report).issues)}`);
   }
+});
+
+test('the checker scores the central bonus exactly as the game does',()=>{
+  const report=gameReport('268','classic-powers-roots-linked-powers');
+  assert.equal(report.events[0].points,32);
+  assert.equal(auditReport(report).ok,true);
 });
 
 test('the online server retains the whole game without private profiles or chat',()=>{

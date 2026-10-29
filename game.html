@@ -11,16 +11,16 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.47" />
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.47" />
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.47" />
-  <link rel="stylesheet" href="./analytics.css?v=0.2.47" />
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.47" />
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.47">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.47">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.47">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.47">
-  <script src="./src/analytics.js?v=0.2.47" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.48" />
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.48" />
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.48" />
+  <link rel="stylesheet" href="./analytics.css?v=0.2.48" />
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.48" />
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.48">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.48">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.48">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.48">
+  <script src="./src/analytics.js?v=0.2.48" defer></script>
 </head>
 <body>
 
@@ -151,6 +151,12 @@
       </section>
       <section class="game-settings-section" aria-labelledby="localSettingsDisplayTitle">
         <h3 id="localSettingsDisplayTitle">Herní obrazovka</h3>
+        <label class="game-settings-board-theme">Vzhled desky
+          <select data-arena-board-theme aria-label="Vzhled desky">
+            <option value="modern">Současný</option>
+            <option value="classic">Klasický – modrá a zelená</option>
+          </select>
+        </label>
         <div class="game-settings-toggles" role="group" aria-label="Zobrazení a zvuk">
           <label class="check-line"><input type="checkbox" id="historySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
           <label class="check-line"><input type="checkbox" id="chatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
@@ -160,6 +166,7 @@
       <details class="game-settings-details">
         <summary data-arena-settings-copy="explanation">Vysvětlení nastavení</summary>
         <p data-arena-settings-copy="panels"></p>
+        <p data-arena-settings-copy="boardTheme"></p>
         <p>Proti počítači se chat nezobrazuje. Změny času a obtížnosti se použijí v místní hře.</p>
         <p>„Vypnuto“ přeskočí vyhodnocení bodů, ale nová čísla se na desce ještě 3 sekundy zvýrazní. Online hra má vždy 3 sekundy.</p>
       </details>
@@ -241,9 +248,9 @@
     </div>
   </dialog>
 
-  <script type="module" src="./src/arena-ui.js?v=0.2.47"></script>
-  <script type="module" src="./src/site-navigation.js?v=0.2.47"></script>
-  <script type="module" src="./src/main.js?v=0.2.47"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.47"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.48"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.48"></script>
+  <script type="module" src="./src/main.js?v=0.2.48"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.48"></script>
 </body>
 </html>

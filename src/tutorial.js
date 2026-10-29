@@ -16,11 +16,11 @@ function render(){
       cell.textContent=numbers[index];
     }else if(index===step&&step<numbers.length){
       cell.classList.add('target');
-      cell.textContent=row===2&&col===2?'×3':'';
-    }else if(row===2&&col===2){cell.textContent='×3';}
+      cell.textContent=row===2&&col===2?'×2':'';
+    }else if(row===2&&col===2){cell.textContent='×2';}
     cell.setAttribute('aria-label',index>=0&&index<step
       ?'Položená číslice '+numbers[index]
-      :'Řádek '+(row+1)+', sloupec '+(col+1)+(row===2&&col===2?', střední bonus ×3 příklad':''));
+      :'Řádek '+(row+1)+', sloupec '+(col+1)+(row===2&&col===2?', střední bonus ×2 příklad':''));
     if(step===numbers.length||index<0||index<step)cell.disabled=true;
     else cell.addEventListener('click',()=>{
       if(index!==step){
@@ -30,7 +30,7 @@ function render(){
         feedback('Nejprve vyber číslo '+numbers[step]+' dole.',true);return;
       }
       step++;chosen=null;render();
-      if(step===3)feedback('Výborně! 2 + 6 = 8. Střed ×3 zvyšuje 16 na 48 bodů.',false);
+      if(step===3)feedback('Výborně! 2 + 6 = 8. Střed ×2 zvyšuje 16 na 32 bodů.',false);
       else feedback('Správně, pokračuj dalším číslem.',false);
     });
     board.append(cell);
@@ -53,7 +53,7 @@ function render(){
   $('tutorialPrompt').textContent=completed?'První tah je správný!':'Vyber číslo '+numbers[step];
   const instruction=[
     'Klepni na zlaté číslo 2 a potom ho polož na zeleně označené pole nalevo od středu.',
-    'Vyber číslo 6 a polož ho na středové pole ×3 příklad.',
+    'Vyber číslo 6 a polož ho na středové pole ×2 příklad.',
     'Nakonec polož číslo 8 napravo od středu.'
   ];
   $('tutorialInstruction').textContent=completed

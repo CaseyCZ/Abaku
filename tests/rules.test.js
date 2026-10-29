@@ -206,6 +206,23 @@ test('bonus board is symmetric',()=>{
   }
 });
 
+test('reference board positions and both scoring multipliers are shared',()=>{
+  const counts={dd:0,td:0,de:0,te:0};
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const type=bonusAt(r,c);
+    if(type)counts[type]++;
+  }
+  assert.deepEqual(counts,{dd:24,td:12,de:13,te:8});
+  assert.equal(bonusAt(7,7),'de','the new centre is ×2 example');
+  for(const [r,c] of [[0,0],[0,7],[7,0],[0,14],[14,14]])assert.equal(bonusAt(r,c),'te');
+  assert.equal(bonusAt(0,3),'dd');
+  assert.equal(bonusAt(0,11),'td');
+  assert.equal(bonusAt(2,9),'de');
+  const opening=validateMove(emptyBoard(),tiles('268',7,7));
+  assert.equal(opening.valid,true);
+  assert.equal(opening.points,32,'2+6=8 has 16 base points, doubled at centre');
+});
+
 test('bot finds legal opening and next turn',()=>{
   const board=emptyBoard();
   const rack=[2,7,9,3,8];

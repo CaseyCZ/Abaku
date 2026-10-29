@@ -9,10 +9,10 @@
   <link rel="icon" type="image/png" sizes="128x128" href="./assets/arena-icon.png">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.47">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.47">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.47">
-  <link rel="stylesheet" href="./tutorial.css?v=0.2.47">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.48">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.48">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.48">
+  <link rel="stylesheet" href="./tutorial.css?v=0.2.48">
 </head>
 <body>
   <div class="lobby-shell">
@@ -62,7 +62,7 @@
             <p class="tutorial-demo-status" id="tutorialMessage" role="status" aria-live="polite">První tah bude tvořit příklad 2 + 6 = 8.</p>
             <div class="tutorial-demo-score" id="tutorialScore" hidden>
               <strong>2 + 6 = 8</strong>
-              <span>2 + 6 + 8 = 16 bodů, prostřední pole ×3 příklad → <b>48 bodů</b></span>
+              <span>2 + 6 + 8 = 16 bodů, prostřední pole ×2 příklad → <b>32 bodů</b></span>
             </div>
             <button id="tutorialReset" type="button" class="gold-button">↻ Zkusit znovu</button>
             <small>Ukázka nic nemění na skutečně rozehrané partii.</small>
@@ -108,9 +108,9 @@
           <div><span class="tutorial-bonus-chip dd">×2</span><div><strong>Číslo ×2</strong><p>Zdvojnásobí hodnotu číslice na tomto poli.</p></div></div>
           <div><span class="tutorial-bonus-chip td">×3</span><div><strong>Číslo ×3</strong><p>Ztrojnásobí hodnotu číslice na tomto poli.</p></div></div>
           <div><span class="tutorial-bonus-chip de">×2</span><div><strong>Příklad ×2</strong><p>Zdvojnásobí součet všech číslic daného příkladu.</p></div></div>
-          <div><span class="tutorial-bonus-chip te">×3</span><div><strong>Příklad ×3</strong><p>Ztrojnásobí součet celého příkladu. Střední pole je právě tento bonus.</p></div></div>
+          <div><span class="tutorial-bonus-chip te">×3</span><div><strong>Příklad ×3</strong><p>Ztrojnásobí součet celého příkladu. Najdeš ho například v rozích desky.</p></div></div>
         </div>
-        <p class="tutorial-highlight">Příklad: číslice 2, 6 a 8 dávají 16 bodů. Pokud nově položená šestka leží na středovém poli ×3 příklad, přinese tah <strong>48 bodů</strong>. U více příkladů se boduje každý zvlášť.</p>
+        <p class="tutorial-highlight">Příklad: číslice 2, 6 a 8 dávají 16 bodů. Pokud nově položená šestka leží na středovém poli ×2 příklad, přinese tah <strong>32 bodů</strong>. U více příkladů se boduje každý zvlášť.</p>
       </section>
 
       <section id="controls" class="tutorial-section" aria-labelledby="tutorialControlsTitle">
@@ -196,6 +196,6 @@
       <a href="./privacy.html">Soukromí a cookies</a>
     </footer>
   </div>
-  <script type="module" src="./src/tutorial.js?v=0.2.47"></script>
+  <script type="module" src="./src/tutorial.js?v=0.2.48"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
-// Deliberately independent from src/rules.js: this checker must be able to
-// disagree with the game engine. Only numbers and public board data are used.
+// The arithmetic replay remains independent from the game validator. Bonus
+// coordinates are shared with the game so points cannot differ by mode.
+import {bonusAt} from '../src/rules.js';
 const SIZE=15;
 const MAX_EVENTS=600;
 
@@ -41,14 +42,6 @@ function operation(digits,ruleset){
   return null;
 }
 
-const bonuses=new Map();
-function mark(r,c,kind){
-  for(const [row,col] of [[r,c],[r,14-c],[14-r,c],[14-r,14-c]])bonuses.set(`${row}:${col}`,kind);
-}
-for(const [r,c] of [[0,0],[0,7],[7,0],[7,7]])mark(r,c,'te');
-for(const [r,c] of [[0,3],[2,2],[3,0],[4,4],[5,5],[6,6]])mark(r,c,'td');
-for(const [r,c] of [[1,4],[2,6],[3,3],[4,1],[5,7],[6,2]])mark(r,c,'dd');
-for(const [r,c] of [[1,1],[2,7],[3,5],[4,3],[5,2],[6,4]])mark(r,c,'de');
 const cellId=(r,c)=>`${r}:${c}`;
 const isBoard=board=>Array.isArray(board)&&board.length===SIZE&&board.every(row=>
   Array.isArray(row)&&row.length===SIZE&&row.every(n=>n===null||(Number.isInteger(n)&&n>=0&&n<=9)));
@@ -138,7 +131,7 @@ function inspect(board,placed,ruleset){
   const breakdown=expressions.map(e=>{
     let base=0,multiplier=1;
     for(const c of e.cells){
-      const kind=keys.has(cellId(c.row,c.col))?bonuses.get(cellId(c.row,c.col)):null;
+      const kind=keys.has(cellId(c.row,c.col))?bonusAt(c.row,c.col):null;
       base+=c.digit*(kind==='dd'?2:kind==='td'?3:1);
       if(kind==='de')multiplier*=2;
       if(kind==='te')multiplier*=3;

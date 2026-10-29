@@ -33,6 +33,15 @@
   display:block;width:100%;min-width:0;max-width:none;min-height:43px;
   box-sizing:border-box;padding:8px!important;font-size:13px;
 }
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-board-theme {
+  display:grid;grid-template-columns:minmax(110px,1fr) minmax(165px,2fr);
+  align-items:center;gap:10px;color:#d7e2f0;font-size:12px;
+}
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-board-theme select {
+  width:100%;min-width:0;min-height:43px;padding:8px;
+  color:#e7edf6;background:#102747;border:1px solid #49668a;border-radius:8px;
+  font:inherit;font-size:13px;
+}
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-toggles {
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
 }
@@ -87,6 +96,7 @@
 @media(max-width:370px) {
   :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-body {padding:12px}
   :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-fields {gap:7px}
+  :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-board-theme {grid-template-columns:1fr;gap:5px}
   :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-toggles .check-line {
     padding:6px;font-size:11px;
   }

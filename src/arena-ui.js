@@ -1,16 +1,33 @@
 // Presentation preferences only; never change a saved game or network state.
 const LEGACY_PANEL_KEY='ciselna-arena-panels-v1';
 const LEGACY_LAYOUT_KEY='ciselna-arena-layout-v1';
+const BOARD_THEME_KEY='arena-board-theme-v1';
 const byId=id=>document.getElementById(id);
 const PANEL_KEY=byId('settingsDialog')?'arena-local-panels-v1':'arena-online-panels-v1';
 // Both dialogs use the same copy. Their mode-specific explanations remain local.
 const SETTINGS_COPY=Object.freeze({
   explanation:'Vysvětlení nastavení',
   panels:'Průběh a chat jsou vedle desky, na telefonu pod ní.',
+  boardTheme:'Vzhled desky mění pouze barvy. Rozmístění bonusů i bodování zůstávají stejné.',
   privacyTitle:'Soukromí a cookies',
   privacyLink:'Zásady soukromí',
   cookies:'Nastavení cookies'
 });
+function storedBoardTheme(){
+  try{return localStorage.getItem(BOARD_THEME_KEY)==='classic'?'classic':'modern';}
+  catch{return 'modern';}
+}
+let savedBoardTheme=storedBoardTheme();
+function applyBoardTheme(theme){
+  document.documentElement.dataset.arenaBoardTheme=theme;
+  for(const select of document.querySelectorAll('[data-arena-board-theme]'))select.value=theme;
+}
+function saveBoardTheme(theme){
+  savedBoardTheme=theme;
+  try{localStorage.setItem(BOARD_THEME_KEY,theme);}catch{/* Appearance works without storage. */}
+  applyBoardTheme(theme);
+}
+applyBoardTheme(savedBoardTheme);
 
 function storedPanels(){
   try{
@@ -48,25 +65,33 @@ function init(){
     if(value)node.textContent=value;
   }
   applyPanels(savedPanels);
+  applyBoardTheme(savedBoardTheme);
   for(const input of document.querySelectorAll('[data-arena-panel]')){
     input.addEventListener('change',()=>applyPanels(selectedPanels()));
   }
+  for(const select of document.querySelectorAll('[data-arena-board-theme]')){
+    select.addEventListener('change',()=>applyBoardTheme(select.value));
+  }
   for(const id of ['settingsButton','lobbySettingsButton','onlineSettingsButton']){
-    byId(id)?.addEventListener('click',()=>applyPanels(savedPanels));
+    byId(id)?.addEventListener('click',()=>{applyPanels(savedPanels);applyBoardTheme(savedBoardTheme);});
   }
   byId('settingsForm')?.addEventListener('submit',event=>{
     // The game may reject a mode change; rejected submission must not save preferences.
+    const chosenTheme=document.querySelector('[data-arena-board-theme]')?.value||savedBoardTheme;
     queueMicrotask(()=>{
-      if(event.submitter?.value==='save'&&!event.defaultPrevented)savePanels();
-      else applyPanels(savedPanels);
+      if(event.submitter?.value==='save'&&!event.defaultPrevented){savePanels();saveBoardTheme(chosenTheme);}
+      else{applyPanels(savedPanels);applyBoardTheme(savedBoardTheme);}
     });
   });
-  byId('onlineSettingsSave')?.addEventListener('click',savePanels);
+  byId('onlineSettingsSave')?.addEventListener('click',()=>{
+    savePanels();saveBoardTheme(document.querySelector('[data-arena-board-theme]')?.value||savedBoardTheme);
+  });
   for(const id of ['settingsDialog','onlineGameSettingsDialog']){
-    byId(id)?.addEventListener('close',()=>applyPanels(savedPanels));
+    byId(id)?.addEventListener('close',()=>{applyPanels(savedPanels);applyBoardTheme(savedBoardTheme);});
   }
   window.addEventListener('storage',event=>{
     if(event.key===PANEL_KEY||event.key===null){savedPanels=storedPanels();applyPanels(savedPanels);}
+    if(event.key===BOARD_THEME_KEY||event.key===null){savedBoardTheme=storedBoardTheme();applyBoardTheme(savedBoardTheme);}
   });
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});

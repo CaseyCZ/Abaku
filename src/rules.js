@@ -7,18 +7,30 @@ export const BONUS = Object.freeze({
   DOUBLE_EXAMPLE: 'de', TRIPLE_EXAMPLE: 'te',
 });
 
-// The bonus layout is mirrored through the centre, as on the classic board.
-const specials = new Map();
-function mark(row, col, type) {
-  for (const [r, c] of [[row, col], [row, 14 - col], [14 - row, col], [14 - row, 14 - col]]) {
-    specials.set(`${r}:${c}`, type);
-  }
-}
-for (const [r, c] of [[0, 0], [0, 7], [7, 0], [7, 7]]) mark(r, c, BONUS.TRIPLE_EXAMPLE);
-for (const [r, c] of [[0, 3], [2, 2], [3, 0], [4, 4], [5, 5], [6, 6]]) mark(r, c, BONUS.TRIPLE_DIGIT);
-for (const [r, c] of [[1, 4], [2, 6], [3, 3], [4, 1], [5, 7], [6, 2]]) mark(r, c, BONUS.DOUBLE_DIGIT);
-for (const [r, c] of [[1, 1], [2, 7], [3, 5], [4, 3], [5, 2], [6, 4]]) mark(r, c, BONUS.DOUBLE_EXAMPLE);
-export const bonusAt = (row, col) => specials.get(`${row}:${col}`) || BONUS.NONE;
+// One authoritative 15x15 bonus layout for local, online and reports.
+// B/b = triple/double example, G/g = triple/double digit, . = plain.
+const BONUS_ROWS = Object.freeze([
+  'B..g...B...G..B',
+  '..G...g.g...g..',
+  '.g.......b...G.',
+  'G...b..g..b...g',
+  '...b.......b...',
+  '..b..G...G.....',
+  '.g....g.g....g.',
+  'B..g...b...g..B',
+  '.g....g.g....g.',
+  '.....G...G..b..',
+  '...b.......b...',
+  'g...b..g..b...G',
+  '.G...b.......g.',
+  '..g...g.g...G..',
+  'B..G...B...g..B',
+]);
+const SYMBOL_BONUS = Object.freeze({
+  B: BONUS.TRIPLE_EXAMPLE, b: BONUS.DOUBLE_EXAMPLE,
+  G: BONUS.TRIPLE_DIGIT, g: BONUS.DOUBLE_DIGIT,
+});
+export const bonusAt = (row, col) => SYMBOL_BONUS[BONUS_ROWS[row]?.[col]] || BONUS.NONE;
 
 export const emptyBoard = () => Array.from({length: SIZE}, () => Array(SIZE).fill(null));
 

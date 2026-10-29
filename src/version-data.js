@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.47';
+export const APP_VERSION = '0.2.48';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.48',
+    date: '29. 10. 2026',
+    description: 'Oba vzhledy desky používají společné nové rozmístění bonusů. Do nastavení přibyl klasický modro-zelený vzhled; pravidla i bodování platí shodně v místní a online hře.'
+  },
   {
     version: '0.2.47',
     date: '29. 10. 2026',

@@ -339,6 +339,30 @@ dialog::backdrop{background:rgba(2,9,23,.78);backdrop-filter:blur(4px)}
 .cell.td,#onlineDialog .online-cell.td{background:#866326;color:#ffe39b}
 .cell.de,#onlineDialog .online-cell.de{background:#244878;color:#e2efff}
 .cell.te,#onlineDialog .online-cell.te{background:#a67a2e;color:#fff0b5}
+/* Optional classic colours. Both styles render the same bonusAt() positions. */
+:root[data-arena-board-theme="classic"]{
+  --classic-double-digit:#bfdd99;
+  --classic-triple-digit:#6dbf4d;
+  --classic-double-example:#bee7f0;
+  --classic-triple-example:#60a9df;
+}
+:root[data-arena-board-theme="classic"] :is(.game-app .board-rim,#onlineDialog .board-rim){
+  border-color:#c99550;background:#79512b;border-radius:7px;
+}
+:root[data-arena-board-theme="classic"] :is(.game-app .board,#onlineDialog .board){
+  border-radius:2px;background:#fff;
+}
+:root[data-arena-board-theme="classic"] :is(.game-app .board,#onlineDialog .board) .cell:not(.occupied):not(.pending){
+  background:#fff;color:#19314b;border-color:#7d878e;
+}
+:root[data-arena-board-theme="classic"] :is(.game-app .board,#onlineDialog .board) .cell.dd.bonus-hint{background:var(--classic-double-digit);color:#19314b}
+:root[data-arena-board-theme="classic"] :is(.game-app .board,#onlineDialog .board) .cell.td.bonus-hint{background:var(--classic-triple-digit);color:#19314b}
+:root[data-arena-board-theme="classic"] :is(.game-app .board,#onlineDialog .board) .cell.de.bonus-hint{background:var(--classic-double-example);color:#19314b}
+:root[data-arena-board-theme="classic"] :is(.game-app .board,#onlineDialog .board) .cell.te.bonus-hint{background:var(--classic-triple-example);color:#19314b}
+:root[data-arena-board-theme="classic"] .bonus-key.dd{background:var(--classic-double-digit);color:#19314b;border-color:#819d65}
+:root[data-arena-board-theme="classic"] .bonus-key.td{background:var(--classic-triple-digit);color:#19314b;border-color:#408d31}
+:root[data-arena-board-theme="classic"] .bonus-key.de{background:var(--classic-double-example);color:#19314b;border-color:#8eb9c3}
+:root[data-arena-board-theme="classic"] .bonus-key.te{background:var(--classic-triple-example);color:#19314b;border-color:#3b7cae}
 .cell.occupied,.cell.occupied.old,.cell.pending,
 #onlineDialog .online-cell.fixed,#onlineDialog .online-cell.staged{
   color:#182a43;background:linear-gradient(140deg,#ffe7a5,#f2bb55 75%,#d79d33);

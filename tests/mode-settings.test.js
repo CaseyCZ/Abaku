@@ -70,6 +70,23 @@ test('display preferences are independent, with legacy preference as fallback',(
   assert.match(client,/const sound=createGameAudio\(\(\)=>onlineSoundEnabled\)/);
 });
 
+test('one board appearance preference is offered in home, local and online settings',()=>{
+  for(const page of [local,online]){
+    assert.match(page,/data-arena-board-theme/);
+    assert.match(page,/<option value="modern">Současný<\/option>/);
+    assert.match(page,/<option value="classic">Klasický/);
+  }
+  assert.match(ui,/const BOARD_THEME_KEY='arena-board-theme-v1'/);
+  assert.match(ui,/document\.documentElement\.dataset\.arenaBoardTheme=theme/);
+  assert.match(ui,/saveBoardTheme\(chosenTheme\)/);
+  assert.match(ui,/onlineSettingsSave'[\s\S]*?saveBoardTheme/);
+  const css=read('../arena-modern.css');
+  for(const bonus of ['dd','td','de','te'])
+    assert.match(css,new RegExp('data-arena-board-theme="classic"[^\\n]+\\.cell\\.'+bonus+'\\.bonus-hint'));
+  assert.match(main,/bonusAt\(r,c\)/);
+  assert.match(client,/bonusAt\(row,col\)/);
+});
+
 test('identical shared settings paragraphs and labels come from one copy table',()=>{
   const attr=/data-arena-settings-copy="([a-zA-Z]+)"/g;
   const localKeys=[...local.matchAll(attr)].map(x=>x[1]);

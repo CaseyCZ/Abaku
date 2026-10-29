@@ -11,20 +11,20 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.47">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.47">
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.47">
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.47">
-  <link rel="stylesheet" href="./analytics.css?v=0.2.47">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.47">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.47">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.47">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.47">
-  <link rel="stylesheet" href="./online-view.css?v=0.2.47">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.47">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.47">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.47">
-  <script src="./src/analytics.js?v=0.2.47" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.48">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.48">
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.48">
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.48">
+  <link rel="stylesheet" href="./analytics.css?v=0.2.48">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.48">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.48">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.48">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.48">
+  <link rel="stylesheet" href="./online-view.css?v=0.2.48">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.48">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.48">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.48">
+  <script src="./src/analytics.js?v=0.2.48" defer></script>
 </head>
 <body class="arena-home">
   <a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>
@@ -304,6 +304,12 @@
       </section>
       <section class="game-settings-section" aria-labelledby="onlineGameDisplayTitle">
         <h3 id="onlineGameDisplayTitle">Herní obrazovka – online</h3>
+        <label class="game-settings-board-theme">Vzhled desky
+          <select data-arena-board-theme aria-label="Vzhled desky">
+            <option value="modern">Současný</option>
+            <option value="classic">Klasický – modrá a zelená</option>
+          </select>
+        </label>
         <div class="game-settings-toggles" role="group" aria-label="Zobrazení a zvuk">
           <label class="check-line"><input type="checkbox" id="onlineHistorySetting" data-arena-panel="history" checked> Zobrazit průběh</label>
           <label class="check-line"><input type="checkbox" id="onlineChatSetting" data-arena-panel="chat" checked> Zobrazit chat</label>
@@ -313,6 +319,7 @@
       <details class="game-settings-details">
         <summary data-arena-settings-copy="explanation">Vysvětlení nastavení</summary>
         <p data-arena-settings-copy="panels"></p>
+        <p data-arena-settings-copy="boardTheme"></p>
         <p><strong>Zobrazit průběh</strong> ukazuje odehrané tahy a získané body. <strong>Zobrazit chat</strong> určuje, jestli vidíš okno zpráv. <strong>Zvuky</strong> zapínají nebo vypínají zvukové efekty.</p>
         <p><strong>Online:</strong> čas na tah a zobrazení příkladu jsou pevné. Přepínače v tomto okně platí jen pro tvoji online obrazovku; nemění nastavení soupeře.</p>
         <p id="homeLocalSettingsExplanation" hidden><strong>Místní hra:</strong> má vlastní nastavení času, zobrazení příkladu, obtížnosti počítače, průběhu, chatu a zvuků. Proti počítači se chat nezobrazuje. Změny místní hry neovlivní online partie.</p>
@@ -362,9 +369,9 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/site-navigation.js?v=0.2.47"></script>
-  <script type="module" src="./src/arena-ui.js?v=0.2.47"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.47"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.47"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.48"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.48"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.48"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.48"></script>
 </body>
 </html>

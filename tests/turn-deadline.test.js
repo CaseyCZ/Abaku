@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createTurnDeadline,restoreTurnDeadline} from '../src/turn-deadline.js';
+import {createTurnDeadline,restoreTurnDeadline,remainingOnlineTurnSeconds} from '../src/turn-deadline.js';
 
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const main=read('../src/main.js');
@@ -25,6 +25,18 @@ test('old saves migrate once; invalid timestamps cannot block startup',()=>{
   assert.equal(restoreTurnDeadline('invalid',60,now),now+60_000);
   assert.equal(restoreTurnDeadline(Number.POSITIVE_INFINITY,60,now),now+60_000);
   assert.equal(createTurnDeadline(0,now),null);
+});
+
+test('online clock stays at 60 seconds through recap, then starts the real countdown',()=>{
+  const state={finished:false,seconds:60,turnStartsAt:110_000,deadline:170_000};
+  assert.equal(remainingOnlineTurnSeconds(state,100_000),60);
+  assert.equal(remainingOnlineTurnSeconds(state,109_999),60);
+  assert.equal(remainingOnlineTurnSeconds(state,110_000),60);
+  assert.equal(remainingOnlineTurnSeconds(state,120_100),50);
+  assert.equal(remainingOnlineTurnSeconds(state,170_001),0);
+  assert.equal(remainingOnlineTurnSeconds({...state,finished:true},115_000),0);
+  assert.equal(remainingOnlineTurnSeconds({finished:false,seconds:60,deadline:160_000},120_000),40,
+    'older server messages still work during deployment');
 });
 
 test('game saves deadlines on turn start, settings change and after score reveal',()=>{

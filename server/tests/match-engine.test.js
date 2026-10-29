@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MatchEngine } from '../match-engine.js';
+import {onlineReviewDelayMs} from '../../src/score-recap.js';
 
 function rig(){
   let now=100_000;const out=[];
@@ -200,6 +201,31 @@ test('accepted online move syncs complete previous equation squares to both play
   assert.ok(latest.every(x=>!('rack' in x.lastMove)));
 });
 
+test('both players get the complete 60 seconds after the score recap and highlight',()=>{
+  const {game,out,setTime}=rig();
+  game.connect('a');game.connect('b');
+  const match=game.createMatch('a','b');
+  match.players[0].rack=[2,6,8,1,4];
+  game.place('a',[
+    {row:7,col:6,rackIndex:0},{row:7,col:7,rackIndex:1},
+    {row:7,col:8,rackIndex:2}
+  ]);
+  const reviewMs=onlineReviewDelayMs(match.lastMove.equationBreakdown,
+    match.lastMove.points,match.lastMove.equations);
+  assert.equal(match.turnStartsAt,100_000+reviewMs);
+  assert.equal(match.deadline,match.turnStartsAt+60_000);
+  const states=out.filter(event=>event.type==='match-state'&&event.turns===1);
+  assert.equal(states.length,2);
+  assert.ok(states.every(state=>state.turnStartsAt===match.turnStartsAt&&state.deadline===match.deadline));
+  assert.throws(()=>game.pass('b'),/vyhodnocení/);
+  setTime(match.turnStartsAt-1);
+  game.tick();
+  assert.equal(match.turns,1,'review must not cause a timeout');
+  setTime(match.turnStartsAt);
+  game.pass('b');
+  assert.equal(match.turnStartsAt,match.deadline-60_000,'a pass has no score overlay');
+});
+
 test('online server accepts a square root and reports it under the updated rules',()=>{
   const {game,out}=rig();
   game.connect('a');game.connect('b');
@@ -249,7 +275,9 @@ test('online scorecards receive safe nicknames and recent move history after rec
     assert.equal(state.history[0].turnNumber,1);
     assert.deepEqual(state.history[0].addedNumbers,[2,6,8]);
     assert.ok(!state.players.some(player=>'uid' in player||'rack' in player));
-    assert.equal(state.deadline,160_000);
+    assert.equal(state.turnStartsAt,100_000+onlineReviewDelayMs(match.lastMove.equationBreakdown,
+      match.lastMove.points,match.lastMove.equations));
+    assert.equal(state.deadline,state.turnStartsAt+60_000);
   }
   events.length=0;
   game.sync('alice');
@@ -258,7 +286,7 @@ test('online scorecards receive safe nicknames and recent move history after rec
 });
 
 test('online history orders added digits by board position and counts skipped turns',()=>{
-  const {game}=rig();
+  const {game,setTime}=rig();
   game.connect('a');game.connect('b');
   const match=game.createMatch('a','b',60);
   match.players[0].rack=[2,6,8,4,1];
@@ -269,6 +297,7 @@ test('online history orders added digits by board position and counts skipped tu
   ]);
   assert.deepEqual(match.history[0].addedNumbers,[2,6,8]);
   assert.equal(match.history[0].turnNumber,1);
+  setTime(match.turnStartsAt);
   game.pass('b');
   match.players[0].rack=[2,9,3,4,1];
   game.place('a',[{row:7,col:9,rackIndex:0}]);

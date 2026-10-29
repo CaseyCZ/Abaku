@@ -237,7 +237,8 @@ test('online match uses the local game markup and stylesheet on phone and deskto
   assert.match(onlineClient,/revealArenaChat\(\)/);
   assert.match(onlineClient,/formatEquations\(last\.equations,10\)/);
   assert.match(onlineClient,/s\.history/);
-  assert.match(onlineClient,/gameState\.deadline/);
+  assert.match(onlineClient,/remainingOnlineTurnSeconds\(gameState\)/);
+  assert.match(file('../src/turn-deadline.js'),/state\.deadline/);
 });
 
 

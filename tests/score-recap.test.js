@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {scoringSteps,getRecapSeconds,setRecapSeconds,RECAP_SECONDS_OPTIONS} from '../src/score-recap.js';
+import {scoringSteps,onlineReviewDelayMs,getRecapSeconds,setRecapSeconds,RECAP_SECONDS_OPTIONS} from '../src/score-recap.js';
 import {emptyBoard,validateMove} from '../src/rules.js';
 
 test('accepted examples carry precise scores and bonus multipliers',()=>{
@@ -28,6 +28,8 @@ test('multiple calculations remain individual steps, each increasing the running
   assert.equal(steps.length,3);
   assert.deepEqual(steps.map(s=>s.equation),entries.map(s=>s.equation));
   assert.deepEqual(steps.map((_,i)=>steps.slice(0,i+1).reduce((sum,s)=>sum+s.points,0)),[14,23,41]);
+  assert.equal(onlineReviewDelayMs(entries,41),3*(700+3000)+3000+3000+1500);
+  assert.equal(onlineReviewDelayMs([],0),3000+1500);
 });
 
 test('if older API omits details, do not invent per-example points',()=>{

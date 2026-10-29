@@ -1,12 +1,13 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.49';
-import {syncResumeCard} from './resume-card.js?v=0.2.49';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.49';
-import { describeMovePreview } from './preview.js?v=0.2.49';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.49';
-import {ScoreRecap} from './score-recap.js?v=0.2.49';
-import {createGameAudio} from './game-audio.js?v=0.2.49';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.49';
-import {bindFeedback} from './feedback-client.js?v=0.2.49';
+import {revealArenaChat} from './arena-ui.js?v=0.2.50';
+import {syncResumeCard} from './resume-card.js?v=0.2.50';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.50';
+import { describeMovePreview } from './preview.js?v=0.2.50';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.50';
+import {ScoreRecap} from './score-recap.js?v=0.2.50';
+import {createGameAudio} from './game-audio.js?v=0.2.50';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.50';
+import {bindFeedback} from './feedback-client.js?v=0.2.50';
+import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.50';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -68,6 +69,7 @@ let recentOnlineMove=null;
 let recentOnlineMoveId=null;
 let recentOnlineMoveTimer=null;
 let onlineTimerTicker=null;
+let onlineTurnReadyTimer=null;
 let reconnectTimer=null, reconnectAction=null, socketAuthenticated=false;
 let reconnects=0, lastSocketMessageAt=0;
 let socketMonitorTimer=null, onlineInitRetryTimer=null;
@@ -476,14 +478,15 @@ function showOnlineHighlight(move){
 function showOnlineReview(state){
   const move=state.lastMove;
   if(!move||!Array.isArray(move.placed)||!Array.isArray(move.cells))return;
-  const key=state.matchId+':'+state.turns;
+  // A pass or exchange advances turns but must not replay an older scorecard.
+  const key=state.matchId+':'+(move.turnNumber??state.turns);
   if(key===recentOnlineMoveId)return;
   // A previous move may still be showing its board highlight. Do not
   // cancel that timer: the recap queue is waiting for it to resolve.
   if(recentOnlineMoveTimer===null)clearOnlineReview();
   recentOnlineMoveId=key;
-  // The actual score was already awarded by the server. The server clock
-  // continues independently of these optional client-side animations.
+  // The actual score was already awarded by the server. The next turn's
+  // server deadline starts after both players have time to see this review.
   if(Number.isFinite(move.at)&&Date.now()-move.at<12_000&&Date.now()-move.at>=-5_000&&
      (!state.finished||state.reason==='completed')){
     onlineScoreRecap.play({
@@ -620,6 +623,7 @@ function connectOnline(action,{reconnecting=false}={}){
       const changedMatch=gameState?.matchId&&gameState.matchId!==msg.matchId;
       if(changedMatch){onlineScoreRecap.cancel();clearOnlineReview();resetOnlineResult();resetOnlineChat();}
       gameState=msg;
+      scheduleOnlineTurnReady();
       if(!msg.finished) $('onlineOpponentNotice').hidden=!disconnectedOpponent;
       if(awaitingRecoveryState){
         awaitingRecoveryState=false;
@@ -709,7 +713,18 @@ function connectOnline(action,{reconnecting=false}={}){
   });
 }
 function ownTurn(){return gameState&&!gameState.finished&&gameState.mySide===gameState.turn&&
+  (!Number.isFinite(gameState.turnStartsAt)||Date.now()>=gameState.turnStartsAt)&&
   socketAuthenticated&&connection?.readyState===WebSocket.OPEN;}
+function scheduleOnlineTurnReady(){
+  if(onlineTurnReadyTimer!==null)clearTimeout(onlineTurnReadyTimer);
+  onlineTurnReadyTimer=null;
+  const until=Number(gameState?.turnStartsAt);
+  if(!gameState||gameState.finished||!Number.isFinite(until)||until<=Date.now())return;
+  onlineTurnReadyTimer=setTimeout(()=>{
+    onlineTurnReadyTimer=null;
+    if(gameState&&!gameState.finished)renderOnline();
+  },until-Date.now()+50);
+}
 function addChat(uid,text){
   const line=document.createElement('div');
   line.className='online-chat-line';
@@ -735,10 +750,7 @@ function onlinePlayerName(side){
 }
 function updateOnlineTimer(){
   if(!gameState||$('onlineBoardWrapper').hidden)return;
-  const until=Number(gameState.deadline);
-  const remaining=gameState.finished ? 0
-    : Number.isFinite(until) ? Math.max(0,Math.ceil((until-Date.now())/1000))
-    : gameState.seconds||60;
+  const remaining=remainingOnlineTurnSeconds(gameState);
   $('onlineTimer').textContent=String(Math.floor(remaining/60)).padStart(2,'0')+':'+String(remaining%60).padStart(2,'0');
   $('onlineTimer').parentElement.classList.toggle('warning',!gameState.finished&&remaining<=15);
 }

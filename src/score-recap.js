@@ -1,7 +1,7 @@
 // Sequential scoring display shared by local and online matches.
 // It only visualises points already calculated by validateMove on the client
 // or the authoritative server. It never changes the saved/player score.
-import {formatEquations} from './rules.js?v=0.2.49';
+import {formatEquations} from './rules.js?v=0.2.50';
 
 // Local players choose their duration; online matches always use three seconds.
 export const RECAP_SECONDS_OPTIONS=Object.freeze([0,2,3,5]);
@@ -51,6 +51,14 @@ export function scoringSteps(breakdown,total,equations=[]){
     equation:item.equation,base:item.base,multiplier:item.multiplier,
     points:item.points
   }));
+}
+
+// Online turns begin only after the shared 3-second-per-example recap,
+// its final summary, and the unobstructed 3-second board highlight.
+// Allow a little time for both devices to receive the WebSocket event.
+export function onlineReviewDelayMs(breakdown,total,equations=[]){
+  const steps=scoringSteps(breakdown,total,equations).length;
+  return (steps?steps*(700+3000)+3000:0)+3000+1500;
 }
 
 export class ScoreRecap {

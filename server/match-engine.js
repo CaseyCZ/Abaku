@@ -1,6 +1,7 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import { SIZE, emptyBoard, makeBag, drawTiles, validateMove } from '../src/rules.js';
 import {reportEligibility,addReportReceipt} from '../src/report-policy.js';
+import {onlineReviewDelayMs} from '../src/score-recap.js';
 
 const RACK_SIZE = 5;
 const MAX_CHAT = 160;
@@ -40,7 +41,8 @@ export class MatchEngine {
   snapshot(match) {
     return {version:1,id:match.id,players:match.players,board:match.board,
       bag:match.bag,turn:match.turn,turns:match.turns,passStreak:match.passStreak,
-      seconds:match.seconds,deadline:match.deadline,finished:match.finished,
+      seconds:match.seconds,deadline:match.deadline,turnStartsAt:match.turnStartsAt,
+      finished:match.finished,
       winner:match.winner,reason:match.reason,endedAt:match.endedAt,
       lastMove:match.lastMove||null,history:match.history||[],
       auditEvents:match.auditEvents,auditRevision:match.auditRevision,
@@ -57,7 +59,7 @@ export class MatchEngine {
     if(!previous)return;
     const copy=structuredClone(previous);
     for(const field of ['players','board','bag','turn','turns','passStreak','seconds',
-      'deadline','finished','winner','reason','endedAt','lastMove','history',
+      'deadline','turnStartsAt','finished','winner','reason','endedAt','lastMove','history',
       'auditEvents','auditRevision','auditPartial'])match[field]=copy[field];
     match.reportReceipts=new Map(copy.reportReceipts);
   }
@@ -86,6 +88,7 @@ export class MatchEngine {
           ![0,1].includes(state.turn)||!Number.isSafeInteger(state.turns)||state.turns<0||
           !Number.isSafeInteger(state.passStreak)||state.passStreak<0||
           ![30,60,90].includes(state.seconds)||!Number.isFinite(state.deadline)||
+          (state.turnStartsAt!==undefined&&!Number.isFinite(state.turnStartsAt))||
           typeof state.finished!=='boolean'||!Number.isFinite(state.savedAt)||
           (state.finished&&!Number.isFinite(state.endedAt))||
           (state.winner!==null&&typeof state.winner!=='string')||
@@ -105,6 +108,7 @@ export class MatchEngine {
         }))throw new Error('Kolize uložených partií.');
         const match={...state,reportReceipts:new Map(state.reportReceipts),
           reportPending:new Map(),rematchVotes:new Set()};
+        if(!Number.isFinite(match.turnStartsAt))match.turnStartsAt=now;
         this.matches.set(match.id,match);
         this.rememberSnapshot(state);
         for(const p of match.players){
@@ -115,6 +119,7 @@ export class MatchEngine {
           // Nobody has a socket immediately after an API restart. Pause the
           // old deadline and give both players a chance to reconnect.
           match.deadline=now+match.seconds*1000;
+          match.turnStartsAt=now;
           for(const p of match.players)this.disconnected.set(p.uid,now);
           this.restoredAwaiting.set(match.id,now);
         }
@@ -128,6 +133,7 @@ export class MatchEngine {
     if(match&&!match.finished&&this.restoredAwaiting.has(match.id)){
       const now=this.clock();
       match.deadline=now+match.seconds*1000;
+      match.turnStartsAt=now;
       this.persist(match);
       this.restoredAwaiting.delete(match.id);
       for(const p of match.players)if(p.uid!==uid)this.disconnected.set(p.uid,now);
@@ -167,7 +173,7 @@ export class MatchEngine {
       })),
       mySide:match.players.findIndex(p=>p.uid===uid),
       turn:match.turn,turns:match.turns,
-      deadline:match.deadline,seconds:match.seconds
+      deadline:match.deadline,seconds:match.seconds,turnStartsAt:match.turnStartsAt
     };
   }
   waitingCount() {
@@ -190,6 +196,7 @@ export class MatchEngine {
           nickname:this.getName(p.uid)||'Hráč '+(i+1)})),
         mySide:me,rack:match.players[me].rack,turn:match.turn,turns:match.turns,
         bagCount:match.bag.length,seconds:match.seconds,deadline:match.deadline,
+        turnStartsAt:match.turnStartsAt,
         lastMove:match.lastMove||null,history:(match.history||[]).slice(-6),finished:match.finished,
         winner:match.winner===null?null:match.players.findIndex(p=>p.uid===match.winner),reason:match.reason,
         auditRevision:match.auditRevision||0,reportStatus:this.reportStatus(uid,match)});
@@ -244,7 +251,8 @@ export class MatchEngine {
     const players=[{uid:uidA,score:0,rack:drawTiles(bag,[])},{uid:uidB,score:0,rack:drawTiles(bag,[])}];
     const match={id:'m_'+randomUUID(),players,board:emptyBoard(),bag,
       turn:0,turns:0,passStreak:0,seconds:legalTime(seconds),
-      deadline:this.clock()+legalTime(seconds)*1000,finished:false,winner:null,reason:null,endedAt:null,
+      deadline:this.clock()+legalTime(seconds)*1000,turnStartsAt:this.clock(),
+      finished:false,winner:null,reason:null,endedAt:null,
       auditEvents:[],auditRevision:0,reportReceipts:new Map(),reportPending:new Map()};
     this.persist(match);
     this.matches.set(match.id,match);
@@ -257,6 +265,7 @@ export class MatchEngine {
     const match=this.matchOf(uid);
     if(!match || match.finished)throw new Error('Není rozehraná partie.');
     if(match.players[match.turn].uid!==uid)throw new Error('Nyní nejsi na tahu.');
+    if(match.turnStartsAt>this.clock())throw new Error('Počkej na dokončení vyhodnocení tahu.');
     if(match.deadline<=this.clock()) {this.passTurn(match,'timeout');throw new Error('Čas na tah vypršel.');}
     return match;
   }
@@ -306,7 +315,7 @@ export class MatchEngine {
     match.passStreak=0;
     this.nextTurn(match,()=>this.sendTo(uid,{
       type:'move-accepted',points:validated.points,equations:validated.equations
-    }));
+    }),onlineReviewDelayMs(validated.equationBreakdown,validated.points,validated.equations));
     this.invalidMoves.delete(uid);
   }
   exchange(uid,indices) {
@@ -333,14 +342,15 @@ export class MatchEngine {
     const by=match.turn;
     this.nextTurn(match,()=>this.toAll(match,{type:'turn-passed',by,reason}));
   }
-  nextTurn(match,afterSave=()=>{}) {
+  nextTurn(match,afterSave=()=>{},reviewDelayMs=0) {
     match.turns++;
     if(match.passStreak>=6||(!match.bag.length&&match.players.some(p=>!p.rack.length))) {
       this.finish(match,'completed',null,afterSave);
       return;
     }
     match.turn=1-match.turn;
-    match.deadline=this.clock()+match.seconds*1000;
+    match.turnStartsAt=this.clock()+reviewDelayMs;
+    match.deadline=match.turnStartsAt+match.seconds*1000;
     this.persist(match);
     afterSave();
     for(const p of match.players)this.sync(p.uid);

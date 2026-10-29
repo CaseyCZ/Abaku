@@ -11,3 +11,13 @@ export function restoreTurnDeadline(savedDeadline, seconds, now=Date.now()){
   // Older saves never had a deadline: start a full turn only once on migration.
   return createTurnDeadline(seconds,now);
 }
+
+// The server's next turn is not yet running while the online score reveal
+// is on screen. Show the full turn length until its authoritative start.
+export function remainingOnlineTurnSeconds(state,now=Date.now()){
+  if(state.finished)return 0;
+  const seconds=Number(state.seconds)||60;
+  if(Number.isFinite(state.turnStartsAt)&&now<state.turnStartsAt)return seconds;
+  const deadline=Number(state.deadline);
+  return Number.isFinite(deadline)?Math.max(0,Math.ceil((deadline-now)/1000)):seconds;
+}

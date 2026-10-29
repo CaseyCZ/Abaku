@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.50';
+export const APP_VERSION = '0.2.51';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.51',
+    date: '29. 10. 2026',
+    description: 'Na iPhonu a dalších dotykových zařízeních se chat při psaní nepřibližuje; pole i tlačítko Poslat zůstávají vedle sebe také při otevřené klávesnici.'
+  },
   {
     version: '0.2.50',
     date: '29. 10. 2026',

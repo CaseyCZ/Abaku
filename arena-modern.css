@@ -880,3 +880,17 @@ body :is(h1,h2,h3,h4,h5,h6,p,span,strong,small,b,em,i,a,button,input,
   article,aside,dialog,summary,table,th,td){
   font-family:var(--arena-ui-font)!important;
 }
+
+/* iOS zooms the entire page when a focused text field is below 16px.
+   Keep the send button beside the composer when the keyboard opens. */
+@media (pointer:coarse){
+  #onlineDialog #onlineChatInput,.game-app #chatInput{
+    font-size:16px!important;line-height:1.35;
+  }
+  #onlineDialog #onlineChatForm,.game-app #chatForm{
+    box-sizing:border-box;width:100%;max-width:100%;min-width:0;flex-wrap:nowrap;
+  }
+  #onlineDialog #onlineChatForm .gold-button,.game-app #chatForm .gold-button{
+    flex:0 0 auto;white-space:nowrap;
+  }
+}

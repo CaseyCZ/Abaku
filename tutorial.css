@@ -104,10 +104,10 @@
   display:grid;place-items:center;flex:none;width:63px;height:63px;border-radius:10px;
   font-weight:900;font-size:20px;border:1px solid #8badcf;
 }
-.tutorial-bonus-chip.dd{background:#2a5f92;color:#e4f4ff}
-.tutorial-bonus-chip.td{background:#97712d;color:#fff1c8;border-color:#d7b15b}
-.tutorial-bonus-chip.de{background:#244a77;color:#d5ebff}
-.tutorial-bonus-chip.te{background:#bd8f35;color:#1b2c45;border-color:#f0ca71}
+.tutorial-bonus-chip.dd{background:#bb8e36;color:#182941;border-color:#e2b95b}
+.tutorial-bonus-chip.td{background:#866326;color:#fff0ba;border-color:#c6a051}
+.tutorial-bonus-chip.de{background:#2b6596;color:#ecf6ff;border-color:#6ca4d1}
+.tutorial-bonus-chip.te{background:#244878;color:#e2efff;border-color:#4e81b9}
 .tutorial-bonuses strong{color:#fce0a3}
 .tutorial-bonuses p{margin:4px 0 0;color:#bbcee1;font-size:12px;line-height:1.55}
 .tutorial-highlight{

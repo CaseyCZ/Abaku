@@ -1,14 +1,15 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.57';
-import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.57';
-import {chooseMove} from './ai.js?v=0.2.57';
-import {describeMovePreview} from './preview.js?v=0.2.57';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.57';
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.57';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.58';
+import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.58';
+import {chooseMove} from './ai.js?v=0.2.58';
+import {describeMovePreview} from './preview.js?v=0.2.58';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.58';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.58';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
-  from './player-identity.js?v=0.2.57';
-import {ensureAudit,recordAudit,localReport} from './report-client.js?v=0.2.57';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.57';
-import {createGameAudio} from './game-audio.js?v=0.2.57';
+  from './player-identity.js?v=0.2.58';
+import {ensureAudit,recordAudit,localReport} from './report-client.js?v=0.2.58';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.58';
+import {createGameAudio} from './game-audio.js?v=0.2.58';
+import {getTextSize,setTextSize} from './text-size.js?v=0.2.58';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-arena-settings-v1';
@@ -507,6 +508,7 @@ byId('settingsButton').addEventListener('click',()=>{
   byId('difficultySetting').value=settings.difficulty;
   byId('timeSetting').value=String(settings.time);byId('soundSetting').checked=settings.sound;
   byId('scoreRecapSecondsSetting').value=String(getRecapSeconds());
+  byId('localTextSizeSetting').value=getTextSize();
   byId('settingsDialog').showModal();
 });
 bindFeedback({buttonId:'reportProblemButton',extraButtonIds:['offlineResultProblemButton'],send:({description,attach})=>{
@@ -518,6 +520,7 @@ bindFeedback({buttonId:'reportProblemButton',extraButtonIds:['offlineResultProbl
 byId('settingsForm').addEventListener('submit',event=>{
   if(event.submitter?.value!=='save')return;
   settings={...settings,difficulty:byId('difficultySetting').value,time:Number(byId('timeSetting').value),sound:byId('soundSetting').checked};
+  setTextSize(byId('localTextSizeSetting').value);
   setRecapSeconds(byId('scoreRecapSecondsSetting').value);
   try{localStorage.setItem(settingsKey,JSON.stringify(settings));}catch{}
   resetDeadline();save();render();

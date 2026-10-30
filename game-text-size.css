@@ -1,0 +1,151 @@
+/* Text-only accessibility preference. Do not scale board cells, rack tiles,
+   the timer, or any game geometry: online turn deadlines stay unchanged. */
+:root { --arena-game-text-scale:1; }
+:root[data-arena-text-size="large"] { --arena-game-text-scale:1.16; }
+:root[data-arena-text-size="largest"] { --arena-game-text-scale:1.32; }
+
+/* Consistent readable defaults for the local and online game header. */
+.game-app .top-bar .game-navigation .gold-button,
+#onlineDialog .top-bar .game-navigation .gold-button {
+  font-size:calc(12px * var(--arena-game-text-scale));
+  line-height:1.2;
+}
+.game-app .top-bar .game-menu-toggle {
+  font-size:calc(14px * var(--arena-game-text-scale));
+}
+.game-app .top-bar .game-header-score .match-scoreboard .player-name {
+  font-size:calc(14px * var(--arena-game-text-scale))!important;
+}
+.game-app .top-bar > .bag-count {
+  font-size:calc(12px * var(--arena-game-text-scale));
+}
+
+/* Information and actions next to the board; both modes use this markup. */
+.game-app .side-panel h2 { font-size:calc(17px * var(--arena-game-text-scale)); }
+.game-app .side-panel h3 { font-size:calc(14px * var(--arena-game-text-scale)); }
+.game-app .status-turn span,
+.game-app .status-turn strong,
+.game-app .status-details > div,
+.game-app .move-history,
+.game-app .chat-messages,
+.game-app .chat-message strong,
+.game-app .chat-note,
+.game-app .chat-entry input,
+.game-app .chat-entry .gold-button,
+.game-app .status-panel .game-message,
+.game-app .mobile-game-message,
+.game-app .game-controls .gold-button,
+#onlineDialog #onlineStatus,
+#onlineDialog #onlineLastMoveReview,
+#onlineDialog .online-opponent-notice,
+#onlineDialog .online-reconnect-notice {
+  font-size:calc(13px * var(--arena-game-text-scale));
+  line-height:1.4;
+}
+.game-app .chat-entry input { min-height:42px; }
+
+/* A modestly larger settings dialog, including its own new text-size control. */
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-fields .game-settings-field,
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-board-theme,
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-toggles .check-line,
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-details summary,
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-details p,
+:is(#settingsDialog,#onlineGameSettingsDialog) .settings-inline-note,
+:is(#settingsDialog,#onlineGameSettingsDialog) .version-history summary {
+  font-size:calc(13px * var(--arena-game-text-scale));
+}
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-board-theme select,
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-fields .game-settings-field select,
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-body menu .gold-button {
+  font-size:calc(14px * var(--arena-game-text-scale));
+}
+
+/* When the desktop's right header column is too narrow for four readable
+   actions, reuse the existing accessible Menu button instead of tiny type. */
+@media (min-width:900px) and (max-width:1130px) and (orientation:landscape) and (min-height:601px) {
+  .game-app .top-bar { position:relative;z-index:5; }
+  .game-app .top-bar .game-menu-toggle {
+    display:inline-flex;align-items:center;justify-content:center;
+    grid-column:5;grid-row:1 / span 2;justify-self:end;align-self:center;
+    min-height:40px;padding:7px 11px;
+  }
+  .game-app .top-bar .game-navigation,
+  #onlineDialog .top-bar .game-navigation {
+    display:none;position:absolute;top:100%;right:8px;left:auto;
+    width:min(300px,calc(100vw - 16px));box-sizing:border-box;
+    padding:8px;gap:6px;flex-direction:column;align-items:stretch;
+    border:1px solid #426181;border-radius:12px;background:#102747;
+    box-shadow:0 10px 22px #050d20b8;z-index:30;
+  }
+  .game-app .top-bar .game-navigation.is-open,
+  #onlineDialog .top-bar .game-navigation.is-open { display:flex; }
+  .game-app .top-bar .game-navigation .gold-button,
+  #onlineDialog .top-bar .game-navigation .gold-button {
+    width:100%;min-height:44px;white-space:normal;
+    font-size:calc(14px * var(--arena-game-text-scale));
+  }
+}
+
+@media (min-width:761px) and (max-width:899px) and (orientation:landscape) and (min-height:601px) {
+  .game-app .top-bar { position:relative;z-index:5; }
+  .game-app .top-bar .game-menu-toggle {
+    display:inline-flex;align-items:center;justify-content:center;
+    grid-column:3;grid-row:1;justify-self:end;
+    min-height:40px;padding:7px 11px;
+  }
+  .game-app .top-bar .game-navigation,
+  #onlineDialog .top-bar .game-navigation {
+    display:none;position:absolute;top:100%;right:8px;left:auto;
+    width:min(300px,calc(100vw - 16px));box-sizing:border-box;
+    padding:8px;gap:6px;flex-direction:column;align-items:stretch;
+    border:1px solid #426181;border-radius:12px;background:#102747;
+    box-shadow:0 10px 22px #050d20b8;z-index:30;
+  }
+  .game-app .top-bar .game-navigation.is-open,
+  #onlineDialog .top-bar .game-navigation.is-open { display:flex; }
+  .game-app .top-bar .game-navigation .gold-button,
+  #onlineDialog .top-bar .game-navigation .gold-button {
+    width:100%;min-height:44px;white-space:normal;
+    font-size:calc(14px * var(--arena-game-text-scale));
+  }
+}
+
+/* The extra-large setting may need the compact menu on medium desktops too. */
+@media (min-width:1131px) and (max-width:1370px) and (orientation:landscape) and (min-height:601px) {
+  :root[data-arena-text-size="largest"] .game-app .top-bar { position:relative;z-index:5; }
+  :root[data-arena-text-size="largest"] .game-app .top-bar .game-menu-toggle {
+    display:inline-flex;align-items:center;justify-content:center;
+    grid-column:5;grid-row:1 / span 2;justify-self:end;align-self:center;
+    min-height:40px;padding:7px 11px;
+  }
+  :root[data-arena-text-size="largest"] .game-app .top-bar .game-navigation,
+  :root[data-arena-text-size="largest"] #onlineDialog .top-bar .game-navigation {
+    display:none;position:absolute;top:100%;right:8px;left:auto;
+    width:300px;box-sizing:border-box;padding:8px;gap:6px;
+    flex-direction:column;align-items:stretch;
+    border:1px solid #426181;border-radius:12px;background:#102747;
+    box-shadow:0 10px 22px #050d20b8;z-index:30;
+  }
+  :root[data-arena-text-size="largest"] .game-app .top-bar .game-navigation.is-open,
+  :root[data-arena-text-size="largest"] #onlineDialog .top-bar .game-navigation.is-open { display:flex; }
+  :root[data-arena-text-size="largest"] .game-app .top-bar .game-navigation .gold-button,
+  :root[data-arena-text-size="largest"] #onlineDialog .top-bar .game-navigation .gold-button {
+    width:100%;min-height:44px;white-space:normal;
+  }
+}
+
+/* The phone menu already stacks its buttons; keep that behavior while
+   respecting the chosen text size on iOS, Android and small tablets. */
+@media (max-width:760px), (orientation:landscape) and (max-width:1100px) and (max-height:600px) and (pointer:coarse) {
+  .game-app .top-bar .game-navigation .gold-button,
+  #onlineDialog .top-bar .game-navigation .gold-button {
+    font-size:calc(14px * var(--arena-game-text-scale));
+  }
+}
+
+/* iOS Safari zooms focused fields below 16px, which hides the Send button. */
+@media (pointer:coarse) {
+  .game-app .chat-entry input {
+    font-size:max(16px,calc(13px * var(--arena-game-text-scale)));
+  }
+}

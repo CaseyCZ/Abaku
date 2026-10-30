@@ -1,13 +1,14 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.57';
-import {syncResumeCard} from './resume-card.js?v=0.2.57';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.57';
-import { describeMovePreview } from './preview.js?v=0.2.57';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.57';
-import {ScoreRecap} from './score-recap.js?v=0.2.57';
-import {createGameAudio} from './game-audio.js?v=0.2.57';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.57';
-import {bindFeedback} from './feedback-client.js?v=0.2.57';
-import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.57';
+import {revealArenaChat} from './arena-ui.js?v=0.2.58';
+import {syncResumeCard} from './resume-card.js?v=0.2.58';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.58';
+import { describeMovePreview } from './preview.js?v=0.2.58';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.58';
+import {ScoreRecap} from './score-recap.js?v=0.2.58';
+import {createGameAudio} from './game-audio.js?v=0.2.58';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.58';
+import {bindFeedback} from './feedback-client.js?v=0.2.58';
+import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.58';
+import {getTextSize,setTextSize} from './text-size.js?v=0.2.58';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -1021,6 +1022,7 @@ function initializeActions(){
   }});
   const openSettings=(fromHome=false)=>{
     $('onlineSoundSetting').checked=onlineSoundEnabled;
+    $('onlineTextSizeSetting').value=getTextSize();
     $('homeLocalTimeHelp').hidden=!fromHome;
     $('homeLocalSettingsExplanation').hidden=!fromHome;
     $('onlineSettingsPrivacy').hidden=fromHome;
@@ -1039,6 +1041,7 @@ function initializeActions(){
   });
   $('onlineSettingsSave').addEventListener('click',()=>{
     onlineSoundEnabled=$('onlineSoundSetting').checked;
+    setTextSize($('onlineTextSizeSetting').value);
     try{localStorage.setItem(ONLINE_SOUND_KEY,String(onlineSoundEnabled));}catch{}
     inGameSettings.close();
     status('Nastavení zobrazení a zvuků uloženo.');

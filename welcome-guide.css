@@ -12,31 +12,33 @@
   color:#f6f5f0;
 }
 #welcomeGuide .welcome-guide-body{gap:14px;padding:clamp(18px,4vw,28px)}
-#welcomeGuide .welcome-guide-heading{display:flex;justify-content:space-between;align-items:start;gap:12px}
-#welcomeGuide .welcome-guide-kicker{margin:0 0 7px;color:#a9c9ed;font-size:11px;font-weight:800;letter-spacing:.14em}
-#welcomeGuide h2{margin:0;font-size:clamp(25px,4vw,33px);color:#ffe39a}
+#welcomeGuide .welcome-guide-heading{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:start;gap:8px}
+#welcomeGuide .welcome-guide-heading::before{content:""}
+#welcomeGuide .welcome-guide-heading > div{text-align:center;min-width:0}
+#welcomeGuide .welcome-guide-kicker{margin:0 0 7px;color:#a9c9ed;font-size:calc(11px * var(--arena-game-text-scale));font-weight:800;letter-spacing:.14em}
+#welcomeGuide h2{margin:0;font-size:clamp(calc(25px * var(--arena-game-text-scale)),calc(4vw * var(--arena-game-text-scale)),calc(33px * var(--arena-game-text-scale)));color:#ffe39a}
 #welcomeGuide .welcome-guide-close{
   width:44px;height:44px;flex:none;border:1px solid #4b6b91;border-radius:12px;
   background:#1a3658;color:#ffe39a;font-size:29px;line-height:1;cursor:pointer
 }
-#welcomeGuide .welcome-guide-intro{margin:0;color:#d7e2f0;font-size:15px;line-height:1.55}
+#welcomeGuide .welcome-guide-intro{margin:0;color:#d7e2f0;font-size:calc(16px * var(--arena-game-text-scale));line-height:1.55;text-align:center}
 #welcomeGuide .welcome-guide-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 #welcomeGuide .welcome-guide-step{
   min-width:0;display:flex;flex-direction:column;gap:9px;
   padding:16px;background:#0c2443;border:1px solid #3c5e83;border-radius:14px
 }
-#welcomeGuide h3{margin:0;font-size:17px;line-height:1.3;color:#ffe39a}
-#welcomeGuide .welcome-guide-step p{margin:0;flex:1;font-size:13px;line-height:1.55;color:#d7e2f0}
-#welcomeGuide .welcome-guide-links{display:flex;flex-wrap:wrap;gap:7px}
-#welcomeGuide .welcome-guide-links .gold-button{min-height:43px;padding:9px 11px;font-size:13px;white-space:normal;text-align:center}
+#welcomeGuide h3{margin:0;font-size:calc(18px * var(--arena-game-text-scale));line-height:1.3;color:#ffe39a;text-align:center}
+#welcomeGuide .welcome-guide-step p{margin:0;flex:1;font-size:calc(15px * var(--arena-game-text-scale));line-height:1.55;color:#d7e2f0}
+#welcomeGuide .welcome-guide-links{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}
+#welcomeGuide .welcome-guide-links .gold-button{min-height:44px;padding:9px 11px;font-size:calc(14px * var(--arena-game-text-scale));line-height:1.3;white-space:normal;text-align:center}
 #welcomeGuide .welcome-guide-links a.gold-button{text-decoration:none}
 #welcomeGuide .welcome-guide-footer{
   display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
   padding-top:13px;border-top:1px solid #3d5b7e
 }
-#welcomeGuide .welcome-guide-remember{display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.35;cursor:pointer;color:#f6f5f0}
-#welcomeGuide .welcome-guide-remember input{width:20px;height:20px;min-height:20px;flex:none;margin:0;accent-color:#f8c45e}
-#welcomeGuide .welcome-guide-footer .gold-button{min-height:45px;white-space:normal}
+#welcomeGuide .welcome-guide-remember{display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 0;font-size:calc(14px * var(--arena-game-text-scale));line-height:1.35;cursor:pointer;color:#f6f5f0}
+#welcomeGuide .welcome-guide-remember input{width:22px;height:22px;min-height:22px;flex:none;margin:0;accent-color:#f8c45e}
+#welcomeGuide .welcome-guide-footer .gold-button{min-height:45px;font-size:calc(14px * var(--arena-game-text-scale));white-space:normal}
 @media(max-width:620px){
   #welcomeGuide .welcome-guide-steps{grid-template-columns:1fr}
   #welcomeGuide .welcome-guide-step{padding:14px}

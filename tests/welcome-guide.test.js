@@ -35,3 +35,23 @@ test('guide stays scrollable and has mobile single-column layout',()=>{
   assert.match(css,/@media\(max-width:620px\)/);
   assert.match(css,/\.welcome-guide-steps\{grid-template-columns:1fr\}/);
 });
+
+test('guide uses the existing text-size preference and centers headings and actions',()=>{
+  const page=file('../index.html');
+  const css=file('../welcome-guide.css');
+  assert.match(page,/href="\.\/game-text-size\.css\?v=[\w.-]+"/);
+  assert.match(css,/\.welcome-guide-step p\{[^}]*var\(--arena-game-text-scale\)/);
+  assert.match(css,/\.welcome-guide-links \.gold-button\{[^}]*var\(--arena-game-text-scale\)/);
+  assert.match(css,/\.welcome-guide-heading > div\{text-align:center/);
+  assert.match(css,/h3\{[^}]*text-align:center/);
+  assert.match(css,/\.welcome-guide-links\{[^}]*justify-content:center/);
+});
+
+test('guide has a touch-friendly hide control and does not promise offline first load',()=>{
+  const page=file('../index.html');
+  const css=file('../welcome-guide.css');
+  assert.match(css,/\.welcome-guide-remember\{[^}]*min-height:44px/);
+  assert.match(page,/Online souboje vyžadují připojení k serveru/);
+  assert.doesNotMatch(page,/proti počítači si zahraješ i bez připojení/);
+  assert.doesNotMatch(page,/Nemáš připojení\? Zahraj si proti počítači/);
+});

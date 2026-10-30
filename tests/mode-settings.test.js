@@ -100,7 +100,7 @@ test('problem reporting is the only reporting action in both modes and results',
   for(const page of [local,online]){
     assert.match(page,/Nahlásit problém/);
     assert.doesNotMatch(page,/Prověřit partii|class="game-settings-details game-settings-report"/);
-    assert.match(page,/Přiložit anonymizovanou historii partie na GitHub \(veřejně\)/);
+    assert.match(page,/Přiložit historii partie/);
   }
   assert.match(main,/extraButtonIds:\['offlineResultProblemButton'\]/);
   assert.match(client,/extraButtonIds:\['onlineResultProblemButton'\]/);

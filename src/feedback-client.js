@@ -1,4 +1,4 @@
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.54';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.55';
 
 export async function sendAnonymousFeedback(payload){
   const response=await fetch(ONLINE_CONFIG.apiBase+'/api/feedback',{
@@ -17,6 +17,7 @@ export function bindFeedback({buttonId,extraButtonIds=[],send}){
   const form=document.getElementById('feedbackForm');
   const description=document.getElementById('feedbackDescription');
   const attach=document.getElementById('feedbackAttach');
+  const consent=document.getElementById('feedbackConsent');
   const status=document.getElementById('feedbackStatus');
   const submit=document.getElementById('feedbackSubmit');
   const cancel=document.getElementById('feedbackCancel');
@@ -24,6 +25,8 @@ export function bindFeedback({buttonId,extraButtonIds=[],send}){
 
   for(const button of buttons)button.addEventListener('click',()=>{
     status.textContent='';
+    if(attach)attach.checked=true;
+    if(consent)consent.checked=true;
     dialog.showModal();
   });
   cancel.addEventListener('click',()=>dialog.close());

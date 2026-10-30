@@ -1,13 +1,13 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.54';
-import {syncResumeCard} from './resume-card.js?v=0.2.54';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.54';
-import { describeMovePreview } from './preview.js?v=0.2.54';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.54';
-import {ScoreRecap} from './score-recap.js?v=0.2.54';
-import {createGameAudio} from './game-audio.js?v=0.2.54';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.54';
-import {bindFeedback} from './feedback-client.js?v=0.2.54';
-import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.54';
+import {revealArenaChat} from './arena-ui.js?v=0.2.55';
+import {syncResumeCard} from './resume-card.js?v=0.2.55';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.55';
+import { describeMovePreview } from './preview.js?v=0.2.55';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.55';
+import {ScoreRecap} from './score-recap.js?v=0.2.55';
+import {createGameAudio} from './game-audio.js?v=0.2.55';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.55';
+import {bindFeedback} from './feedback-client.js?v=0.2.55';
+import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.55';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.

@@ -158,9 +158,9 @@ test('player problem button is in both settings and requires public-description 
     assert.match(html,/Nahlásit problém/);
     assert.match(html,/id="feedbackDescription"[^>]+required/);
     assert.match(html,/id="feedbackAttach"/);
-    assert.match(html,/id="feedbackConsent" required/);
+    assert.match(html,/id="feedbackConsent" checked required/);
     assert.match(html,/id="feedbackSubmit"/);
-    assert.match(html,/anonymizovanou historii partie na GitHub \(veřejně\)/);
+    assert.match(html,/Přiložit historii partie/);
     assert.doesNotMatch(html,/Prověřit partii|24 hodinách/);
   }
   const server=page('../index.js');

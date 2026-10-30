@@ -46,3 +46,12 @@ test('local control bar lives inside the main stage without losing action IDs',(
   }
   assert.match(html,/game-chrome\.css\?v=[\w.-]+/);
 });
+
+test('local and online control buttons have a 44-pixel minimum touch target',()=>{
+  const touch=css.slice(css.indexOf('/* Controls must remain finger-friendly'));
+  assert.match(touch,/\.game-app \.control-bar \.game-controls \.gold-button,[\s\S]*?#onlineDialog \.control-bar \.game-controls \.gold-button,[\s\S]*?min-height:44px/);
+  for(const id of ['undoButton','confirmButton','onlineUndo','onlineConfirm'])
+    assert.ok(touch.includes('#'+id),`Missing touch target for ${id}`);
+  assert.match(touch,/height:44px;min-height:44px;min-width:44px/);
+  assert.match(touch,/\.game-app \.control-bar \.tile,[\s\S]*?height:44px;min-height:44px/);
+});

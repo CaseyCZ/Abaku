@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.63';
+export const APP_VERSION = '0.2.64';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.64',
+    date: '30. 10. 2026',
+    description: 'Náhled příkladů a bodů se ukazuje při každém ručním pokládání čísel v místní i online partii, nejen po Nápovědě. Herní tlačítka mají dotykovou výšku aspoň 44 px. Obnovení stránky během vyhodnocení nespálí čas dalšího tahu a další obnovení ho už neprodlužuje.'
+  },
   {
     version: '0.2.63',
     date: '30. 10. 2026',

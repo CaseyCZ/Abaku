@@ -15,7 +15,7 @@ test('one visible status row below the local board, no duplicated golden summary
   assert.doesNotMatch(game,/id="lastMoveReview"/);
   assert.doesNotMatch(script,/byId\('lastMoveReview'\)|renderRecentMove\(|recentMove\.label/);
   assert.match(script,/notify\(`\$\{who\}: \+\$\{checked\.points\} bodů/);
-  assert.match(script,/mobileMessage\.textContent = message/);
+  assert.match(script,/if\(mobileMessage\.textContent!==message\)mobileMessage\.textContent=message/);
   assert.match(game,/src\/main\.js\?v=[\w.-]+/);
 });
 

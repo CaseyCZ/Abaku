@@ -1,14 +1,14 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.63';
-import {syncResumeCard} from './resume-card.js?v=0.2.63';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.63';
-import { describeMovePreview } from './preview.js?v=0.2.63';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.63';
-import {ScoreRecap} from './score-recap.js?v=0.2.63';
-import {createGameAudio} from './game-audio.js?v=0.2.63';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.63';
-import {bindFeedback} from './feedback-client.js?v=0.2.63';
-import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.63';
-import {getTextSize,setTextSize} from './text-size.js?v=0.2.63';
+import {revealArenaChat} from './arena-ui.js?v=0.2.64';
+import {syncResumeCard} from './resume-card.js?v=0.2.64';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.64';
+import { describeMovePreview,formatMovePreviewMessage } from './preview.js?v=0.2.64';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.64';
+import {ScoreRecap} from './score-recap.js?v=0.2.64';
+import {createGameAudio} from './game-audio.js?v=0.2.64';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.64';
+import {bindFeedback} from './feedback-client.js?v=0.2.64';
+import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.64';
+import {getTextSize,setTextSize} from './text-size.js?v=0.2.64';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -164,16 +164,27 @@ export async function updateOnlineProfile(nickname,avatar){
   return response.profile;
 }
 
+let lastOnlineStatus={text:'Připojuji se k serveru…',error:false};
+function paintOnlineGameMessage(text,error=false){
+  for(const id of ['onlineBoardMessage','onlineGameMessage']){
+    const message=$(id);
+    if(message){
+      if(message.textContent!==text)message.textContent=text;
+      message.dataset.error=error?'true':'false';
+    }
+  }
+}
 function status(text,error=false){
+  lastOnlineStatus={text,error};
   const target=$('onlineStatus');
   if(target){target.textContent=text;target.dataset.error=error?'true':'false';}
   // The local game displays move feedback directly below the board on tablets.
   // Keep the online waiting status above the board but mirror in-game feedback
   // into the same location as the shared local layout.
-  const boardMessage=$('onlineBoardMessage');
-  if(boardMessage){boardMessage.textContent=text;boardMessage.dataset.error=error?'true':'false';}
-  const matchMessage=$('onlineGameMessage');
-  if(matchMessage){matchMessage.textContent=text;matchMessage.dataset.error=error?'true':'false';}
+  const preview=gameState&&ownTurn()&&pending.length
+    ?describeMovePreview(gameState.board,pending,gameState.finished):null;
+  const feedback=formatMovePreviewMessage(preview);
+  paintOnlineGameMessage(feedback||text,feedback?false:error);
 }
 async function api(path,method='GET',data){
   if(!credential)throw new Error('Nejdříve se přihlas přes Google.');
@@ -890,6 +901,8 @@ function renderOnline(){
   confirm.setAttribute('aria-label',confirm.title);
   $('onlineUndo').dataset.hasPending=String(pending.length>0||exchanging||selectedExchange.size>0);
   $('onlinePreview').textContent=preview.state==='valid'?('+'+preview.points+' bodů · '+preview.detail):preview.detail;
+  const stagedMessage=canPlay&&pending.length>0?formatMovePreviewMessage(preview):null;
+  paintOnlineGameMessage(stagedMessage||lastOnlineStatus.text,stagedMessage?false:lastOnlineStatus.error);
   confirm.disabled=!canPlay||preview.state!=='valid';
   $('onlineUndo').disabled=!canPlay||(!pending.length&&!exchanging);
   $('onlinePass').disabled=!canPlay;

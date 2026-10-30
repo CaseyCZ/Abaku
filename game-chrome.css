@@ -466,3 +466,20 @@
     margin-top:4px;font-size:10px;
   }
 }
+
+/* Controls must remain finger-friendly in desktop, tablet and phone layouts.
+   These rules intentionally follow the compact and landscape overrides above. */
+.game-app .control-bar .game-controls .gold-button,
+#onlineDialog .control-bar .game-controls .gold-button,
+.game-app .top-bar .game-navigation .gold-button,
+#onlineDialog .top-bar .game-navigation .gold-button {
+  min-height:44px;
+}
+.game-app .control-bar #undoButton,
+.game-app .control-bar #confirmButton,
+#onlineDialog .control-bar #onlineUndo,
+#onlineDialog .control-bar #onlineConfirm {
+  height:44px;min-height:44px;min-width:44px;
+}
+.game-app .control-bar .tile,
+#onlineDialog .control-bar .tile {height:44px;min-height:44px}

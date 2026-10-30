@@ -12,6 +12,12 @@ export function restoreTurnDeadline(savedDeadline, seconds, now=Date.now()){
   return createTurnDeadline(seconds,now);
 }
 
+// A local score reveal is not an active turn. If the page was refreshed during
+// the animation, the next turn begins at the restore instant, exactly once.
+export function restoreLocalTurnDeadline(savedDeadline,seconds,awaitingTurnStart=false,now=Date.now()){
+  return awaitingTurnStart?createTurnDeadline(seconds,now):restoreTurnDeadline(savedDeadline,seconds,now);
+}
+
 // The server's next turn is not yet running while the online score reveal
 // is on screen. Show the full turn length until its authoritative start.
 export function remainingOnlineTurnSeconds(state,now=Date.now()){

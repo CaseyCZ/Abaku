@@ -18,7 +18,8 @@ test('tablet match header keeps both player cards on the same score row',()=>{
   assert.match(local,/class="brand"><img class="brand-mark" src="\.\/assets\/arena-icon\.png"/);
   assert.match(css,/#onlineDialog:has\(#onlineBoardWrapper:not\(\[hidden\]\)\) #onlineStatus \{ display:none; \}/);
   assert.match(online,/id="onlineBoardMessage" role="status" aria-live="polite"/);
-  assert.match(client,/boardMessage\.textContent=text/);
+  assert.match(client,/\['onlineBoardMessage','onlineGameMessage'\]/);
+  assert.match(client,/if\(message\.textContent!==text\)message\.textContent=text/);
   assert.match(client,/cell\.className='cell '/);
   assert.match(client,/tile\.className='tile'/);
 });

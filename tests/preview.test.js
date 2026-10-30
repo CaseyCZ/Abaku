@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {emptyBoard, validateMove} from '../src/rules.js';
-import {describeMovePreview} from '../src/preview.js';
+import {describeMovePreview,formatMovePreviewMessage} from '../src/preview.js';
+import {readFileSync} from 'node:fs';
+
+const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 
 const move = (digits, row = 7, col = 6) =>
   [...digits].map((digit, i) => ({row, col:col+i, digit:Number(digit), rackIndex:i}));
@@ -57,4 +60,24 @@ test('powers and roots appear correctly in the live score preview',()=>{
     assert.equal(preview.detail,`(${expected.replaceAll(' ','')})`);
     assert.equal(preview.points,actual.points);
   }
+});
+
+test('manual placements show the same equation and points as a hint',()=>{
+  const board=emptyBoard();
+  const valid=describeMovePreview(board,move('279'));
+  const message=formatMovePreviewMessage(valid);
+  assert.match(message,/^Náhled: \(2\+7=9\) · \+\d+ bodů\. Potvrď nebo uprav\.$/);
+  const invalid=formatMovePreviewMessage(describeMovePreview(board,move('27')));
+  assert.ok(invalid.startsWith('Náhled: '));
+  assert.equal(formatMovePreviewMessage(describeMovePreview(board,[])),null);
+});
+
+test('local and online staging render the preview into visible match messages',()=>{
+  const local=read('../src/main.js');
+  const online=read('../src/online-client.js');
+  assert.match(local,/function renderMovePreview\(\)[\s\S]*?formatMovePreviewMessage\(preview\)[\s\S]*?showMessage\(stagedMessage/);
+  assert.match(online,/const stagedMessage=canPlay&&pending\.length>0\?formatMovePreviewMessage\(preview\):null/);
+  assert.match(online,/paintOnlineGameMessage\(stagedMessage\|\|lastOnlineStatus\.text/);
+  assert.match(local,/byId\('gameMessage'\)\.textContent/);
+  assert.match(online,/\['onlineBoardMessage','onlineGameMessage'\]/);
 });

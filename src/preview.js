@@ -1,4 +1,4 @@
-import {validateMove,formatEquations} from './rules.js?v=0.2.63';
+import {validateMove,formatEquations} from './rules.js?v=0.2.64';
 
 // Previews use exactly the same authoritative validator and bonus scoring as "Confirm".
 export function describeMovePreview(board, placements = [], finished = false) {
@@ -13,4 +13,13 @@ export function describeMovePreview(board, placements = [], finished = false) {
     points: result.points,
     detail: formatEquations(result.equations)
   };
+}
+
+// A visible, compact counterpart to the score tooltip on the confirm button.
+// Used in both local and online match status panels while digits are staged.
+export function formatMovePreviewMessage(preview) {
+  if(preview?.state==='valid')
+    return `Náhled: ${preview.detail} · +${preview.points} bodů. Potvrď nebo uprav.`;
+  if(preview?.state==='invalid')return `Náhled: ${preview.detail}`;
+  return null;
 }

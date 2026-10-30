@@ -1,15 +1,15 @@
-import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.63';
-import {createTurnDeadline, restoreTurnDeadline} from './turn-deadline.js?v=0.2.63';
-import {chooseMove} from './ai.js?v=0.2.63';
-import {describeMovePreview} from './preview.js?v=0.2.63';
-import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.63';
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.63';
+import {SIZE, BONUS, bonusAt, emptyBoard, makeBag, drawTiles, replenishPlayerRack, validateMove, formatEquations} from './rules.js?v=0.2.64';
+import {createTurnDeadline, restoreLocalTurnDeadline} from './turn-deadline.js?v=0.2.64';
+import {chooseMove} from './ai.js?v=0.2.64';
+import {describeMovePreview,formatMovePreviewMessage} from './preview.js?v=0.2.64';
+import {ScoreRecap,getRecapSeconds,setRecapSeconds} from './score-recap.js?v=0.2.64';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.64';
 import {offlinePlayerName,savedOnlineToken,cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile}
-  from './player-identity.js?v=0.2.63';
-import {ensureAudit,recordAudit,localReport} from './report-client.js?v=0.2.63';
-import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.63';
-import {createGameAudio} from './game-audio.js?v=0.2.63';
-import {getTextSize,setTextSize} from './text-size.js?v=0.2.63';
+  from './player-identity.js?v=0.2.64';
+import {ensureAudit,recordAudit,localReport} from './report-client.js?v=0.2.64';
+import {bindFeedback,sendAnonymousFeedback} from './feedback-client.js?v=0.2.64';
+import {createGameAudio} from './game-audio.js?v=0.2.64';
+import {getTextSize,setTextSize} from './text-size.js?v=0.2.64';
 
 const byId = id => document.getElementById(id);
 const settingsKey = 'retro-arena-settings-v1';
@@ -36,7 +36,7 @@ let exchangeMode = false;
 let exchangeIndices = new Set();
 let deadline = null;
 let botBusy = false;
-let messageType = '';
+let lastNotification={message:'Začni příkladem přes střed desky.',type:''};
 let recentMove = null;
 let recentMoveTimer = null;
 const scoreRecap = new ScoreRecap(document.body);
@@ -67,17 +67,20 @@ async function refreshLocalPlayerName(){
   }catch{ /* Offline game never depends on network connectivity. */ }
 }
 function isBotTurn() { return settings.mode === 'bot' && game.turn === 1; }
-function notify(message, type = '') {
-  messageType = type;
-  byId('gameMessage').textContent = message;
-  byId('gameAnnouncement').textContent = message;
-  byId('gameMessage').className = `game-message ${messageType}`;
+function showMessage(message,type='') {
+  if(byId('gameMessage').textContent!==message)byId('gameMessage').textContent=message;
+  if(byId('gameAnnouncement').textContent!==message)byId('gameAnnouncement').textContent=message;
+  byId('gameMessage').className = `game-message ${type}`;
   // On phones the sidebar is collapsible, so always show hint/errors beneath the rack.
   const mobileMessage = byId('mobileGameMessage');
   if (mobileMessage) {
-    mobileMessage.textContent = message;
-    mobileMessage.className = `mobile-game-message ${messageType}`;
+    if(mobileMessage.textContent!==message)mobileMessage.textContent=message;
+    mobileMessage.className = `mobile-game-message ${type}`;
   }
+}
+function notify(message,type=''){
+  lastNotification={message,type};
+  showMessage(message,type);
 }
 // The completed turn is highlighted for three seconds AFTER the scoring
 // scroll closes. Never waste this visibility while the parchment is on top.
@@ -123,7 +126,7 @@ function newGame() {
 }
 function resetDeadline() {
   deadline=createTurnDeadline(settings.time);
-  if(game)game.turnDeadline=deadline;
+  if(game){game.turnDeadline=deadline;game.awaitingTurnStart=false;}
 }
 function restore() {
   scoreRecap.cancel();
@@ -150,9 +153,11 @@ function restore() {
   } else game = freshGame();
   // A reload must not grant a fresh turn to an existing saved match.
   // Saves made before deadlines existed are migrated once.
-  const restored=restoreTurnDeadline(game.turnDeadline,settings.time);
-  if(game.turnDeadline!==restored){
+  const recapInterrupted=game.awaitingTurnStart===true&&!game.finished;
+  const restored=restoreLocalTurnDeadline(game.turnDeadline,settings.time,recapInterrupted);
+  if(game.turnDeadline!==restored||recapInterrupted){
     game.turnDeadline=restored;
+    game.awaitingTurnStart=false;
     save();
   }
   deadline=restored;
@@ -249,6 +254,9 @@ function renderMovePreview() {
   const details = byId('previewDetails');
   details.textContent = preview.detail;
   details.title = preview.detail;
+  const stagedMessage=!exchangeMode&&pending.length>0?formatMovePreviewMessage(preview):null;
+  if(stagedMessage)showMessage(stagedMessage,preview.state==='valid'?'success':'');
+  else showMessage(lastNotification.message,lastNotification.type);
 }
 function renderChat() {
   const container = byId('chatMessages');
@@ -318,7 +326,7 @@ boardElement.addEventListener('click',event=>{
   const digit=currentPlayer().rack[selectedIndex];
   pending.push({row,col,digit,rackIndex:selectedIndex});
   selectedIndex=null;sound();render();
-  if(pending.length===5) notify('Všech pět čísel je položeno. Potvrď tah.');
+  // The live point preview now says whether the completed placement can be confirmed.
 });
 byId('rack').addEventListener('click',event=>{
   const tile=event.target.closest('.tile');if(!tile||tile.disabled)return;
@@ -334,7 +342,14 @@ function advanceTurn(pass=false,waitForRecap=false) {
   if(game.passStreak>=6 || (game.bag.length===0 && game.players.some(p=>p.rack.length===0))) {
     finish(game.passStreak>=6?'Šest tahů po sobě bylo vynecháno.':'Sáček je prázdný a některému hráči došla čísla.');return;
   }
-  game.turn=1-game.turn;clearPending();resetDeadline();save();render();
+  game.turn=1-game.turn;clearPending();
+  if(waitForRecap){
+    // The new player's turn starts after all scoring and board highlighting.
+    // Keep this phase in the save: reloading during it begins the turn once,
+    // rather than consuming that player's time behind the score overlay.
+    game.awaitingTurnStart=true;game.turnDeadline=null;deadline=null;
+  }else resetDeadline();
+  save();render();
   if(isBotTurn()&&!waitForRecap)runBot();
 }
 function showOfflineResult(){

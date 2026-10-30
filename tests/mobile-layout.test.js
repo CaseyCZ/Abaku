@@ -16,7 +16,7 @@ test('game is a real mobile-width layout without horizontal desktop minimum',()=
 });
 test('mobile hint messages are visible even with a collapsed status panel',()=>{
   assert.match(html,/id="mobileGameMessage"/);
-  assert.match(js,/mobileMessage\.textContent = message/);
+  assert.match(js,/if\(mobileMessage\.textContent!==message\)mobileMessage\.textContent=message/);
   assert.match(js,/mobileMessage\.className =/);
   assert.match(html,/id="hintButton"/);
   assert.match(html,/id="confirmButton"/);
@@ -52,7 +52,7 @@ test('local offline games default to 60 seconds, including old 90-second default
 test('accepted offline move shows one message and highlights board tiles for three seconds',()=>{
   assert.doesNotMatch(html,/id="lastMoveReview"/);
   assert.match(html,/id="mobileGameMessage"/);
-  assert.match(js,/mobileMessage\.textContent = message/);
+  assert.match(js,/if\(mobileMessage\.textContent!==message\)mobileMessage\.textContent=message/);
   assert.match(js,/formatEquations\(last\.examples,10\)/);
   assert.match(js,/formatEquations\(entry\.examples,2\)/);
   assert.match(js,/showRecentMove\(checked,placements,who,\(\)=>\{/);

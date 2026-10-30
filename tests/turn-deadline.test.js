@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createTurnDeadline,restoreTurnDeadline,remainingOnlineTurnSeconds} from '../src/turn-deadline.js';
+import {createTurnDeadline,restoreTurnDeadline,restoreLocalTurnDeadline,remainingOnlineTurnSeconds} from '../src/turn-deadline.js';
 
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const main=read('../src/main.js');
@@ -27,6 +27,17 @@ test('old saves migrate once; invalid timestamps cannot block startup',()=>{
   assert.equal(createTurnDeadline(0,now),null);
 });
 
+test('reload during local score reveal starts the next turn only once',()=>{
+  const oldDeadline=1_800_000_020_000;
+  const reloadAt=1_800_000_120_000;
+  const resumed=restoreLocalTurnDeadline(null,60,true,reloadAt);
+  assert.equal(resumed,reloadAt+60_000,'scoring time must not count against the next player');
+  assert.equal(restoreLocalTurnDeadline(resumed,60,false,reloadAt+10_000),resumed,
+    'a second reload must not grant another fresh turn');
+  assert.equal(restoreLocalTurnDeadline(oldDeadline,30,false,reloadAt),oldDeadline,
+    'an ordinary or already-expired turn retains its absolute deadline');
+});
+
 test('online clock stays at 60 seconds through recap, then starts the real countdown',()=>{
   const state={finished:false,seconds:60,turnStartsAt:110_000,deadline:170_000};
   assert.equal(remainingOnlineTurnSeconds(state,100_000),60);
@@ -40,10 +51,12 @@ test('online clock stays at 60 seconds through recap, then starts the real count
 });
 
 test('game saves deadlines on turn start and after score reveal, never resets on settings save',()=>{
-  assert.match(main,/import \{createTurnDeadline, restoreTurnDeadline\} from '\.\/turn-deadline\.js\?v=[\w.-]+'/);
+  assert.match(main,/import \{createTurnDeadline, restoreLocalTurnDeadline\} from '\.\/turn-deadline\.js\?v=[\w.-]+'/);
   assert.match(main,/function resetDeadline\(\) \{[\s\S]*?deadline=createTurnDeadline\(settings\.time\);[\s\S]*?game\.turnDeadline=deadline;/);
-  assert.match(main,/const restored=restoreTurnDeadline\(game\.turnDeadline,settings\.time\)/);
-  assert.match(main,/if\(game\.turnDeadline!==restored\)\{[\s\S]*?game\.turnDeadline=restored;[\s\S]*?save\(\);/);
+  assert.match(main,/const recapInterrupted=game\.awaitingTurnStart===true&&!game\.finished/);
+  assert.match(main,/const restored=restoreLocalTurnDeadline\(game\.turnDeadline,settings\.time,recapInterrupted\)/);
+  assert.match(main,/if\(game\.turnDeadline!==restored\|\|recapInterrupted\)\{[\s\S]*?game\.turnDeadline=restored;[\s\S]*?game\.awaitingTurnStart=false;[\s\S]*?save\(\);/);
+  assert.match(main,/if\(waitForRecap\)\{[\s\S]*?game\.awaitingTurnStart=true;game\.turnDeadline=null;deadline=null;/);
   assert.match(main,/resetDeadline\(\);save\(\);render\(\);/);
   const settingsSubmit=main.slice(main.indexOf("byId('settingsForm').addEventListener('submit'"),main.indexOf("window.addEventListener('keydown'"));
   assert.match(settingsSubmit,/settings=\{\.\.\.settings,difficulty:/);

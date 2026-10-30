@@ -11,21 +11,21 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.55">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.55">
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.55">
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.55">
-  <link rel="stylesheet" href="./analytics.css?v=0.2.55">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.55">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.55">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.55">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.55">
-  <link rel="stylesheet" href="./online-view.css?v=0.2.55">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.55">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.55">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.55">
-  <link rel="stylesheet" href="./welcome-guide.css?v=0.2.55">
-  <script src="./src/analytics.js?v=0.2.55" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.56">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.56">
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.56">
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.56">
+  <link rel="stylesheet" href="./analytics.css?v=0.2.56">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.56">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.56">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.56">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.56">
+  <link rel="stylesheet" href="./online-view.css?v=0.2.56">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.56">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.56">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.56">
+  <link rel="stylesheet" href="./welcome-guide.css?v=0.2.56">
+  <script src="./src/analytics.js?v=0.2.56" defer></script>
 </head>
 <body class="arena-home">
   <a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>
@@ -252,9 +252,9 @@
         <div class="timer-wrap" role="timer" aria-label="Čas do konce tahu"><span>ČAS</span><strong id="onlineTimer">01:00</strong></div>
         <button type="button" id="onlineMenuToggle" class="gold-button game-menu-toggle" aria-expanded="false" aria-controls="onlineGameNavigation" aria-label="Otevřít menu">☰ Menu</button>
         <nav class="header-actions game-navigation" id="onlineGameNavigation" aria-label="Menu online hry">
-          <button type="button" id="onlineCancel" class="gold-button">⌂ Nabídka</button>
-          <a href="./how-to-play.html" class="gold-button" target="_blank" rel="noopener">Pravidla</a>
-          <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
+          <button type="button" id="onlineCancel" class="gold-button"><span class="nav-icon" aria-hidden="true">🏠</span>Nabídka</button>
+          <a href="./how-to-play.html" class="gold-button" target="_blank" rel="noopener"><span class="nav-icon" aria-hidden="true">📖</span>Pravidla</a>
+          <button type="button" id="onlineSettingsButton" class="gold-button" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog"><span class="nav-icon" aria-hidden="true">⚙️</span>Nastavení</button>
           <button type="button" id="onlineFriendsOpen" class="gold-button" aria-haspopup="dialog" aria-controls="friendsDialog">Přátelé<span id="onlineFriendsMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
         </nav>
         <div class="bag-count">V sáčku <strong id="onlineBagCount">100</strong> čísel</div>
@@ -421,12 +421,12 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/site-navigation.js?v=0.2.55"></script>
-  <script type="module" src="./src/arena-ui.js?v=0.2.55"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.55"></script>
-  <script type="module" src="./src/home-top-leaderboard.js?v=0.2.55"></script>
-  <script type="module" src="./src/welcome-guide.js?v=0.2.55"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.55"></script>
-  <script type="module" src="./src/app-update.js?v=0.2.55"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.56"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.56"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.56"></script>
+  <script type="module" src="./src/home-top-leaderboard.js?v=0.2.56"></script>
+  <script type="module" src="./src/welcome-guide.js?v=0.2.56"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.56"></script>
+  <script type="module" src="./src/app-update.js?v=0.2.56"></script>
 </body>
 </html>

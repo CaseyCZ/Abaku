@@ -1,4 +1,4 @@
-import {validateMove,formatEquations} from './rules.js?v=0.2.55';
+import {validateMove,formatEquations} from './rules.js?v=0.2.56';
 
 // Previews use exactly the same authoritative validator and bonus scoring as "Confirm".
 export function describeMovePreview(board, placements = [], finished = false) {

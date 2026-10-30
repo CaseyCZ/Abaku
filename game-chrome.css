@@ -27,7 +27,12 @@
   display:flex;align-items:center;gap:8px;
   width:auto;margin:0;
 }
-.game-app .top-bar .game-navigation .gold-button{min-height:42px}
+.game-app .top-bar .game-navigation .gold-button{
+  display:inline-flex;align-items:center;justify-content:center;min-height:42px;
+}
+.game-app .top-bar .game-navigation .nav-icon{
+  width:1.05em;margin-right:3px;font-size:1em;flex:none;
+}
 /* Second header row: one centered line for remaining digits directly below the timer. */
 .game-app .top-bar > .bag-count{
   grid-column:2;grid-row:2;justify-self:center;

@@ -33,3 +33,19 @@ test('mobile menus center their items, while long tutorial text keeps normal ali
   assert.match(sharedCss,/\.nav-icon\{display:inline-block;/);
   assert.doesNotMatch(tutorialCss,/\.tutorial-section p\{text-align:center/);
 });
+
+test('all gameplay modes have compact, accessible header icons',()=>{
+  const local=read('../game.html');
+  const online=read('../index.html');
+  const css=read('../game-chrome.css');
+  for(const [id,icon] of [
+    ['lobbyButton','🏠'],['rulesButton','📖'],['settingsButton','⚙️'],['newButton','➕']
+  ]){
+    assert.match(local,new RegExp('id="'+id+'"[^>]*><span class="nav-icon" aria-hidden="true">'+icon+'</span>'));
+  }
+  for(const [id,icon] of [['onlineCancel','🏠'],['onlineSettingsButton','⚙️']]){
+    assert.match(online,new RegExp('id="'+id+'"[^>]*><span class="nav-icon" aria-hidden="true">'+icon+'</span>'));
+  }
+  assert.match(online,/<a href="\.\/how-to-play\.html" class="gold-button" target="_blank" rel="noopener"><span class="nav-icon" aria-hidden="true">📖<\/span>Pravidla<\/a>/);
+  assert.match(css,/\.game-app \.top-bar \.game-navigation \.nav-icon\{[^}]*margin-right:3px/);
+});

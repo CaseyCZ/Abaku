@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.67';
+export const APP_VERSION = '0.2.68';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.68',
+    date: '30. 10. 2026',
+    description: 'Ikony v herním menu mají na iPhonu, Androidu i počítači dostatek místa mezi obrázkem a textem. Oprava platí pro místní i online partii.'
+  },
   {
     version: '0.2.67',
     date: '30. 10. 2026',

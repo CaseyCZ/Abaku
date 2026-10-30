@@ -47,5 +47,6 @@ test('all gameplay modes have compact, accessible header icons',()=>{
     assert.match(online,new RegExp('id="'+id+'"[^>]*><span class="nav-icon" aria-hidden="true">'+icon+'</span>'));
   }
   assert.match(online,/<a href="\.\/how-to-play\.html" class="gold-button" target="_blank" rel="noopener"><span class="nav-icon" aria-hidden="true">📖<\/span>Pravidla<\/a>/);
-  assert.match(css,/\.game-app \.top-bar \.game-navigation \.nav-icon\{[^}]*margin-right:3px/);
+  assert.match(css,/\.game-app \.top-bar \.game-navigation \.gold-button,\s*#onlineDialog \.top-bar \.game-navigation \.gold-button\{[^}]*column-gap:\.5em/);
+  assert.match(css,/\.game-app \.top-bar \.game-navigation \.nav-icon,\s*#onlineDialog \.top-bar \.game-navigation \.nav-icon\{[^}]*width:1\.35em;margin-right:0/);
 });

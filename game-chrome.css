@@ -27,11 +27,15 @@
   display:flex;align-items:center;gap:8px;
   width:auto;margin:0;
 }
-.game-app .top-bar .game-navigation .gold-button{
-  display:inline-flex;align-items:center;justify-content:center;min-height:42px;
+.game-app .top-bar .game-navigation .gold-button,
+#onlineDialog .top-bar .game-navigation .gold-button{
+  display:inline-flex;align-items:center;justify-content:center;
+  column-gap:.5em;min-height:42px;
 }
-.game-app .top-bar .game-navigation .nav-icon{
-  width:1.05em;margin-right:3px;font-size:1em;flex:none;
+.game-app .top-bar .game-navigation .nav-icon,
+#onlineDialog .top-bar .game-navigation .nav-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:1.35em;margin-right:0;font-size:1em;line-height:1;flex:none;
 }
 /* Second header row: one centered line for remaining digits directly below the timer. */
 .game-app .top-bar > .bag-count{

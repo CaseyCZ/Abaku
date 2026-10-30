@@ -1,4 +1,4 @@
-import {APP_VERSION, RELEASE_HISTORY} from './version-data.js?v=0.2.67';
+import {APP_VERSION, RELEASE_HISTORY} from './version-data.js?v=0.2.68';
 
 // Both pages render the same notes without touching gameplay preferences.
 for(const details of document.querySelectorAll('[data-version-history]')){

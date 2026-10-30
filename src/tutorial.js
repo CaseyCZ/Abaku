@@ -2,6 +2,7 @@
 const $=id=>document.getElementById(id);
 const numbers=[2,6,8];
 const targets=[[2,1],[2,2],[2,3]];
+const demoPoints=numbers.reduce((sum,value)=>sum+value,0)*2;
 let step=0,chosen=null;
 function render(){
   const board=$('tutorialBoard');
@@ -30,7 +31,7 @@ function render(){
         feedback('Nejprve vyber číslo '+numbers[step]+' dole.',true);return;
       }
       step++;chosen=null;render();
-      if(step===3)feedback('Výborně! 2 + 6 = 8. Střed ×2 zvyšuje 16 na 32 bodů.',false);
+      if(step===3)feedback('Výborně! 2 + 6 = 8. Střed ×2 zvyšuje 16 na '+demoPoints+' bodů.',false);
       else feedback('Správně, pokračuj dalším číslem.',false);
     });
     board.append(cell);
@@ -57,7 +58,7 @@ function render(){
     'Nakonec polož číslo 8 napravo od středu.'
   ];
   $('tutorialInstruction').textContent=completed
-    ?'Získal jsi 48 bodů. Takto může vypadat první tah skutečné partie.'
+    ?'Získal jsi '+demoPoints+' bodů. Takto může vypadat první tah skutečné partie.'
     :instruction[step];
   $('tutorialScore').hidden=!completed;
 }

@@ -6,13 +6,13 @@
   padding:clamp(20px,3.5vw,41px);
   border:1px solid #345779;border-radius:19px;
   background:radial-gradient(circle at 85% 5%,#23518075,transparent 48%),linear-gradient(150deg,#152e52,#091f3e);
-  box-shadow:0 10px 27px #050d1b70;
+  box-shadow:0 10px 27px #050d1b70;text-align:center;
 }
 .tutorial-hero .eyebrow{font-size:12px;letter-spacing:.14em;color:#f1c669;font-weight:800}
 .tutorial-hero h1{color:#fff5dd;line-height:1.08;font-size:clamp(32px,5vw,59px);letter-spacing:-.045em;margin:8px 0 15px}
 .tutorial-hero h1 span{color:#f4cb72}
-.tutorial-hero>p:not(.eyebrow){max-width:760px;font-size:clamp(13px,1.3vw,16px);color:#bdcde1;line-height:1.65}
-.tutorial-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:23px}
+.tutorial-hero>p:not(.eyebrow){max-width:760px;margin-inline:auto;font-size:clamp(13px,1.3vw,16px);color:#bdcde1;line-height:1.65}
+.tutorial-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:23px}
 .tutorial-nav a{
   color:#f2dc9f;text-decoration:none;font-weight:700;font-size:12px;
   border:1px solid #45658a;border-radius:9px;padding:10px 12px;background:#122c50;min-height:42px;
@@ -24,14 +24,15 @@
   border:1px solid #335474;border-radius:18px;
   background:linear-gradient(156deg,#173255,#0d233f);box-shadow:0 8px 28px #030a1861;
 }
-.tutorial-section-heading{display:flex;gap:15px;align-items:flex-start;margin-bottom:18px}
+.tutorial-section-heading{display:flex;gap:15px;align-items:center;margin-bottom:18px;text-align:center}
+.tutorial-section-heading>div{flex:1;min-width:0}
 .tutorial-step-number{
   flex:0 0 48px;width:48px;height:48px;display:grid;place-items:center;
   color:#142943;font-size:18px;font-weight:900;background:linear-gradient(#ffe7ab,#e6b046);
   border:1px solid #ffebb8;border-radius:13px;
 }
 .tutorial-section-heading h2{margin:0 0 7px;color:#ffe2a5;font-size:clamp(20px,2.6vw,29px);letter-spacing:-.025em}
-.tutorial-section-heading p{margin:0;max-width:860px;color:#c3d2e4;font-size:13px;line-height:1.65}
+.tutorial-section-heading p{margin:0 auto;max-width:860px;color:#c3d2e4;font-size:13px;line-height:1.65}
 .tutorial-demo{display:grid;grid-template-columns:minmax(290px,1fr) minmax(220px,.8fr);gap:25px;align-items:center}
 .tutorial-demo-main{display:flex;flex-direction:column;align-items:center;gap:13px}
 .tutorial-board{
@@ -137,3 +138,39 @@
   .tutorial-nav{gap:6px}
   .tutorial-nav a{font-size:11px;padding:9px}
 }
+
+/* Reuse the game's existing Běžná / Větší / Největší text preference.
+   Long instructional paragraphs remain left-aligned for readability. */
+.tutorial-hero>p:not(.eyebrow),
+.tutorial-demo-guide p,
+.tutorial-finish p{
+  font-size:calc(15px * var(--arena-game-text-scale));
+}
+.tutorial-nav a,
+.tutorial-section-heading p,
+.tutorial-control-grid p,
+.tutorial-notes p,
+.tutorial-bonuses p,
+.tutorial-highlight,
+.tutorial-demo-score span{
+  font-size:calc(14px * var(--arena-game-text-scale));
+}
+.tutorial-example small,
+.tutorial-rack-label,
+.tutorial-counter,
+.tutorial-demo-guide small{
+  font-size:calc(13px * var(--arena-game-text-scale));
+}
+.tutorial-example strong,
+.tutorial-control-grid strong,
+.tutorial-bonuses strong{
+  font-size:calc(16px * var(--arena-game-text-scale));
+}
+.arena-tutorial .tutorial-header-actions a,
+.arena-tutorial .lobby-footer{
+  font-size:calc(13px * var(--arena-game-text-scale));
+}
+.arena-tutorial .lobby-footer a{
+  display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;
+}
+.tutorial-nav a{display:inline-flex;align-items:center;justify-content:center;min-height:44px}

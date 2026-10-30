@@ -14,12 +14,12 @@
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-body h2 {
   margin:0 0 2px;
   color:var(--arena-gold-hi,#fbd477);
-  font-size:23px;text-align:center;
+  font-size:calc(23px * var(--arena-game-text-scale));text-align:center;
   text-transform:none;letter-spacing:0;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-section {display:grid;gap:8px}
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-section h3 {
-  margin:4px 0 0;color:var(--arena-gold-hi,#fbd477);font-size:15px;text-align:center;
+  margin:4px 0 0;color:var(--arena-gold-hi,#fbd477);font-size:calc(15px * var(--arena-game-text-scale));text-align:center;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .settings-inline-note {text-align:center}
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-fields {
@@ -31,7 +31,7 @@
   gap:5px;min-width:0;font-size:12px;line-height:1.3;color:#d7e2f0;text-align:center;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-fields .game-settings-field select {
-  display:block;width:100%;min-width:0;max-width:none;min-height:43px;
+  display:block;width:100%;min-width:0;max-width:none;min-height:44px;
   box-sizing:border-box;padding:8px!important;font-size:13px;text-align:center;text-align-last:center;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-board-theme {
@@ -39,7 +39,7 @@
   align-items:center;gap:10px;color:#d7e2f0;font-size:12px;text-align:center;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-board-theme select {
-  width:100%;min-width:0;min-height:43px;padding:8px;
+  width:100%;min-width:0;min-height:44px;padding:8px;
   color:#e7edf6;background:#102747;border:1px solid #49668a;border-radius:8px;
   font:inherit;font-size:13px;text-align:center;text-align-last:center;
 }
@@ -48,19 +48,22 @@
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-toggles .check-line {
   display:flex;align-items:center;justify-content:center!important;text-align:center;
-  gap:7px;min-width:0;min-height:43px;margin:0;padding:7px 9px;
+  gap:7px;min-width:0;min-height:44px;margin:0;padding:7px 9px;
   border:1px solid #426181;border-radius:10px;
   background:#112b4c;color:#dce7f5;font-size:12px;line-height:1.2;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-toggles .check-line input {
   flex:none;width:18px;height:18px;margin:0;
 }
+:is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-toggles .check-line:last-child:nth-child(odd) {
+  grid-column:1 / -1;justify-self:center;width:calc(50% - 4px);box-sizing:border-box;
+}
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-details {
   margin:0;padding:7px 10px;
   border:1px solid #39597e;border-radius:10px;background:#102846;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-details summary {
-  cursor:pointer;min-height:28px;line-height:28px;
+  cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;
   font-size:12px;font-weight:700;color:#dce7f5;text-align:center;list-style-position:inside;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-details p {
@@ -77,19 +80,26 @@
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .version-history {margin:0;padding:7px 10px}
 :is(#settingsDialog,#onlineGameSettingsDialog) .version-history summary {
-  min-height:28px;line-height:28px;font-size:12px;text-align:center;list-style-position:inside;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:12px;text-align:center;list-style-position:inside;
+}
+:is(#settingsDialog,#onlineGameSettingsDialog) :is(.game-settings-details,.version-history) summary::before {
+  content:"▸";margin-right:8px;flex:none;
+}
+:is(#settingsDialog,#onlineGameSettingsDialog) :is(.game-settings-details,.version-history)[open] summary::before {
+  content:"▾";
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-body menu {
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
   gap:8px;margin:3px 0 0;padding:0;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-body menu .gold-button {
-  min-height:43px;min-width:0;
+  min-height:44px;min-width:0;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-report-problem {
-  align-self:center;min-height:32px;padding:3px 8px;margin:0;
+  align-self:center;min-height:44px;padding:8px 12px;margin:0;
   background:transparent;border:0;box-shadow:none;
-  font-size:12px;color:#dce7f5;text-decoration:underline;
+  font-size:calc(13px * var(--arena-game-text-scale));color:#dce7f5;text-decoration:underline;
 }
 :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-report-problem:hover:not(:disabled) {
   background:transparent;border:0;box-shadow:none;color:var(--arena-gold-hi,#fbd477);
@@ -98,6 +108,7 @@
   :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-body {padding:12px}
   :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-fields {gap:7px}
   :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-board-theme {grid-template-columns:1fr;gap:5px}
+  :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-toggles .check-line:last-child:nth-child(odd) {width:100%}
   :is(#settingsDialog,#onlineGameSettingsDialog) .game-settings-toggles .check-line {
     padding:6px;font-size:11px;
   }

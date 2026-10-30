@@ -39,13 +39,17 @@ test('online clock stays at 60 seconds through recap, then starts the real count
     'older server messages still work during deployment');
 });
 
-test('game saves deadlines on turn start, settings change and after score reveal',()=>{
+test('game saves deadlines on turn start and after score reveal, never resets on settings save',()=>{
   assert.match(main,/import \{createTurnDeadline, restoreTurnDeadline\} from '\.\/turn-deadline\.js\?v=[\w.-]+'/);
   assert.match(main,/function resetDeadline\(\) \{[\s\S]*?deadline=createTurnDeadline\(settings\.time\);[\s\S]*?game\.turnDeadline=deadline;/);
   assert.match(main,/const restored=restoreTurnDeadline\(game\.turnDeadline,settings\.time\)/);
   assert.match(main,/if\(game\.turnDeadline!==restored\)\{[\s\S]*?game\.turnDeadline=restored;[\s\S]*?save\(\);/);
   assert.match(main,/resetDeadline\(\);save\(\);render\(\);/);
-  assert.match(main,/resetDeadline\(\);save\(\);render\(\);/);
+  const settingsSubmit=main.slice(main.indexOf("byId('settingsForm').addEventListener('submit'"),main.indexOf("window.addEventListener('keydown'"));
+  assert.match(settingsSubmit,/settings=\{\.\.\.settings,difficulty:/);
+  assert.match(settingsSubmit,/save\(\);render\(\);/);
+  assert.doesNotMatch(settingsSubmit,/^\s*resetDeadline\(\)/m,
+    'saving appearance, sounds or a new turn limit must not extend the current turn');
   // main.js has its own cache token. Landscape-only CSS releases leave its logic unchanged.
   assert.match(game,/src\/main\.js\?v=[\w.-]+/);
 });

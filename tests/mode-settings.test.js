@@ -38,7 +38,7 @@ test('online hides duration selectors and enforces 60/3 independently of local s
 
 test('home settings explain both game modes, while in-match settings remain online-only',()=>{
   assert.match(online,/id="homeLocalTimeHelp" hidden/);
-  assert.match(online,/Místní hra:<\/strong> Proti počítači nebo ve dvou/);
+  assert.match(online,/Místní hra:<\/strong> Čas 30\/60\/90 sekund a ukázku příkladu nastavíš přímo ve hře/);
   assert.match(online,/id="homeLocalSettingsExplanation" hidden/);
   assert.match(online,/Herní obrazovka – online/);
   assert.match(online,/Přepínače v tomto okně platí jen pro tvoji online obrazovku/);

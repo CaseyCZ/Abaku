@@ -34,13 +34,19 @@
 .game-app .chat-entry .gold-button,
 .game-app .status-panel .game-message,
 .game-app .mobile-game-message,
-.game-app .game-controls .gold-button,
+.game-app .control-bar .game-controls .gold-button,
+#onlineDialog .control-bar .game-controls .gold-button,
 #onlineDialog #onlineStatus,
 #onlineDialog #onlineLastMoveReview,
 #onlineDialog .online-opponent-notice,
 #onlineDialog .online-reconnect-notice {
   font-size:calc(13px * var(--arena-game-text-scale));
   line-height:1.4;
+}
+.game-app .control-bar .game-controls .gold-button,
+#onlineDialog .control-bar .game-controls .gold-button {
+  font-size:calc(14px * var(--arena-game-text-scale));
+  line-height:1.2;
 }
 .game-app .chat-entry input { min-height:42px; }
 

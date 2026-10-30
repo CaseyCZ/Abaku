@@ -48,7 +48,8 @@ test('changing text size persists locally, ignores unknown values and only scale
   assert.match(css,/--arena-game-text-scale:1\.16/);
   assert.match(css,/--arena-game-text-scale:1\.32/);
   assert.match(css,/\.game-app \.move-history/);
-  assert.match(css,/\.game-app \.game-controls \.gold-button/);
+  assert.match(css,/\.game-app \.control-bar \.game-controls \.gold-button/);
+  assert.match(css,/#onlineDialog \.control-bar \.game-controls \.gold-button/);
   assert.doesNotMatch(css,/\.board \.cell\s*\{/);
   assert.match(css,/font-size:max\(16px,/);
 });

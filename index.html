@@ -11,22 +11,22 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.66">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.66">
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.66">
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.66">
-  <link rel="stylesheet" href="./analytics.css?v=0.2.66">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.66">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.66">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.66">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.66">
-  <link rel="stylesheet" href="./online-view.css?v=0.2.66">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.66">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.66">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.66">
-  <link rel="stylesheet" href="./welcome-guide.css?v=0.2.66">
-  <link rel="stylesheet" href="./game-text-size.css?v=0.2.66">
-  <script src="./src/analytics.js?v=0.2.66" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.67">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.67">
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.67">
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.67">
+  <link rel="stylesheet" href="./analytics.css?v=0.2.67">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.67">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.67">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.67">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.67">
+  <link rel="stylesheet" href="./online-view.css?v=0.2.67">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.67">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.67">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.67">
+  <link rel="stylesheet" href="./welcome-guide.css?v=0.2.67">
+  <link rel="stylesheet" href="./game-text-size.css?v=0.2.67">
+  <script src="./src/analytics.js?v=0.2.67" defer></script>
 </head>
 <body class="arena-home">
   <a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>
@@ -107,7 +107,6 @@
             <button type="button" id="editProfile" class="gold-button wide">Upravit místní profil</button>
             <button type="button" id="googleSignIn" class="gold-button wide">Přihlásit přes Google</button>
             <button type="button" id="onlineLogout" class="gold-button wide profile-logout-danger" hidden>Odhlásit online účet</button>
-            <button type="button" id="onlineDeleteAccount" class="gold-button wide profile-logout-danger" hidden>Smazat online profil</button>
           </div>
           <div class="side-card" id="onlineInfo">
             <h2>✦ Hráči a partie</h2>
@@ -208,6 +207,9 @@
       <div class="dialog-actions">
         <button type="button" id="profileCancel" class="gold-button">Zrušit</button>
         <button type="submit" class="gold-button primary">Uložit</button>
+      </div>
+      <div id="onlineProfileDeleteSection" class="profile-delete-section" hidden>
+        <button type="button" id="onlineDeleteAccount" class="gold-button profile-logout-danger profile-delete-danger">Smazat online profil</button>
       </div>
     </form>
   </dialog>
@@ -430,12 +432,12 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/site-navigation.js?v=0.2.66"></script>
-  <script type="module" src="./src/arena-ui.js?v=0.2.66"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.66"></script>
-  <script type="module" src="./src/home-top-leaderboard.js?v=0.2.66"></script>
-  <script type="module" src="./src/welcome-guide.js?v=0.2.66"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.66"></script>
-  <script type="module" src="./src/app-update.js?v=0.2.66"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.67"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.67"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.67"></script>
+  <script type="module" src="./src/home-top-leaderboard.js?v=0.2.67"></script>
+  <script type="module" src="./src/welcome-guide.js?v=0.2.67"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.67"></script>
+  <script type="module" src="./src/app-update.js?v=0.2.67"></script>
 </body>
 </html>

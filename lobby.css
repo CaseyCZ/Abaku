@@ -231,17 +231,30 @@ dialog::backdrop{background:#060c16d6}
 .online-resume-card[hidden]{display:none!important}
 
 /* Destructive profile action stays last and visually distinct. */
-.arena-home #onlineLogout.profile-logout-danger{
+.arena-home #onlineLogout.profile-logout-danger,
+.arena-home #profileDialog #onlineDeleteAccount.profile-logout-danger{
   background:linear-gradient(180deg,#e94754,#ba2332 58%,#8e1624);
   border:2px solid #ff8188;
   color:#fff;
   text-shadow:0 1px 2px #500710;
   box-shadow:inset 0 1px #ff9ca4,0 3px 0 #640f1a,0 4px 10px #05091180;
 }
-.arena-home #onlineLogout.profile-logout-danger:hover{
+.arena-home #onlineLogout.profile-logout-danger:hover,
+.arena-home #profileDialog #onlineDeleteAccount.profile-logout-danger:hover{
   filter:brightness(1.12);
 }
-.arena-home #onlineLogout.profile-logout-danger:focus-visible{
+.arena-home #onlineLogout.profile-logout-danger:focus-visible,
+.arena-home #profileDialog #onlineDeleteAccount.profile-logout-danger:focus-visible{
   outline:3px solid #ffadb2;
   outline-offset:2px;
+}
+/* Account removal is available only inside the online profile editor. */
+#profileDialog .profile-delete-section{
+  display:flex;justify-content:center;
+  margin-top:12px;padding-top:16px;
+  border-top:1px solid #49668a;
+}
+#profileDialog .profile-delete-section[hidden]{display:none!important}
+#profileDialog .profile-delete-danger{
+  min-height:44px;width:100%;white-space:normal;
 }

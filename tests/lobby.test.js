@@ -34,6 +34,17 @@ test('Guest mode keeps online auth optional until the Oracle API becomes availab
   assert.match(lobby,/playRandom:'Pro náhodný online zápas/);
 });
 
+test('account deletion is inside online profile editing and uses the logout red style',()=>{
+  const sidebar=landing.slice(landing.indexOf('id="homeProfileCard"'),landing.indexOf('id="onlineInfo"'));
+  assert.doesNotMatch(sidebar,/id="onlineDeleteAccount"/);
+  const dialog=landing.slice(landing.indexOf('id="profileDialog"'),landing.indexOf('id="plannedDialog"'));
+  assert.match(dialog,/id="onlineProfileDeleteSection"[^>]*hidden/);
+  assert.match(dialog,/id="onlineDeleteAccount" class="gold-button profile-logout-danger profile-delete-danger"/);
+  assert.match(lobby,/byId\('onlineProfileDeleteSection'\)\.hidden=!online/);
+  const css=file('../lobby.css');
+  assert.match(css,/\.arena-home #onlineLogout\.profile-logout-danger,\s*\.arena-home #profileDialog #onlineDeleteAccount\.profile-logout-danger/);
+});
+
 test('Google OAuth client is configured and only exposed after Oracle API health confirms readiness',()=>{
  assert.match(onlineConfig,/130\.61\.49\.108\/arena-api/);
  assert.match(onlineConfig,/googleClientId:\s*'[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com'/);

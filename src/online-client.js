@@ -1,14 +1,14 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.66';
-import {syncResumeCard} from './resume-card.js?v=0.2.66';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.66';
-import { describeMovePreview,formatMovePreviewMessage } from './preview.js?v=0.2.66';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.66';
-import {ScoreRecap} from './score-recap.js?v=0.2.66';
-import {createGameAudio} from './game-audio.js?v=0.2.66';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.66';
-import {bindFeedback} from './feedback-client.js?v=0.2.66';
-import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.66';
-import {getTextSize,setTextSize} from './text-size.js?v=0.2.66';
+import {revealArenaChat} from './arena-ui.js?v=0.2.67';
+import {syncResumeCard} from './resume-card.js?v=0.2.67';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.67';
+import { describeMovePreview,formatMovePreviewMessage } from './preview.js?v=0.2.67';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.67';
+import {ScoreRecap} from './score-recap.js?v=0.2.67';
+import {createGameAudio} from './game-audio.js?v=0.2.67';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.67';
+import {bindFeedback} from './feedback-client.js?v=0.2.67';
+import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.67';
+import {getTextSize,setTextSize} from './text-size.js?v=0.2.67';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -223,7 +223,6 @@ function showProfile(profile){
   $('onlineStats').hidden=false;
   $('onlineStats').textContent='Zápasy: '+profile.played+' · Výhry: '+profile.wins+' · Úspěšnost: '+profile.winRate+' %';
   $('onlineLogout').hidden=false;
-  $('onlineDeleteAccount').hidden=false;
   $('googleSignIn').hidden=true;
   $('googleSignInWidget').hidden=true;
   $('onlineLoginNotice').hidden=true;
@@ -929,8 +928,7 @@ function initializeActions(){
       location.reload();
     }catch(error){
       status(error.message,true);
-      $('onlineLoginNotice').hidden=false;
-      $('onlineLoginNotice').textContent=error.message;
+      $('profileDialogDescription').textContent=error.message;
     }finally{button.disabled=false;}
   });
   $('onlineBoard').addEventListener('keydown',event=>{

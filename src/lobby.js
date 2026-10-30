@@ -1,5 +1,5 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.66';
-import {syncResumeCard} from './resume-card.js?v=0.2.66';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.67';
+import {syncResumeCard} from './resume-card.js?v=0.2.67';
 const PROFILE_KEY = 'arena-local-profile-v1';
 const GAME_KEY = 'retro-arena-game-v1';
 const byId = id => document.getElementById(id);
@@ -52,6 +52,7 @@ for(const id of ['editProfile']){
     byId('profileDialogDescription').textContent=online
       ? 'Změna přezdívky a avataru se uloží k účtu a zobrazí na dalších zařízeních.'
       : 'Přezdívka je uložená pouze v tomto zařízení. Nejde o online přihlášení.';
+    byId('onlineProfileDeleteSection').hidden=!online;
     byId('profileDialog').showModal();
   });
 }

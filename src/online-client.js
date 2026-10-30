@@ -1,14 +1,14 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.59';
-import {syncResumeCard} from './resume-card.js?v=0.2.59';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.59';
-import { describeMovePreview } from './preview.js?v=0.2.59';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.59';
-import {ScoreRecap} from './score-recap.js?v=0.2.59';
-import {createGameAudio} from './game-audio.js?v=0.2.59';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.59';
-import {bindFeedback} from './feedback-client.js?v=0.2.59';
-import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.59';
-import {getTextSize,setTextSize} from './text-size.js?v=0.2.59';
+import {revealArenaChat} from './arena-ui.js?v=0.2.60';
+import {syncResumeCard} from './resume-card.js?v=0.2.60';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.60';
+import { describeMovePreview } from './preview.js?v=0.2.60';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.60';
+import {ScoreRecap} from './score-recap.js?v=0.2.60';
+import {createGameAudio} from './game-audio.js?v=0.2.60';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.60';
+import {bindFeedback} from './feedback-client.js?v=0.2.60';
+import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.60';
+import {getTextSize,setTextSize} from './text-size.js?v=0.2.60';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -103,9 +103,21 @@ function paintPresence(data){
 }
 function setServerOffline(offline){
   const indicator=document.querySelector('.server-state');
+  const wasOffline=!indicator.hidden;
   indicator.hidden=!offline;
   $('retryServerButton').hidden=!offline;
-  for(const id of ['playRandom','playFriends']) $(id).disabled=offline;
+  for(const [id,connectedAction] of [
+    ['playRandom','HLEDAT SOUPEŘE'],
+    ['playFriends','VYBRAT PŘÍTELE']
+  ]){
+    const card=$(id);
+    card.disabled=offline;
+    card.querySelector('.future-ribbon').textContent=offline
+      ? 'SERVER OFFLINE' : currentProfile ? 'ONLINE' : 'PO PŘIHLÁŠENÍ';
+    const label=card.querySelector('.mode-action');
+    label.textContent=offline ? 'DOČASNĚ NEDOSTUPNÉ' : currentProfile ? connectedAction : 'JAK ZAČÍT ›';
+    label.classList.toggle('muted',offline||!currentProfile);
+  }
   if(offline){
     // The API may fail before the first presence request: never leave a loading label stuck.
     lastPresence=null;
@@ -115,6 +127,7 @@ function setServerOffline(offline){
   }else if(!lastPresence){
     $('onlineWaitingCount').textContent='Zjišťuji počet čekajících…';
   }
+  if(wasOffline&&!offline)window.dispatchEvent(new Event('arena:online-restored'));
 }
 async function refreshPresence(){
   if(!apiBase)return;
@@ -217,6 +230,8 @@ function showProfile(profile){
     label.textContent=action;
     label.classList.remove('muted');
   }
+  // The profile can be restored while the API is temporarily unreachable.
+  if(!document.querySelector('.server-state').hidden)setServerOffline(true);
 }
 async function googleCredential(value){
   credential=value;

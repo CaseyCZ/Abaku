@@ -167,7 +167,7 @@
 .arena-home .lobby-intro .hero-resume .online-resume-note{margin:10px 0 0;font-size:12px;color:var(--arena-muted)}
 
 /* Disabled online choices are clearly unavailable while the API is offline. */
-.arena-home .mode-card:disabled{opacity:.5;filter:grayscale(.4);cursor:not-allowed}
+.arena-home .mode-card:disabled{opacity:.82;filter:grayscale(.2);cursor:not-allowed}
 
 /* One visual language for all regular home cards and mobile navigation.
    Only the saved-match card uses a subtly brighter variant. */
@@ -200,3 +200,35 @@
   border-color:var(--arena-gold);
   background:#264570;
 }
+
+/* Homepage text follows the existing Běžná / Větší / Největší preference.
+   Raise the smallest defaults without scaling the game-board geometry. */
+.arena-home .lobby-intro .welcome,
+.arena-home .quick-rules :is(p:not(.eyebrow),ol){
+  font-size:calc(14px * var(--arena-game-text-scale));
+}
+.arena-home .mode-copy,
+.arena-home .side-card p,
+.arena-home .side-card .presence-explain,
+.arena-home .side-card .online-time-help,
+.arena-home .subline,
+.arena-home .online-presence span,
+.arena-home .home-top-player small{
+  font-size:calc(13px * var(--arena-game-text-scale));
+  line-height:1.5;
+}
+.arena-home .mode-action,
+.arena-home .home-top-link,
+.arena-home .side-card #homeTopStatus,
+.arena-home .lobby-footer{
+  font-size:calc(13px * var(--arena-game-text-scale));
+  line-height:1.4;
+}
+.arena-home .side-card #homeTopStatus{font-size:calc(14px * var(--arena-game-text-scale))}
+.arena-home .mode-action{letter-spacing:.04em}
+.arena-home .home-top-link,
+.arena-home .lobby-footer :is(.arena-privacy-link,.arena-cookie-settings){
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:44px;padding:8px 12px;
+}
+.arena-home .home-top-link{margin-top:4px}

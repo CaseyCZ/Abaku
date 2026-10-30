@@ -293,12 +293,20 @@ test('offline homepage clears stuck loading and disables online choices until re
   const start=onlineClient.indexOf('function setServerOffline(offline){');
   const end=onlineClient.indexOf('async function refreshPresence(){',start);
   assert.ok(start>=0&&end>start);
+  const makeCard=()=>{
+    const elements={'.future-ribbon':{textContent:'PO PŘIHLÁŠENÍ'},'.mode-action':{
+      textContent:'JAK ZAČÍT ›',classList:{toggle(_class,value){this.muted=value;}}
+    }};
+    return {disabled:false,elements,querySelector:selector=>elements[selector]};
+  };
   const state={onlineCount:{textContent:'9'},waitingCount:{textContent:'3'},
     onlineWaitingCount:{textContent:'Zjišťuji počet čekajících…'},
     retryServerButton:{hidden:true},
-    playRandom:{disabled:false},playFriends:{disabled:false}};
+    playRandom:makeCard(),playFriends:makeCard()};
   const indicator={hidden:true};
-  const context={document:{querySelector:()=>indicator},$:id=>state[id],lastPresence:{online:9,waiting:3}};
+  const events=[];
+  const context={document:{querySelector:()=>indicator},$:id=>state[id],lastPresence:{online:9,waiting:3},
+    currentProfile:null,window:{dispatchEvent:event=>events.push(event.type)},Event:class{constructor(type){this.type=type;}}};
   const code=onlineClient.slice(start,end);
   new Script(code+';setServerOffline(true);').runInNewContext(context);
   assert.equal(indicator.hidden,false);
@@ -308,11 +316,16 @@ test('offline homepage clears stuck loading and disables online choices until re
   assert.equal(state.waitingCount.textContent,'—');
   assert.equal(state.playRandom.disabled,true);
   assert.equal(state.playFriends.disabled,true);
+  assert.equal(state.playRandom.elements['.future-ribbon'].textContent,'SERVER OFFLINE');
+  assert.equal(state.playRandom.elements['.mode-action'].textContent,'DOČASNĚ NEDOSTUPNÉ');
   new Script(code+';setServerOffline(false);').runInNewContext(context);
   assert.equal(indicator.hidden,true);
   assert.equal(state.retryServerButton.hidden,true);
   assert.equal(state.playRandom.disabled,false);
   assert.equal(state.playFriends.disabled,false);
+  assert.equal(state.playFriends.elements['.future-ribbon'].textContent,'PO PŘIHLÁŠENÍ');
+  assert.equal(state.playRandom.elements['.mode-action'].textContent,'JAK ZAČÍT ›');
+  assert.deepEqual(events,['arena:online-restored']);
   assert.equal(state.onlineWaitingCount.textContent,'Zjišťuji počet čekajících…');
 });
 

@@ -53,3 +53,13 @@ test('changing text size persists locally, ignores unknown values and only scale
   assert.doesNotMatch(css,/\.board \.cell\s*\{/);
   assert.match(css,/font-size:max\(16px,/);
 });
+
+test('home page uses the existing text size preference for its smallest labels',()=>{
+  const home=read('../arena-home.css');
+  const html=read('../index.html');
+  assert.match(html,/game-text-size\.css\?v=/);
+  for(const selector of ['.mode-copy','.side-card .presence-explain','.subline','.lobby-footer','.home-top-link'])
+    assert.ok(home.includes(selector),`Missing readable home label: ${selector}`);
+  assert.match(home,/font-size:calc\(13px \* var\(--arena-game-text-scale\)\)/);
+  assert.match(home,/\.home-top-link,[\s\S]*?min-height:44px/);
+});

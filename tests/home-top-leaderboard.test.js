@@ -31,5 +31,6 @@ test('home page includes all-time podium and retains access to full instructions
   assert.match(page,/href="\.\/how-to-play\.html" class="gold-button hero-primary"/);
   assert.doesNotMatch(page,/<a class="header-link" href="\.\/how-to-play\.html">Jak hrát<\/a>/);
   assert.match(script,/\/api\/leaderboard\?period=all/);
+  assert.match(script,/addEventListener\('arena:online-restored',\(\)=>void loadHomeTopThree\(\)\)/);
   assert.match(css,/\.home-top-players\{[\s\S]*?grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
 });

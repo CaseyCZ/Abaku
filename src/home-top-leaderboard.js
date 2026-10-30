@@ -1,6 +1,17 @@
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.59';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.60';
 
 const MEDALS=['🥇','🥈','🥉'];
+let leaderboardRetryTimer=null;
+let latestLoad=0;
+
+function retryLeaderboardLater(){
+  if(leaderboardRetryTimer!==null)return;
+  leaderboardRetryTimer=setTimeout(()=>{
+    leaderboardRetryTimer=null;
+    if(document.visibilityState==='hidden')retryLeaderboardLater();
+    else void loadHomeTopThree();
+  },60_000);
+}
 
 // Keep exactly the same ordering and all-time period as the full leaderboard.
 export function topThreePlayers(data){
@@ -20,6 +31,7 @@ async function loadHomeTopThree(){
   const list=document.getElementById('homeTopPlayers');
   const status=document.getElementById('homeTopStatus');
   if(!list||!status)return;
+  const load=++latestLoad;
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),8000);
   try{
@@ -30,6 +42,11 @@ async function loadHomeTopThree(){
     if(!response.ok)throw Error('Leaderboard unavailable');
     const players=topThreePlayers(await response.json());
     if(!players)throw Error('Invalid leaderboard');
+    if(load!==latestLoad)return;
+    if(leaderboardRetryTimer!==null){
+      clearTimeout(leaderboardRetryTimer);
+      leaderboardRetryTimer=null;
+    }
     list.replaceChildren();
     for(const player of players){
       const item=document.createElement('li');
@@ -53,12 +70,18 @@ async function loadHomeTopThree(){
     status.textContent=players.length?'':'Zatím nejsou odehrané žádné online partie.';
     status.hidden=players.length>0;
   }catch{
+    if(load!==latestLoad)return;
     list.hidden=true;
     status.hidden=false;
     status.textContent='Celkové pořadí teď není dostupné.';
+    retryLeaderboardLater();
   }finally{
     clearTimeout(timeout);
   }
 }
 
-if(typeof document!=='undefined')void loadHomeTopThree();
+if(typeof document!=='undefined'){
+  void loadHomeTopThree();
+  // The homepage should recover after a temporary API outage without a reload.
+  window.addEventListener('arena:online-restored',()=>void loadHomeTopThree());
+}

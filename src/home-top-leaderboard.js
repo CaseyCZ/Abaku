@@ -1,4 +1,4 @@
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.56';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.57';
 
 const MEDALS=['🥇','🥈','🥉'];
 

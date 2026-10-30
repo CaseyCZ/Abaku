@@ -43,7 +43,7 @@ test('all gameplay modes have compact, accessible header icons',()=>{
   ]){
     assert.match(local,new RegExp('id="'+id+'"[^>]*><span class="nav-icon" aria-hidden="true">'+icon+'</span>'));
   }
-  for(const [id,icon] of [['onlineCancel','🏠'],['onlineSettingsButton','⚙️']]){
+  for(const [id,icon] of [['onlineCancel','🏠'],['onlineSettingsButton','⚙️'],['onlineFriendsOpen','👥']]){
     assert.match(online,new RegExp('id="'+id+'"[^>]*><span class="nav-icon" aria-hidden="true">'+icon+'</span>'));
   }
   assert.match(online,/<a href="\.\/how-to-play\.html" class="gold-button" target="_blank" rel="noopener"><span class="nav-icon" aria-hidden="true">📖<\/span>Pravidla<\/a>/);

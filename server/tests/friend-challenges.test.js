@@ -81,3 +81,14 @@ test('challenge offers expire and senders are rate limited',()=>{
     assert.equal(s.engine.matchOf('alice'),null);
   }finally{s.store.close();}
 });
+
+test('deleting an account forgets its temporary friend challenge',()=>{
+  const s=setup();
+  try{
+    s.challenges.issue('alice',s.store.get('bob').id);
+    assert.ok(s.challenges.pending('bob'));
+    s.challenges.forget('alice');
+    assert.equal(s.challenges.pending('bob'),null);
+    assert.equal(s.challenges.lastSent.has('alice'),false);
+  }finally{s.store.close();}
+});

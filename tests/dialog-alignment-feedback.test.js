@@ -13,17 +13,17 @@ test('both local and online settings center their titles, controls and collapsed
   assert.match(css,/:is\(#settingsDialog,#onlineGameSettingsDialog\) \.version-history summary \{[^}]*text-align:center/s);
 });
 
-test('both feedback forms use short labels and initially tick both checkboxes',()=>{
+test('both feedback forms use short labels and require active consent before publication',()=>{
   for(const path of ['../index.html','../game.html']){
     const page=read(path);
-    assert.match(page,/id="feedbackAttach" checked> <span>Přiložit historii partie<\/span>/);
-    assert.match(page,/id="feedbackConsent" checked required> <span>Souhlasím se zveřejněním<\/span>/);
+    assert.match(page,/id="feedbackAttach"> <span>Přiložit historii partie<\/span>/);
+    assert.match(page,/id="feedbackConsent" required> <span>Souhlasím se zveřejněním<\/span>/);
     assert.match(page,/id="feedbackDescription"[\s\S]*?id="feedbackSubmit"/);
     assert.match(page,/Popis problému i případná historie partie se veřejně zobrazí na GitHubu/);
   }
   const code=read('../src/feedback-client.js');
-  assert.match(code,/if\(attach\)attach\.checked=true/);
-  assert.match(code,/if\(consent\)consent\.checked=true/);
+  assert.match(code,/if\(attach\)attach\.checked=false/);
+  assert.match(code,/if\(consent\)consent\.checked=false/);
   const css=read('../arena-modern.css');
   assert.match(css,/#feedbackDialog \.feedback-form h2,[\s\S]*?text-align:center/);
   assert.match(css,/#feedbackDialog \.feedback-form \.feedback-check-line\{[\s\S]*?justify-content:center!important/);

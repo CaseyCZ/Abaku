@@ -1,5 +1,5 @@
-import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.65';
-import {syncResumeCard} from './resume-card.js?v=0.2.65';
+import {initOnline,getOnlineProfile,updateOnlineProfile} from './online-client.js?v=0.2.66';
+import {syncResumeCard} from './resume-card.js?v=0.2.66';
 const PROFILE_KEY = 'arena-local-profile-v1';
 const GAME_KEY = 'retro-arena-game-v1';
 const byId = id => document.getElementById(id);
@@ -82,12 +82,11 @@ byId('profileForm').addEventListener('submit',async event=>{
 byId('nickname').addEventListener('input',()=>byId('nickname').setCustomValidity(''));
 const planned={
   playRandom:'Pro náhodný online zápas se nejdříve přihlas přes Google v panelu Můj profil. Pokud přihlášení nevidíš, server může být dočasně nedostupný.',
-  playFriends:'Pro online partii se přihlas přes Google. Pak vyber přítele ze seznamu a vyzvi ho, případně se připoj pomocí kódu.',
-  googleSignIn:'Přihlášení přes Google je dočasně nedostupné. Zkus to prosím za chvíli.'
+  playFriends:'Pro online partii se přihlas přes Google. Pak vyber přítele ze seznamu a vyzvi ho, případně se připoj pomocí kódu.'
 };
 for(const [id,description] of Object.entries(planned)){
   byId(id).addEventListener('click',()=>{
-    byId('plannedTitle').textContent=id==='googleSignIn'?'Přihlášení není dostupné':'Přihlášení pro online hru';
+    byId('plannedTitle').textContent='Přihlášení pro online hru';
     byId('plannedText').textContent=description;
     byId('plannedDialog').showModal();
   });

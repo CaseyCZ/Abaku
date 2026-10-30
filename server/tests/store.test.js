@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {openStore} from '../store.js';
+import {openStore,RESULT_RETENTION_MS} from '../store.js';
 import {mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -21,6 +21,40 @@ test('profiles and statistics remain minimal',()=>{
     assert.equal(store.get('12345678902').losses,1);
     assert.equal(store.leaderboard()[0].nickname,profile.nickname);
   }finally{store.close();}
+});
+test('account deletion removes linked personal data, friends, results and sessions',()=>{
+  const s=openStore(':memory:');
+  try{
+    s.record({ids:['alice','bob'],winner:'alice',reason:'completed'});
+    const session=s.createSession('alice').sessionToken;
+    s.request('alice',s.get('bob').id);
+    s.respond('bob',s.get('alice').id,true);
+    assert.equal(s.deleteAccount('alice'),true);
+    assert.equal(s.get('alice'),undefined);
+    assert.equal(s.sessionUid(session),null);
+    assert.equal(s.friends('bob').length,0);
+    assert.equal(s.db.prepare('SELECT COUNT(*) AS count FROM match_results WHERE uid=?').get('alice').count,0);
+    assert.equal(s.get('bob').played,1,'opponent statistics must not be lost');
+    assert.equal(s.deleteAccount('alice'),false);
+  }finally{s.close();}
+});
+test('details older than 90 days are removed without changing lifetime statistics',()=>{
+  const s=openStore(':memory:');
+  try{
+    s.record({ids:['alice','bob'],winner:'alice',reason:'completed'});
+    s.record({ids:['alice','bob'],winner:'bob',reason:'completed'});
+    const firstIds=s.db.prepare('SELECT id FROM match_results ORDER BY id LIMIT 2').all();
+    const setOld=s.db.prepare('UPDATE match_results SET played_at=? WHERE id=?');
+    for(const row of firstIds)setOld.run(Date.now()-RESULT_RETENTION_MS-1000,row.id);
+    assert.equal(s.pruneOldResults(),2);
+    assert.equal(s.pruneOldResults(),0,'cleanup should be idempotent');
+    assert.equal(s.db.prepare('SELECT COUNT(*) AS count FROM match_results').get().count,2);
+    assert.equal(s.get('alice').played,2);
+    assert.equal(s.get('alice').wins,1);
+    assert.equal(s.get('bob').wins,1);
+    assert.equal(s.leaderboard(10,'month').length,2);
+    assert.equal(s.leaderboard(10,'week').length,2);
+  }finally{s.close();}
 });
 test('friend requests require recipient approval',()=>{
   const s=openStore(':memory:');

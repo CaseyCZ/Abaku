@@ -5,6 +5,7 @@ import { randomBytes, createHash } from 'node:crypto';
 
 const SESSION_TTL=30*24*60*60*1000;
 const SESSION_RENEW_BELOW=20*24*60*60*1000;
+export const RESULT_RETENTION_MS=90*24*60*60*1000;
 const sessionDigest=token=>createHash('sha256').update(token).digest('hex');
 const validSessionToken=token=>typeof token==='string'&&/^arena_[A-Za-z0-9_-]{43}$/.test(token);
 
@@ -58,6 +59,7 @@ CREATE TABLE IF NOT EXISTS settled_matches (
     lookup:db.prepare('SELECT public_id AS id,nickname,avatar,played,wins,losses,draws FROM players WHERE uid=?'),
     lookupId:db.prepare('SELECT uid FROM players WHERE public_id=?'),
     insert:db.prepare('INSERT OR IGNORE INTO players(uid,public_id,nickname) VALUES(?,?,?)'),
+    accountDelete:db.prepare('DELETE FROM players WHERE uid=?'),
     rename:db.prepare('UPDATE players SET nickname=?,avatar=? WHERE uid=?'),
     leaderboard:db.prepare(`SELECT nickname,avatar,played,wins,losses,draws
       FROM players WHERE played>0 ORDER BY (wins*1.0/played) DESC, wins DESC, played DESC LIMIT ?`),
@@ -73,6 +75,7 @@ CREATE TABLE IF NOT EXISTS settled_matches (
         wins DESC, played DESC, p.nickname COLLATE NOCASE
       LIMIT ?`),
     resultInsert:db.prepare('INSERT INTO match_results(uid,played_at,result) VALUES(?,?,?)'),
+    resultPrune:db.prepare('DELETE FROM match_results WHERE played_at<?'),
     matchSave:db.prepare(`INSERT INTO live_matches(match_id,state_json,updated_at) VALUES(?,?,?)
       ON CONFLICT(match_id) DO UPDATE SET state_json=excluded.state_json,updated_at=excluded.updated_at`),
     matchLoad:db.prepare('SELECT match_id,state_json FROM live_matches ORDER BY updated_at,match_id'),
@@ -134,6 +137,10 @@ CREATE TABLE IF NOT EXISTS settled_matches (
     }
     throw new Error('Neplatné období žebříčku.');
   };
+  // Detailed result rows are needed for weekly/monthly rankings, not forever.
+  // Lifetime counters in players remain unchanged when old rows are removed.
+  const pruneOldResults=(now=Date.now())=>statements.resultPrune.run(now-RESULT_RETENTION_MS).changes;
+  pruneOldResults();
   const ensure=uid=>{
     if(typeof uid!=='string'||!uid||uid.length>150)throw new Error('Neplatný identifikátor.');
     if (!statements.lookup.get(uid)) {
@@ -236,6 +243,8 @@ CREATE TABLE IF NOT EXISTS settled_matches (
   };
   return {
     db,ensure,rename,request,cancelRequest,respond,record,createSession,sessionUid,sessionActive,revokeSession,
+    deleteAccount:uid=>statements.accountDelete.run(uid).changes>0,
+    pruneOldResults,
     saveMatch,
     loadMatches:()=>{
       const snapshots=[];

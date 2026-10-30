@@ -79,4 +79,11 @@ export class FriendChallenges {
     for(const [uid,item] of this.byRecipient)if(!this.valid(item))this.byRecipient.delete(uid);
     for(const [uid,at] of this.lastSent)if(this.clock()-at>60_000)this.lastSent.delete(uid);
   }
+  forget(uid){
+    this.byRecipient.delete(uid);
+    for(const [recipient,item] of this.byRecipient){
+      if(item.sender===uid)this.byRecipient.delete(recipient);
+    }
+    this.lastSent.delete(uid);
+  }
 }

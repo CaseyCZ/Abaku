@@ -157,6 +157,7 @@ const clock=setInterval(()=>{engine.tick();friendChallenges.tick();
   if(now-lastSessionSweep>=60_000){
     lastSessionSweep=now;
     try{
+      for(const [token,row] of tokenCache)if(row.until<=now)tokenCache.delete(token);
       for(const ws of sockets.values()){
         const token=socketSessionTokens.get(ws);
         if(token&&!store.sessionActive(token))ws.close(1008,'Relace vypršela nebo byla odhlášena.');
@@ -171,6 +172,12 @@ const cleanupClock=setInterval(()=>reportStore.cleanup().catch(error=>
   console.error('Arena report cleanup:',error.message)),60*60_000);
 cleanupClock.unref();
 reportStore.cleanup().catch(error=>console.error('Arena report directory:',error.message));
+// Limit detailed match outcomes to 90 days without touching lifetime score counters.
+const resultCleanupClock=setInterval(()=>{
+  try{store.pruneOldResults();}
+  catch(error){console.error('Arena result cleanup:',error.message);}
+},24*60*60_000);
+resultCleanupClock.unref();
 
 const http=createServer(async(request,response)=>{
   cors(request,response);
@@ -258,6 +265,22 @@ const http=createServer(async(request,response)=>{
       return respond(response,200,{ok:true});
     }
     if(request.method==='GET'&&pathname==='/api/me')return respond(response,200,{profile:store.get(uid)});
+    if(request.method==='DELETE'&&pathname==='/api/me'){
+      const {confirm}=await body(request);
+      if(confirm!=='SMAZAT')throw new Error('Smazání účtu musí být výslovně potvrzené.');
+      // A private snapshot can contain both players' UIDs and racks. Wait for
+      // its normal cleanup, rather than corrupt an opponent's active game.
+      if([...engine.matches.values()].some(match=>match.players.some(player=>player.uid===uid)))
+        throw new Error('Účet lze smazat až po dokončení partie a krátkém vyhodnocení (nejvýše 5 minut).');
+      friendChallenges.forget(uid);
+      engine.disconnect(uid);
+      presence.remove(uid);
+      const ws=sockets.get(uid);
+      if(ws){sockets.delete(uid);ws.close(1008,'Účet byl smazán.');}
+      for(const [token,row] of tokenCache)if(row.uid===uid)tokenCache.delete(token);
+      if(!store.deleteAccount(uid))throw new Error('Profil nebyl nalezen.');
+      return respond(response,200,{ok:true});
+    }
     if(request.method==='GET'&&pathname==='/api/match/current')return respond(response,200,{match:engine.activeMatchSummary(uid)});
     if(request.method==='POST'&&pathname==='/api/me'){
       const {nickname,avatar}=await body(request);

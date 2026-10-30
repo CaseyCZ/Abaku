@@ -1,14 +1,14 @@
-import {revealArenaChat} from './arena-ui.js?v=0.2.65';
-import {syncResumeCard} from './resume-card.js?v=0.2.65';
-import { ONLINE_CONFIG } from './online-config.js?v=0.2.65';
-import { describeMovePreview,formatMovePreviewMessage } from './preview.js?v=0.2.65';
-import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.65';
-import {ScoreRecap} from './score-recap.js?v=0.2.65';
-import {createGameAudio} from './game-audio.js?v=0.2.65';
-import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.65';
-import {bindFeedback} from './feedback-client.js?v=0.2.65';
-import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.65';
-import {getTextSize,setTextSize} from './text-size.js?v=0.2.65';
+import {revealArenaChat} from './arena-ui.js?v=0.2.66';
+import {syncResumeCard} from './resume-card.js?v=0.2.66';
+import { ONLINE_CONFIG } from './online-config.js?v=0.2.66';
+import { describeMovePreview,formatMovePreviewMessage } from './preview.js?v=0.2.66';
+import { formatEquations, bonusAt, TOTAL_TILES } from './rules.js?v=0.2.66';
+import {ScoreRecap} from './score-recap.js?v=0.2.66';
+import {createGameAudio} from './game-audio.js?v=0.2.66';
+import {cacheVerifiedOnlineProfile,clearVerifiedOnlineProfile} from './player-identity.js?v=0.2.66';
+import {bindFeedback} from './feedback-client.js?v=0.2.66';
+import {remainingOnlineTurnSeconds} from './turn-deadline.js?v=0.2.66';
+import {getTextSize,setTextSize} from './text-size.js?v=0.2.66';
 
 const $=id=>document.getElementById(id);
 // Display the chess pawn as a text symbol while keeping the stored avatar value.
@@ -75,6 +75,7 @@ let reconnectTimer=null, reconnectAction=null, socketAuthenticated=false;
 let reconnects=0, lastSocketMessageAt=0;
 let socketMonitorTimer=null, onlineInitRetryTimer=null;
 let onlineInitStarted=false, onlineServerReady=false;
+let googleLoginLoading=false;
 let unreadOnlineChat=0, latestUnreadChat='';
 let pendingFriendRequestCount=0, knownFriendRequestIds=new Set();
 let resultShownFor=null, rematchRequestedByMe=false, rematchOfferFromOpponent=false;
@@ -222,6 +223,8 @@ function showProfile(profile){
   $('onlineStats').hidden=false;
   $('onlineStats').textContent='Zápasy: '+profile.played+' · Výhry: '+profile.wins+' · Úspěšnost: '+profile.winRate+' %';
   $('onlineLogout').hidden=false;
+  $('onlineDeleteAccount').hidden=false;
+  $('googleSignIn').hidden=true;
   $('googleSignInWidget').hidden=true;
   $('onlineLoginNotice').hidden=true;
   $('profileSubtitle').textContent='Google účet · online';
@@ -289,7 +292,8 @@ async function googleCredential(value){
     status(error.message,true);
     $('onlineLoginNotice').hidden=false;
     $('onlineLoginNotice').textContent='Přihlášení je neplatné nebo vypršelo. Přihlas se přes Google.';
-    $('googleSignInWidget').hidden=false;
+    $('googleSignIn').hidden=false;
+    $('googleSignInWidget').hidden=true;
     return false;
   }
 }
@@ -911,6 +915,24 @@ function renderOnline(){
   $('onlineExchange').dataset.exchangeConfirm=String(exchanging);
 }
 function initializeActions(){
+  $('googleSignIn').addEventListener('click',()=>offerGoogleSignIn());
+  $('onlineDeleteAccount').addEventListener('click',async()=>{
+    if(!credential||!currentProfile)return;
+    const confirmed=window.prompt('Opravdu trvale smazat online účet? Zmizí přezdívka, statistiky a přátelství. Místní hry zůstanou v zařízení. Pro potvrzení napiš SMAZAT:');
+    if(confirmed!=='SMAZAT')return;
+    const button=$('onlineDeleteAccount');
+    button.disabled=true;
+    try{
+      await api('/api/me','DELETE',{confirm:'SMAZAT'});
+      clearSavedCredential();
+      credential=null;currentProfile=null;
+      location.reload();
+    }catch(error){
+      status(error.message,true);
+      $('onlineLoginNotice').hidden=false;
+      $('onlineLoginNotice').textContent=error.message;
+    }finally{button.disabled=false;}
+  });
   $('onlineBoard').addEventListener('keydown',event=>{
     const delta={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[event.key];
     const cell=event.target.closest?.('.cell');
@@ -1363,6 +1385,34 @@ function renderResponsiveGoogleButton(g){
   if(typeof ResizeObserver!=='undefined')new ResizeObserver(render).observe(container);
   else window.addEventListener('resize',render,{passive:true});
 }
+async function offerGoogleSignIn(){
+  if(googleLoginLoading||credential)return;
+  if(!onlineServerReady){
+    $('onlineLoginNotice').hidden=false;
+    $('onlineLoginNotice').textContent='Online server zatím není dostupný. Zkus to za chvíli.';
+    return;
+  }
+  googleLoginLoading=true;
+  const trigger=$('googleSignIn');
+  trigger.disabled=true;
+  $('onlineLoginNotice').hidden=false;
+  $('onlineLoginNotice').textContent='Načítám Google přihlášení…';
+  try{
+    const g=await googleSdk();
+    g.initialize({client_id:ONLINE_CONFIG.googleClientId,callback:response=>googleCredential(response.credential),auto_select:false});
+    $('googleSignInWidget').hidden=false;
+    trigger.hidden=true;
+    renderResponsiveGoogleButton(g);
+    $('onlineLoginNotice').hidden=true;
+  }catch(error){
+    status(error.message,true);
+    $('googleSignInWidget').hidden=true;
+    $('onlineLoginNotice').textContent='Google přihlášení se nepodařilo načíst. Zkus to znovu.';
+  }finally{
+    googleLoginLoading=false;
+    trigger.disabled=false;
+  }
+}
 export async function initOnline(){
   if(!onlineInitStarted){
     onlineInitStarted=true;
@@ -1411,19 +1461,10 @@ export async function initOnline(){
   const saved=readSavedCredential();
   if(saved&&await googleCredential(saved))return;
 
-  $('googleSignInWidget').hidden=false;
+  // Visiting the lobby without an account must not load third-party Google JS.
+  // The dedicated sign-in button loads it only after an explicit player action.
+  $('googleSignIn').hidden=false;
+  $('googleSignInWidget').hidden=true;
   $('onlineLoginNotice').hidden=false;
-  $('onlineLoginNotice').textContent='Načítám Google přihlášení…';
-  try{
-    const g=await googleSdk();
-    g.initialize({client_id:ONLINE_CONFIG.googleClientId,callback:response=>googleCredential(response.credential),auto_select:false});
-    renderResponsiveGoogleButton(g);
-    $('onlineLoginNotice').hidden=true;
-  }catch(error){
-    status(error.message,true);
-    $('googleSignIn').hidden=false;
-    $('googleSignInWidget').hidden=true;
-    $('onlineLoginNotice').hidden=false;
-    $('onlineLoginNotice').textContent='Google přihlášení se nepodařilo načíst.';
-  }
+  $('onlineLoginNotice').textContent='Pro online hraní se přihlas přes Google.';
 }

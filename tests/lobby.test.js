@@ -27,8 +27,10 @@ test('game mode selection preserves access to local and AI play',()=>{
 });
 test('Guest mode keeps online auth optional until the Oracle API becomes available',()=>{
   assert.match(landing,/id="googleSignIn"/);
+  assert.match(landing,/id="onlineDeleteAccount"/);
   assert.match(landing,/Přihlášení pro online hru/);
-  assert.match(lobby,/googleSignIn:'Přihlášení přes Google/);
+  assert.match(onlineClient,/\$\('googleSignIn'\)\.addEventListener\('click',\(\)=>offerGoogleSignIn\(\)\)/);
+  assert.match(onlineClient,/await api\('\/api\/me','DELETE',\{confirm:'SMAZAT'\}\)/);
   assert.match(lobby,/playRandom:'Pro náhodný online zápas/);
 });
 
@@ -199,7 +201,8 @@ test('Google auth is restored from Oracle device sessions across refresh and tab
   assert.match(onlineClient,/if\(!isAppSession\(sessionToken\)\)throw/);
   assert.match(onlineClient,/credential=sessionToken;\s*saveCredential\(sessionToken\)/);
   assert.match(onlineClient,/const saved=readSavedCredential\(\);\s*if\(saved&&await googleCredential\(saved\)\)return;/);
-  assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;[\s\S]*?const g=await googleSdk\(\)/);
+  assert.match(onlineClient,/if\(saved&&await googleCredential\(saved\)\)return;/);
+  assert.match(onlineClient,/async function offerGoogleSignIn\(\)\{[\s\S]*?const g=await googleSdk\(\)/);
   assert.match(onlineClient,/const target=isAppSession\(credential\)\?'\/api\/session':'\/api\/presence'/);
   assert.match(onlineClient,/clearSavedCredential\(\)/);
   // Never persist the short-lived Google ID token to persistent storage.

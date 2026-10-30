@@ -11,20 +11,21 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.51">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.51">
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.51">
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.51">
-  <link rel="stylesheet" href="./analytics.css?v=0.2.51">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.51">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.51">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.51">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.51">
-  <link rel="stylesheet" href="./online-view.css?v=0.2.51">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.51">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.51">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.51">
-  <script src="./src/analytics.js?v=0.2.51" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.52">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.52">
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.52">
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.52">
+  <link rel="stylesheet" href="./analytics.css?v=0.2.52">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.52">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.52">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.52">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.52">
+  <link rel="stylesheet" href="./online-view.css?v=0.2.52">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.52">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.52">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.52">
+  <link rel="stylesheet" href="./welcome-guide.css?v=0.2.52">
+  <script src="./src/analytics.js?v=0.2.52" defer></script>
 </head>
 <body class="arena-home">
   <a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>
@@ -36,6 +37,7 @@
       <nav class="lobby-account site-navigation" id="siteNavigation" aria-label="Hlavní navigace">
         <a class="header-link" href="./leaderboard.html">Žebříček</a>
         <a class="header-link" href="./how-to-play.html">Jak hrát</a>
+        <button type="button" class="gold-button" id="welcomeGuideOpen" aria-haspopup="dialog" aria-controls="welcomeGuide">Průvodce</button>
         <button type="button" class="gold-button" id="lobbySettingsButton" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
         <button type="button" class="gold-button" id="friendsOpen">Přátelé<span id="friendsMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
       </nav>
@@ -94,7 +96,7 @@
       </div>
       <section class="lobby-content" aria-label="Profil a aktivita">
         <aside class="lobby-sidebar" aria-label="Profil a rozehraná hra">
-          <div class="side-card">
+          <div class="side-card" id="homeProfileCard" tabindex="-1">
             <h2>✦ Můj profil</h2>
             <div class="profile-row"><div id="profileAvatar" class="avatar">✦</div><div><strong id="profileName">Host</strong><span class="subline" id="profileSubtitle">Místní profil · bez účtu</span></div></div>
             <p id="profileDescription">Uprav si svůj profil. Výsledky online her se ukládají k tvému účtu.</p>
@@ -139,6 +141,51 @@
       <button type="button" class="arena-cookie-settings" data-cookie-settings>Nastavení cookies</button>
     </footer>
   </div>
+  <dialog id="welcomeGuide" class="welcome-guide" aria-labelledby="welcomeGuideTitle" aria-describedby="welcomeGuideIntro">
+    <div class="dialog-body welcome-guide-body">
+      <div class="welcome-guide-heading">
+        <div>
+          <p class="welcome-guide-kicker">VÍTEJ V ČÍSELNÉ ARÉNĚ</p>
+          <h2 id="welcomeGuideTitle">Jsi tu poprvé? 👋</h2>
+        </div>
+        <button type="button" class="welcome-guide-close" id="welcomeGuideClose" aria-label="Zavřít průvodce">×</button>
+      </div>
+      <p id="welcomeGuideIntro" class="welcome-guide-intro">Začni podle sebe. Účet potřebuješ jen pro online hraní, proti počítači si zahraješ i bez připojení.</p>
+      <div class="welcome-guide-steps">
+        <section class="welcome-guide-step">
+          <h3>👤 Připrav si profil</h3>
+          <p>Přihlas se přes Google, vyber si přezdívku a najdi své přátele.</p>
+          <div class="welcome-guide-links">
+            <button type="button" class="gold-button" data-welcome-action="login">Přihlásit se</button>
+            <button type="button" class="gold-button" data-welcome-action="profile">Přezdívka</button>
+            <button type="button" class="gold-button" data-welcome-action="friends">Najít přátele</button>
+          </div>
+        </section>
+        <section class="welcome-guide-step">
+          <h3>📖 Jak se to hraje?</h3>
+          <p>Projdi si pravidla, bonusová pole a praktický návod, jak skládat příklady.</p>
+          <div class="welcome-guide-links"><a class="gold-button link-button" href="./how-to-play.html" data-welcome-action="rules">Pravidla a jak hrát</a></div>
+        </section>
+        <section class="welcome-guide-step">
+          <h3>🎮 Zahraj si a potrénuj</h3>
+          <p>Nemáš připojení? Zahraj si proti počítači. Až budeš připravený, vyzvi přítele online.</p>
+          <div class="welcome-guide-links">
+            <button type="button" class="gold-button" data-welcome-action="computer">Proti počítači</button>
+            <button type="button" class="gold-button" data-welcome-action="friends">Vyzvat přítele</button>
+          </div>
+        </section>
+        <section class="welcome-guide-step">
+          <h3>⚙️ Uprav si hru</h3>
+          <p>V nastavení si můžeš vybrat vzhled desky, zvuky a další možnosti.</p>
+          <div class="welcome-guide-links"><button type="button" class="gold-button" data-welcome-action="settings">Otevřít nastavení</button></div>
+        </section>
+      </div>
+      <div class="welcome-guide-footer">
+        <label class="welcome-guide-remember" for="welcomeGuideNeverShow"><input type="checkbox" id="welcomeGuideNeverShow"> Příště již nezobrazovat</label>
+        <button type="button" class="gold-button primary" id="welcomeGuideDone">Rozumím, jdeme hrát</button>
+      </div>
+    </div>
+  </dialog>
   <dialog id="profileDialog" aria-labelledby="profileTitle">
     <form id="profileForm" method="dialog" class="dialog-body">
       <h2 id="profileTitle">Místní profil</h2>
@@ -370,10 +417,11 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/site-navigation.js?v=0.2.51"></script>
-  <script type="module" src="./src/arena-ui.js?v=0.2.51"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.51"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.51"></script>
-  <script type="module" src="./src/app-update.js?v=0.2.51"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.52"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.52"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.52"></script>
+  <script type="module" src="./src/welcome-guide.js?v=0.2.52"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.52"></script>
+  <script type="module" src="./src/app-update.js?v=0.2.52"></script>
 </body>
 </html>

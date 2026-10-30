@@ -11,21 +11,21 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/arena-apple-touch-icon.png">
   <link rel="manifest" href="./site.webmanifest">
   <meta name="apple-mobile-web-app-title" content="Číselná aréna">
-  <link rel="stylesheet" href="./style.css?v=0.2.52">
-  <link rel="stylesheet" href="./lobby.css?v=0.2.52">
-  <link rel="stylesheet" href="./result-dialog.css?v=0.2.52">
-  <link rel="stylesheet" href="./score-recap.css?v=0.2.52">
-  <link rel="stylesheet" href="./analytics.css?v=0.2.52">
-  <link rel="stylesheet" href="./arena-modern.css?v=0.2.52">
-  <link rel="stylesheet" href="./arena-layout.css?v=0.2.52">
-  <link rel="stylesheet" href="./arena-home.css?v=0.2.52">
-  <link rel="stylesheet" href="./game-chrome.css?v=0.2.52">
-  <link rel="stylesheet" href="./online-view.css?v=0.2.52">
-  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.52">
-  <link rel="stylesheet" href="./message-badges.css?v=0.2.52">
-  <link rel="stylesheet" href="./version-history.css?v=0.2.52">
-  <link rel="stylesheet" href="./welcome-guide.css?v=0.2.52">
-  <script src="./src/analytics.js?v=0.2.52" defer></script>
+  <link rel="stylesheet" href="./style.css?v=0.2.53">
+  <link rel="stylesheet" href="./lobby.css?v=0.2.53">
+  <link rel="stylesheet" href="./result-dialog.css?v=0.2.53">
+  <link rel="stylesheet" href="./score-recap.css?v=0.2.53">
+  <link rel="stylesheet" href="./analytics.css?v=0.2.53">
+  <link rel="stylesheet" href="./arena-modern.css?v=0.2.53">
+  <link rel="stylesheet" href="./arena-layout.css?v=0.2.53">
+  <link rel="stylesheet" href="./arena-home.css?v=0.2.53">
+  <link rel="stylesheet" href="./game-chrome.css?v=0.2.53">
+  <link rel="stylesheet" href="./online-view.css?v=0.2.53">
+  <link rel="stylesheet" href="./shared-game-settings.css?v=0.2.53">
+  <link rel="stylesheet" href="./message-badges.css?v=0.2.53">
+  <link rel="stylesheet" href="./version-history.css?v=0.2.53">
+  <link rel="stylesheet" href="./welcome-guide.css?v=0.2.53">
+  <script src="./src/analytics.js?v=0.2.53" defer></script>
 </head>
 <body class="arena-home">
   <a class="skip-to-content" href="#mainContent">Přejít na hlavní obsah</a>
@@ -36,7 +36,6 @@
       <button type="button" id="menuToggle" class="gold-button menu-toggle" aria-expanded="false" aria-controls="siteNavigation" aria-label="Otevřít menu">☰ Menu<span id="menuMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
       <nav class="lobby-account site-navigation" id="siteNavigation" aria-label="Hlavní navigace">
         <a class="header-link" href="./leaderboard.html">Žebříček</a>
-        <a class="header-link" href="./how-to-play.html">Jak hrát</a>
         <button type="button" class="gold-button" id="welcomeGuideOpen" aria-haspopup="dialog" aria-controls="welcomeGuide">Průvodce</button>
         <button type="button" class="gold-button" id="lobbySettingsButton" aria-haspopup="dialog" aria-controls="onlineGameSettingsDialog">Nastavení</button>
         <button type="button" class="gold-button" id="friendsOpen">Přátelé<span id="friendsMessageBadge" class="message-count-badge" hidden aria-hidden="true">1</span></button>
@@ -117,7 +116,12 @@
             <p class="presence-explain">Online = přihlášení a aktivní za poslední minutu. Hledání spojí dva hráče, kteří vyberou Náhodný soupeř.</p>
             <p id="onlineInfoText">Po připojení serveru můžeš hrát s náhodným soupeřem nebo s přítelem.</p>
             <button type="button" id="retryServerButton" class="gold-button" hidden>Zkusit připojení znovu</button>
-
+            <section class="home-top-leaderboard" aria-labelledby="homeTopTitle">
+              <h3 id="homeTopTitle">🏆 Nejlepší hráči · celkově</h3>
+              <p id="homeTopStatus" role="status" aria-live="polite">Načítám nejlepší hráče…</p>
+              <ol id="homeTopPlayers" class="home-top-players" aria-label="První tři místa celkového žebříčku" hidden></ol>
+              <a class="home-top-link" href="./leaderboard.html">Zobrazit celý žebříček →</a>
+            </section>
           </div>
         </aside>
       </section>
@@ -417,11 +421,12 @@
       </div>
     </div>
   </dialog>
-  <script type="module" src="./src/site-navigation.js?v=0.2.52"></script>
-  <script type="module" src="./src/arena-ui.js?v=0.2.52"></script>
-  <script type="module" src="./src/lobby.js?v=0.2.52"></script>
-  <script type="module" src="./src/welcome-guide.js?v=0.2.52"></script>
-  <script type="module" src="./src/version-ui.js?v=0.2.52"></script>
-  <script type="module" src="./src/app-update.js?v=0.2.52"></script>
+  <script type="module" src="./src/site-navigation.js?v=0.2.53"></script>
+  <script type="module" src="./src/arena-ui.js?v=0.2.53"></script>
+  <script type="module" src="./src/lobby.js?v=0.2.53"></script>
+  <script type="module" src="./src/home-top-leaderboard.js?v=0.2.53"></script>
+  <script type="module" src="./src/welcome-guide.js?v=0.2.53"></script>
+  <script type="module" src="./src/version-ui.js?v=0.2.53"></script>
+  <script type="module" src="./src/app-update.js?v=0.2.53"></script>
 </body>
 </html>

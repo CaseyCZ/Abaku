@@ -31,6 +31,49 @@
 .arena-home .quick-rules{max-width:1500px;margin:24px auto 0;text-align:center}
 .arena-home .quick-rules .how-to-link{justify-self:center;width:100%;text-align:center}
 .arena-home .quick-rules ol{padding-left:0;list-style-position:inside;text-align:center}
+/* Top three players share the same all-time rankings as the leaderboard page. */
+.arena-home .home-top-leaderboard{
+  min-width:0;margin-top:19px;padding-top:16px;border-top:1px solid #3d5e83;
+}
+.arena-home .home-top-leaderboard h3{
+  margin:0 0 12px;font-size:16px;color:var(--arena-gold-hi);text-align:center;
+}
+.arena-home .side-card #homeTopStatus{
+  margin:8px 0 12px;font-size:12px;color:var(--arena-muted);text-align:center;
+}
+.arena-home .home-top-players{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;
+  list-style:none;margin:0;padding:0;
+}
+.arena-home .home-top-player{
+  min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:12px 7px;border:1px solid #3b5b80;border-radius:12px;
+  background:#102747;text-align:center;
+}
+.arena-home .home-top-medal{font-size:28px;line-height:1.15}
+.arena-home .home-top-name{
+  max-width:100%;overflow-wrap:anywhere;font-size:clamp(12px,1.3vw,15px);
+  line-height:1.25;color:var(--arena-text);
+}
+.arena-home .home-top-success{
+  color:var(--arena-gold-hi);font-size:19px;line-height:1.2;font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+.arena-home .home-top-player small{
+  font-size:11px;line-height:1.35;color:var(--arena-muted);
+}
+.arena-home .home-top-link{
+  display:inline-block;margin-top:12px;color:var(--arena-gold-hi);
+  font-size:12px;font-weight:700;text-decoration:underline;
+}
+@media(max-width:420px){
+  .arena-home .home-top-players{gap:6px}
+  .arena-home .home-top-player{padding:10px 4px}
+  .arena-home .home-top-medal{font-size:25px}
+  .arena-home .home-top-name{font-size:12px}
+  .arena-home .home-top-success{font-size:17px}
+  .arena-home .home-top-player small{font-size:10px}
+}
 /* Compact, responsive settings. Help and diagnostics remain accessible on demand. */
 #onlineGameSettingsDialog{width:min(94vw,580px);max-height:calc(100dvh - 24px)}
 #onlineGameSettingsDialog .online-game-settings-body{padding:16px 18px;gap:9px;text-align:left}

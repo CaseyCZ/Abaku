@@ -1,4 +1,4 @@
-import {ONLINE_CONFIG} from './online-config.js?v=0.2.64';
+import {ONLINE_CONFIG} from './online-config.js?v=0.2.65';
 
 const MEDALS=['🥇','🥈','🥉'];
 let leaderboardRetryTimer=null;

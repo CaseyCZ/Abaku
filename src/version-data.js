@@ -1,7 +1,12 @@
 // Single source of visible application version and release notes.
 // Keep package.json in sync; tests verify they match.
-export const APP_VERSION = '0.2.64';
+export const APP_VERSION = '0.2.65';
 export const RELEASE_HISTORY = Object.freeze([
+  {
+    version: '0.2.65',
+    date: '30. 10. 2026',
+    description: 'V celkovém žebříčku se při prvním načtení nezobrazuje vysvětlení týdenních a měsíčních statistik. To se ukáže jen po výběru týdne nebo měsíce; pořadí a bodování se nemění.'
+  },
   {
     version: '0.2.64',
     date: '30. 10. 2026',

@@ -1,7 +1,7 @@
 // Sequential scoring display shared by local and online matches.
 // It only visualises points already calculated by validateMove on the client
 // or the authoritative server. It never changes the saved/player score.
-import {formatEquations} from './rules.js?v=0.2.64';
+import {formatEquations} from './rules.js?v=0.2.65';
 
 // Local players choose their duration; online matches always use three seconds.
 export const RECAP_SECONDS_OPTIONS=Object.freeze([0,2,3,5]);

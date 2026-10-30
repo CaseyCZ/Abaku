@@ -127,7 +127,7 @@
   .menu-toggle{display:inline-flex;align-items:center;justify-content:center;margin-left:auto;min-height:44px}
   .site-navigation{display:none;flex:0 0 100%;width:100%;padding-top:10px;border-top:1px solid #365578}
   .site-navigation.is-open{display:flex;flex-direction:column;align-items:stretch;gap:7px}
-  .site-navigation a,.site-navigation button{text-align:left;justify-content:flex-start;width:100%;min-height:44px}
+  .site-navigation a,.site-navigation button{display:flex;align-items:center;text-align:center;justify-content:center;width:100%;min-height:44px}
   .home-start{grid-template-columns:minmax(0,1fr);gap:18px}
   .arena-home .lobby-intro{padding:0;gap:10px}
   .arena-home .lobby-intro h1{font-size:clamp(32px,7vw,46px)}

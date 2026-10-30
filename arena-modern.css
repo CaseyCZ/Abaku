@@ -57,6 +57,7 @@ button:disabled{cursor:not-allowed;opacity:.5}
   background:linear-gradient(170deg,#ffedb8,#ffce71 56%,#e6ad4c);border-color:#ffefc9;
 }
 .gold-button.small{font-size:12px;padding:8px 12px;min-height:40px}
+.nav-icon{display:inline-block;width:1.4em;margin-right:6px;text-align:center;line-height:1;vertical-align:middle;font-size:1.1em}
 /* Confirming a tile exchange shares the cyan color of selected exchange tiles. */
 #exchangeButton[data-exchange-confirm="true"],
 #onlineDialog #onlineExchange[data-exchange-confirm="true"]{

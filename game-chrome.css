@@ -122,8 +122,8 @@
   }
   .game-app .top-bar .game-navigation.is-open{display:flex}
   .game-app .top-bar .game-navigation .gold-button{
-    display:flex;align-items:center;justify-content:flex-start;
-    width:100%;min-height:44px;text-align:left;
+    display:flex;align-items:center;justify-content:center;
+    width:100%;min-height:44px;text-align:center;
     font-size:13px;padding:9px 12px;
   }
   .game-app .top-bar > .bag-count{
@@ -334,8 +334,8 @@
   }
   .game-app .top-bar .game-navigation.is-open{display:flex}
   .game-app .top-bar .game-navigation .gold-button{
-    display:flex;align-items:center;justify-content:flex-start;
-    width:100%;min-height:44px;text-align:left;
+    display:flex;align-items:center;justify-content:center;
+    width:100%;min-height:44px;text-align:center;
     font-size:13px;padding:9px 12px;
   }
   .game-app .top-bar:has(.game-navigation.is-open) > .bag-count{grid-row:3}

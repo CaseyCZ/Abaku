@@ -1,7 +1,7 @@
 /* Číselná aréna / How to play — modern navy + gold, touch first. */
 .tutorial-page{width:min(100% - 30px,1130px);margin:25px auto 55px;display:flex;flex-direction:column;gap:22px}
 .tutorial-header-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
-.tutorial-header-actions a{text-decoration:none}
+.tutorial-header-actions a{text-decoration:none;text-align:center}
 .tutorial-hero{
   padding:clamp(20px,3.5vw,41px);
   border:1px solid #345779;border-radius:19px;
@@ -124,6 +124,7 @@
   .tutorial-demo{grid-template-columns:1fr}
 }
 @media(max-width:580px){
+  .tutorial-header-actions{justify-content:center}
   .tutorial-page{width:calc(100% - 18px);margin:12px auto 30px;gap:12px}
   .tutorial-section{padding:14px}
   .tutorial-section-heading{gap:9px}

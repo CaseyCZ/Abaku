@@ -1,4 +1,4 @@
-import {APP_VERSION} from './version-data.js?v=0.2.53';
+import {APP_VERSION} from './version-data.js?v=0.2.54';
 
 const CHECK_INTERVAL_MS=5*60*1000;
 const MIN_CHECK_GAP_MS=60*1000;
